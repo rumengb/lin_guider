@@ -46,6 +46,10 @@ namespace video_drv
 #define QHY5II_WIDTH_B3		640
 #define QHY5II_HEIGHT_B3	480
 
+#define QHY5II_WIDTH_B4         800
+#define QHY5II_HEIGHT_B4        600
+
+
 // QHY5II
 #define QHY5II_MATRIX_WIDTH    1280
 #define QHY5II_MATRIX_HEIGHT   1024
@@ -128,6 +132,7 @@ private:
 	int m_wbblue; //Used to set the white balance
 	int m_wbgreen;
 	int m_wbred;
+	unsigned char *m_rgb_buf;
 
 	bool m_qhy5iiDeNoise;
 

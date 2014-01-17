@@ -27,6 +27,7 @@ HEADERS += include/io_dev/io_qhy5ii.h \
     include/video_dev/video_qhy5.h \
     include/video_dev/video_pwc.h \
     include/video_dev/video_uvc.h \
+    include/bayer.h \
     include/lusb.h \
     include/video_dev/qhy5_core.h \
     include/server.h \
@@ -71,6 +72,7 @@ SOURCES += src/io_dev/io_qhy5ii.cpp \
     src/video_dev/video_qhy5.cpp \
     src/video_dev/video_pwc.cpp \
     src/video_dev/video_uvc.cpp \
+    src/bayer.cpp \
     src/lusb.cpp \
     src/video_dev/qhy5_core.cpp \
     src/server.cpp \

@@ -37,6 +37,7 @@
 #include "utils.h"
 #include "maindef.h"
 #include "lusb.h"
+#include "bayer.h"
 
 namespace video_drv
 {
@@ -63,13 +64,14 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_width( 0 ),
 	m_height( 0 ),
 	m_transfer_bit( 8 ),
+	m_rgb_buf( NULL ),
 	m_bin( 11 ),
 	m_transfer_speed( 0 ),
-	m_usb_traf( 30 ),
+	m_usb_traf( 0 ),
 
-	m_wbblue( 1 ),
-	m_wbgreen( 1 ),
-	m_wbred( 1 ),
+	m_wbblue( 100 ),
+	m_wbgreen( 40 ),
+	m_wbred( 85 ),
 
 	m_qhy5iiDeNoise( false )
 {
@@ -180,40 +182,73 @@ int cvideo_qhy5ii::get_vcaps( void )
 		pt.x = QHY5II_WIDTH_B3;
 		pt.y = QHY5II_HEIGHT_B3;
 		device_formats[0].frame_table[ i ].size =  pt;
-		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 4, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 2, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 1, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 1, 2 );
-		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 3 );
-		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 4 );
-		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
-		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 4, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 3, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 2, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 2 );
+		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 3 );
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 4 );
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
+		#ifndef __arm__
+		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 10 );
+		#endif
+		i++;
+
+		pt.x = QHY5II_WIDTH_B4;
+		pt.y = QHY5II_HEIGHT_B4;
+		device_formats[0].frame_table[ i ].size =  pt;
+		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 4, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 3, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 2, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 2 );
+		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 3 );
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 4 );
+		#ifndef __arm__
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
+		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 10 );
+		#endif
 		i++;
 
 		pt.x = QHY5LII_WIDTH_B2;
 		pt.y = QHY5LII_HEIGHT_B2;
 		device_formats[0].frame_table[ i ].size =  pt;
-		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 4, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 2, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 1, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 1, 2 );
-		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 3 );
-		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 4 );
-		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
-		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 4, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 3, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 2, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 2 );
+		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 3 );
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 4 );
+		#ifndef __arm__
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
+		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 10 );
+		#endif
 		i++;
 
 		pt.x = QHY5LII_WIDTH_B1;
 		pt.y = QHY5LII_HEIGHT_B1;
 		device_formats[0].frame_table[ i ].size =  pt;
-		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 4, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 2, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 1, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 1, 2 );
-		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 3 );
-		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 4 );
-		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
-		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 4, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 3, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 2, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 2 );
+		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 3 );
+		#ifndef __arm__
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 4 );
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
+		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 10 );
+		#endif
 		i++;
 	}
 	else
@@ -343,7 +378,13 @@ int cvideo_qhy5ii::init_device( void )
 	m_usb_traf = 30;
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
-		m_usb_traf = 30;
+		#ifdef __arm__
+			log_i("arm");
+			m_usb_traf = 40;
+		#else
+			log_i("not arm");
+			m_usb_traf = 5;
+		#endif
 	}
 	else
 	if( m_dev_type == DEVICETYPE_QHY5II )
@@ -352,8 +393,11 @@ int cvideo_qhy5ii::init_device( void )
 	}
 
 	set_transfer_bit( 8 );
-	set_speed( false );
-
+	#ifdef __arm__
+		set_speed( false );
+	#else
+		set_speed( true );
+	#endif
 	set_resolution( capture_params.width, capture_params.height );
 	set_gain( capture_params.gain );
 	set_usb_traffic( m_usb_traf );
@@ -381,6 +425,17 @@ int cvideo_qhy5ii::init_device( void )
 		return EXIT_FAILURE;
 	}
 
+	if(m_is_color)
+	{
+		m_rgb_buf = (unsigned char *)malloc( m_data_size *3 );
+		if( !m_rgb_buf )
+		{
+			log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
+			free( buffers );
+			return EXIT_FAILURE;
+		}
+	}
+
 	get_autogain();
 	get_gain();
 	get_exposure();
@@ -402,6 +457,13 @@ int cvideo_qhy5ii::uninit_device( void )
 		}
 		free( buffers );
 		buffers = NULL;
+
+		if ( m_rgb_buf )
+		{
+			free( m_rgb_buf );
+			m_rgb_buf = NULL;
+		}
+
 	}
 
 	return EXIT_SUCCESS;
@@ -438,6 +500,15 @@ int cvideo_qhy5ii::read_frame( void )
     	if( ppat )
     		log_i( "PTRN found" );
     }
+
+	// If the camera is color version debayer and convert to BW
+	if ((m_is_color) && (m_rgb_buf))
+	{
+		unsigned char * buf = buffers[0].start.ptr8;
+		bayer_to_rgb24(buf, m_rgb_buf, m_width, m_height, PIX_FMT_SGRBG8);
+		for (int i = 0; i < m_data_size * 3; i += 3)
+			buf[i/3] = (m_rgb_buf[i] + m_rgb_buf[i+1] + m_rgb_buf[i+2]) / 3;
+	}
 
 	// synchronize data with GUI
 	void *ptr =  buffers[0].start.ptr8;
@@ -648,18 +719,24 @@ int cvideo_qhy5ii::set_gain( unsigned short gain )
 
 	m_qhy5ii_obj->lock();
 
+	/* Ugly fix: during the long exposures setting gain often freezes the camera.
+	   stopping video mode before gain setup seems to fix this */
+	stop_video_mode();
+
 	bool err = false;
 	if( m_dev_type == DEVICETYPE_QHY5LII )
-        SetQHY5LIIGain( gain );
-    else
-    if( m_dev_type == DEVICETYPE_QHY5II )
-        SetQHY5IIGain( gain );
-    else
-       	err = true;
+		SetQHY5LIIGain( gain );
+	else
+	if( m_dev_type == DEVICETYPE_QHY5II )
+		SetQHY5IIGain( gain );
+	else
+		err = true;
+
+	start_video_mode();
 
 	m_qhy5ii_obj->unlock();
 
-    return err? EXIT_FAILURE : EXIT_SUCCESS;
+	return err? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 
@@ -671,14 +748,17 @@ double cvideo_qhy5ii::get_temperature( void )
 	double slope;
 	double T0;
 	uint16_t sensed, calib1, calib2;
+	// start measuring
 	I2CTwoWrite(0x30B4, 0x0011);
-	sensed = I2CTwoRead(0x30B2);
+	// reading the calibration params gives just enough time
 	calib1 = I2CTwoRead(0x30C6);
 	calib2 = I2CTwoRead(0x30C8);
-	I2CTwoWrite(0x30B4, 0x0000);
-
 	slope = (70.0 - 55.0)/(calib1 - calib2);
 	T0 = (slope*calib1 - 70.0);
+	// stop measuring
+	I2CTwoWrite(0x30B4, 0x0000);
+
+	sensed = I2CTwoRead(0x30B2);
 
 //	printf("calib1 = 0x%x\n", calib1);
 //	printf("calib2 = 0x%x\n", calib2);

@@ -221,7 +221,6 @@ int qhy5ii_core_shared::get_dev_info( int *dev_type, bool *is_color )
 	}
 	else
 		*dev_type = DEVICETYPE_UNKOWN;
-
 	return EXIT_SUCCESS;
 }
 
@@ -237,32 +236,75 @@ int qhy5ii_core_shared::get_frame( unsigned char *data, unsigned int data_size, 
 
 	int transfered = 0;
 	int try_cnt = 0;
-#if 0
-	{
-		int pos = 0;
-		int to_read = data_size;
-		{
-			while( to_read )
-			{
-				int ret = libusb_bulk_transfer( m_handle, QHYCCD_DATA_READ_ENDPOINT, data+pos, to_read, &transfered, std::max((int)exposure_tout+1500, 2000) );
-				if( ret != LIBUSB_SUCCESS )
-				{
-					return EXIT_FAILURE;
-					log_e( "read: %d, ret: %d, %s", transfered, ret, strerror(errno) );
-					if( try_cnt < 3 )
-					{
-						try_cnt++;
-						continue;
-					}
-					return EXIT_FAILURE;
-				}
+#if 1
+	int pos = 0;
+	int to_read = data_size + 5;
 
-				pos += transfered;
-				to_read -= transfered;
+	while( to_read )
+	{
+		int ret = libusb_bulk_transfer( m_handle, QHYCCD_DATA_READ_ENDPOINT, data + pos,
+			to_read, &transfered, (int)exposure_tout + 1500);
+
+		if( ret != LIBUSB_SUCCESS )
+		{
+			if ( DBG_VERBOSITY )
+				log_i("Retrying frame! read: %d, ret: %d.", transfered, ret);
+
+			if( try_cnt > 3 )
+			{
+				log_e("Frame Failed! bytes read: %d, ret: %d.", transfered, ret);
+				return EXIT_FAILURE;
 			}
-			log_i( "get_frame(): read: %d bytes", pos );
+			try_cnt++;
+                        continue;
 		}
+
+		pos += transfered;
+		to_read -= transfered;
+
+		/* Here we are using the pattern as a frame delimiter. If we still have bytes
+		   to read and the pattern is found then the frames are missalined and we are at
+		   the end of the previous framefram We have to start agin.
+		*/
+		unsigned char pat[4] = {0xaa, 0x11, 0xcc, 0xee};
+		void *ppat = memmem(data+pos-5, 4, pat, 4);
+
+		if ((to_read) && (ppat))
+		{
+			if( DBG_VERBOSITY )
+				log_i("#### Aligning frame, pos=%d, to_read=%d.", pos, to_read);
+			pos = 0;
+			to_read = data_size + 5;
+			continue;
+		}
+		/* If by accident to_read is 0 and we are not at the end of the frame
+		   we have missed the alignment pattern, so look for the next one.
+		*/
+		if ((to_read <= 0) && (ppat == NULL))
+		{
+			if ( DBG_VERBOSITY )
+				log_i("Frame sems to be invalid, retrying!");
+
+			if( try_cnt > 3 )
+			{
+				log_e("Frame Failed - no pattern found!");
+				return EXIT_FAILURE;
+			}
+			pos = 0;
+			to_read = data_size + 5;
+			try_cnt++;
+			continue;
+		}
+
+		if( DBG_VERBOSITY )
+			log_i("Read: %d of %d, try_cnt=%d, result=%d.", transfered, to_read + transfered, try_cnt, ret);
 	}
+
+	if( DBG_VERBOSITY )
+		log_i( "Frame succeded: %d bytes", pos );
+
+	return EXIT_SUCCESS;
+}
 #else
 	{
 		data_size += 5;
@@ -283,10 +325,9 @@ int qhy5ii_core_shared::get_frame( unsigned char *data, unsigned int data_size, 
 			return EXIT_FAILURE;
 		}
 	}
-#endif
-
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
+#endif
 
 
 int qhy5ii_core_shared::guide( int direction )
