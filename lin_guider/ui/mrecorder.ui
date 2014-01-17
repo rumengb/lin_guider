@@ -1,0 +1,125 @@
+<ui version="4.0" >
+ <class>mrecorderClass</class>
+ <widget class="QDialog" name="mrecorderClass" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>310</width>
+    <height>100</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>310</width>
+    <height>100</height>
+   </size>
+  </property>
+  <property name="maximumSize" >
+   <size>
+    <width>310</width>
+    <height>100</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>mrecorder</string>
+  </property>
+  <widget class="QGroupBox" name="groupBox_Record" >
+   <property name="geometry" >
+    <rect>
+     <x>10</x>
+     <y>0</y>
+     <width>291</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="title" >
+    <string>Movie recorder</string>
+   </property>
+   <widget class="QLineEdit" name="lineEdit_FileName" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>151</width>
+      <height>22</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="l_1" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>271</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>File name (without path and extension)</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Record" >
+    <property name="geometry" >
+     <rect>
+      <x>170</x>
+      <y>40</y>
+      <width>51</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>REC</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Stop" >
+    <property name="geometry" >
+     <rect>
+      <x>230</x>
+      <y>40</y>
+      <width>51</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>Stop</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="l_2" >
+    <property name="geometry" >
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="frameShape" >
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="frameShadow" >
+     <enum>QFrame::Plain</enum>
+    </property>
+    <property name="text" >
+     <string>Frame number:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="l_FrameCnt" >
+    <property name="geometry" >
+     <rect>
+      <x>110</x>
+      <y>70</y>
+      <width>61</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text" >
+     <string>0</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <resources/>
+ <connections/>
+</ui>
