@@ -133,7 +133,7 @@ bool mrecorder::set_video_params( u_char *pvid, int vid_wd, int vid_ht )
 		free( v_buf );
 	v_buf = (u_char *)malloc( video_width * video_height * 3 );
 
-	srow_len = video_width*sizeof(long);
+	srow_len = video_width*4;
 	drow_len = video_width*3;
 
  return true;
