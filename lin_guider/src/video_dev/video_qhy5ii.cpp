@@ -64,7 +64,6 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_width( 0 ),
 	m_height( 0 ),
 	m_transfer_bit( 8 ),
-	m_rgb_buf( NULL ),
 	m_bin( 11 ),
 	m_transfer_speed( 0 ),
 	m_usb_traf( 0 ),
@@ -72,6 +71,8 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_wbblue( 100 ),
 	m_wbgreen( 40 ),
 	m_wbred( 85 ),
+
+	m_rgb_buf( NULL ),
 
 	m_qhy5iiDeNoise( false )
 {
@@ -506,8 +507,8 @@ int cvideo_qhy5ii::read_frame( void )
 	{
 		unsigned char * buf = buffers[0].start.ptr8;
 		bayer_to_rgb24(buf, m_rgb_buf, m_width, m_height, PIX_FMT_SGRBG8);
-		for (int i = 0; i < m_data_size * 3; i += 3)
-			buf[i/3] = (m_rgb_buf[i] + m_rgb_buf[i+1] + m_rgb_buf[i+2]) / 3;
+		for( int i = 0, ii = 0;ii < m_data_size;i += 3, ii++ )
+			buf[ii] = (m_rgb_buf[i] + m_rgb_buf[i+1] + m_rgb_buf[i+2]) / 3;
 	}
 
 	// synchronize data with GUI
