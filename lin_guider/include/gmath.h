@@ -48,6 +48,8 @@ class common_params;
 // core constants
 #define RA	0
 #define DEC	1
+#define SGN_POS  0
+#define SGN_NEG  1
 #define CHANNEL_CNT	2
 #define DEFAULT_SQR	1
 
@@ -136,7 +138,8 @@ public:
 
 	int       threshold_alg_idx;
 	double    guiding_rate;
-	bool      enabled[CHANNEL_CNT];
+	bool      enabled_dir[CHANNEL_CNT];
+	bool      enabled_dir_sign[CHANNEL_CNT][CHANNEL_CNT];
 	bool      average;
 	uint32_t  accum_frame_cnt[CHANNEL_CNT];
 	double    proportional_gain[CHANNEL_CNT];
@@ -197,6 +200,7 @@ public:
 	void set_q_control_index( int idx );
 	cproc_in_params *get_in_params( void );
 	void set_in_params( const cproc_in_params *v );
+	void calc_dir_checker( void );
 	const cproc_out_params *get_out_params( void ) const;
 	info_params_t get_info_params( void ) const;
 	uint32_t get_ticks( void ) const;
@@ -270,6 +274,7 @@ private:
 	uint32_t  accum_ticks[2];
 	double *drift[2];
 	double drift_integral[2];
+	io_drv::guide_dir dir_checker[5];
 	
 	// overlays...
 	ovr_params_t overlays;

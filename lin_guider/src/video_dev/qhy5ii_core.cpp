@@ -189,7 +189,11 @@ int qhy5ii_core_shared::get_dev_info( int *dev_type, bool *is_color )
 {
 #ifdef NO_QHY5II
 	if( m_handle == NULL )
+	{
+		*dev_type = DEVICETYPE_QHY5LII;
+		*is_color = false;
 		return EXIT_SUCCESS;
+	}
 #endif
 
 	assert( m_handle != NULL );
@@ -283,7 +287,7 @@ int qhy5ii_core_shared::get_frame( unsigned char *data, unsigned int data_size, 
 		if ((to_read <= 0) && (ppat == NULL))
 		{
 			if ( DBG_VERBOSITY )
-				log_i("Frame sems to be invalid, retrying!");
+				log_i("Frame seems to be invalid, retrying!");
 
 			if( try_cnt > 3 )
 			{
@@ -332,6 +336,13 @@ int qhy5ii_core_shared::get_frame( unsigned char *data, unsigned int data_size, 
 
 int qhy5ii_core_shared::guide( int direction )
 {
+#ifdef NO_QHY5II
+	if( m_handle == NULL )
+		return EXIT_SUCCESS;
+#endif
+
+	assert( m_handle != NULL );
+
 	int ret = EXIT_SUCCESS;
 
 	//log_i("direction = 0x%.2X", direction );

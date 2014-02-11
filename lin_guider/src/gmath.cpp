@@ -106,6 +106,8 @@ cgmath::cgmath( const common_params &comm_params ) :
 	memset( drift[DEC], 0, sizeof(double)*MAX_ACCUM_CNT );
 	drift_integral[RA] = drift_integral[DEC] = 0;
 
+	calc_dir_checker();
+
 	// statistics
 	do_statistics = true;
 	sum = sqr_sum = 0;
@@ -257,22 +259,27 @@ void cgmath::set_in_params( const cproc_in_params *v )
 {
 	//in_params.threshold_alg_idx     = v->threshold_alg_idx;
 	set_square_algorithm_index( v->threshold_alg_idx );
-	in_params.guiding_rate 			= v->guiding_rate;
-	in_params.enabled[RA] 			= v->enabled[RA];
-	in_params.enabled[DEC] 			= v->enabled[DEC];
-	in_params.average 				= v->average;
-	in_params.accum_frame_cnt[RA] 	= v->accum_frame_cnt[RA];
-	in_params.accum_frame_cnt[DEC] 	= v->accum_frame_cnt[DEC];
-	in_params.proportional_gain[RA] = v->proportional_gain[RA];
-	in_params.proportional_gain[DEC] = v->proportional_gain[DEC];
-	in_params.integral_gain[RA] 	= v->integral_gain[RA];
-	in_params.integral_gain[DEC] 	= v->integral_gain[DEC];
-	in_params.derivative_gain[RA] 	= v->derivative_gain[RA];
-	in_params.derivative_gain[DEC] 	= v->derivative_gain[DEC];
-	in_params.max_pulse_length[RA] 	= v->max_pulse_length[RA];
-	in_params.max_pulse_length[DEC] = v->max_pulse_length[DEC];
-	in_params.min_pulse_length[RA]	= v->min_pulse_length[RA];
-	in_params.min_pulse_length[DEC]	= v->min_pulse_length[DEC];
+	in_params.guiding_rate 			         	= v->guiding_rate;
+	in_params.enabled_dir[RA] 		         	= v->enabled_dir[RA];
+	in_params.enabled_dir[DEC]		         	= v->enabled_dir[DEC];
+	in_params.enabled_dir_sign[RA][SGN_POS]	 	= v->enabled_dir_sign[RA][SGN_POS];
+	in_params.enabled_dir_sign[RA][SGN_NEG]	 	= v->enabled_dir_sign[RA][SGN_NEG];
+	in_params.enabled_dir_sign[DEC][SGN_POS] 	= v->enabled_dir_sign[DEC][SGN_POS];
+	in_params.enabled_dir_sign[DEC][SGN_NEG]	= v->enabled_dir_sign[DEC][SGN_NEG];
+	calc_dir_checker();
+	in_params.average 							= v->average;
+	in_params.accum_frame_cnt[RA] 				= v->accum_frame_cnt[RA];
+	in_params.accum_frame_cnt[DEC] 				= v->accum_frame_cnt[DEC];
+	in_params.proportional_gain[RA]  			= v->proportional_gain[RA];
+	in_params.proportional_gain[DEC] 			= v->proportional_gain[DEC];
+	in_params.integral_gain[RA] 				= v->integral_gain[RA];
+	in_params.integral_gain[DEC] 				= v->integral_gain[DEC];
+	in_params.derivative_gain[RA] 				= v->derivative_gain[RA];
+	in_params.derivative_gain[DEC] 				= v->derivative_gain[DEC];
+	in_params.max_pulse_length[RA] 				= v->max_pulse_length[RA];
+	in_params.max_pulse_length[DEC] 			= v->max_pulse_length[DEC];
+	in_params.min_pulse_length[RA]				= v->min_pulse_length[RA];
+	in_params.min_pulse_length[DEC]				= v->min_pulse_length[DEC];
 	set_q_control_index( v->q_control_idx );
 	in_params.quality_threshold1    = v->quality_threshold1;
 	in_params.quality_threshold2    = v->quality_threshold2;
@@ -280,6 +287,28 @@ void cgmath::set_in_params( const cproc_in_params *v )
 	// need to check ranges (range values are Sigmas, so may be hardcoded)
 	if( in_params.stability_limit_factor < 1.0 ) in_params.stability_limit_factor = 1.0;
 	if( in_params.stability_limit_factor > 3.0 ) in_params.stability_limit_factor = 3.0;
+}
+
+
+void cgmath::calc_dir_checker( void )
+{
+	dir_checker[ io_drv::NO_DIR ] = io_drv::NO_DIR;
+
+	if( in_params.enabled_dir[RA] )
+	{
+		dir_checker[ io_drv::RA_INC_DIR ] = in_params.enabled_dir_sign[RA][SGN_POS] ? io_drv::RA_INC_DIR : io_drv::NO_DIR;
+		dir_checker[ io_drv::RA_DEC_DIR ] = in_params.enabled_dir_sign[RA][SGN_NEG] ? io_drv::RA_DEC_DIR : io_drv::NO_DIR;
+	}
+	else
+		dir_checker[ io_drv::RA_INC_DIR ] = dir_checker[ io_drv::RA_DEC_DIR ] = io_drv::NO_DIR;
+
+	if( in_params.enabled_dir[DEC] )
+	{
+		dir_checker[ io_drv::DEC_INC_DIR ] = in_params.enabled_dir_sign[DEC][SGN_POS] ? io_drv::DEC_INC_DIR : io_drv::NO_DIR;
+		dir_checker[ io_drv::DEC_DEC_DIR ] = in_params.enabled_dir_sign[DEC][SGN_NEG] ? io_drv::DEC_DEC_DIR : io_drv::NO_DIR;
+	}
+	else
+		dir_checker[ io_drv::DEC_INC_DIR ] = dir_checker[ io_drv::DEC_DEC_DIR ] = io_drv::NO_DIR;
 }
 
 
@@ -958,7 +987,7 @@ void cgmath::process_axes( void  )
  		out_params.pulse_length[k] = out_params.pulse_length[k] <= in_params.max_pulse_length[k] ? out_params.pulse_length[k] : in_params.max_pulse_length[k];
 
  		// calc direction
- 		if( !in_params.enabled[k] )
+ 		if( !in_params.enabled_dir[k] )
  		{
  			out_params.pulse_dir[k] = io_drv::NO_DIR;
  			continue;
@@ -966,29 +995,29 @@ void cgmath::process_axes( void  )
 
  		if( out_params.pulse_length[k] >= in_params.min_pulse_length[k] )
  		{
+ 			io_drv::guide_dir dir = io_drv::NO_DIR;
  			if( k == RA )
- 				out_params.pulse_dir[k] = out_params.delta[k] > 0 ? io_drv::RA_DEC_DIR : io_drv::RA_INC_DIR;   // RA. right dir - decreases RA
+ 				dir = out_params.delta[k] > 0 ? io_drv::RA_DEC_DIR : io_drv::RA_INC_DIR;   // RA. right dir - decreases RA
  			else
- 				out_params.pulse_dir[k] = out_params.delta[k] > 0 ? io_drv::DEC_INC_DIR : io_drv::DEC_DEC_DIR; // DEC.
+ 				dir = out_params.delta[k] > 0 ? io_drv::DEC_INC_DIR : io_drv::DEC_DEC_DIR; // DEC.
+
+ 			out_params.pulse_dir[k] = dir_checker[ dir ];
+ 			//log_i("CK_DIR: %d", out_params.pulse_dir[k]);
  		}
  		else
  			out_params.pulse_dir[k] = io_drv::NO_DIR;
-
  	}
 }
 
 
 void cgmath::do_processing( void )
 {
-	Vector arc_star_pos, arc_reticle_pos, pos, p;
-
  	// do nothing if suspended
  	if( suspended )
  		return;
 
 	// find guiding star location in
  	scr_star_pos = star_pos = find_star_local_pos();
-
 
 	// move square overlay
  	//move_square( round(star_pos.x) - (double)square_size/2, round(star_pos.y) - (double)square_size/2 );
@@ -1000,8 +1029,8 @@ void cgmath::do_processing( void )
 	// translate star coords into sky coord. system
 
 	// convert from pixels into arcsecs
-	arc_star_pos 	= point2arcsec( star_pos );
-	arc_reticle_pos = point2arcsec( reticle_pos );
+	Vector arc_star_pos    = point2arcsec( star_pos );
+	Vector arc_reticle_pos = point2arcsec( reticle_pos );
 
 	// translate into sky coords.
 	star_pos = arc_star_pos - arc_reticle_pos;
@@ -1303,13 +1332,15 @@ void cproc_in_params::reset( void )
 
 	for( int k = RA;k <= DEC;k++ )
 	{
-		enabled[k] 			 = true;
-		accum_frame_cnt[k] 	 = 1;
-		proportional_gain[k] = cgmath::precalc_proportional_gain( guiding_rate );
-		integral_gain[k] 	 = 0;
-		derivative_gain[k] 	 = 0;
-		max_pulse_length[k]  = 5000;
-		min_pulse_length[k]  = 100;
+		enabled_dir[k] 				 = true;
+		enabled_dir_sign[k][SGN_POS] = true;
+		enabled_dir_sign[k][SGN_NEG] = true;
+		accum_frame_cnt[k] 	         = 1;
+		proportional_gain[k]         = cgmath::precalc_proportional_gain( guiding_rate );
+		integral_gain[k] 	         = 0;
+		derivative_gain[k] 	         = 0;
+		max_pulse_length[k]          = 5000;
+		min_pulse_length[k]          = 100;
 	}
 
 	q_control_idx = Q_CTRL_OFF;

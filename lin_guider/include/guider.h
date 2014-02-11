@@ -62,8 +62,12 @@ protected slots:
 	void onFileNameChanged();
 	void onQualityControlChanged( int index );
 	void onInfoRateChanged( double val );
-	void onEnableDirRA( int state );
-	void onEnableDirDEC( int state );
+	void onEnableDirRA( bool on );
+	void onEnableDirDEC( bool on );
+	void onEnableDirRAPlus( int state );
+	void onEnableDirRAMinus( int state );
+	void onEnableDirDECPlus( int state );
+	void onEnableDirDECMinus( int state );
 	void onInputParamChanged();
 
 	void onStartStopButtonClick();

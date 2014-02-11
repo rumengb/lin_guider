@@ -43,11 +43,11 @@ namespace video_drv
 #define QHY5LII_WIDTH_B2	1024
 #define QHY5LII_HEIGHT_B2	768
 
-#define QHY5II_WIDTH_B3		640
-#define QHY5II_HEIGHT_B3	480
+#define QHY5LII_WIDTH_B3	800
+#define QHY5LII_HEIGHT_B3	600
 
-#define QHY5II_WIDTH_B4         800
-#define QHY5II_HEIGHT_B4        600
+#define QHY5LII_WIDTH_B4    640
+#define QHY5LII_HEIGHT_B4   480
 
 
 // QHY5II
@@ -177,6 +177,7 @@ private:
 
 	// smth.
 	int qhy5_exposure_kludge( unsigned tm );
+	int set_gain_core( unsigned short gain );
 	void start_video_mode( void );
 	void stop_video_mode( void );
 };

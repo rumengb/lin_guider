@@ -180,8 +180,8 @@ int cvideo_qhy5ii::get_vcaps( void )
 
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
-		pt.x = QHY5II_WIDTH_B3;
-		pt.y = QHY5II_HEIGHT_B3;
+		pt.x = QHY5LII_WIDTH_B4;
+		pt.y = QHY5LII_HEIGHT_B4;
 		device_formats[0].frame_table[ i ].size =  pt;
 		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
 		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
@@ -192,14 +192,14 @@ int cvideo_qhy5ii::get_vcaps( void )
 		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 2 );
 		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 3 );
 		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 4 );
-		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
 		#ifndef __arm__
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
 		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 10 );
 		#endif
 		i++;
 
-		pt.x = QHY5II_WIDTH_B4;
-		pt.y = QHY5II_HEIGHT_B4;
+		pt.x = QHY5LII_WIDTH_B3;
+		pt.y = QHY5LII_HEIGHT_B3;
 		device_formats[0].frame_table[ i ].size =  pt;
 		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
 		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
@@ -210,8 +210,8 @@ int cvideo_qhy5ii::get_vcaps( void )
 		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 2 );
 		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 3 );
 		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 4 );
-		#ifndef __arm__
 		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
+		#ifndef __arm__
 		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 10 );
 		#endif
 		i++;
@@ -715,29 +715,28 @@ int cvideo_qhy5ii::set_exposure_time( double exptime )
 
 int cvideo_qhy5ii::set_gain( unsigned short gain )
 {
-	// one more crutch
-	gain = gain > 0 ? gain : 1;
-
-	m_qhy5ii_obj->lock();
-
-	/* Ugly fix: during the long exposures setting gain often freezes the camera.
-	   stopping video mode before gain setup seems to fix this */
 	stop_video_mode();
 
-	bool err = false;
+	int ret = EXIT_FAILURE;
+
 	if( m_dev_type == DEVICETYPE_QHY5LII )
-		SetQHY5LIIGain( gain );
+	{
+		m_qhy5ii_obj->lock();
+		CorrectQHY5LIIWH( &m_width, &m_height );
+		m_qhy5ii_obj->unlock();
+
+		set_exposure_time( time_fract::to_msecs(capture_params.fps) );
+		ret = set_gain_core( gain );
+		set_usb_traffic( m_usb_traf );
+	}
 	else
-	if( m_dev_type == DEVICETYPE_QHY5II )
-		SetQHY5IIGain( gain );
-	else
-		err = true;
+	{
+		ret = set_gain_core( gain );
+	}
 
 	start_video_mode();
 
-	m_qhy5ii_obj->unlock();
-
-	return err? EXIT_FAILURE : EXIT_SUCCESS;
+	return ret;
 }
 
 
@@ -2084,7 +2083,10 @@ int cvideo_qhy5ii::qhy5_exposure_kludge( unsigned tm )
 
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
+		m_qhy5ii_obj->lock();
 		CorrectQHY5LIIWH( &m_width, &m_height );
+		m_qhy5ii_obj->unlock();
+
 		ret = set_exposure_time( tm );
 		set_gain( capture_params.gain );
 		set_usb_traffic( m_usb_traf );
@@ -2098,17 +2100,47 @@ int cvideo_qhy5ii::qhy5_exposure_kludge( unsigned tm )
 }
 
 
+int cvideo_qhy5ii::set_gain_core( unsigned short gain )
+{
+    // one more crutch
+    gain = gain > 0 ? gain : 1;
+
+    m_qhy5ii_obj->lock();
+
+    bool err = false;
+    if( m_dev_type == DEVICETYPE_QHY5LII )
+        SetQHY5LIIGain( gain );
+    else
+    if( m_dev_type == DEVICETYPE_QHY5II )
+        SetQHY5IIGain( gain );
+    else
+        err = true;
+
+    m_qhy5ii_obj->unlock();
+
+    return err? EXIT_FAILURE : EXIT_SUCCESS;
+}
+
+
 void cvideo_qhy5ii::start_video_mode( void )
 {
+	m_qhy5ii_obj->lock();
+
 	unsigned char buf[1] = { 100 };
 	m_qhy5ii_obj->ctrl_msg( QHYCCD_REQUEST_WRITE, 0xb3, 0, 0, buf, 1 );
+
+	m_qhy5ii_obj->unlock();
 }
 
 
 void cvideo_qhy5ii::stop_video_mode( void )
 {
+	m_qhy5ii_obj->lock();
+
 	unsigned char buf[4] = { 0, 0, 0, 0 };
 	m_qhy5ii_obj->ctrl_msg( QHYCCD_REQUEST_WRITE, 0xc1, 0, 0, buf, 4 );
+
+	m_qhy5ii_obj->unlock();
 }
 
 }

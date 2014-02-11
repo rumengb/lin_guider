@@ -52,6 +52,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 									{DT_GPUSB,   false, 4, "gpusb"},
 									{DT_GPIO,    false, 4, "gpio"},
 									{DT_QHY5II,  false, 4, "qhy5ii (unstable)"},
+									{DT_NEXSTAR, true,  4, "nexstar"},
 									};
 
 device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
@@ -61,6 +62,7 @@ device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{1, 3, 2, 0, 7, 7, 7, 7}},
+									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}}
 									};

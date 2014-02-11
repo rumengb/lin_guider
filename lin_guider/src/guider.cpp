@@ -72,19 +72,23 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, const common_p
 	ui.spinBox_AccFramesDEC->setMaximum( MAX_ACCUM_CNT );
 
 	// connect ui
-	connect( ui.spinBox_XScale, 		SIGNAL(valueChanged(int)),	this, SLOT(onXscaleChanged(int)) );
-	connect( ui.spinBox_YScale, 		SIGNAL(valueChanged(int)),	this, SLOT(onYscaleChanged(int)) );
+	connect( ui.spinBox_XScale, 		SIGNAL(valueChanged(int)), this, SLOT(onXscaleChanged(int)) );
+	connect( ui.spinBox_YScale, 		SIGNAL(valueChanged(int)), this, SLOT(onYscaleChanged(int)) );
 	connect( ui.comboBox_SquareSize, 	SIGNAL(activated(int)),    this, SLOT(onSquareSizeChanged(int)) );
 	connect( ui.comboBox_ThresholdAlg, 	SIGNAL(activated(int)),    this, SLOT(onThresholdChanged(int)) );
-	connect( ui.comboBox_QualityControl,SIGNAL(activated(int)),		this, SLOT(onQualityControlChanged(int)) );
+	connect( ui.comboBox_QualityControl,SIGNAL(activated(int)),	   this, SLOT(onQualityControlChanged(int)) );
 	connect( ui.doubleSpinBox_QualityThreshold1, SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
 	connect( ui.doubleSpinBox_QualityThreshold2, SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
-	connect( ui.checkBox_SwapDec, 		SIGNAL(stateChanged(int)), 	this, SLOT(onSwapDEC(int)) );
-	connect( ui.checkBox_SaveLog, 		SIGNAL(stateChanged(int)), 	this, SLOT(onSaveLog(int)) );
+	connect( ui.checkBox_SwapDec, 		SIGNAL(stateChanged(int)), this, SLOT(onSwapDEC(int)) );
+	connect( ui.checkBox_SaveLog, 		SIGNAL(stateChanged(int)), this, SLOT(onSaveLog(int)) );
 	connect( ui.lineEdit_DriftFileName,	SIGNAL(editingFinished()), this, SLOT(onFileNameChanged()) );
 	connect( ui.spinBox_GuideRate, 		SIGNAL(valueChanged(double)), this, SLOT(onInfoRateChanged(double)) );
-	connect( ui.checkBox_DirRA, 		SIGNAL(stateChanged(int)), 	this, SLOT(onEnableDirRA(int)) );
-	connect( ui.checkBox_DirDEC, 		SIGNAL(stateChanged(int)), 	this, SLOT(onEnableDirDEC(int)) );
+	connect( ui.groupBox_DirRA, 		SIGNAL(toggled(bool)), 	   this, SLOT(onEnableDirRA(bool)) );
+	connect( ui.groupBox_DirDEC, 		SIGNAL(toggled(bool)), 	   this, SLOT(onEnableDirDEC(bool)) );
+	connect( ui.checkBox_DirRAPlus,		SIGNAL(stateChanged(int)), this, SLOT(onEnableDirRAPlus(int)) );
+	connect( ui.checkBox_DirRAMinus,	SIGNAL(stateChanged(int)), this, SLOT(onEnableDirRAMinus(int)) );
+	connect( ui.checkBox_DirDECPlus,	SIGNAL(stateChanged(int)), this, SLOT(onEnableDirDECPlus(int)) );
+	connect( ui.checkBox_DirDECMinus,	SIGNAL(stateChanged(int)), this, SLOT(onEnableDirDECMinus(int)) );
 	connect( ui.spinBox_AccFramesRA, 	SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
 	connect( ui.spinBox_AccFramesDEC, 	SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
 	connect( ui.spinBox_PropGainRA, 	SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
@@ -227,8 +231,13 @@ void guider::fill_interface( void )
 	str = QString().setNum(info_params.fov_wd, 'f', 1) + "x" + QString().setNum(info_params.fov_ht, 'f', 1);
 	ui.l_FOV->setText( str );
 
-	ui.checkBox_DirRA->setChecked( in_params->enabled[RA] );
-	ui.checkBox_DirDEC->setChecked( in_params->enabled[DEC] );
+	ui.groupBox_DirRA->setChecked( in_params->enabled_dir[RA] );
+	ui.checkBox_DirRAPlus->setChecked( in_params->enabled_dir_sign[RA][SGN_POS] );
+	ui.checkBox_DirRAMinus->setChecked( in_params->enabled_dir_sign[RA][SGN_NEG] );
+
+	ui.groupBox_DirDEC->setChecked( in_params->enabled_dir[DEC] );
+	ui.checkBox_DirDECPlus->setChecked( in_params->enabled_dir_sign[DEC][SGN_POS] );
+	ui.checkBox_DirDECMinus->setChecked( in_params->enabled_dir_sign[DEC][SGN_NEG] );
 
 	ui.checkBox_AverageFrames->setChecked( in_params->average );
 
@@ -347,13 +356,10 @@ void guider::onQualityControlChanged( int index )
 // params changing stuff
 void guider::onInfoRateChanged( double val )
 {
-	cproc_in_params *in_params;
-
-
 	if( !m_math )
 		return;
 
-	in_params = m_math->get_in_params();
+	cproc_in_params *in_params = m_math->get_in_params();
 
 	in_params->guiding_rate = val;
 
@@ -361,27 +367,69 @@ void guider::onInfoRateChanged( double val )
 }
 
 
-void guider::onEnableDirRA( int state )
+void guider::onEnableDirRA( bool on )
 {
-	cproc_in_params *in_params;
-
 	if( !m_math )
 		return;
 
-	in_params = m_math->get_in_params();
-	in_params->enabled[RA] = (state == Qt::Checked);
+	cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir[RA] = on;
+	m_math->calc_dir_checker();
 }
 
 
-void guider::onEnableDirDEC( int state )
+void guider::onEnableDirDEC( bool on )
 {
-	cproc_in_params *in_params;
-
 	if( !m_math )
 		return;
 
-	in_params = m_math->get_in_params();
-	in_params->enabled[DEC] = (state == Qt::Checked);
+	cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir[DEC] = on;
+	m_math->calc_dir_checker();
+}
+
+
+void guider::onEnableDirRAPlus( int state )
+{
+	if( !m_math )
+		return;
+
+	cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[RA][SGN_POS] = (state == Qt::Checked);
+	m_math->calc_dir_checker();
+}
+
+
+void guider::onEnableDirRAMinus( int state )
+{
+	if( !m_math )
+		return;
+
+	cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[RA][SGN_NEG] = (state == Qt::Checked);
+	m_math->calc_dir_checker();
+}
+
+
+void guider::onEnableDirDECPlus( int state )
+{
+	if( !m_math )
+		return;
+
+	cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[DEC][SGN_POS] = (state == Qt::Checked);
+	m_math->calc_dir_checker();
+}
+
+
+void guider::onEnableDirDECMinus( int state )
+{
+	if( !m_math )
+		return;
+
+	cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[DEC][SGN_NEG] = (state == Qt::Checked);
+	m_math->calc_dir_checker();
 }
 
 
