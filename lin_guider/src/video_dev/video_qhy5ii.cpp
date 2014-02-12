@@ -380,10 +380,10 @@ int cvideo_qhy5ii::init_device( void )
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
 		#ifdef __arm__
-			log_i("arm");
+			log_i("System CPU is ARM");
 			m_usb_traf = 40;
 		#else
-			log_i("not arm");
+			log_i("System CPU is not ARM");
 			m_usb_traf = 5;
 		#endif
 	}
@@ -1227,7 +1227,7 @@ void cvideo_qhy5ii::Set14Bit( unsigned char i )
 
 void cvideo_qhy5ii::initQHY5LII_XGA(void)
 {
-	log_i( "" );
+	log_i( "%s", __FUNCTION__ );
 
 	int x = 1024;
 	int y = 768;
@@ -1252,7 +1252,7 @@ void cvideo_qhy5ii::initQHY5LII_XGA(void)
 
 void cvideo_qhy5ii::initQHY5LII_1280X960(void)
 {
-	log_i( "initQHY5LII_1280X960" );
+	log_i( "%s", __FUNCTION__ );
 
 	int x = 1280;
 	int y = 960;
@@ -1278,13 +1278,13 @@ void cvideo_qhy5ii::initQHY5LII_1280X960(void)
 
 void cvideo_qhy5ii::initQHY5LII_SVGA(void)
 {
-	log_i( "initQHY5LII_SVGA" );
+	log_i( "%s", __FUNCTION__ );
 
 	int x = 800;
 	int y = 600;
 
 	InitQHY5LIIRegs();
-    m_QCam5LII.QHY5L_PLL_Ratio = (int)setQHY5LREG_PLL(2);
+	m_QCam5LII.QHY5L_PLL_Ratio = (int)setQHY5LREG_PLL(2);
 
 	int xstart = 4 + (1280 - 800) / 2;
 	int ystart = 4 + (960 - 600) / 2;
@@ -1303,7 +1303,7 @@ void cvideo_qhy5ii::initQHY5LII_SVGA(void)
 
 void cvideo_qhy5ii::initQHY5LII_VGA(void)
 {
-	log_i( "initQHY5LII_VGA" );
+	log_i( "%s", __FUNCTION__ );
 
 	int x = 640;
 	int y = 480;
@@ -1328,7 +1328,7 @@ void cvideo_qhy5ii::initQHY5LII_VGA(void)
 
 void cvideo_qhy5ii::initQHY5LII_QVGA(void)
 {
-	log_i( "initQHY5LII_QVGA" );
+	log_i( "%s", __FUNCTION__ );
 
 	int x = 320;
 	int y = 240;
