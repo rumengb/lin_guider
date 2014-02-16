@@ -194,7 +194,7 @@ void setup_video::fill_interface( void )
 			// fill fps list
 			cur_frm = format_state.frame_idx < 0 ? 0 : format_state.frame_idx;
 			for( i = 0;format_state.format_desc->frame_table[cur_frm].fps_table[i].denominator > 0 && i < MAX_FMT;i++ )
-				ui.comboBox_FPS->addItem( QString().setNum(((int)(video_drv::time_fract::to_fps( format_state.format_desc->frame_table[cur_frm].fps_table[i])*100))/100.0 ) );
+				ui.comboBox_FPS->addItem( QString().setNum( video_drv::time_fract::to_fps( format_state.format_desc->frame_table[cur_frm].fps_table[i] ), 'g', 2 ) );
 
 		}
 

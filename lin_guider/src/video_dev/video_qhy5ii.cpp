@@ -715,10 +715,11 @@ int cvideo_qhy5ii::set_exposure_time( double exptime )
 
 int cvideo_qhy5ii::set_gain( unsigned short gain )
 {
+	/* Ugly fix: during the long exposures setting gain often freezes the camera.
+	stopping video mode before gain setup seems to fix this */
 	stop_video_mode();
 
 	int ret = EXIT_FAILURE;
-
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
 		m_qhy5ii_obj->lock();
@@ -1284,7 +1285,7 @@ void cvideo_qhy5ii::initQHY5LII_SVGA(void)
 	int y = 600;
 
 	InitQHY5LIIRegs();
-	m_QCam5LII.QHY5L_PLL_Ratio = (int)setQHY5LREG_PLL(2);
+    m_QCam5LII.QHY5L_PLL_Ratio = (int)setQHY5LREG_PLL(2);
 
 	int xstart = 4 + (1280 - 800) / 2;
 	int ystart = 4 + (960 - 600) / 2;

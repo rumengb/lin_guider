@@ -155,6 +155,7 @@ static void bayer_to_rgbbgr24(const unsigned char *bayer,
   unsigned char *bgr, int width, int height, unsigned int pixfmt,
 	int start_with_green, int blue_line)
 {
+	(void)pixfmt;
     /* render the first line */
     border_bayer_line_to_bgr24(bayer, bayer + width, bgr, width,
       start_with_green, blue_line);
