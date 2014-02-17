@@ -720,6 +720,9 @@ int cvideo_qhy5ii::set_gain( unsigned short gain )
 	stop_video_mode();
 
 	int ret = EXIT_FAILURE;
+	/* TO BE CLARIFIED: set_gain strange cludge to fix XXXX issuses on ARM MK808,
+	 though this is not needed on x86. */
+	#ifdef __arm__
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
 		m_qhy5ii_obj->lock();
@@ -734,6 +737,9 @@ int cvideo_qhy5ii::set_gain( unsigned short gain )
 	{
 		ret = set_gain_core( gain );
 	}
+	#else
+	ret = set_gain_core( gain );
+	#endif
 
 	start_video_mode();
 
