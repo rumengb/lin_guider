@@ -44,16 +44,79 @@ struct guide_dir_desc  bit_list_data[5] = {
 									};
 
 device_desc_t device_desc_list[DEVICE_CNT] = {
-									{DT_LPT,     true,  8, "lpt (default)"},
-									{DT_FTDI,    false, 8, "ftdi"},
-									{DT_QHY5,    false, 4, "qhy5"},
-									{DT_NULL,    false, 8, "null"},
-									{DT_QHY6,    false, 4, "qhy6"},
-									{DT_GPUSB,   false, 4, "gpusb"},
-									{DT_GPIO,    false, 4, "gpio"},
-									{DT_QHY5II,  false, 4, "qhy5ii (unstable)"},
-									{DT_NEXSTAR, true,  4, "nexstar"},
-									};
+									{
+										DT_LPT,
+										true,
+										8,
+										"lpt (default)",
+										NULL,
+										NULL
+									},
+									{
+										DT_FTDI,
+										false,
+										8,
+										"ftdi",
+										"Need for external library libio_ftdi.so",
+										"Need for external library libio_ftdi.so"
+									},
+									{
+										DT_QHY5,
+										false,
+										4,
+										"qhy5",
+										NULL,
+										NULL
+									},
+									{
+										DT_NULL,
+										false,
+										8,
+										"null",
+										NULL,
+										NULL
+									},
+									{
+										DT_QHY6,
+										false,
+										4,
+										"qhy6",
+										NULL,
+										NULL
+									},
+									{
+										DT_GPUSB,
+										false,
+										4,
+										"gpusb",
+										NULL,
+										NULL
+									},
+									{
+										DT_GPIO,
+										false,
+										4,
+										"gpio",
+										NULL,
+										NULL
+									},
+									{
+										DT_QHY5II,
+										false,
+										4,
+										"qhy5ii (unstable)",
+										NULL,
+										NULL
+									},
+									{
+										DT_NEXSTAR,
+										true,
+										4,
+										"nexstar",
+										"Need for external library libnexstar. http://sourceforge.net/projects/libnexstar/",
+										"<html><head/><body><p>Need for external library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a></p></body></html>"
+									},
+								};
 
 device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
 									{{0, 1, 2, 3, 4, 5, 6, 7}},

@@ -105,6 +105,8 @@ typedef struct
 	const int type;
 	const bool show_dev_string_ui;
 	const char *desc;
+	const char *info;	// any necessary text info
+	const char *hyper_info;	// any necessary hypertext info
 }device_desc_t;
 
 extern device_desc_t device_desc_list[DEVICE_CNT];
@@ -252,6 +254,7 @@ public:
 	capture_next_params_t get_next_params( void ) const;
 	void set_next_params( const capture_next_params_t &v );
 	current_format_state_t get_current_format_params( void );
+	void get_current_format_params_string( char *str, size_t str_sz, int ovrr_fps_idx = -1 );
 	virtual time_fract_t set_fps( const time_fract_t &new_fps ) = 0;
 	bool is_initialized( void ) const;
 	int  pack_params( control_id_t ctrl, const param_val_t &val, post_param_t *prm );

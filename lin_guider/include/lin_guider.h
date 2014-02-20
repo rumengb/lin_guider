@@ -127,6 +127,9 @@ private:
 	bool deactivate_drag_object( int x, int y );
 	void move_drag_object( int x, int y );
 
+	void update_sb_video_info( int override_fps_idx = -1 );
+	void update_sb_io_info( void );
+
 	drag_object_t d_objs[2];
 	drawer_delegate *m_mouse_delegate;
 

@@ -19,6 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,12 +51,48 @@ namespace video_drv
 {
 
 device_desc_t device_desc_list[DEVICE_CNT] = {
-												{DT_WEBCAM,  true,  "webcam (default)"},
-												{DT_NULL,    false, "null"},
-												{DT_QHY5,    false, "qhy5"},
-												{DT_DSI2PRO, false, "dsi2pro"},
-												{DT_QHY6,    false, "qhy6"},
-												{DT_QHY5II,  false, "qhy5ii (unstable)"}
+												{
+													DT_WEBCAM,
+													true,
+													"webcam (default)",
+													NULL,
+													NULL
+												},
+												{
+													DT_NULL,
+													false,
+													"null",
+													NULL,
+													NULL
+												},
+												{
+													DT_QHY5,
+													false,
+													"qhy5",
+													NULL,
+													NULL
+												},
+												{
+													DT_DSI2PRO,
+													false,
+													"dsi2pro",
+													NULL,
+													NULL
+												},
+												{
+													DT_QHY6,
+													false,
+													"qhy6",
+													NULL,
+													NULL
+												},
+												{
+													DT_QHY5II,
+													false,
+													"qhy5ii (unstable)",
+													NULL,
+													NULL
+												}
 											};
 
 int cvideo_base::enum_frame_intervals( unsigned int pixfmt, unsigned int width, unsigned int height, int fmt_idx, int frm_idx )
@@ -648,6 +685,28 @@ current_format_state_t cvideo_base::get_current_format_params( void )
 	fmt_state.fps_idx		= get_fps_idx();
 
  return fmt_state;
+}
+
+
+void cvideo_base::get_current_format_params_string( char *str, size_t str_sz, int ovrr_fps_idx )
+{
+	if( !str || !str_sz )
+		return;
+
+	current_format_state_t format_state = get_current_format_params();
+	int len = 0;
+	if( format_state.format_desc )
+	{
+		int frame_idx = format_state.frame_idx;
+		int fps_idx   = ovrr_fps_idx == -1 ? format_state.fps_idx : ovrr_fps_idx;
+		if( frame_idx != -1 )
+		{
+			len += snprintf( str+len, str_sz-len, "Frame: %dx%d", format_state.format_desc->frame_table[frame_idx].size.x,
+															 format_state.format_desc->frame_table[frame_idx].size.y );
+			if( fps_idx != -1 )
+				len += snprintf( str+len, str_sz-len, ", FPS: %g", int(video_drv::time_fract::to_fps( format_state.format_desc->frame_table[frame_idx].fps_table[fps_idx] )*100) / 100.0 );
+		}
+	}
 }
 
 

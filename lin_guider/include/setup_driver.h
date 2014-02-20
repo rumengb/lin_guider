@@ -59,7 +59,7 @@ private:
 	void init_combo( QComboBox *pCombo );
 	void create_dirmap( void );
 	void fill_interface( void );
-	void update_dev_string_visibility( int dev_type );
+	void update_dev_strings( int dev_type );
 	io_drv::device_init_params_t params;
 
 	char dev_name_io[64];

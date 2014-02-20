@@ -88,6 +88,8 @@ typedef struct
 	const bool show_dev_string_ui;
 	const int  bits_enabled_ui;
 	const char *desc;
+	const char *info;	// any necessary text info
+	const char *hyper_info;	// any necessary hypertext info
 }device_desc_t;
 
 extern device_desc_t device_desc_list[DEVICE_CNT];

@@ -30,20 +30,17 @@
 setup_video::setup_video(lin_guider *parent)
     : QDialog(parent), pmain_wnd(parent)
 {
- int i, cnt;
- QString str;
-
 	ui.setupUi(this);
 
 	setWindowTitle( tr("Guider setup") );
 
 	// init device list
 	ui.comboBox_DeviceList->clear();
-	cnt = ARRAY_SIZE( video_drv::device_desc_list );
+	int cnt = ARRAY_SIZE( video_drv::device_desc_list );
 
-	for( i = 0;i < cnt;i++ )
+	for( int i = 0;i < cnt;i++ )
 	{
-		str = QString( video_drv::device_desc_list[i].desc );
+		QString str = QString( video_drv::device_desc_list[i].desc );
 		ui.comboBox_DeviceList->addItem( str, (int)video_drv::device_desc_list[i].type );
 	}
 	ui.comboBox_DeviceList->setCurrentIndex( 0 );
@@ -174,7 +171,7 @@ void setup_video::fill_interface( void )
 	}
 
 	ui.lineEdit_VideoDevice->setText( QString(dev_name_video) );
-	update_dev_string_visibility( actual_dev_type );
+	update_dev_strings( actual_dev_type );
 	ui.checkBox_BW->setChecked( guider_params.bw_video );
 	ui.checkBox_HalfOutFPS->setChecked( ui_params.half_refresh_rate );
 	ui.checkBox_UseCalibration->setChecked( params.use_calibration );
@@ -282,13 +279,20 @@ void setup_video::fill_interface( void )
 }
 
 
-void setup_video::update_dev_string_visibility( int dev_type )
+void setup_video::update_dev_strings( int dev_type )
 {
+	ui.lineEdit_VideoDevice->setVisible( false );
+	ui.label_Information->setText( QString() );
+
 	int cnt = ARRAY_SIZE( video_drv::device_desc_list );
 	for( int i = 0;i < cnt;i++ )
 		if( dev_type == video_drv::device_desc_list[i].type )
 		{
 			ui.lineEdit_VideoDevice->setVisible( video_drv::device_desc_list[i].show_dev_string_ui );
+			if( video_drv::device_desc_list[i].hyper_info )
+				ui.label_Information->setText( QString::fromUtf8(video_drv::device_desc_list[i].hyper_info) );
+			if( video_drv::device_desc_list[i].info )
+				log_i( "Video device info: \"%s\"", video_drv::device_desc_list[i].info );
 		}
 }
 
@@ -371,7 +375,7 @@ void setup_video::onDeviceListChanged( int index )
 
  	next_params.type = next_type;
 
- 	update_dev_string_visibility( next_params.type );
+ 	update_dev_strings( next_params.type );
 
 	if( next_params.type != params.type )
 		u_msg( "Restart program to apply changes." );
@@ -404,6 +408,8 @@ void setup_video::onFPSChanged( int index )
 			pmain_wnd->m_video->pack_params( video_drv::CI_FPS, val, &prm );
 			// send params to video thread
 			pmain_wnd->m_video->post_params( prm );
+
+			pmain_wnd->update_sb_video_info( index );
 		}
 
 		params.fps = guider_params.fps = tmp;

@@ -241,9 +241,6 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 
 	// apply all permanent params
-	m_video_name_label->setText( tr("Video:") + QString(m_video->get_name()) );
-	m_io_name_label->setText( tr("IO:") + QString(m_driver->get_name()) );
-
 	set_visible_overlays( ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE, true );
 
 	memset( d_objs, 0, sizeof(d_objs) );
@@ -259,6 +256,9 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_timer.setInterval( 5000 );
 	m_timer.setSingleShot( true );
 	connect( &m_timer, SIGNAL( timeout() ), this, SLOT( onCmdTimer() ) );
+
+	update_sb_video_info();
+	update_sb_io_info();
 
 	log_i("Started successfully");
 }
@@ -723,4 +723,18 @@ void lin_guider::move_drag_object( int x, int y )
 			}
 		}
 	}
+}
+
+
+void lin_guider::update_sb_video_info( int override_fps_idx )
+{
+	char str[64] = {0};
+	m_video->get_current_format_params_string( str, sizeof(str), override_fps_idx );
+	m_video_name_label->setText( tr("Video: ") + QString(m_video->get_name()) + ", " + QString(str) );
+}
+
+
+void lin_guider::update_sb_io_info( void )
+{
+	m_io_name_label->setText( tr("IO: ") + QString(m_driver->get_name()) );
 }
