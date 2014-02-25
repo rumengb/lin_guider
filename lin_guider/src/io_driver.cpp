@@ -57,8 +57,8 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										false,
 										8,
 										"ftdi",
-										"Need for external library libio_ftdi.so",
-										"Need for external library libio_ftdi.so"
+										"External library libio_ftdi.so is required",
+										"External library libio_ftdi.so is required"
 									},
 									{
 										DT_QHY5,
@@ -113,8 +113,8 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										true,
 										4,
 										"nexstar",
-										"Need for external library libnexstar. http://sourceforge.net/projects/libnexstar/",
-										"<html><head/><body><p>Need for external library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a></p></body></html>"
+										"External library libnexstar is required. http://sourceforge.net/projects/libnexstar/",
+										"<html><head/><body><p>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required.</p></body></html>"
 									},
 								};
 
