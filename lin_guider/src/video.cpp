@@ -921,6 +921,19 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
  		pdecoded.ptr16 = psrc.ptr16;
 		break;
+	case V4L2_PIX_FMT_RGB24:
+		if( render_in_decoder )
+		{
+			int data_len = pix_no * bpp() / 8;
+			for( i = 0, j = 0;i < data_len; i += 3, j += 4 ) {
+				pdst[j] = lut_to8bit.start.ptr8[ psrc.ptr8[i+2] ];
+				pdst[j+1] = lut_to8bit.start.ptr8[ psrc.ptr8[i+1] ];
+				pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr8[i] ];
+				//log_i("%d i=%d j=%d\n", pix_no, i,j);
+			}
+		}
+		pdecoded.ptr8 = pdst;
+		break;
  	default:
 	{
  		log_e("Frame of unknown format grabbed!");
@@ -1475,6 +1488,8 @@ int cvideo_base::bpp( void ) const
 		return 8;
 	case V4L2_PIX_FMT_Y16:
 		return 16;
+	case V4L2_PIX_FMT_RGB24:
+		return 24;
 	default:
 		log_e("Bpp request for unknown format");
 	}
