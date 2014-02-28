@@ -806,6 +806,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
  data_ptr pdecoded;
  int bits = bpp();
  bool render_in_decoder = !capture_params.use_calibration || !has_calibration;
+ //bool threat_as_color = (capture_params.pixel_format != V4L2_PIX_FMT_SGRBG8) && is_color();
 
  unsigned char *py, *pu, *pv;
 
@@ -925,25 +926,27 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		break;
 	case V4L2_PIX_FMT_SGRBG8:
 		data_len = pix_no * 3;
-		unsigned char *rgb_buf;
-		rgb_buf = (unsigned char*) malloc(data_len);
-		bayer_to_rgb24(psrc.ptr8, rgb_buf, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
+		if (!tmp_buffer) tmp_buffer = (unsigned char*) malloc(data_len);
+		if (tmp_buffer == NULL) {
+			log_e("%s(): Can not allocate tmp_buffer", __FUNCTION__ );
+			return;
+		}
+		bayer_to_rgb24(psrc.ptr8, tmp_buffer, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
 		if (is_grey) {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
 				pdst[j] =
 				pdst[j+1] =
 				pdst[j+2] = lut_to8bit.start.ptr8 [
-					(unsigned char)((rgb_buf[i+2] + rgb_buf[i+1] + rgb_buf[i]) / 3)
+					(unsigned char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3)
 				];
 			}
 		} else {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				pdst[j] = lut_to8bit.start.ptr8[rgb_buf[i+2]];
-				pdst[j+1] = lut_to8bit.start.ptr8[rgb_buf[i+1]];
-				pdst[j+2] = lut_to8bit.start.ptr8[rgb_buf[i]];
+				pdst[j] = lut_to8bit.start.ptr8[tmp_buffer[i+2]];
+				pdst[j+1] = lut_to8bit.start.ptr8[tmp_buffer[i+1]];
+				pdst[j+2] = lut_to8bit.start.ptr8[tmp_buffer[i]];
 			}
 		}
-		free(rgb_buf);
 		pdecoded.ptr8 = pdst;
 		break;
  	default:
