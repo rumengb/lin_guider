@@ -132,7 +132,6 @@ private:
 	int m_wbblue; //Used to set the white balance
 	int m_wbgreen;
 	int m_wbred;
-	unsigned char *m_rgb_buf;
 
 	bool m_qhy5iiDeNoise;
 

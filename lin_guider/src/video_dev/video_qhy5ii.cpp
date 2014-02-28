@@ -37,7 +37,6 @@
 #include "utils.h"
 #include "maindef.h"
 #include "lusb.h"
-//#include "bayer.h"
 
 namespace video_drv
 {
@@ -69,10 +68,8 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_usb_traf( 0 ),
 
 	m_wbblue( 100 ),
-	m_wbgreen( 100 ),
-	m_wbred( 100 ),
-
-	m_rgb_buf( NULL ),
+	m_wbgreen( 40 ),
+	m_wbred( 85 ),
 
 	m_qhy5iiDeNoise( false )
 {
@@ -412,8 +409,6 @@ int cvideo_qhy5ii::init_device( void )
 
 	m_data_size = m_width * m_height * (m_transfer_bit >> 3);
 
-	//if (m_is_color) m_data_size *= 3;
-	
 	n_buffers = 1;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
 
@@ -432,18 +427,6 @@ int cvideo_qhy5ii::init_device( void )
 		return EXIT_FAILURE;
 	}
 
-	/*
-	if(m_is_color)
-	{
-		m_rgb_buf = (unsigned char *)malloc( m_data_size *3 );
-		if( !m_rgb_buf )
-		{
-			log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
-			free( buffers );
-			return EXIT_FAILURE;
-		}
-	}
-	*/
 	get_autogain();
 	get_gain();
 	get_exposure();
@@ -465,13 +448,6 @@ int cvideo_qhy5ii::uninit_device( void )
 		}
 		free( buffers );
 		buffers = NULL;
-		/*
-		if ( m_rgb_buf )
-		{
-			free( m_rgb_buf );
-			m_rgb_buf = NULL;
-		}
-		*/
 
 	}
 
@@ -495,41 +471,20 @@ int cvideo_qhy5ii::read_frame( void )
 {
 	ctimer tm;
 	tm.start();
-	
-	/*
-	if (m_is_color) {
-		int ret = m_qhy5ii_obj->get_frame( m_rgb_buf, m_data_size / 3, frame_delay );
-		(void)ret;
-		if( m_transfer_bit == 16 && m_dev_type == DEVICETYPE_QHY5LII )
-			SWIFT_MSBLSBQHY5LII( m_rgb_buf );
-	} else {
-	*/
-		int ret = m_qhy5ii_obj->get_frame( buffers[0].start.ptr8, m_data_size, frame_delay );
-		(void)ret;
-		if( m_transfer_bit == 16 && m_dev_type == DEVICETYPE_QHY5LII )
-			SWIFT_MSBLSBQHY5LII( buffers[0].start.ptr8 );
-	//}
 
-    if( DBG_VERBOSITY )
-    {
-    	log_i( "frame time: %ldms", tm.gettime() );
-    	unsigned char pat[4] = {0xaa, 0x11, 0xcc, 0xee};
-    	void *ppat = memmem( buffers[0].start.ptr8 + m_data_size, 4, pat, 4 );
-    	if( ppat )
-    		log_i( "PTRN found" );
-    }
+	int ret = m_qhy5ii_obj->get_frame( buffers[0].start.ptr8, m_data_size, frame_delay );
+	(void)ret;
+	if( m_transfer_bit == 16 && m_dev_type == DEVICETYPE_QHY5LII )
+		SWIFT_MSBLSBQHY5LII( buffers[0].start.ptr8 );
 
-	/*
-	// If the camera is color version debayer and convert to BW
-	if ((m_is_color) && (m_rgb_buf))
+	if( DBG_VERBOSITY )
 	{
-		unsigned char * buf = buffers[0].start.ptr8;
-		bayer_to_rgb24(m_rgb_buf, buf, m_width, m_height, PIX_FMT_SGRBG8);
-		//for( int i = 0, ii = 0;ii < m_data_size;i += 3, ii++ )
-		//	buf[ii] = (m_rgb_buf[i] + m_rgb_buf[i+1] + m_rgb_buf[i+2]) / 3;
-		capture_params.pixel_format =  V4L2_PIX_FMT_RGB24;
+		log_i( "frame time: %ldms", tm.gettime() );
+		unsigned char pat[4] = {0xaa, 0x11, 0xcc, 0xee};
+		void *ppat = memmem( buffers[0].start.ptr8 + m_data_size, 4, pat, 4 );
+		if( ppat )
+			log_i( "PTRN found" );
 	}
-	*/
 
 	// synchronize data with GUI
 	void *ptr =  buffers[0].start.ptr8;
@@ -555,6 +510,7 @@ int cvideo_qhy5ii::set_format( void )
 	} else {
 		capture_params.pixel_format = V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_Y16;/*  8 or 16  Greyscale     */	// this is a fake format.
 	}
+
 	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ )
 	{
 		if( device_formats[i].format != capture_params.pixel_format )
