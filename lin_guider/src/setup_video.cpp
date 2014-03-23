@@ -45,24 +45,43 @@ setup_video::setup_video(lin_guider *parent)
 	}
 	ui.comboBox_DeviceList->setCurrentIndex( 0 );
 
-	// connect...
-	connect( ui.spinBox_Aperture,	   SIGNAL(valueChanged(double)),	this, SLOT(onApertureChanged(double)) );
-	connect( ui.spinBox_Focal,		   SIGNAL(valueChanged(double)),	this, SLOT(onFocalChanged(double)) );
-	connect( ui.spinBox_CCD_Width, 	   SIGNAL(valueChanged(int)),		this, SLOT(onMatrixWidthChanged(int)) );
-	connect( ui.spinBox_CCD_Height,    SIGNAL(valueChanged(int)),		this, SLOT(onMatrixHeightChanged(int)) );
-	connect( ui.spinBox_PixelWidth,	   SIGNAL(valueChanged(double)),	this, SLOT(onPixeWidthChanged(double)) );
-	connect( ui.spinBox_PixelHeight,   SIGNAL(valueChanged(double)),	this, SLOT(onPixeHeightChanged(double)) );
-	connect( ui.comboBox_DeviceList,   SIGNAL(activated(int)),          this, SLOT(onDeviceListChanged(int)) );
-	connect( ui.comboBox_FPS, 		   SIGNAL(activated(int)), 			this, SLOT(onFPSChanged(int)) );
-	connect( ui.comboBox_FrameSize,    SIGNAL(activated(int)), 			this, SLOT(onFrameSizeChanged(int)) );
-	connect( ui.checkBox_AutoGain,     SIGNAL(stateChanged(int)),		this, SLOT(onAutogainChanged(int)) );
-	connect( ui.spinBox_Gain,		   SIGNAL(valueChanged(int)), 		this, SLOT(onSpinGainChanged(int)) );
-	connect( ui.horizontalSlider_Gain, SIGNAL(valueChanged(int)), 		this, SLOT(onSliderGainChanged(int)) );
-	connect( ui.spinBox_Expo,		   SIGNAL(valueChanged(int)), 		this, SLOT(onSpinExpoChanged(int)) );
-	connect( ui.horizontalSlider_Expo, SIGNAL(valueChanged(int)), 		this, SLOT(onSliderExpoChanged(int)) );
+	const std::map< unsigned int, const std::string > &ext_ctls = pmain_wnd->m_video->get_cam_ext_ctl_list();
+	for( std::map< unsigned int, const std::string >::const_iterator it = ext_ctls.begin();
+		it != ext_ctls.end();++it )
+	{
+		ui.comboBox_ExtParamList->addItem( QString::fromStdString( it->second ), it->first );
+	}
+	if( ext_ctls.empty() )
+	{
+		ui.label_ExtParams->setEnabled( false );
+		ui.comboBox_ExtParamList->setEnabled( false );
+		ui.spinBox_ExtValue->setEnabled( false );
+		ui.horizontalSlider_ExtValue->setEnabled( false );
+	}
+	else
+		ui.comboBox_ExtParamList->setCurrentIndex( 0 );
 
-	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
-	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
+	// connect...
+	connect( ui.spinBox_Aperture,	   		SIGNAL(valueChanged(double)),		this, SLOT(onApertureChanged(double)) );
+	connect( ui.spinBox_Focal,		   		SIGNAL(valueChanged(double)),		this, SLOT(onFocalChanged(double)) );
+	connect( ui.spinBox_CCD_Width, 	   		SIGNAL(valueChanged(int)),			this, SLOT(onMatrixWidthChanged(int)) );
+	connect( ui.spinBox_CCD_Height,    		SIGNAL(valueChanged(int)),			this, SLOT(onMatrixHeightChanged(int)) );
+	connect( ui.spinBox_PixelWidth,	   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeWidthChanged(double)) );
+	connect( ui.spinBox_PixelHeight,   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeHeightChanged(double)) );
+	connect( ui.comboBox_DeviceList,   		SIGNAL(activated(int)),         	this, SLOT(onDeviceListChanged(int)) );
+	connect( ui.comboBox_FPS, 		   		SIGNAL(activated(int)), 			this, SLOT(onFPSChanged(int)) );
+	connect( ui.comboBox_FrameSize,    		SIGNAL(activated(int)), 			this, SLOT(onFrameSizeChanged(int)) );
+	connect( ui.checkBox_AutoGain,     		SIGNAL(stateChanged(int)),			this, SLOT(onAutogainChanged(int)) );
+	connect( ui.spinBox_Gain,		   		SIGNAL(valueChanged(int)), 			this, SLOT(onSpinGainChanged(int)) );
+	connect( ui.horizontalSlider_Gain, 		SIGNAL(valueChanged(int)), 			this, SLOT(onSliderGainChanged(int)) );
+	connect( ui.spinBox_Expo,		   		SIGNAL(valueChanged(int)), 			this, SLOT(onSpinExpoChanged(int)) );
+	connect( ui.horizontalSlider_Expo, 		SIGNAL(valueChanged(int)), 			this, SLOT(onSliderExpoChanged(int)) );
+	connect( ui.comboBox_ExtParamList, 		SIGNAL(currentIndexChanged(int)), 	this, SLOT(onExtParamChanged(int)) );
+	connect( ui.spinBox_ExtValue,	   		SIGNAL(valueChanged(int)), 			this, SLOT(onSpinExtParamChanged(int)) );
+	connect( ui.horizontalSlider_ExtValue,	SIGNAL(valueChanged(int)), 			this, SLOT(onSliderExtParamChanged(int)) );
+
+	connect( ui.pushButton_OK, 				SIGNAL(clicked()), 					this, SLOT(onOkButtonClick()) );
+	connect( ui.pushButton_Cancel, 			SIGNAL(clicked()), 					this, SLOT(onCancelButtonClick()) );
 
 	first_show = true;
 	applied = false;
@@ -111,6 +130,16 @@ void setup_video::showEvent( QShowEvent * event )
 	{
 		params.exposure = params.exposure < control->min ? control->min : params.exposure;
 		params.exposure = params.exposure > control->max ? control->max : params.exposure;
+	}
+	for( std::map< unsigned int, int >::iterator it = params.ext_params.begin();
+		it != params.ext_params.end();++it )
+	{
+		control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXTCTL, it->first );
+		if( control )
+		{
+			it->second = it->second < control->min ? control->min : it->second;
+			it->second = it->second > control->max ? control->max : it->second;
+		}
 	}
 
 	fill_interface();
@@ -171,7 +200,7 @@ void setup_video::fill_interface( void )
 	}
 
 	ui.lineEdit_VideoDevice->setText( QString(dev_name_video) );
-	update_dev_strings( actual_dev_type );
+	update_dev_string_visibility( actual_dev_type );
 	ui.checkBox_BW->setChecked( guider_params.bw_video );
 	ui.checkBox_HalfOutFPS->setChecked( ui_params.half_refresh_rate );
 	ui.checkBox_UseCalibration->setChecked( params.use_calibration );
@@ -274,12 +303,16 @@ void setup_video::fill_interface( void )
 		ui.horizontalSlider_Expo->setRange( 0, 0 );
 		ui.horizontalSlider_Expo->setValue( 0 );
 	}
+	if( !pmain_wnd->m_video->get_cam_ext_ctl_list().empty() )
+	{
+		onExtParamChanged( ui.comboBox_ExtParamList->currentIndex() );
+	}
 
 	is_filling_ui = false;
 }
 
 
-void setup_video::update_dev_strings( int dev_type )
+void setup_video::update_dev_string_visibility( int dev_type )
 {
 	ui.lineEdit_VideoDevice->setVisible( false );
 	ui.label_Information->setText( QString() );
@@ -375,7 +408,7 @@ void setup_video::onDeviceListChanged( int index )
 
  	next_params.type = next_type;
 
- 	update_dev_strings( next_params.type );
+ 	update_dev_string_visibility( next_params.type );
 
 	if( next_params.type != params.type )
 		u_msg( "Restart program to apply changes." );
@@ -504,6 +537,57 @@ void setup_video::onSliderExpoChanged( int value )
 	pmain_wnd->m_video->pack_params( video_drv::CI_EXPO, val, &prm );
 	pmain_wnd->m_video->post_params( prm );
 	ui.spinBox_Expo->setValue( value );
+}
+
+
+void setup_video::onExtParamChanged( int index )
+{
+	if( index == -1 )
+		return;
+
+	unsigned int ctl_id = ui.comboBox_ExtParamList->itemData( index ).toUInt();
+	video_drv::cam_control_t *control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXTCTL, ctl_id );
+	if( control )
+	{
+		ui.spinBox_ExtValue->setMinimum( control->min );
+		ui.spinBox_ExtValue->setMaximum( control->max );
+		ui.spinBox_ExtValue->setValue( params.ext_params[ control->id ] );
+
+		ui.horizontalSlider_ExtValue->setMinimum( control->min );
+		ui.horizontalSlider_ExtValue->setMaximum( control->max );
+		ui.horizontalSlider_ExtValue->setValue( params.ext_params[ control->id ] );
+	}
+}
+
+
+void setup_video::onSpinExtParamChanged( int value )
+{
+	ui.horizontalSlider_ExtValue->setValue( value );
+}
+
+
+void setup_video::onSliderExtParamChanged( int value )
+{
+	if( is_filling_ui )
+		return;
+
+	unsigned int ctl_id = ui.comboBox_ExtParamList->itemData( ui.comboBox_ExtParamList->currentIndex() ).toUInt();
+	video_drv::cam_control_t *control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXTCTL, ctl_id );
+	std::map< unsigned int, int >::iterator pit = params.ext_params.find( ctl_id );
+	if( control && pit != params.ext_params.end() )
+	{
+		video_drv::post_param_t prm;
+		video_drv::param_val_t val;
+
+		memset( &prm, 0, sizeof(video_drv::post_param_t) );
+
+		pit->second = value;
+
+		val.set( (int)ctl_id, pit->second );
+		pmain_wnd->m_video->pack_params( video_drv::CI_EXTCTL, val, &prm );
+		pmain_wnd->m_video->post_params( prm );
+		ui.spinBox_ExtValue->setValue( value );
+	}
 }
 
 

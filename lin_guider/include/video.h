@@ -27,6 +27,8 @@
 #include <pthread.h>
 #include <linux/videodev2.h>
 
+#include <map>
+
 #include <QObject>
 
 #include "maindef.h"
@@ -156,8 +158,21 @@ typedef struct time_fract
 }time_fract_t;
 
 
-typedef struct
+typedef struct captureparams_s
 {
+	captureparams_s() :
+		type( DT_NULL ),
+		io_mtd( IO_METHOD_MMAP ),			//may be IO_METHOD_MMAP; IO_METHOD_READ
+		pixel_format( V4L2_PIX_FMT_GREY ),		// may be for philips V4L2_PIX_FMT_YUV420 or V4L2_PIX_FMT_PWC2  (PHILIPS specific)
+		width( 640 ),
+		height( 480 ),
+		fps( time_fract::mk_fps( 1, 10 ) ),
+		autogain( 0 ),
+		gain( 0 ),
+		exposure( 0 ),
+		use_calibration( false ),
+		ext_params( std::map< unsigned int, int >() )
+	{}
 	int type;
 	io_method	 io_mtd;
 	unsigned int pixel_format;
@@ -168,6 +183,28 @@ typedef struct
 	int	         gain;
 	int			 exposure;
 	bool         use_calibration;
+
+	std::map< unsigned int, int > ext_params;
+
+	struct captureparams_s& operator=( const struct captureparams_s &v )
+	{
+		if( &v == this )
+			return *this;
+		type 			= v.type;
+		io_mtd 			= v.io_mtd;
+		pixel_format 	= v.pixel_format;
+		width 			= v.width;
+		height 			= v.height;
+		fps 			= v.fps;
+		autogain 		= v.autogain;
+		gain 			= v.gain;
+		exposure 		= v.exposure;
+		use_calibration = v.use_calibration;
+
+		if( ext_params.size() <= v.ext_params.size() )
+			ext_params = v.ext_params;
+		return *this;
+	}
 }captureparams_t;
 
 
@@ -209,6 +246,7 @@ typedef struct
 #define PP_AUTOGAIN			0x4
 #define PP_GAIN				0x8
 #define PP_EXPO				0x10
+#define PP_EXTPARAM         0x20
 
 
 typedef struct param_val
@@ -220,7 +258,7 @@ typedef struct param_val
 typedef struct
 {
 	int params;
-	int values[8];
+	int values[16];
 }post_param_t;
 
 
@@ -230,7 +268,8 @@ typedef enum
 	CI_FPS = 1,
 	CI_AUTOGAIN,
 	CI_GAIN,
-	CI_EXPO
+	CI_EXPO,
+	CI_EXTCTL
 }control_id_t;
 
 
@@ -259,7 +298,8 @@ public:
 	bool is_initialized( void ) const;
 	int  pack_params( control_id_t ctrl, const param_val_t &val, post_param_t *prm );
 	int  post_params( const post_param_t &prm );
-	cam_control_t *get_cam_control( int ctrl ) const;
+	cam_control_t *get_cam_control( int ctrl, unsigned int low_ctl_id = 0 ) const;
+	const std::map<unsigned int, const std::string>& get_cam_ext_ctl_list( void ) const;
 	void start_calibration( int frame_cnt );
 	void cancel_calibration( void );
 	void set_use_calibration( bool use );
@@ -306,7 +346,7 @@ protected:
 		size_t length;	// buffer length
 	};
 
-	cam_control_t *add_control( int fd, struct v4l2_queryctrl *queryctrl, cam_control_t *control, int *nctrl );	// idea have been got from guvcview
+	cam_control_t *add_control( int fd, struct v4l2_queryctrl *queryctrl, cam_control_t *control, int *nctrl, bool ext_ctl = false );	// idea has been got from guvcview
 	int xioctl( int fd, int request, void *arg );
 
 	virtual int open_device( void );		// open device
@@ -316,8 +356,8 @@ protected:
 	int get_frame_idx( void ) const;
 	int get_fps_idx( void ) const;
 
-	virtual int set_control( int control_id, const param_val_t &val );
-	virtual int get_control( int control_id, param_val_t *val );
+	virtual int set_control( unsigned int control_id, const param_val_t &val );
+	virtual int get_control( unsigned int control_id, param_val_t *val );
 
 	int set_autogain( int val );
 	int get_autogain( void );
@@ -327,6 +367,9 @@ protected:
 
 	int set_exposure( int val );
 	int get_exposure( void );
+
+	int set_ext_param( unsigned int ctrl_id, int val );
+	int get_ext_param( unsigned int ctrl_id );
 
 	void init_lut_to8bit( int top = 0 );
 	int bpp( void ) const;
@@ -350,6 +393,7 @@ protected:
 
 	cam_control_t *controls;
 	int 		   num_controls;
+	std::map< unsigned int, const std::string > m_ext_ctls;
 
 	buffer *buffers;
 	unsigned int n_buffers;
@@ -360,7 +404,7 @@ protected:
 	int calibration_frame_cnt;
 	int calibration_frame;
 	bool is_calibrating;
-	bool has_calibration;
+	bool have_calibration;
 
 	buffer lut_to8bit;
 	static const int lut_to8bit_len = (1<<16);

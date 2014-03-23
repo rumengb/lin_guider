@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>425</width>
-    <height>447</height>
+    <height>475</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>425</width>
-    <height>447</height>
+    <height>475</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>425</width>
-    <height>447</height>
+    <height>475</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -395,7 +395,7 @@
      <x>10</x>
      <y>200</y>
      <width>401</width>
-     <height>201</height>
+     <height>231</height>
     </rect>
    </property>
    <property name="title">
@@ -502,9 +502,9 @@
    <widget class="QCheckBox" name="checkBox_AutoGain">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>270</x>
       <y>110</y>
-      <width>91</width>
+      <width>121</width>
       <height>20</height>
      </rect>
     </property>
@@ -564,7 +564,7 @@
    <widget class="QSpinBox" name="spinBox_Expo">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>270</x>
       <y>140</y>
       <width>101</width>
       <height>24</height>
@@ -587,10 +587,10 @@
    <widget class="QCheckBox" name="checkBox_UseCalibration">
     <property name="geometry">
      <rect>
-      <x>260</x>
+      <x>270</x>
       <y>80</y>
-      <width>131</width>
-      <height>19</height>
+      <width>121</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -607,25 +607,58 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="l_Info">
+   <widget class="QSlider" name="horizontalSlider_ExtValue">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>200</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_ExtValue">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>200</y>
+      <width>71</width>
+      <height>24</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_ExtParams">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>50</y>
+      <y>200</y>
       <width>61</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Info</string>
+     <string>Ext.params</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_ExtParamList">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>200</y>
+      <width>101</width>
+      <height>22</height>
+     </rect>
     </property>
    </widget>
    <widget class="QLabel" name="label_Information">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>10</x>
       <y>50</y>
-      <width>311</width>
+      <width>381</width>
       <height>22</height>
      </rect>
     </property>
@@ -644,7 +677,7 @@
    <property name="geometry">
     <rect>
      <x>260</x>
-     <y>410</y>
+     <y>440</y>
      <width>75</width>
      <height>26</height>
     </rect>
@@ -657,7 +690,7 @@
    <property name="geometry">
     <rect>
      <x>340</x>
-     <y>410</y>
+     <y>440</y>
      <width>75</width>
      <height>26</height>
     </rect>
@@ -678,15 +711,18 @@
   <tabstop>comboBox_DeviceList</tabstop>
   <tabstop>lineEdit_VideoDevice</tabstop>
   <tabstop>comboBox_FPS</tabstop>
-  <tabstop>checkBox_BW</tabstop>
-  <tabstop>checkBox_UseCalibration</tabstop>
   <tabstop>comboBox_FrameSize</tabstop>
+  <tabstop>checkBox_BW</tabstop>
   <tabstop>checkBox_HalfOutFPS</tabstop>
+  <tabstop>checkBox_UseCalibration</tabstop>
   <tabstop>checkBox_AutoGain</tabstop>
   <tabstop>spinBox_Gain</tabstop>
   <tabstop>horizontalSlider_Gain</tabstop>
   <tabstop>spinBox_Expo</tabstop>
   <tabstop>horizontalSlider_Expo</tabstop>
+  <tabstop>comboBox_ExtParamList</tabstop>
+  <tabstop>spinBox_ExtValue</tabstop>
+  <tabstop>horizontalSlider_ExtValue</tabstop>
   <tabstop>pushButton_OK</tabstop>
   <tabstop>pushButton_Cancel</tabstop>
  </tabstops>

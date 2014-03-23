@@ -72,6 +72,9 @@ protected slots:
 	void onSliderGainChanged( int value );
 	void onSpinExpoChanged( int value );
 	void onSliderExpoChanged( int value );
+	void onExtParamChanged( int index );
+	void onSpinExtParamChanged( int value );
+	void onSliderExtParamChanged( int value );
 
 	void onOkButtonClick();
 	void onCancelButtonClick();
@@ -83,7 +86,7 @@ protected:
 	// ALL params
 private:
 	void fill_interface( void );
-	void update_dev_strings( int dev_type );
+	void update_dev_string_visibility( int dev_type );
 	double calc_arc( int pix, double pix_sz, double focal );
 
 	guiderparams_t  guider_params;

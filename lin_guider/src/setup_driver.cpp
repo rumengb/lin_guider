@@ -253,7 +253,7 @@ void setup_driver::onDeviceListChanged( int index )
 
  	params.next_device_type = ui.comboBox_DeviceList->itemData( index ).toInt(&ok);
 
- 	update_dev_strings( params.next_device_type );
+ 	update_dev_string_visibility( params.next_device_type );
 
  	if( params.next_device_type != params.type )
  		u_msg( "Restart program to apply changes." );
@@ -391,7 +391,7 @@ void setup_driver::fill_interface( void )
 
 	ui.lineEdit_IoDevice->setText( QString(dev_name_io) );
 
-	update_dev_strings( params.next_device_type );
+	update_dev_string_visibility( params.next_device_type );
 
 	ui.checkBox_UseDT->setChecked( params.death_time.use );
 	ui.spinBox_DT->setValue( params.death_time.delay );
@@ -402,7 +402,7 @@ void setup_driver::fill_interface( void )
 }
 
 
-void setup_driver::update_dev_strings( int dev_type )
+void setup_driver::update_dev_string_visibility( int dev_type )
 {
 	ui.lineEdit_IoDevice->setVisible( false );
 	ui.label_Information->setText( QString() );

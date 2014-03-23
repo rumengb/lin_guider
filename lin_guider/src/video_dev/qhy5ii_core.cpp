@@ -300,8 +300,8 @@ int qhy5ii_core_shared::get_frame( unsigned char *data, unsigned int data_size, 
 			continue;
 		}
 
-		if( DBG_VERBOSITY )
-			log_i("Read: %d of %d, try_cnt=%d, result=%d.", transfered, to_read + transfered, try_cnt, ret);
+//		if( DBG_VERBOSITY )
+//			log_i("Read: %d of %d, try_cnt=%d, result=%d.", transfered, to_read + transfered, try_cnt, ret);
 	}
 
 	if( DBG_VERBOSITY )

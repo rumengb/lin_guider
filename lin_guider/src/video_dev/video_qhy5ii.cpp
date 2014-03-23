@@ -31,6 +31,8 @@
 #include <netinet/in.h>
 
 #include <algorithm>
+#include <map>
+#include <utility>
 
 #include "video_qhy5ii.h"
 #include "timer.h"
@@ -68,8 +70,7 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_usb_traf( 0 ),
 
 	m_wbblue( 100 ),
-	m_wbgreen( 40 ),
-	m_wbred( 85 ),
+	m_wbred( 90 ),
 
 	m_qhy5iiDeNoise( false )
 {
@@ -99,6 +100,12 @@ int cvideo_qhy5ii::open_device( void )
 	if( ret != EXIT_SUCCESS )
 		return ret;
 	ret = m_qhy5ii_obj->get_dev_info( &m_dev_type, &m_is_color );
+
+	// disable color for non-L as here's no code it
+	if( m_dev_type == DEVICETYPE_QHY5II )
+		m_is_color = false;
+	// for tests and debugging
+	//m_is_color = true;
 
 	return ret;
 }
@@ -310,7 +317,7 @@ int cvideo_qhy5ii::get_vcaps( void )
 }
 
 
-int cvideo_qhy5ii::set_control( int control_id, const param_val_t &val )
+int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val )
 {
 	switch( control_id )
 	{
@@ -339,6 +346,42 @@ int cvideo_qhy5ii::set_control( int control_id, const param_val_t &val )
 		capture_params.exposure = val.values[0];
 		break;
 	}
+	case V4L2_CID_RED_BALANCE:
+	{
+		if( val.values[0] < 0 || val.values[0] > 100 )
+		{
+			log_e( "cvideo_qhy5ii::set_control(): invalid R-balance coeff." );
+			return -1;
+		}
+
+		// TODO: add hardware access here (something similar)
+		// set_wb_red( val.values[0] );
+		// or
+		m_wbred = val.values[0]*3;
+		set_gain( capture_params.gain );
+		log_i( "R-balance changed to: %d", val.values[0] );
+
+		capture_params.ext_params[ control_id ] = val.values[0];
+		break;
+	}
+	case V4L2_CID_BLUE_BALANCE:
+	{
+		if( val.values[0] < 0 || val.values[0] > 100 )
+		{
+			log_e( "cvideo_qhy5ii::set_control(): invalid B-balance coeff." );
+			return -1;
+		}
+
+		// TODO: add hardware access here (something similar)
+		// set_wb_red( val.values[0] );
+		// or
+		m_wbblue = val.values[0]*3;
+		set_gain( capture_params.gain );
+		log_i( "B-balance changed to: %d", val.values[0] );
+
+		capture_params.ext_params[ control_id ] = val.values[0];
+		break;
+	}
 	default:
 		return -1;
 	}
@@ -346,7 +389,7 @@ int cvideo_qhy5ii::set_control( int control_id, const param_val_t &val )
 }
 
 
-int cvideo_qhy5ii::get_control( int control_id, param_val_t *val )
+int cvideo_qhy5ii::get_control( unsigned int control_id, param_val_t *val )
 {
 	switch( control_id )
 	{
@@ -358,6 +401,12 @@ int cvideo_qhy5ii::get_control( int control_id, param_val_t *val )
 	case V4L2_CID_EXPOSURE:
 	{
 		val->values[0] = capture_params.exposure;
+		break;
+	}
+	case V4L2_CID_RED_BALANCE:
+	case V4L2_CID_BLUE_BALANCE:
+	{
+		val->values[0] = capture_params.ext_params[ control_id ];
 		break;
 	}
 	default:
@@ -377,6 +426,13 @@ int cvideo_qhy5ii::init_device( void )
 	if( sizeimage <= 0 )
 		return EXIT_FAILURE;
 
+	if( m_is_color )
+	{	
+		log_i("WB: r=%d, b=%d\n", m_wbred ,  m_wbblue);
+		capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wbred ) );
+		capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wbblue ) );
+	}
+
 	m_usb_traf = 30;
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
@@ -391,7 +447,13 @@ int cvideo_qhy5ii::init_device( void )
 	else
 	if( m_dev_type == DEVICETYPE_QHY5II )
 	{
-		m_usb_traf = 2;
+		#ifdef __arm__
+			log_i("System CPU is ARM");
+			m_usb_traf = 150;
+		#else
+			log_i("System CPU is not ARM");
+			m_usb_traf = 30;
+		#endif
 	}
 
 	set_transfer_bit( 8 );
@@ -478,13 +540,7 @@ int cvideo_qhy5ii::read_frame( void )
 		SWIFT_MSBLSBQHY5LII( buffers[0].start.ptr8 );
 
 	if( DBG_VERBOSITY )
-	{
 		log_i( "frame time: %ldms", tm.gettime() );
-		unsigned char pat[4] = {0xaa, 0x11, 0xcc, 0xee};
-		void *ppat = memmem( buffers[0].start.ptr8 + m_data_size, 4, pat, 4 );
-		if( ppat )
-			log_i( "PTRN found" );
-	}
 
 	// synchronize data with GUI
 	void *ptr =  buffers[0].start.ptr8;
@@ -569,6 +625,33 @@ int cvideo_qhy5ii::enum_controls( void )
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
 
+	if( m_is_color )
+	{
+		// create virtual control (extended ctl)
+		queryctrl.id = V4L2_CID_RED_BALANCE;
+		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "red balance" );
+		queryctrl.minimum = 0;
+		queryctrl.maximum = 100; //100
+		queryctrl.step = 1;
+		queryctrl.default_value = m_wbred;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n, true );
+
+		// create virtual control (extended ctl)
+		queryctrl.id = V4L2_CID_BLUE_BALANCE;
+		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "blue balance" );
+		queryctrl.minimum = 0;
+		queryctrl.maximum = 100; //100
+		queryctrl.step = 1;
+		queryctrl.default_value = m_wbblue;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n, true );
+	}
+
 	num_controls = n;
 
 	return 0;
@@ -597,9 +680,6 @@ void cvideo_qhy5ii::set_resolution( int x, int y )
     set_exposure_time( time_fract::to_msecs(capture_params.fps) );
     set_gain( capture_params.gain );
     set_usb_traffic( m_usb_traf );
-    //set_wb_green( m_wbgreen );
-    //set_wb_red( m_wbred );
-    //set_wb_blue( m_wbblue );
 }
 
 
@@ -766,9 +846,10 @@ void cvideo_qhy5ii::set_wb_blue( int blue )
 
 void cvideo_qhy5ii::set_wb_green( int green )
 {
-    m_wbgreen = green;
-    if( m_dev_type == DEVICETYPE_QHY5LII )
-        SetGainColorQHY5LII( capture_params.gain*10, m_wbred, m_wbblue );
+	(void)green;
+//    m_wbgreen = green;
+//    if( m_dev_type == DEVICETYPE_QHY5LII )
+//        SetGainColorQHY5LII( capture_params.gain*10, m_wbred, m_wbblue );
 }
 
 

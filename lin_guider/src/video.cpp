@@ -36,6 +36,8 @@
 #include <asm/types.h>		/* for videodev2.h */
 #include <linux/videodev2.h>
 
+#include <map>
+#include <utility>
 
 #include "maindef.h"
 #include "video.h"
@@ -255,7 +257,7 @@ int  cvideo_base::enum_frame_formats( void )
 }
 
 
-cam_control_t *cvideo_base::add_control( int fd, struct v4l2_queryctrl *queryctrl, cam_control_t *control, int *nctrl )
+cam_control_t *cvideo_base::add_control( int fd, struct v4l2_queryctrl *queryctrl, cam_control_t *control, int *nctrl, bool ext_ctl )
 {
     int n = *nctrl;
 
@@ -265,7 +267,7 @@ cam_control_t *cvideo_base::add_control( int fd, struct v4l2_queryctrl *queryctr
     control[n].id = queryctrl->id;
     control[n].type = (cam_control_type_t)queryctrl->type;
     //allocate control name (must free it on exit)
-    control[n].name = strdup ((char *)queryctrl->name);
+    control[n].name = strdup((const char *)queryctrl->name);
     control[n].min = queryctrl->minimum;
     control[n].max = queryctrl->maximum;
     control[n].step = queryctrl->step;
@@ -303,6 +305,9 @@ cam_control_t *cvideo_base::add_control( int fd, struct v4l2_queryctrl *queryctr
     }
     n++;
     *nctrl = n;
+
+    if( ext_ctl )
+    	m_ext_ctls.insert( std::make_pair( queryctrl->id, std::string((const char *)queryctrl->name) ) );
 
     // log
     switch( queryctrl->id )
@@ -466,19 +471,9 @@ cvideo_base::cvideo_base()
 	memset( dev_name, 0, sizeof(dev_name) );
 	strcpy( dev_name, "/dev/video0" );
 	device_type = DT_NULL;
+	next_device_type = DT_NULL;
 
 	fd = -1;
-	memset( &capture_params, 0, sizeof(captureparams_t) );
-	capture_params.type         = DT_NULL;
-	capture_params.io_mtd		= IO_METHOD_MMAP;			//may be IO_METHOD_MMAP; IO_METHOD_READ
-	capture_params.pixel_format = V4L2_PIX_FMT_GREY;		// may be for philips V4L2_PIX_FMT_YUV420 or V4L2_PIX_FMT_PWC2  (PHILIPS specific)
-	capture_params.width 		= 640;
-	capture_params.height 		= 480;
-	capture_params.fps			= time_fract::mk_fps( 1, 10 );
-	capture_params.autogain		= 0;
-	capture_params.gain			= 0;
-	capture_params.exposure		= 0;
-	capture_params.use_calibration = false;
 
 	next_params.type    = 0;
 	next_params.width   = 0;
@@ -499,7 +494,7 @@ cvideo_base::cvideo_base()
     calibration_frame_cnt = 1;
 	calibration_frame     = 0;
 	is_calibrating        = false;
-	has_calibration       = false;
+	have_calibration      = false;
 
 	is_streaming = false;
 
@@ -805,14 +800,13 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
  data_ptr psrc( src );
  data_ptr pdecoded;
  int bits = bpp();
- bool render_in_decoder = !capture_params.use_calibration || !has_calibration;
+ bool render_in_decoder = !capture_params.use_calibration || !have_calibration;
  //bool threat_as_color = (capture_params.pixel_format != V4L2_PIX_FMT_SGRBG8) && is_color();
 
  unsigned char *py, *pu, *pv;
 
  int width, height;
  bool reverse = false;
- int data_len;
 
 
  	pix_no = capture_params.width * capture_params.height;
@@ -890,8 +884,8 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
  			if( is_grey )
  			{
  				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
- 					pdst[j]   = 
-					pdst[j+1] = 
+ 					pdst[j]   =
+					pdst[j+1] =
 					pdst[j+2] = tmp_buffer[i<<1];
  			}
  			else
@@ -904,7 +898,13 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
  	}
  	case V4L2_PIX_FMT_YUYV:
 	{
- 		convert_yuv422_to_rgb32( psrc.ptr8, pdst, capture_params.width, capture_params.height );
+		if( is_grey )
+		{
+			int pix_no2 = pix_no << 1;
+			for( i = 1; i < pix_no2; i += 2 )//just operating on the chroma
+				*(psrc.ptr8 + i) = 0x80;     //set all chroma to midpoint 0x80
+		}
+		convert_yuv422_to_rgb32( psrc.ptr8, pdst, capture_params.width, capture_params.height );
 		pdecoded.ptr8 = pdst;
 		break;
 	}
@@ -912,7 +912,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		if( render_in_decoder )
 		{
 			for( i = 0, j = 0;i < pix_no;i++, j += 4 )
-				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr8[i] ];
+				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr8[i] ]; // we can apply LUT here since pdecoded.ptr8 != pdst
 		}
 		pdecoded.ptr8 = psrc.ptr8;
 		break;
@@ -925,7 +925,9 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
  		pdecoded.ptr16 = psrc.ptr16;
 		break;
 	case V4L2_PIX_FMT_SGRBG8:
-		data_len = pix_no * 3;
+	{
+#ifndef __arm__
+		int data_len = pix_no * 3;
 		if (!tmp_buffer) tmp_buffer = (unsigned char*) malloc(data_len);
 		if (tmp_buffer == NULL) {
 			log_e("%s(): Can not allocate tmp_buffer", __FUNCTION__ );
@@ -934,20 +936,26 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		bayer_to_rgb24(psrc.ptr8, tmp_buffer, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
 		if (is_grey) {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				pdst[j] =
+				pdst[j]   =
 				pdst[j+1] =
-				pdst[j+2] = lut_to8bit.start.ptr8 [
-					(unsigned char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3)
-				];
+				pdst[j+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
 			}
 		} else {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				pdst[j] = lut_to8bit.start.ptr8[tmp_buffer[i+2]];
-				pdst[j+1] = lut_to8bit.start.ptr8[tmp_buffer[i+1]];
-				pdst[j+2] = lut_to8bit.start.ptr8[tmp_buffer[i]];
+				pdst[j]   = tmp_buffer[i+2];
+				pdst[j+1] = tmp_buffer[i+1];
+				pdst[j+2] = tmp_buffer[i];
 			}
 		}
+#else
+		for( i = 0, j = 0;i < pix_no; i ++, j += 4 ) {
+			pdst[j] =
+			pdst[j+1] =
+			pdst[j+2] = psrc.ptr8[i];
+		}
+#endif
 		pdecoded.ptr8 = pdst;
+ 	}
 		break;
  	default:
 	{
@@ -968,13 +976,13 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			{
 				val = (int)pdecoded.ptr8[j]   - (int)calibration_buffer.start.ptrDBL[i];
 				val = val < 0 ? 0 : val;
-				pdst[j] = (u_char)val;
+				pdst[j] = lut_to8bit.start.ptr8[ (u_char)val ];
 				val = (int)pdecoded.ptr8[j+1] - (int)calibration_buffer.start.ptrDBL[i+1];
 				val = val < 0 ? 0 : val;
-				pdst[j+1] = (u_char)val;
+				pdst[j+1] = lut_to8bit.start.ptr8[ (u_char)val ];
 				val = (int)pdecoded.ptr8[j+2] - (int)calibration_buffer.start.ptrDBL[i+2];
 				val = val < 0 ? 0 : val;
-				pdst[j+2] = (u_char)val;
+				pdst[j+2] = lut_to8bit.start.ptr8[ (u_char)val ];
 			}
 		}
 		else
@@ -1053,7 +1061,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			}
 			
 			is_calibrating = false;
-			has_calibration = true;
+			have_calibration = true;
 			
 			emit calibrationFinished();
 		}
@@ -1113,6 +1121,11 @@ int cvideo_base::pack_params( control_id_t ctrl, const param_val_t &val, post_pa
 		prm->params |= PP_EXPO;
 		prm->values[4] = val.values[0];
 		return 1;
+	case CI_EXTCTL:
+		prm->params |= PP_EXTPARAM;
+		prm->values[5] = val.values[0]; // ext ctrl number
+		prm->values[6] = val.values[1]; // param value
+		return 1;
 	}
 
  return 0;
@@ -1167,18 +1180,19 @@ int cvideo_base::check_posted_params( void )
 		 {
 		 	 set_exposure( prm.values[4] );
 		 }
+		 if( prm.params & PP_EXTPARAM )
+		 {
+			 set_ext_param( (unsigned int)prm.values[5], prm.values[6] );
+		 }
 	 }
 
  return 0;
 }
 
 
-cam_control_t *cvideo_base::get_cam_control( int ctrl ) const
+cam_control_t *cvideo_base::get_cam_control( int ctrl, unsigned int low_ctl_id ) const
 {
- int i;
-
-
-	for( i = 0;i < num_controls;i++ )
+	for( int i = 0;i < num_controls;i++ )
 	{
 		if( ctrl == CI_AUTOGAIN && controls[i].id == V4L2_CID_AUTOGAIN )
 			return &controls[i];
@@ -1188,9 +1202,17 @@ cam_control_t *cvideo_base::get_cam_control( int ctrl ) const
 		else
 		if( ctrl == CI_EXPO && controls[i].id == V4L2_CID_EXPOSURE )
 			return &controls[i];
+		if( ctrl == CI_EXTCTL && controls[i].id == low_ctl_id )
+			return &controls[i];
 	}
 
- return NULL;
+	return NULL;
+}
+
+
+const std::map<unsigned int, const std::string>& cvideo_base::get_cam_ext_ctl_list( void ) const
+{
+	return m_ext_ctls;
 }
 
 
@@ -1311,7 +1333,44 @@ int cvideo_base::get_exposure( void )
 }
 
 
-int cvideo_base::set_control( int control_id, const param_val_t &val )
+int cvideo_base::set_ext_param( unsigned int ctrl_id, int val )
+{
+	int ret = -1;
+
+	cam_control_t *ctrl = get_cam_control( CI_EXTCTL, ctrl_id );
+	if( ctrl )
+	{
+		param_val_t v;
+		v.set( val );
+
+		ret = set_control( ctrl->id, v );
+		//if( ret == 0 )
+		//	capture_params.exposure = v.values[0];
+	}
+
+	return ret;
+}
+
+
+int cvideo_base::get_ext_param( unsigned int ctrl_id )
+{
+	int ret = -1;
+
+	cam_control_t *ctrl = get_cam_control( CI_EXPO, ctrl_id );
+	if( ctrl )
+	{
+		param_val_t val;
+
+		ret = get_control( ctrl->id, &val );
+		//if( ret == 0 )
+		//	capture_params.exposure = val.values[0];
+	}
+
+	return ret == 0 ? 0 : ret;
+}
+
+
+int cvideo_base::set_control( unsigned int control_id, const param_val_t &val )
 {
  int ret = 0;
  struct v4l2_control c;
@@ -1327,7 +1386,7 @@ int cvideo_base::set_control( int control_id, const param_val_t &val )
 }
 
 
-int cvideo_base::get_control( int control_id, param_val_t *val )
+int cvideo_base::get_control( unsigned int control_id, param_val_t *val )
 {
  int ret = 0;
  struct v4l2_control c;
@@ -1351,7 +1410,7 @@ void cvideo_base::start_calibration( int frame_cnt )
 	calibration_frame = 0;
 	calibration_frame_cnt = frame_cnt;
 	is_calibrating = true;
-	has_calibration = false;
+	have_calibration = false;
 
 	memset( calibration_buffer.start.ptr, 0, calibration_buffer.length );
 }
@@ -1363,7 +1422,7 @@ void cvideo_base::cancel_calibration( void )
 		return;
 
 	is_calibrating = false;
-	has_calibration = false;
+	have_calibration = false;
 }
 
 

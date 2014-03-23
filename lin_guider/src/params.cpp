@@ -24,6 +24,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <map>
+
 #include "params.h"
 #include "utils.h"
 
@@ -46,17 +48,6 @@ params::params()
 	snprintf( m_dev_name_io, sizeof(m_dev_name_io)-1, "/dev/parport0" );
 
 	m_ui_params.half_refresh_rate = false;
-
-	memset( &m_capture_params, 0, sizeof(video_drv::captureparams_t) );
-	m_capture_params.type         = video_drv::DT_NULL;
-	m_capture_params.io_mtd 		= video_drv::IO_METHOD_MMAP;
-	m_capture_params.pixel_format = V4L2_PIX_FMT_GREY; // V4L2_PIX_FMT_YUV420  V4L2_PIX_FMT_PWC2
-	m_capture_params.width  		= 640; //320;
-	m_capture_params.height 		= 480; //240;
-	m_capture_params.autogain		= 0;
-	m_capture_params.gain			= 0;
-	m_capture_params.exposure		= 0;
-	m_capture_params.use_calibration = false;
 
 	m_capture_next_params.width   = 0;
 	m_capture_next_params.height  = 0;
@@ -177,6 +168,18 @@ bool params::load( void )
 		m_capture_params.fps.numerator = settings.value( "fps.numerator" ).toInt(&ok);
 		m_capture_params.fps.denominator = settings.value( "fps.denominator" ).toInt(&ok);
 		m_capture_params.use_calibration = settings.value( "use_calibration" ).toBool();
+		{
+			m_capture_params.ext_params.clear();
+			int ext_size = settings.beginReadArray( "ext_params" );
+			for( int i = 0;i < ext_size;i++ )
+			{
+				settings.setArrayIndex( i );
+				unsigned int id = settings.value( "id", 0 ).toUInt();
+				int value = settings.value( "value", 0 ).toInt();
+				m_capture_params.ext_params[ id ] = value;
+			}
+			settings.endArray();
+		}
 	settings.endGroup();
 
 	// ui params
@@ -302,6 +305,19 @@ bool params::save( void )
 		settings.setValue( "fps.numerator", m_capture_params.fps.numerator );
 		settings.setValue( "fps.denominator", m_capture_params.fps.denominator );
 		settings.setValue( "use_calibration", m_capture_params.use_calibration );
+		{
+			settings.beginWriteArray( "ext_params" );
+			int idx = 0;
+			for( std::map< unsigned int, int >::const_iterator it = m_capture_params.ext_params.begin();
+					it != m_capture_params.ext_params.end();++it )
+			{
+				settings.setArrayIndex( idx );
+				settings.setValue( "id", it->first );
+				settings.setValue( "value", it->second );
+				++idx;
+			}
+			settings.endArray();
+		}
 	settings.endGroup();
 
 	// ui params

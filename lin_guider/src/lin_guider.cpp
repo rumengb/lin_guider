@@ -58,7 +58,7 @@ lin_guider::lin_guider(QWidget *parent)
 	ui.setupUi(this);
 
 	setWindowTitle( QString(CPY_RIGHT(VERSION)) );
-	setWindowIcon( QIcon(QString::fromUtf8(":/new/prefix1/lin_guider.png")) );
+	setWindowIcon( QIcon(QString::fromUtf8(":/new/prefix1/guiding.png")) );
 
 	m_video_name_label = new QLabel();
 	m_video_name_label->setFrameShape( QFrame::Panel );
@@ -241,6 +241,9 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 
 	// apply all permanent params
+	m_video_name_label->setText( tr("Video:") + QString(m_video->get_name()) );
+	m_io_name_label->setText( tr("IO:") + QString(m_driver->get_name()) );
+
 	set_visible_overlays( ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE, true );
 
 	memset( d_objs, 0, sizeof(d_objs) );
@@ -251,14 +254,14 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	RA_COLOR	   = QColor(DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2]);
 	DEC_COLOR	   = QColor(DEF_DEC_COLOR[0], DEF_DEC_COLOR[1], DEF_DEC_COLOR[2]);
 
+	update_sb_video_info();
+	update_sb_io_info();
+
 	// test
 	m_long_task_conn = NULL;
 	m_timer.setInterval( 5000 );
 	m_timer.setSingleShot( true );
 	connect( &m_timer, SIGNAL( timeout() ), this, SLOT( onCmdTimer() ) );
-
-	update_sb_video_info();
-	update_sb_io_info();
 
 	log_i("Started successfully");
 }
