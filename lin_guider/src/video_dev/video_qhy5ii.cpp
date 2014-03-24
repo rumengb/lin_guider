@@ -357,8 +357,8 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		// TODO: add hardware access here (something similar)
 		// set_wb_red( val.values[0] );
 		// or
-		m_wbred = val.values[0]*3;
-		set_gain( capture_params.gain );
+		// m_wbred = val.values[0];
+		// set_gain( capture_params.gain );
 		log_i( "R-balance changed to: %d", val.values[0] );
 
 		capture_params.ext_params[ control_id ] = val.values[0];
@@ -375,8 +375,8 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		// TODO: add hardware access here (something similar)
 		// set_wb_red( val.values[0] );
 		// or
-		m_wbblue = val.values[0]*3;
-		set_gain( capture_params.gain );
+		// m_wbblue = val.values[0];
+		// set_gain( capture_params.gain );
 		log_i( "B-balance changed to: %d", val.values[0] );
 
 		capture_params.ext_params[ control_id ] = val.values[0];
@@ -427,8 +427,7 @@ int cvideo_qhy5ii::init_device( void )
 		return EXIT_FAILURE;
 
 	if( m_is_color )
-	{	
-		log_i("WB: r=%d, b=%d\n", m_wbred ,  m_wbblue);
+	{
 		capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wbred ) );
 		capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wbblue ) );
 	}
