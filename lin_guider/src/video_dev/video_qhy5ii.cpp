@@ -69,8 +69,8 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_transfer_speed( 0 ),
 	m_usb_traf( 0 ),
 
-	m_wbblue( 100 ),
-	m_wbred( 90 ),
+	m_wbblue( 145 ),
+	m_wbred( 115 ),
 
 	m_qhy5iiDeNoise( false )
 {
@@ -319,11 +319,12 @@ int cvideo_qhy5ii::get_vcaps( void )
 
 int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val )
 {
+	int ret = EXIT_FAILURE;
+
 	switch( control_id )
 	{
 	case V4L2_CID_GAIN:
 	{
-		int ret = EXIT_FAILURE;
 		ret = set_gain( val.values[0] );
 		if( ret != EXIT_SUCCESS )
 		{
@@ -348,38 +349,42 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 	}
 	case V4L2_CID_RED_BALANCE:
 	{
-		if( val.values[0] < 0 || val.values[0] > 100 )
+		if( val.values[0] < 0 || val.values[0] > 255 )
 		{
-			log_e( "cvideo_qhy5ii::set_control(): invalid R-balance coeff." );
+			log_e( "%s: invalid R-balance coeff.", __FUNCTION__ );
 			return -1;
 		}
 
-		// TODO: add hardware access here (something similar)
-		// set_wb_red( val.values[0] );
-		// or
-		// m_wbred = val.values[0];
-		// set_gain( capture_params.gain );
-		log_i( "R-balance changed to: %d", val.values[0] );
-
+		m_wbred = val.values[0];
 		capture_params.ext_params[ control_id ] = val.values[0];
+		ret = set_gain( capture_params.gain );
+		if( ret != EXIT_SUCCESS )
+		{
+			log_e( "%s: set_gain(): failed.", __FUNCTION__ );
+			return -1;
+		} else {
+			log_i( "R-balance changed to: %d", val.values[0] );
+		}
 		break;
 	}
 	case V4L2_CID_BLUE_BALANCE:
 	{
-		if( val.values[0] < 0 || val.values[0] > 100 )
+		if( val.values[0] < 0 || val.values[0] > 255 )
 		{
-			log_e( "cvideo_qhy5ii::set_control(): invalid B-balance coeff." );
+			log_e( "%s: invalid B-balance coeff.", __FUNCTION__ );
 			return -1;
 		}
 
-		// TODO: add hardware access here (something similar)
-		// set_wb_red( val.values[0] );
-		// or
-		// m_wbblue = val.values[0];
-		// set_gain( capture_params.gain );
-		log_i( "B-balance changed to: %d", val.values[0] );
-
+		m_wbblue = val.values[0];
 		capture_params.ext_params[ control_id ] = val.values[0];
+		ret = set_gain( capture_params.gain );
+		if( ret != EXIT_SUCCESS )
+		{
+			log_e( "%s: set_gain(): failed.",__FUNCTION__ );
+			return -1;
+		} else {
+			log_i( "B-balance changed to: %d", val.values[0] );
+		}
 		break;
 	}
 	default:
@@ -430,6 +435,8 @@ int cvideo_qhy5ii::init_device( void )
 	{
 		capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wbred ) );
 		capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wbblue ) );
+		m_wbred = capture_params.ext_params[ V4L2_CID_RED_BALANCE ];
+		m_wbblue = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
 	}
 
 	m_usb_traf = 30;
@@ -631,7 +638,7 @@ int cvideo_qhy5ii::enum_controls( void )
 		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "red balance" );
 		queryctrl.minimum = 0;
-		queryctrl.maximum = 100; //100
+		queryctrl.maximum = 255; //100
 		queryctrl.step = 1;
 		queryctrl.default_value = m_wbred;
 		queryctrl.flags = 0;
@@ -643,7 +650,7 @@ int cvideo_qhy5ii::enum_controls( void )
 		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "blue balance" );
 		queryctrl.minimum = 0;
-		queryctrl.maximum = 100; //100
+		queryctrl.maximum = 255; //100
 		queryctrl.step = 1;
 		queryctrl.default_value = m_wbblue;
 		queryctrl.flags = 0;
