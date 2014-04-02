@@ -24,7 +24,7 @@
 
 // define some colors
 const u_char DEF_BKGD_COLOR[3] 		= {0, 0, 0};
-const u_char DEF_RA_COLOR[3]		= {0, 255, 0};
+const u_char DEF_RA_COLOR[3]		= {255, 128, 0};
 const u_char DEF_DEC_COLOR[3]		= {0, 165, 255};
 const u_char DEF_GRID_COLOR[3]		= {128, 128, 128};
 const u_char DEF_WHITE_COLOR[3]		= {255, 255, 255};
