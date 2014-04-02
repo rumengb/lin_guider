@@ -1432,6 +1432,12 @@ void cvideo_base::set_use_calibration( bool use )
 }
 
 
+bool cvideo_base::is_calibrated( void ) const
+{
+	return have_calibration;
+}
+
+
 const char* cvideo_base::get_name( void ) const
 {
 	if( !initialized )

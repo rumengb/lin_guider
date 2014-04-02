@@ -204,6 +204,7 @@ void setup_video::fill_interface( void )
 	ui.checkBox_BW->setChecked( guider_params.bw_video );
 	ui.checkBox_HalfOutFPS->setChecked( ui_params.half_refresh_rate );
 	ui.checkBox_UseCalibration->setChecked( params.use_calibration );
+	ui.checkBox_UseCalibration->setEnabled( pmain_wnd->m_video->is_calibrated() );
 
 	format_state = pmain_wnd->m_video->get_current_format_params();
 	if( first_show )

@@ -303,6 +303,7 @@ public:
 	void start_calibration( int frame_cnt );
 	void cancel_calibration( void );
 	void set_use_calibration( bool use );
+	bool is_calibrated( void ) const;
 	const char* get_name( void ) const;
 
 	static int detect_best_device( int devtype, const char *devname );
