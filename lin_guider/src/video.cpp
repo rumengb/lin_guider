@@ -938,20 +938,24 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
 				pdst[j]   =
 				pdst[j+1] =
-				pdst[j+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
+				pdst[j+2] = lut_to8bit.start.ptr8[
+						(u_char)((tmp_buffer[i+2] +
+						tmp_buffer[i+1] +
+						tmp_buffer[i]) / 3)
+						];
 			}
 		} else {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				pdst[j]   = tmp_buffer[i+2];
-				pdst[j+1] = tmp_buffer[i+1];
-				pdst[j+2] = tmp_buffer[i];
+				pdst[j]   = lut_to8bit.start.ptr8[ tmp_buffer[i+2] ];
+				pdst[j+1] = lut_to8bit.start.ptr8[ tmp_buffer[i+1] ];
+				pdst[j+2] = lut_to8bit.start.ptr8[ tmp_buffer[i] ];
 			}
 		}
 #else
 		for( i = 0, j = 0;i < pix_no; i ++, j += 4 ) {
 			pdst[j] =
 			pdst[j+1] =
-			pdst[j+2] = psrc.ptr8[i];
+			pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr8[i] ];
 		}
 #endif
 		pdecoded.ptr8 = pdst;
