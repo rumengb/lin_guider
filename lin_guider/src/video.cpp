@@ -511,6 +511,7 @@ cvideo_base::cvideo_base()
 	}
 
 	lut_to8bit.start = malloc( sizeof(unsigned char) * lut_to8bit_len );
+	init_lut_to8bit();
 
 	is_v4l_1 = false;
 
@@ -526,9 +527,6 @@ cvideo_base::~cvideo_base()
 
 	if( calibration_buffer.start.ptr )
 		free( calibration_buffer.start.ptr );
-
-	if( decoded_buffer.start.ptr )
-		free( decoded_buffer.start.ptr );
 
 	if( controls )
 		free_controls();
@@ -577,20 +575,12 @@ bool cvideo_base::start( const char *devname )
 	if( is_color() )
 	{
 		calibration_buffer.length = sizeof(double) * 3 * capture_params.width * capture_params.height;
-		decoded_buffer.length = bpp()/8 * 4 * capture_params.width * capture_params.height;
 	}
 	else
 	{
 		calibration_buffer.length = sizeof(double) * capture_params.width * capture_params.height;
-		decoded_buffer.length = bpp()/8 * capture_params.width * capture_params.height;
 	}
 	calibration_buffer.start.ptr = malloc( calibration_buffer.length );
-	decoded_buffer.start.ptr = malloc( decoded_buffer.length );
-
-	// init LUT
-	int top = channel_max_value() - capture_params.exposure;
-	if(top < 0) top = 0;
-	init_lut_to8bit( top );
 
 	// setup for capturing
 	ret = start_capturing();
@@ -1580,32 +1570,8 @@ int cvideo_base::bpp( void ) const
 		return 8;
 	case V4L2_PIX_FMT_Y16:
 		return 16;
-	case V4L2_PIX_FMT_RGB24:
-		return 24;
 	default:
 		log_e("Bpp request for unknown format");
-	}
-	return 0;
-}
-
-
-int cvideo_base::channel_max_value( void ) const
-{
-	switch( capture_params.pixel_format )
-	{
-	case V4L2_PIX_FMT_YVU420:
-	case V4L2_PIX_FMT_YUV420:
-	case V4L2_PIX_FMT_SGRBG8:
-	case V4L2_PIX_FMT_JPEG:
-	case V4L2_PIX_FMT_MJPEG:
-	case V4L2_PIX_FMT_YUYV:
-	case V4L2_PIX_FMT_GREY:
-	case V4L2_PIX_FMT_RGB24:
-		return 256;
-	case V4L2_PIX_FMT_Y16:
-		return 65536;
-	default:
-		log_e("channel max value request for unknown format");
 	}
 	return 0;
 }

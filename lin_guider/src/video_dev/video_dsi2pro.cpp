@@ -204,20 +204,26 @@ int cvideo_dsi2pro::set_control( unsigned int control_id, const param_val_t &val
 		internal_params_t iparam;
 		bool rs = false;
 
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 1023 ) v = 1023;
 		// set GAIN
-		iparam.cmd = CMD_SET_GAIN, iparam.arg = val.values[0], iparam.in = 1, iparam.out = 0, iparam.response = 0;
+		iparam.cmd = CMD_SET_GAIN, iparam.arg = v, iparam.in = 1, iparam.out = 0, iparam.response = 0;
 		rs = send_command( NULL, 0, (char *)&iparam, sizeof(internal_params_t) );
 		if( !rs )
 		{
 			log_e( "cvideo_dsi2pro::set_control(): CMD_SET_GAIN failed." );
 			return -1;
 		}
-		capture_params.gain = val.values[0];
-		break;
+		capture_params.gain = v;
 	}
+		break;
 	case V4L2_CID_EXPOSURE:
 	{
-		int top = 65536 - val.values[0];
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 65535 ) v = 65535;
+		int top = 65536 - v;
 		if( top <= 0 )
 		{
 			log_e( "cvideo_dsi2pro::set_control(): invalid exposure" );
@@ -225,9 +231,9 @@ int cvideo_dsi2pro::set_control( unsigned int control_id, const param_val_t &val
 		}
 		init_lut_to8bit( top );
 
-		capture_params.exposure = val.values[0];
-		break;
+		capture_params.exposure = v;
 	}
+		break;
 	default:
 		return -1;
 	}
@@ -304,7 +310,10 @@ int cvideo_dsi2pro::init_device( void )
 		}
 
 		// set GAIN
-		iparam.cmd = CMD_SET_GAIN, iparam.arg = 0, iparam.in = 1, iparam.out = 0, iparam.response = 0;
+		int v = capture_params.gain;
+		if( v < 0 ) v = 0;
+		if( v > 1023 ) v = 1023;
+		iparam.cmd = CMD_SET_GAIN, iparam.arg = v, iparam.in = 1, iparam.out = 0, iparam.response = 0;
 		rs = send_command( NULL, 0, (char *)&iparam, sizeof(internal_params_t) );
 		//out_rs = iparam.response == RES_ACK;
 		if( !rs )
@@ -422,6 +431,8 @@ int cvideo_dsi2pro::init_device( void )
 			log_e( "cvideo_dsi2pro::init_device(): CMD_SET_NORM_READOUT_DELAY failed." );
 			break;
 		}
+
+		set_exposure( capture_params.exposure );
 
 		get_autogain();
 		get_gain();

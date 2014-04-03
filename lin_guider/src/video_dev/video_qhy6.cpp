@@ -166,19 +166,25 @@ int cvideo_qhy6::set_control( unsigned int control_id, const param_val_t &val )
 	{
 	case V4L2_CID_GAIN:
 	{
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 100 ) v = 100;
 		int ret = EXIT_FAILURE;
-		ret = m_qhy6_obj->set_params( frame_delay, m_binn, val.values[0], m_offset, m_speed, m_amp, m_vbe, NULL, NULL, NULL );
+		ret = m_qhy6_obj->set_params( frame_delay, m_binn, v, m_offset, m_speed, m_amp, m_vbe, NULL, NULL, NULL );
 		if( ret != EXIT_SUCCESS )
 		{
 			log_e( "cvideo_qhy6::set_control(): set_params() failed." );
 			return -1;
 		}
-		capture_params.gain = val.values[0];
+		capture_params.gain = v;
 		break;
 	}
 	case V4L2_CID_EXPOSURE:
 	{
-		int top = 65536 - val.values[0];
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 65535 ) v = 65535;
+		int top = 65536 - v;
 		if( top <= 0 )
 		{
 			log_e( "cvideo_qhy6::set_control(): invalid exposure" );
@@ -186,7 +192,7 @@ int cvideo_qhy6::set_control( unsigned int control_id, const param_val_t &val )
 		}
 		init_lut_to8bit( top );
 
-		capture_params.exposure = val.values[0];
+		capture_params.exposure = v;
 		break;
 	}
 	default:
@@ -273,6 +279,8 @@ int cvideo_qhy6::init_device( void )
 		free( buffers );
 		return EXIT_FAILURE;
 	}
+
+	set_exposure( capture_params.exposure );
 
 	get_autogain();
 	get_gain();

@@ -168,7 +168,10 @@ int cvideo_qhy5::set_control( unsigned int control_id, const param_val_t &val )
 	{
 	case V4L2_CID_GAIN:
 	{
-		capture_params.gain = val.values[0];
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 100 ) v = 100;
+		capture_params.gain = v;
 		m_qhy5_obj->set_size(
 #ifdef QHY5_SCALER
 			QHY5_IMAGE_HEIGHT,
@@ -180,7 +183,10 @@ int cvideo_qhy5::set_control( unsigned int control_id, const param_val_t &val )
 	}
 	case V4L2_CID_EXPOSURE:
 	{
-		int top = 256 - val.values[0];
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 255 ) v = 255;
+		int top = 256 - v;
 		if( top <= 0 )
 		{
 			log_e( "cvideo_qhy5::set_control(): invalid exposure" );
@@ -188,7 +194,7 @@ int cvideo_qhy5::set_control( unsigned int control_id, const param_val_t &val )
 		}
 		init_lut_to8bit( top );
 
-		capture_params.exposure = val.values[0];
+		capture_params.exposure = v;
 		break;
 	}
 	default:
@@ -270,7 +276,7 @@ int cvideo_qhy5::init_device( void )
 	}
 
 	// prepare...
-	capture_params.gain	= 10;
+	int tmp_gain = 10;
 	m_qhy5_obj->start_exposure( frame_delay );
 	usleep( frame_delay * 1000 );
 	m_qhy5_obj->read_exposure( buffers[1].start.ptr8, buffers[1].length );
@@ -280,7 +286,10 @@ int cvideo_qhy5::init_device( void )
 #else
 			capture_params.height,
 #endif
-			capture_params.gain, 0 );
+			tmp_gain, 0 );
+
+	set_gain( capture_params.gain );
+	set_exposure( capture_params.exposure );
 
 	get_autogain();
 	get_gain();

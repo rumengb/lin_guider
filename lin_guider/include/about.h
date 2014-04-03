@@ -22,8 +22,9 @@
 #ifndef ABOUT_H
 #define ABOUT_H
 
-#include <QtGui/QDialog>
+#include <QtGui>
 #include "ui_about.h"
+
 
 class about : public QDialog
 {
@@ -32,6 +33,9 @@ class about : public QDialog
 public:
     about(QWidget *parent = 0);
     ~about();
+
+protected:
+	void showEvent( QShowEvent * event );
 
 private:
     Ui::aboutClass ui;

@@ -146,11 +146,19 @@ int  cvideo_null::set_control( unsigned int control_id, const param_val_t &val )
 		capture_params.autogain = val.values[0];
 		break;
 	case V4L2_CID_GAIN:
-		capture_params.gain = val.values[0];
+	{
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 100 ) v = 100;
+		capture_params.gain = v;
+	}
 		break;
 	case V4L2_CID_EXPOSURE:
 	{
-		int top = 256 - 2.55*val.values[0];
+		int v = val.values[0];
+		if( v < 0 ) v = 0;
+		if( v > 100 ) v = 100;
+		int top = 256 - 2.55*v;
 		if( top <= 0 )
 		{
 			log_e( "cvideo_null::set_control(): invalid exposure" );
@@ -158,7 +166,7 @@ int  cvideo_null::set_control( unsigned int control_id, const param_val_t &val )
 		}
 		init_lut_to8bit( top );
 
-		capture_params.exposure = val.values[0];
+		capture_params.exposure = v;
 		break;
 	}
 	default:
@@ -218,6 +226,10 @@ int cvideo_null::init_device( void )
  		free( buffers );
  		return EXIT_FAILURE;
  	}
+
+ 	set_autogain( capture_params.autogain );
+ 	set_gain( capture_params.gain );
+ 	set_exposure( capture_params.exposure );
 
  	get_autogain();
  	get_gain();
@@ -399,7 +411,7 @@ int cvideo_null::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 100;
 	queryctrl.step = 1;
-	queryctrl.default_value = capture_params.gain;
+	queryctrl.default_value = 10;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
@@ -411,7 +423,7 @@ int cvideo_null::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 100;
 	queryctrl.step = 1;
-	queryctrl.default_value = capture_params.exposure;
+	queryctrl.default_value = 0;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );

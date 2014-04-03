@@ -44,6 +44,15 @@ about::~about()
 }
 
 
+void about::showEvent( QShowEvent * event )
+{
+	if( event->spontaneous() )
+		return;
+
+	ui.tabWidget_Pages->setCurrentIndex( 0 );
+}
+
+
 void about::onOk_ButtonPressed()
 {
 	close();
