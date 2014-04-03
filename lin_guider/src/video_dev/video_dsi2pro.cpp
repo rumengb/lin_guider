@@ -623,7 +623,7 @@ int cvideo_dsi2pro::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1023;
 	queryctrl.step = 1;
-	queryctrl.default_value = 1;
+	queryctrl.default_value = capture_params.gain;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
@@ -635,7 +635,7 @@ int cvideo_dsi2pro::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 65535;
 	queryctrl.step = 1;
-	queryctrl.default_value = 1;
+	queryctrl.default_value = capture_params.exposure;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );

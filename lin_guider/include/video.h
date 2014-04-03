@@ -374,6 +374,7 @@ protected:
 
 	void init_lut_to8bit( int top = 0 );
 	int bpp( void ) const;
+	int channel_max_value( void ) const;
 	bool is_color( void ) const;
 
 	//struct video_capability vcap;

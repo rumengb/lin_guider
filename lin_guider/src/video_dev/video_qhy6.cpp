@@ -53,6 +53,7 @@ cvideo_qhy6::cvideo_qhy6() :
 
 	capture_params.fps = time_fract::mk_fps( 1, 1 );
 	capture_params.gain = 50;
+	capture_params.exposure = 1;
 
 	m_qhy6_obj = new qhy6_core_shared();
 }
@@ -481,7 +482,7 @@ int cvideo_qhy6::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 100;
 	queryctrl.step = 1;
-	queryctrl.default_value = 10;
+	queryctrl.default_value = capture_params.gain;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
@@ -493,7 +494,7 @@ int cvideo_qhy6::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 65535;
 	queryctrl.step = 1;
-	queryctrl.default_value = 1;
+	queryctrl.default_value = capture_params.exposure;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
