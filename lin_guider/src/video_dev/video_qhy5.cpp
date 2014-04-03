@@ -162,7 +162,7 @@ int cvideo_qhy5::get_vcaps( void )
 }
 
 
-int cvideo_qhy5::set_control( int control_id, const param_val_t &val )
+int cvideo_qhy5::set_control( unsigned int control_id, const param_val_t &val )
 {
 	switch( control_id )
 	{
@@ -198,7 +198,7 @@ int cvideo_qhy5::set_control( int control_id, const param_val_t &val )
 }
 
 
-int cvideo_qhy5::get_control( int control_id, param_val_t *val )
+int cvideo_qhy5::get_control( unsigned int control_id, param_val_t *val )
 {
 	switch( control_id )
 	{

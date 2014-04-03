@@ -138,7 +138,7 @@ int  cvideo_null::get_vcaps( void )
 }
 
 
-int  cvideo_null::set_control( int control_id, const param_val_t &val )
+int  cvideo_null::set_control( unsigned int control_id, const param_val_t &val )
 {
 	switch( control_id )
 	{
@@ -168,7 +168,7 @@ int  cvideo_null::set_control( int control_id, const param_val_t &val )
 }
 
 
-int  cvideo_null::get_control( int control_id, param_val_t *val )
+int  cvideo_null::get_control( unsigned int control_id, param_val_t *val )
 {
 	switch( control_id )
 	{

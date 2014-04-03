@@ -109,7 +109,7 @@ private:
 	custom_drawer *m_video_out; 	// Drawing widget
 	u_char *m_v_buf;
 	QImage  *m_video_buffer;
-	QColor SQR_OVL_COLOR, RA_COLOR, DEC_COLOR;
+	QColor SQR_OVL_COLOR, RA_COLOR, DEC_COLOR, RET_ORG_COLOR;
 
 	video_drv::captureparams_t capture_params;
 	guiderparams_t  guider_params;

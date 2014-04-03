@@ -195,7 +195,7 @@ int cvideo_dsi2pro::get_vcaps( void )
 }
 
 
-int cvideo_dsi2pro::set_control( int control_id, const param_val_t &val )
+int cvideo_dsi2pro::set_control( unsigned int control_id, const param_val_t &val )
 {
 	switch( control_id )
 	{
@@ -235,7 +235,7 @@ int cvideo_dsi2pro::set_control( int control_id, const param_val_t &val )
 }
 
 
-int cvideo_dsi2pro::get_control( int control_id, param_val_t *val )
+int cvideo_dsi2pro::get_control( unsigned int control_id, param_val_t *val )
 {
 	switch( control_id )
 	{

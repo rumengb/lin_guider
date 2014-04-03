@@ -794,46 +794,46 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 {
 #define HEADERFRAME1 0xaf
 
- int i, j, pix_no;
- u_char *pdst = (u_char*)video_dst;	// video buffer destination
- double *mdst = (double *)math_dst; // math buffer destination
- data_ptr psrc( src );
- data_ptr pdecoded;
- int bits = bpp();
- bool render_in_decoder = !capture_params.use_calibration || !have_calibration;
- //bool threat_as_color = (capture_params.pixel_format != V4L2_PIX_FMT_SGRBG8) && is_color();
+	int i, j, pix_no;
+	u_char *pdst = (u_char*)video_dst;	// video buffer destination
+	double *mdst = (double *)math_dst; // math buffer destination
+	data_ptr psrc( src );
+	data_ptr pdecoded;
+	int bits = bpp();
+	bool render_calibrated = capture_params.use_calibration && have_calibration;
+	//bool threat_as_color = (capture_params.pixel_format != V4L2_PIX_FMT_SGRBG8) && is_color();
 
- unsigned char *py, *pu, *pv;
+	unsigned char *py, *pu, *pv;
 
- int width, height;
- bool reverse = false;
+	int width, height;
+	bool reverse = false;
 
 
- 	pix_no = capture_params.width * capture_params.height;
+	pix_no = capture_params.width * capture_params.height;
 
- 	// check params
- 	if( pix_no * sizeof(uint32_t) != (unsigned)video_dst_size )
- 	{
- 		log_e( "cvideo_base::process_frame(): video_dst_size = %d != estimated size = %d", video_dst_size, pix_no * sizeof(uint32_t) );
- 		return;
- 	}
- 	if( pix_no * sizeof(double) != (unsigned)math_dst_size )
+	// check params
+	if( pix_no * sizeof(uint32_t) != (unsigned)video_dst_size )
+	{
+		log_e( "cvideo_base::process_frame(): video_dst_size = %d != estimated size = %d", video_dst_size, pix_no * sizeof(uint32_t) );
+		return;
+	}
+	if( pix_no * sizeof(double) != (unsigned)math_dst_size )
 	{
 		log_e( "cvideo_base::process_frame(): math_dst_size = %d != estimated size = %d", math_dst_size, pix_no * sizeof(double) );
 		return;
 	}
 
- 	// perform decoding
+	// perform decoding
 	// NOTE!!!
 	// decoder MUST can render rgba 32bit image if no calibration used. If calibration is used so calibration code renders rgba 32bit output image
 	// decoder MUST store decoded data in 'pdecoded' pointer
- 	switch( capture_params.pixel_format )
- 	{
- 	case 0:
- 	case V4L2_PIX_FMT_YVU420:
- 		reverse = true;
- 	case V4L2_PIX_FMT_YUV420:
- 	{
+	switch( capture_params.pixel_format )
+	{
+	case 0:
+	case V4L2_PIX_FMT_YVU420:
+		reverse = true;
+	case V4L2_PIX_FMT_YUV420:
+	{
 		if( is_grey )
 		{
 			for( i = 0, j = 0;i < pix_no;i++, j+=4 )
@@ -858,45 +858,45 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 		pdecoded.ptr8 = pdst;
 		break;
- 	}
- 	case V4L2_PIX_FMT_JPEG:
- 	case V4L2_PIX_FMT_MJPEG:
- 	{
- 		if( bytesused <= HEADERFRAME1 )
- 		{	/* Prevent crash on empty image */
- 			/*	    if(debug)*/
- 			log_e("Ignoring empty buffer ...");
- 			return;
- 		}
- 		width = capture_params.width;
- 		height = capture_params.height;
+	}
+	case V4L2_PIX_FMT_JPEG:
+	case V4L2_PIX_FMT_MJPEG:
+	{
+		if( bytesused <= HEADERFRAME1 )
+		{	/* Prevent crash on empty image */
+			/*	    if(debug)*/
+			log_e("Ignoring empty buffer ...");
+			return;
+		}
+		width = capture_params.width;
+		height = capture_params.height;
 
- 		if( jpeg_decode(&tmp_buffer, psrc.ptr8, &width, &height) < 0 )
- 		{
- 			log_e("jpeg decode errors");
- 		}
- 		else
- 		if( tmp_buffer )
- 		{
- 			width = capture_params.width;
- 			height = capture_params.height;
-
- 			if( is_grey )
- 			{
- 				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
- 					pdst[j]   =
-					pdst[j+1] =
-					pdst[j+2] = tmp_buffer[i<<1];
- 			}
- 			else
+		if( jpeg_decode(&tmp_buffer, psrc.ptr8, &width, &height) < 0 )
+		{
+			log_e("jpeg decode errors");
+		}
+		else
+			if( tmp_buffer )
 			{
-				convert_yuv422_to_rgb32( tmp_buffer, pdst, width, height );
+				width = capture_params.width;
+				height = capture_params.height;
+
+				if( is_grey )
+				{
+					for( i = 0, j = 0;i < pix_no;i++, j+=4 )
+						pdst[j]   =
+						pdst[j+1] =
+						pdst[j+2] = tmp_buffer[i<<1];
+				}
+				else
+				{
+					convert_yuv422_to_rgb32( tmp_buffer, pdst, width, height );
+				}
+				pdecoded.ptr8 = pdst;
 			}
-			pdecoded.ptr8 = pdst;
- 		}
- 		break;
- 	}
- 	case V4L2_PIX_FMT_YUYV:
+		break;
+	}
+	case V4L2_PIX_FMT_YUYV:
 	{
 		if( is_grey )
 		{
@@ -909,20 +909,10 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		break;
 	}
 	case V4L2_PIX_FMT_GREY:
-		if( render_in_decoder )
-		{
-			for( i = 0, j = 0;i < pix_no;i++, j += 4 )
-				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr8[i] ]; // we can apply LUT here since pdecoded.ptr8 != pdst
-		}
 		pdecoded.ptr8 = psrc.ptr8;
 		break;
 	case V4L2_PIX_FMT_Y16:
-		if( render_in_decoder )
-		{
-			for( i = 0, j = 0;i < pix_no;i++, j += 4 )
-				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr16[i] ];
-		}
- 		pdecoded.ptr16 = psrc.ptr16;
+		pdecoded.ptr16 = psrc.ptr16;
 		break;
 	case V4L2_PIX_FMT_SGRBG8:
 	{
@@ -938,38 +928,34 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
 				pdst[j]   =
 				pdst[j+1] =
-				pdst[j+2] = lut_to8bit.start.ptr8[
-						(u_char)((tmp_buffer[i+2] +
-						tmp_buffer[i+1] +
-						tmp_buffer[i]) / 3)
-						];
+				pdst[j+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
 			}
 		} else {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				pdst[j]   = lut_to8bit.start.ptr8[ tmp_buffer[i+2] ];
-				pdst[j+1] = lut_to8bit.start.ptr8[ tmp_buffer[i+1] ];
-				pdst[j+2] = lut_to8bit.start.ptr8[ tmp_buffer[i] ];
+				pdst[j]   = tmp_buffer[i+2];
+				pdst[j+1] = tmp_buffer[i+1];
+				pdst[j+2] = tmp_buffer[i];
 			}
 		}
 #else
 		for( i = 0, j = 0;i < pix_no; i ++, j += 4 ) {
 			pdst[j] =
 			pdst[j+1] =
-			pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr8[i] ];
+			pdst[j+2] = psrc.ptr8[i];
 		}
 #endif
 		pdecoded.ptr8 = pdst;
- 	}
+	}
 		break;
- 	default:
+	default:
 	{
- 		log_e("Frame of unknown format grabbed!");
+		log_e("Frame of unknown format grabbed!");
 		return;
 	}
- 	}
+	}
 
 	// apply calibration frame to data buffer and render output rgba 32bit image
-	if( !render_in_decoder )
+	if( render_calibrated )
 	{
 		int val = 0;
 		if( is_color() )
@@ -979,14 +965,11 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 )
 			{
 				val = (int)pdecoded.ptr8[j]   - (int)calibration_buffer.start.ptrDBL[i];
-				val = val < 0 ? 0 : val;
-				pdst[j] = lut_to8bit.start.ptr8[ (u_char)val ];
+				pdecoded.ptr8[j]   = (u_char)(val < 0 ? 0 : val);
 				val = (int)pdecoded.ptr8[j+1] - (int)calibration_buffer.start.ptrDBL[i+1];
-				val = val < 0 ? 0 : val;
-				pdst[j+1] = lut_to8bit.start.ptr8[ (u_char)val ];
+				pdecoded.ptr8[j+1] = (u_char)(val < 0 ? 0 : val);
 				val = (int)pdecoded.ptr8[j+2] - (int)calibration_buffer.start.ptrDBL[i+2];
-				val = val < 0 ? 0 : val;
-				pdst[j+2] = lut_to8bit.start.ptr8[ (u_char)val ];
+				pdecoded.ptr8[j+2] = (u_char)(val < 0 ? 0 : val);
 			}
 		}
 		else
@@ -996,9 +979,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 				for( i = 0, j = 0;i < pix_no;i++, j += 4 )
 				{
 					val = (int)pdecoded.ptr8[i] - (int)calibration_buffer.start.ptrDBL[i];
-					val = val < 0 ? 0 : val;
-					pdecoded.ptr8[i] = (u_char)val;
-					pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
+					pdecoded.ptr8[i] = (u_char)(val < 0 ? 0 : val);
 				}
 			}
 			else
@@ -1007,9 +988,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 				for( i = 0, j = 0;i < pix_no;i++, j += 4 )
 				{
 					val = (int)psrc.ptr16[i] - (int)calibration_buffer.start.ptrDBL[i];
-					val = val < 0 ? 0 : val;
-					psrc.ptr16[i] = (u_short)val;
-					pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ psrc.ptr16[i] ];
+					pdecoded.ptr16[i] = (u_short)(val < 0 ? 0 : val);
 				}
 			}
 		}
@@ -1022,7 +1001,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		if( is_color() )
 		{
 			int cell_no = pix_no * 3;
-		    for( i = 0, j = 0;i < cell_no;i+=3, j+=4 )
+			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 )
 			{
 				calibration_buffer.start.ptrDBL[i]   += (double)pdecoded.ptr8[j];
 				calibration_buffer.start.ptrDBL[i+1] += (double)pdecoded.ptr8[j+1];
@@ -1063,10 +1042,10 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 				for( i = 0;i < pix_no;i++ )
 					calibration_buffer.start.ptrDBL[i] /= (double)calibration_frame_cnt;
 			}
-			
+
 			is_calibrating = false;
 			have_calibration = true;
-			
+
 			emit calibrationFinished();
 		}
 	}
@@ -1095,6 +1074,31 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 	}
 
+	// finalize - apply LUT
+	if( is_color() )
+	{
+		int cell_no = pix_no << 2;
+		for( i = 0;i < cell_no;i+=4 )
+		{
+			pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
+			pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+1] ];
+			pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+2] ];
+		}
+	}
+	else
+	{
+		if( bits == 8 )
+		{
+			for( i = 0, j = 0;i < pix_no;i++, j += 4 )
+				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
+		}
+		else
+		if( bits == 16 )
+		{
+			for( i = 0, j = 0;i < pix_no;i++, j += 4 )
+				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ pdecoded.ptr16[i] ];
+		}
+	}
 }
 
 

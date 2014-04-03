@@ -250,9 +250,10 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	d_objs[0].type = ovr_params_t::OVR_SQUARE;
 	d_objs[1].type = ovr_params_t::OVR_RETICLE;
 
-	SQR_OVL_COLOR  = QColor(DEF_SQR_OVL_COLOR[0], DEF_SQR_OVL_COLOR[1], DEF_SQR_OVL_COLOR[2]);
-	RA_COLOR	   = QColor(DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2]);
-	DEC_COLOR	   = QColor(DEF_DEC_COLOR[0], DEF_DEC_COLOR[1], DEF_DEC_COLOR[2]);
+	SQR_OVL_COLOR  = QColor( DEF_SQR_OVL_COLOR[0], DEF_SQR_OVL_COLOR[1], DEF_SQR_OVL_COLOR[2]) ;
+	RA_COLOR	   = QColor( DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2] );
+	DEC_COLOR	   = QColor( DEF_DEC_COLOR[0], DEF_DEC_COLOR[1], DEF_DEC_COLOR[2] );
+	RET_ORG_COLOR  = QColor( DEF_RET_ORG_COLOR[0], DEF_RET_ORG_COLOR[1], DEF_RET_ORG_COLOR[2] );
 
 	update_sb_video_info();
 	update_sb_io_info();
@@ -466,7 +467,7 @@ void lin_guider::onGetVideo( const void *src, int len )
 	painter.begin( m_video_buffer );
 	if( povr->visible & ovr_params_t::OVR_RETICLE_ORG )
 	{
-		painter.setPen( QColor( 255, 0, 0, 255 ) );
+		painter.setPen( RET_ORG_COLOR );
 		painter.drawPoint( povr->reticle_org.x, povr->reticle_org.y );
 	}
 	if( povr->visible & ovr_params_t::OVR_SQUARE )

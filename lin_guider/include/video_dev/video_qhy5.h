@@ -46,8 +46,8 @@ protected:
 	virtual int close_device( void );		// close device
 	virtual int get_vcaps( void );
 
-	virtual int set_control( int control_id, const param_val_t &val );
-	virtual int get_control( int control_id, param_val_t *val );
+	virtual int set_control( unsigned int control_id, const param_val_t &val );
+	virtual int get_control( unsigned int control_id, param_val_t *val );
 
 private:
 	virtual int init_device( void );		// get&check capabilities, apply format
