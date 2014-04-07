@@ -42,8 +42,6 @@ class cvideo_atik : public cvideo_base
 public:
 	cvideo_atik( bool stub = false );
 	virtual ~cvideo_atik();
-	AtikCamera *camera_list[CAM_MAX];
-        AtikCamera *camera;
 
 	virtual time_fract_t set_fps( const time_fract_t &new_fps );
 
@@ -56,6 +54,9 @@ protected:
 	virtual int get_control( unsigned int control_id, param_val_t *val );
 
 private:
+	AtikCamera *camera_list[CAM_MAX];
+	AtikCamera *camera;
+	int camera_count;
 	const char* name;
 	CAMERA_TYPE type;
 	bool hasShutter;

@@ -91,8 +91,8 @@ int cvideo_atik::open_device( void )
 {
 	log_i("%s()", __FUNCTION__);
 
-	int count = AtikCamera::list(camera_list, CAM_MAX);
-	if (count <=0) return 1;
+	camera_count = AtikCamera::list(camera_list, CAM_MAX);
+	if (camera_count <=0) return 1;
 	camera = camera_list[0];
 	log_i("Camera found: %s", camera->getName());
 
@@ -205,34 +205,34 @@ int cvideo_atik::init_device( void )
 
 	int sizeimage = 0;
 
- 	// set desired size
- 	sizeimage = set_format();
- 	if( sizeimage <= 0 )
- 		return EXIT_FAILURE;
+	// set desired size
+	sizeimage = set_format();
+	if( sizeimage <= 0 )
+		return EXIT_FAILURE;
 
- 	set_fps( capture_params.fps );
+	set_fps( capture_params.fps );
 
- 	n_buffers = 1;
- 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
+	n_buffers = 1;
+	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
 
- 	if( !buffers )
- 	{
- 		log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
- 		return EXIT_FAILURE;
- 	}
+	if( !buffers )
+	{
+		log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
+		return EXIT_FAILURE;
+	}
 
- 	buffers[0].length = sizeimage;
- 	buffers[0].start.ptr = malloc( sizeimage );
+	buffers[0].length = sizeimage;
+	buffers[0].start.ptr = malloc( sizeimage );
 
- 	if( !buffers[0].start.ptr )
- 	{
- 		log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
- 		free( buffers );
- 		return EXIT_FAILURE;
- 	}
+	if( !buffers[0].start.ptr )
+	{
+		log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
+		free( buffers );
+		return EXIT_FAILURE;
+	}
 
- 	set_exposure( capture_params.exposure );
- 	get_exposure();
+	set_exposure( capture_params.exposure );
+	get_exposure();
 
 	return 0;
 }
@@ -280,7 +280,7 @@ int cvideo_atik::read_frame( void )
         (void)raw;
 
 	bool success = camera->startExposure(false);
- 	if( 0 && DBG_VERBOSITY )
+	if( 0 && DBG_VERBOSITY )
 		log_i( "Exposure started" );
 
 	usleep( frame_delay * 1000 );
@@ -337,7 +337,7 @@ int cvideo_atik::set_format( void )
 	capture_params.width  = pt.x;
 	capture_params.height = pt.y;
 
- 	return capture_params.width * capture_params.height * 2;
+	return capture_params.width * capture_params.height * 2;
 }
 
 
