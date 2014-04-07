@@ -38,7 +38,7 @@ namespace video_drv
 
 cvideo_atik::cvideo_atik( bool stub )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 	device_type = DT_ATIK;
 	AtikDebug = 1;
 
@@ -48,14 +48,14 @@ cvideo_atik::cvideo_atik( bool stub )
 
 cvideo_atik::~cvideo_atik()
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 	stop();
 }
 
 
 time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	time_fract_t set_fps = time_fract::mk_fps( 1, 1 );
 	int frame_idx = get_frame_idx();
@@ -89,7 +89,7 @@ time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 
 int cvideo_atik::open_device( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	camera_count = AtikCamera::list(camera_list, CAM_MAX);
 	if (camera_count <=0) return 1;
@@ -109,7 +109,7 @@ int cvideo_atik::open_device( void )
 
 int cvideo_atik::close_device( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	camera->abortExposure();
 	camera->close();
@@ -120,7 +120,7 @@ int cvideo_atik::close_device( void )
 
 int  cvideo_atik::get_vcaps( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	int i = 0;
 	point_t pt;
@@ -155,7 +155,7 @@ int  cvideo_atik::get_vcaps( void )
 
 int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	switch( control_id ) {
 	case V4L2_CID_EXPOSURE: {
@@ -181,7 +181,7 @@ int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 
 int  cvideo_atik::get_control( unsigned int control_id, param_val_t *val )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	switch( control_id ) {
 	case V4L2_CID_EXPOSURE:
@@ -196,7 +196,7 @@ int  cvideo_atik::get_control( unsigned int control_id, param_val_t *val )
 
 int cvideo_atik::init_device( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	int sizeimage = 0;
 
@@ -233,7 +233,7 @@ int cvideo_atik::init_device( void )
 
 int cvideo_atik::uninit_device( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	if( buffers ) {
 		for( int i = 0;i < (int)n_buffers;i++ ) {
@@ -250,21 +250,21 @@ int cvideo_atik::uninit_device( void )
 
 int cvideo_atik::start_capturing( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 	return 0;
 }
 
 
 int cvideo_atik::stop_capturing( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 	return 0;
 }
 
 
 int cvideo_atik::read_frame( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	ctimer tm;
 	data_ptr raw = buffers[0].start;
@@ -275,7 +275,7 @@ int cvideo_atik::read_frame( void )
 		log_e("startExposure(): failed");
 		return 1;
 	}
-	if( 0 && DBG_VERBOSITY )
+	if( DBG_VERBOSITY )
 		log_i( "Exposure started" );
 
 	usleep( frame_delay * 1000 );
@@ -285,7 +285,7 @@ int cvideo_atik::read_frame( void )
 		log_e("readCCD(): failed");
 		return 1;
 	}
-	if( 0 && DBG_VERBOSITY )
+	if( DBG_VERBOSITY )
 		log_i("Exposure finished. Reading %d bytes", buffers[0].length);
 
 	success = camera->getImage(raw.ptr16, pixelCountX * pixelCountY);
@@ -293,7 +293,7 @@ int cvideo_atik::read_frame( void )
 		log_e("getImage(): failed");
 		return 1;
 	}
-	if( 0 && DBG_VERBOSITY )
+	if( DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
 
 	// synchronize data with GUI
@@ -311,7 +311,7 @@ int cvideo_atik::read_frame( void )
 
 int cvideo_atik::set_format( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	int i, j;
 	point_t pt = {0, 0};
@@ -343,7 +343,7 @@ int cvideo_atik::set_format( void )
 
 int cvideo_atik::enum_controls( void )
 {
-	log_i("%s()", __FUNCTION__);
+	//log_i("%s()", __FUNCTION__);
 
 	int n = 0;
 	struct v4l2_queryctrl queryctrl;
