@@ -61,7 +61,6 @@ cscroll_graph::cscroll_graph( QWidget *own, int client_width, int client_height 
 	GRID_FONT_COLOR	= QColor( DEF_GRID_FONT_COLOR[0], DEF_GRID_FONT_COLOR[1], DEF_GRID_FONT_COLOR[2] );
 	brush.setColor( BKGD_COLOR );
 
-
 	// init...
 	init_render_vars();
 

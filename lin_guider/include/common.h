@@ -116,7 +116,6 @@ public:
 
 	int dithering_range;
 	int dithering_rest_tout;
-
 };
 
 #endif /* COMMON_H_ */

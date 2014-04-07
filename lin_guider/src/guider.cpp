@@ -37,7 +37,7 @@
 #define DRIFT_GRAPH_HEIGHT	300
 
 
-guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, const common_params &comm_params ) :
+guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params ) :
 	QDialog( parent ),
 	m_math( NULL ),
 	m_drift_out( NULL ),
@@ -50,6 +50,7 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, const common_p
 	guiding_stable( 0 ),
 	pmain_wnd( parent ),
 	m_driver( drv ),
+	m_drift_view_params( dv_params ),
 	m_common_params( comm_params )
 {
 	int i;
@@ -111,9 +112,12 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, const common_p
 	ui.frame_Graph->setAttribute( Qt::WA_NoSystemBackground, true );
 
 	m_drift_graph = new cscroll_graph( this, DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT );
-	m_drift_graph->set_visible_ranges( DRIFT_GRAPH_WIDTH, 60 );
+	m_drift_graph->set_visible_ranges( m_drift_view_params->drift_graph_xrange > 0 && m_drift_view_params->drift_graph_xrange <= DRIFT_GRAPH_WIDTH ? m_drift_view_params->drift_graph_xrange : DRIFT_GRAPH_WIDTH,
+									   //DRIFT_GRAPH_WIDTH,
+									   m_drift_view_params->drift_graph_yrange > 0 ? m_drift_view_params->drift_graph_yrange : 60 );
 
 	m_drift_out->set_source( m_drift_graph->get_buffer(), NULL );
+	m_drift_graph->on_paint();
 
 	ui.frame_Graph->resize( DRIFT_GRAPH_WIDTH + 2*ui.frame_Graph->frameWidth(), DRIFT_GRAPH_HEIGHT + 2*ui.frame_Graph->frameWidth() );
 
@@ -270,16 +274,16 @@ void guider::fill_interface( void )
 	ui.l_ErrDEC->setText( QString().setNum(out_params->sigma[DEC]) );
 
 	ui.l_Quality->setText( QString().setNum(out_params->quality, 'f', 1) );
-
 }
 
 
 void guider::onXscaleChanged( int i )
 {
 	int rx, ry;
+    int x_range = i*m_drift_graph->get_grid_N();
 
 	m_drift_graph->get_visible_ranges( &rx, &ry );
-	m_drift_graph->set_visible_ranges( i*m_drift_graph->get_grid_N(), ry );
+	m_drift_graph->set_visible_ranges( x_range, ry );
 
 	// refresh if not started
 	if( !is_started )
@@ -287,15 +291,17 @@ void guider::onXscaleChanged( int i )
 		m_drift_graph->on_paint();
 		m_drift_out->update();
 	}
+	m_drift_view_params->drift_graph_xrange = x_range;
 }
 
 
 void guider::onYscaleChanged( int i )
 {
 	int rx, ry;
+	int y_range =i*m_drift_graph->get_grid_N();
 
 	m_drift_graph->get_visible_ranges( &rx, &ry );
-	m_drift_graph->set_visible_ranges( rx, i*m_drift_graph->get_grid_N() );
+	m_drift_graph->set_visible_ranges( rx, y_range );
 
 	// refresh if not started
 	if( !is_started )
@@ -303,6 +309,7 @@ void guider::onYscaleChanged( int i )
 		m_drift_graph->on_paint();
 		m_drift_out->update();
 	}
+	m_drift_view_params->drift_graph_yrange = y_range;
 }
 
 

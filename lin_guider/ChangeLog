@@ -1,10 +1,11 @@
 2014-01-30 Lin_guider 2.9.1 (c)Galaxy Master  <galaxy_master@mail.ru>
 
+	* Multiple video-subsystem improvements
 	* Added Nexstar IO driver
-	* Added experimental support of QHY5L-II-C
+	* Added support of QHY5L-II-C
 	* Improved direction control of guider
 	* Misc. improvements and bugfixes
-	
+
 2013-10-10 Lin_guider 2.9.0 (c)Galaxy Master  <galaxy_master@mail.ru>
 
 	* Added GPUSB IO driver

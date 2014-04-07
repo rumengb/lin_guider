@@ -118,6 +118,7 @@ private:
 	calibrationparams_t calibration_params;
 	net_params_t m_net_params;
 	common_params m_common_params;
+	guider::drift_view_params_s m_drift_view_params;
 
 	// dev names
 	char dev_name_video[64];

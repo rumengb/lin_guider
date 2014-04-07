@@ -83,8 +83,9 @@ params::params()
 	snprintf( m_net_params.bcast_ip, sizeof(m_net_params.bcast_ip), "127.0.0.1" );
 	m_net_params.bcast_port = 5001;
 
-	// common params initialized by ctor()
+	// common params are initialized by ctor()
 
+	// drift view params are initialized by ctor()
 }
 
 
@@ -226,6 +227,13 @@ bool params::load( void )
 		DBG_VERBOSITY = settings.value( "dbg_verbosity", false ).toBool();
 	settings.endGroup();
 
+	// drift view
+	settings.beginGroup("guider_drift_view");
+		m_drift_view_params.drift_graph_xrange = settings.value( "drift_graph_xrange", 300 ).toInt();
+		m_drift_view_params.drift_graph_yrange = settings.value( "drift_graph_yrange", 60 ).toInt();
+		DBG_VERBOSITY = settings.value( "dbg_verbosity", false ).toBool();
+	settings.endGroup();
+
 	// load device config
 	QSettings dev_settings( "GM_software", QString("devconf")+QString().setNum(m_device_params.type) );
 	if( access(dev_settings.fileName().toAscii().data(), R_OK|W_OK) != 0 )
@@ -363,6 +371,12 @@ bool params::save( void )
 		settings.setValue( "dithering_range", m_common_params.dithering_range );
 		settings.setValue( "dithering_rest_tout", m_common_params.dithering_rest_tout );
 		settings.setValue( "dbg_verbosity", DBG_VERBOSITY );
+	settings.endGroup();
+
+	// common
+	settings.beginGroup("guider_drift_view");
+		settings.setValue( "drift_graph_xrange", m_drift_view_params.drift_graph_xrange );
+		settings.setValue( "drift_graph_yrange", m_drift_view_params.drift_graph_yrange );
 	settings.endGroup();
 
 	// save device config

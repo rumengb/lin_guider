@@ -104,7 +104,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_QHY5II,
 										false,
 										4,
-										"qhy5ii (unstable)",
+										"qhy5ii",
 										NULL,
 										NULL
 									},

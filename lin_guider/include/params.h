@@ -31,6 +31,7 @@
 #include "setup_video.h"
 #include "rcalibration.h"
 #include "server.h"
+#include "guider.h"
 
 
 class params
@@ -84,6 +85,9 @@ public:
 	common_params get_common_params( void ) const { return m_common_params; };
 	void set_common_params( const common_params &v ) { m_common_params = v; };
 
+	// drift view
+	guider::drift_view_params_s get_drift_view_params( void ) { return m_drift_view_params; };
+	void set_drift_view_params( const guider::drift_view_params_s &v ) { m_drift_view_params = v; }
 
 private:
 	// video
@@ -106,6 +110,9 @@ private:
 
 	// common params
 	common_params m_common_params;
+
+	// guider drift view params
+	guider::drift_view_params_s m_drift_view_params;
 
 	// dev names
 	char m_dev_name_video[64];

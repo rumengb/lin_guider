@@ -44,7 +44,17 @@ class guider : public QDialog
     Q_OBJECT
 
 public:
-    guider( lin_guider *parent, io_drv::cio_driver_base *drv, const common_params &comm_params );
+    struct drift_view_params_s
+    {
+    	drift_view_params_s() :
+    		drift_graph_xrange( -1 ),
+    		drift_graph_yrange( -1 )
+    	{}
+    	int drift_graph_xrange;
+    	int drift_graph_yrange;
+    };
+
+    guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params );
     ~guider();
 
     void guide( void );
@@ -94,6 +104,7 @@ private:
 
 	lin_guider *pmain_wnd;
 	io_drv::cio_driver_base *m_driver;
+	struct guider::drift_view_params_s *m_drift_view_params;
 	const common_params &m_common_params;
 private:
     Ui::guiderClass ui;

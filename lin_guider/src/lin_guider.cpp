@@ -94,6 +94,7 @@ lin_guider::lin_guider(QWidget *parent)
 	param_block->get_io_dev( dev_name_io, sizeof(dev_name_io) );
 	m_net_params    = param_block->get_net_params();
 	m_common_params = param_block->get_common_params();
+	m_drift_view_params =  param_block->get_drift_view_params();
 
 	// create devices...
 	// io driver
@@ -192,7 +193,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	reticle_wnd->set_video_params( capture_params.width, capture_params.height );
 
 	// guider dialog
-	guider_wnd = new guider( this, m_driver, m_common_params );
+	guider_wnd = new guider( this, m_driver, &m_drift_view_params, m_common_params );
 	guider_wnd->set_half_refresh_rate( ui_params.half_refresh_rate );
 
 	// movie recorder dialog
@@ -373,6 +374,7 @@ void lin_guider::closeEvent( QCloseEvent *event )
 	param_block->set_io_dev( dev_name_io );
 	param_block->set_net_params( m_net_params );
 	param_block->set_common_params( m_common_params );
+	param_block->set_drift_view_params( m_drift_view_params );
 	param_block->save();
 }
 
