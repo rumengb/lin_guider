@@ -26,6 +26,7 @@ HEADERS += include/io_dev/io_nexstar.h \
     include/video_dev/video_null.h \
     include/video_dev/video_dsi2pro.h \
     include/video_dev/video_qhy5.h \
+    include/video_dev/video_atik.h \
     include/video_dev/video_pwc.h \
     include/video_dev/video_uvc.h \
     include/bayer.h \
@@ -58,6 +59,7 @@ SOURCES += src/io_dev/io_nexstar.cpp \
     src/io_dev/io_qhy5ii.cpp \
     src/video_dev/qhy5ii_core.cpp \
     src/video_dev/video_qhy5ii.cpp \
+    src/video_dev/video_atik.cpp \
     src/io_dev/io_gpio.cpp \
     src/io_dev/io_gpusb.cpp \
     src/settings.cpp \
@@ -112,6 +114,6 @@ INCLUDEPATH += include/ \
     include/io_dev/ \
     include/video_dev/ \
     ./
-LIBS += -lusb-1.0 \
+LIBS += -latikccd -lusb-1.0 \
     -ldl \
     -lrt

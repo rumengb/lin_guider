@@ -43,6 +43,7 @@
 #include "video_dsi2pro.h"
 #include "video_qhy6.h"
 #include "video_qhy5ii.h"
+#include "video_atik.h"
 
 #include "utils.h"
 #include "maindef.h"
@@ -161,6 +162,9 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 		break;
 	case video_drv::DRV_QHY5II:
 		m_video = new video_drv::cvideo_qhy5ii();
+		break;
+	case video_drv::DRV_ATIK:
+		m_video = new video_drv::cvideo_atik( );
 		break;
 	default:
 		m_video = new video_drv::cvideo_null( true );

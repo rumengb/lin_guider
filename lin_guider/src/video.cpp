@@ -95,7 +95,15 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 													"qhy5ii",
 													NULL,
 													NULL
-												}
+												},
+												{
+                                                                                                        DT_ATIK,
+                                                                                                        false,
+                                                                                                        "atik",
+                                                                                                        NULL,
+                                                                                                        NULL
+                                                                                                }
+
 											};
 
 int cvideo_base::enum_frame_intervals( unsigned int pixfmt, unsigned int width, unsigned int height, int fmt_idx, int frm_idx )
@@ -1696,6 +1704,9 @@ int cvideo_base::detect_best_device( int devtype, const char *devname )
  	case DT_QHY6:
 		log_i( "Trying QHY6..." );
 		return DRV_QHY6;
+	case DT_ATIK:
+		log_i( "Trying ATIK..." );
+		return DRV_ATIK;
  	case DT_NULL:
 		log_i( "Trying NULL-camera..." );
 		return DRV_NULL;
