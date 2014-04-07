@@ -144,8 +144,7 @@ int  cvideo_atik::get_vcaps( void )
 	pt.x = pt.y = 0;
 	device_formats[0].frame_table[ i++ ].size = pt;
 
-	if( enum_controls() )
-	{
+	if( enum_controls() ) {
 		log_e("Unable to enumerate controls");
 		return EXIT_FAILURE;
 	}
@@ -158,16 +157,13 @@ int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 {
 	log_i("%s()", __FUNCTION__);
 
-	switch( control_id )
-	{
-	case V4L2_CID_EXPOSURE:
-	{
+	switch( control_id ) {
+	case V4L2_CID_EXPOSURE: {
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
 		if( v > 65536 ) v = 65536;
 		int top = 65536 - v;
-		if( top <= 0 )
-		{
+		if( top <= 0 ) {
 			log_e( "cvideo_atik::set_control(): invalid exposure" );
 			return -1;
 		}
@@ -187,8 +183,7 @@ int  cvideo_atik::get_control( unsigned int control_id, param_val_t *val )
 {
 	log_i("%s()", __FUNCTION__);
 
-	switch( control_id )
-	{
+	switch( control_id ) {
 	case V4L2_CID_EXPOSURE:
 		val->values[0] = capture_params.exposure;
 		break;
@@ -215,8 +210,7 @@ int cvideo_atik::init_device( void )
 	n_buffers = 1;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
 
-	if( !buffers )
-	{
+	if( !buffers ) {
 		log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
 		return EXIT_FAILURE;
 	}
@@ -224,8 +218,7 @@ int cvideo_atik::init_device( void )
 	buffers[0].length = sizeimage;
 	buffers[0].start.ptr = malloc( sizeimage );
 
-	if( !buffers[0].start.ptr )
-	{
+	if( !buffers[0].start.ptr ) {
 		log_e( "Out of memory %s, %s", __FUNCTION__, __LINE__ );
 		free( buffers );
 		return EXIT_FAILURE;
@@ -242,10 +235,8 @@ int cvideo_atik::uninit_device( void )
 {
 	log_i("%s()", __FUNCTION__);
 
-	if( buffers )
-	{
-		for( int i = 0;i < (int)n_buffers;i++ )
-		{
+	if( buffers ) {
+		for( int i = 0;i < (int)n_buffers;i++ ) {
 			if( buffers[i].start.ptr16 )
 				free( buffers[i].start.ptr16 );
 		}
@@ -280,16 +271,28 @@ int cvideo_atik::read_frame( void )
         (void)raw;
 
 	bool success = camera->startExposure(false);
+	if( !success ) {
+		log_e("startExposure(): failed");
+		return 1;
+	}
 	if( 0 && DBG_VERBOSITY )
 		log_i( "Exposure started" );
 
 	usleep( frame_delay * 1000 );
 
 	success = camera->readCCD(0, 0, pixelCountX, pixelCountY, 1, 1);
+	if( !success ) {
+		log_e("readCCD(): failed");
+		return 1;
+	}
 	if( 0 && DBG_VERBOSITY )
 		log_i("Exposure finished. Reading %d bytes", buffers[0].length);
 
 	success = camera->getImage(raw.ptr16, pixelCountX * pixelCountY);
+	if( !success ) {
+		log_e("getImage(): failed");
+		return 1;
+	}
 	if( 0 && DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
 
@@ -314,15 +317,12 @@ int cvideo_atik::set_format( void )
 	point_t pt = {0, 0};
 
 	capture_params.pixel_format = V4L2_PIX_FMT_Y16;
-	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ )
-	{
+	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ ) {
 		if( device_formats[i].format != capture_params.pixel_format )
 			continue;
-		for( j = 0;j < MAX_FMT && device_formats[i].frame_table[j].size.x;j++ )
-		{
+		for( j = 0;j < MAX_FMT && device_formats[i].frame_table[j].size.x;j++ ) {
 			if( device_formats[i].frame_table[j].size.x == (int)capture_params.width &&
-					device_formats[i].frame_table[j].size.y == (int)capture_params.height )
-			{
+					device_formats[i].frame_table[j].size.y == (int)capture_params.height ) {
 				pt = device_formats[i].frame_table[j].size;
 				break;
 			}
