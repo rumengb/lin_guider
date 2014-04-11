@@ -32,15 +32,25 @@
 #include "utils.h"
 #include "filters.h"
 
+
+long time_diff(struct timeval *start, struct timeval *end) {
+	long msec;
+
+	msec = (end->tv_sec - start->tv_sec) * 1000;
+	msec += (end->tv_usec - start->tv_usec) / 1000;
+
+	return msec;
+}
+
+
 namespace video_drv
 {
 
 
 cvideo_atik::cvideo_atik( bool stub )
 {
-	//log_i("%s()", __FUNCTION__);
 	device_type = DT_ATIK;
-	AtikDebug = 1;
+	AtikDebug = 0;
 
 	stub_mode = stub;
 }
@@ -48,15 +58,12 @@ cvideo_atik::cvideo_atik( bool stub )
 
 cvideo_atik::~cvideo_atik()
 {
-	//log_i("%s()", __FUNCTION__);
 	stop();
 }
 
 
 time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	time_fract_t set_fps = time_fract::mk_fps( 1, 1 );
 	int frame_idx = get_frame_idx();
 
@@ -76,7 +83,6 @@ time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 	if( initialized )
 		pthread_mutex_lock( &cv_mutex );
 
-	//force_fps = true;
 	capture_params.fps = set_fps;
 	frame_delay = time_fract::to_msecs( capture_params.fps );
 
@@ -89,10 +95,14 @@ time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 
 int cvideo_atik::open_device( void )
 {
-	//log_i("%s()", __FUNCTION__);
-
+	// TODO:  dlopen(), dlsym() etc...
 	camera_count = AtikCamera::list(camera_list, CAM_MAX);
-	if (camera_count <=0) return 1;
+	if (camera_count <=0) {
+		log_e("No Atik camera found");
+		return 1;
+	}
+
+	// TODO: select a camera with guiderport and delete all other
 	camera = camera_list[0];
 	log_i("Camera found: %s", camera->getName());
 
@@ -109,10 +119,9 @@ int cvideo_atik::open_device( void )
 
 int cvideo_atik::close_device( void )
 {
-	//log_i("%s()", __FUNCTION__);
-
-	camera->abortExposure();
 	camera->close();
+
+	// TODO Delete camera with the dlsym() finction
 
 	return 0;
 }
@@ -120,8 +129,6 @@ int cvideo_atik::close_device( void )
 
 int  cvideo_atik::get_vcaps( void )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	int i = 0;
 	point_t pt;
 
@@ -155,8 +162,6 @@ int  cvideo_atik::get_vcaps( void )
 
 int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	switch( control_id ) {
 	case V4L2_CID_EXPOSURE: {
 		int v = val.values[0];
@@ -181,8 +186,6 @@ int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 
 int  cvideo_atik::get_control( unsigned int control_id, param_val_t *val )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	switch( control_id ) {
 	case V4L2_CID_EXPOSURE:
 		val->values[0] = capture_params.exposure;
@@ -196,8 +199,6 @@ int  cvideo_atik::get_control( unsigned int control_id, param_val_t *val )
 
 int cvideo_atik::init_device( void )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	int sizeimage = 0;
 
 	// set desired size
@@ -233,8 +234,6 @@ int cvideo_atik::init_device( void )
 
 int cvideo_atik::uninit_device( void )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	if( buffers ) {
 		for( int i = 0;i < (int)n_buffers;i++ ) {
 			if( buffers[i].start.ptr16 )
@@ -250,26 +249,6 @@ int cvideo_atik::uninit_device( void )
 
 int cvideo_atik::start_capturing( void )
 {
-	//log_i("%s()", __FUNCTION__);
-	return 0;
-}
-
-
-int cvideo_atik::stop_capturing( void )
-{
-	//log_i("%s()", __FUNCTION__);
-	return 0;
-}
-
-
-int cvideo_atik::read_frame( void )
-{
-	//log_i("%s()", __FUNCTION__);
-
-	ctimer tm;
-	data_ptr raw = buffers[0].start;
-        (void)raw;
-
 	bool success = camera->startExposure(false);
 	if( !success ) {
 		log_e("startExposure(): failed");
@@ -278,7 +257,36 @@ int cvideo_atik::read_frame( void )
 	if( DBG_VERBOSITY )
 		log_i( "Exposure started" );
 
-	usleep( frame_delay * 1000 );
+	gettimeofday(&expstart, NULL);
+
+	return 0;
+}
+
+
+int cvideo_atik::stop_capturing( void )
+{
+	camera->abortExposure();
+
+	return 0;
+}
+
+
+int cvideo_atik::read_frame( void )
+{
+	struct timeval now;
+	long time_elapsed;
+	bool success;
+	data_ptr raw = buffers[0].start;
+        (void)raw;
+
+	gettimeofday(&now, NULL);
+	time_elapsed = time_diff(&expstart, &now);
+	// if exposure time is not elapsed
+	// wait for some time to offload the CPU and return
+	if (time_elapsed < frame_delay) {
+		usleep((frame_delay - time_elapsed) / 2);
+		return 0;
+	}
 
 	success = camera->readCCD(0, 0, pixelCountX, pixelCountY, 1, 1);
 	if( !success ) {
@@ -296,6 +304,20 @@ int cvideo_atik::read_frame( void )
 	if( DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
 
+	success = camera->startExposure(false);
+	if( !success ) {
+		log_e("startExposure(): failed");
+		return 1;
+	}
+
+	struct timeval prev = expstart;
+	gettimeofday(&expstart, NULL);
+
+	if( DBG_VERBOSITY ) {
+		long exptime = time_diff(&prev, &expstart);
+		log_i( "Exposure started. Last frame took %d ms", exptime);
+	}
+
 	// synchronize data with GUI
 	emit renderImage( buffers[ 0 ].start.ptr, buffers[0].length );
 
@@ -311,8 +333,6 @@ int cvideo_atik::read_frame( void )
 
 int cvideo_atik::set_format( void )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	int i, j;
 	point_t pt = {0, 0};
 
@@ -343,8 +363,6 @@ int cvideo_atik::set_format( void )
 
 int cvideo_atik::enum_controls( void )
 {
-	//log_i("%s()", __FUNCTION__);
-
 	int n = 0;
 	struct v4l2_queryctrl queryctrl;
 

@@ -25,6 +25,7 @@
 #define VIDEO_ATIK_H_
 
 #include <vector>
+#include <time.h>
 #include "video.h"
 #include <atikccdusb.h>
 
@@ -68,6 +69,7 @@ private:
 	COOLING_STATE state;
 	float targetTemp;
 	float currentTemp;
+	struct timeval expstart;
 
 	virtual int init_device( void );		// get&check capabilities, apply format
 	virtual int uninit_device( void );		// deinit device
