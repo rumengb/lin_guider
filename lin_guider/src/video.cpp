@@ -914,6 +914,10 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	case V4L2_PIX_FMT_Y16:
 		pdecoded.ptr16 = psrc.ptr16;
 		break;
+	case V4L2_PIX_FMT_SGRBG12:
+		log_i("FRAMEEEEEEEEEEEEE");
+		pdecoded.ptr16 = psrc.ptr16;
+                break;
 	case V4L2_PIX_FMT_SGRBG8:
 	{
 #ifndef __arm__
@@ -1577,6 +1581,7 @@ int cvideo_base::bpp( void ) const
 	case V4L2_PIX_FMT_GREY:
 		return 8;
 	case V4L2_PIX_FMT_Y16:
+	case V4L2_PIX_FMT_SGRBG12:
 		return 16;
 	default:
 		log_e("Bpp request for unknown format");
@@ -1588,7 +1593,8 @@ int cvideo_base::bpp( void ) const
 bool cvideo_base::is_color( void ) const
 {
  	if( capture_params.pixel_format == V4L2_PIX_FMT_GREY || 
-		capture_params.pixel_format == V4L2_PIX_FMT_Y16 )
+		capture_params.pixel_format == V4L2_PIX_FMT_Y16 ||
+		capture_params.pixel_format == V4L2_PIX_FMT_SGRBG12)
 		return false;
 
  return true;

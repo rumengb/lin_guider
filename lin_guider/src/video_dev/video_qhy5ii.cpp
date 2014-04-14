@@ -64,7 +64,7 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_dev_type( DEVICETYPE_UNKOWN ),
 	m_width( 0 ),
 	m_height( 0 ),
-	m_transfer_bit( 8 ),
+	m_transfer_bit( 16 ),
 	m_bin( 11 ),
 	m_transfer_speed( 0 ),
 	m_usb_traf( 0 ),
@@ -101,7 +101,6 @@ int cvideo_qhy5ii::open_device( void )
 	if( ret != EXIT_SUCCESS )
 		return ret;
 	ret = m_qhy5ii_obj->get_dev_info( &m_dev_type, &m_is_color );
-
 	// disable color for non-L as here's no code it
 	if( m_dev_type == DEVICETYPE_QHY5II )
 		m_is_color = false;
@@ -182,10 +181,11 @@ int cvideo_qhy5ii::get_vcaps( void )
 	point_t pt;
 
 	if ((m_dev_type == DEVICETYPE_QHY5LII) && (m_is_color)) {
-		device_formats[0].format = V4L2_PIX_FMT_SGRBG8;
+		device_formats[0].format = V4L2_PIX_FMT_SGRBG12;
 	} else {
-		device_formats[0].format = V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_Y16;/*  8 or 16  Greyscale     */	// this is a fake format.
+		device_formats[0].format = V4L2_PIX_FMT_Y16; //V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_Y16;/*  8 or 16  Greyscale     */	// this is a fake format.
 	}
+	//device_formats[0].format = V4L2_PIX_FMT_Y16;
 
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
@@ -342,8 +342,8 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 	{
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > 255 ) v = 255;
-		int top = 256 - v;
+		if( v > 4096 ) v = 4096;
+		int top = 4096 - v;
 		if( top <= 0 )
 		{
 			log_e( "cvideo_qhy5ii::set_control(): invalid exposure" );
@@ -482,6 +482,9 @@ int cvideo_qhy5ii::init_device( void )
 	set_exposure( capture_params.exposure );
 
 	start_video_mode();
+	// The camera fails when it starts for the first time after commect in 12bit mode.
+	// So intitialize it in 8bit and switch to 16 bit.
+	set_transfer_bit( 16 );
 
 	m_data_size = m_width * m_height * (m_transfer_bit >> 3);
 
@@ -557,7 +560,10 @@ int cvideo_qhy5ii::read_frame( void )
 		log_i( "frame time: %ldms", tm.gettime() );
 
 	// synchronize data with GUI
-	void *ptr =  buffers[0].start.ptr8;
+	void *ptr =  buffers[0].start.ptr16;
+
+	log_i( "DATA: %d %d %d", *((uint16_t*)ptr+10), *((uint16_t*)ptr+7000), *((uint16_t*)ptr+10000) );
+
 	emit renderImage( ptr, buffers[0].length );
 
 	pthread_mutex_lock( &cv_mutex );
@@ -576,10 +582,11 @@ int cvideo_qhy5ii::set_format( void )
 	point_t pt = {0, 0};
 
 	if ((m_dev_type == DEVICETYPE_QHY5LII) && (m_is_color)) {
-		capture_params.pixel_format = V4L2_PIX_FMT_SGRBG8;
+		capture_params.pixel_format = V4L2_PIX_FMT_SGRBG12;
 	} else {
-		capture_params.pixel_format = V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_Y16;/*  8 or 16  Greyscale     */	// this is a fake format.
+		capture_params.pixel_format = V4L2_PIX_FMT_Y16; //V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_Y16;/*  8 or 16  Greyscale     */	// this is a fake format.
 	}
+	//capture_params.pixel_format = V4L2_PIX_FMT_Y16;
 
 	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ )
 	{
@@ -632,7 +639,7 @@ int cvideo_qhy5ii::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	queryctrl.maximum = 255; //255; 65535
+	queryctrl.maximum = 4096; //255; 65535
 	queryctrl.step = 1;
 	queryctrl.default_value = 0;
 	queryctrl.flags = 0;
@@ -933,11 +940,16 @@ void cvideo_qhy5ii::SetSpeedQHY5LII( unsigned char i )
 
 void cvideo_qhy5ii::SWIFT_MSBLSBQHY5LII( unsigned char *ImgData )
 {
-	unsigned int i = 0;
+	unsigned int i = 0, val = 0;
 	while( i < capture_params.width*capture_params.height*2 )
 	{
-		ImgData[i] = ImgData[i+1];
-		ImgData[i+1] = ImgData[i] << 4;
+		//ImgData[i] = ImgData[i+1];
+		//ImgData[i+1] = ImgData[i];
+		//i += 2;
+
+		val = ((ImgData[i + 1] + (ImgData[i] << 4)));
+		ImgData[i + 1] = val >> 8;
+		ImgData[i] = val - ImgData[i + 1];
 		i += 2;
 	}
 }
