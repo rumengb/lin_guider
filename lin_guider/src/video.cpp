@@ -805,6 +805,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	data_ptr psrc( src );
 	data_ptr pdecoded;
 	int bits = bpp();
+	bool is_webcam = false;
 	bool render_calibrated = capture_params.use_calibration && have_calibration;
 	//bool threat_as_color = (capture_params.pixel_format != V4L2_PIX_FMT_SGRBG8) && is_color();
 
@@ -861,6 +862,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			convert_yuv420p_to_rgb32( capture_params.width, capture_params.height, py, pu, pv, pdst );
 		}
 		pdecoded.ptr8 = pdst;
+		is_webcam = true;
 		break;
 	}
 	case V4L2_PIX_FMT_JPEG:
@@ -898,6 +900,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 				}
 				pdecoded.ptr8 = pdst;
 			}
+			is_webcam = true;
 		break;
 	}
 	case V4L2_PIX_FMT_YUYV:
@@ -910,6 +913,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 		convert_yuv422_to_rgb32( psrc.ptr8, pdst, capture_params.width, capture_params.height );
 		pdecoded.ptr8 = pdst;
+		is_webcam = true;
 		break;
 	}
 	case V4L2_PIX_FMT_GREY:
@@ -988,18 +992,22 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		int cell_no = pix_no;
 		if( is_color() ) cell_no = pix_no * 3;
 
-		if( bits == 8 )
-		{
-			for( i = 0; i < cell_no; i++ )
-			{
+		if( is_webcam ) {
+			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 ) {
+				val = (int)pdecoded.ptr8[j]   - (int)calibration_buffer.start.ptrDBL[i];
+				pdecoded.ptr8[j]   = (u_char)(val < 0 ? 0 : val);
+				val = (int)pdecoded.ptr8[j+1] - (int)calibration_buffer.start.ptrDBL[i+1];
+				pdecoded.ptr8[j+1] = (u_char)(val < 0 ? 0 : val);
+				val = (int)pdecoded.ptr8[j+2] - (int)calibration_buffer.start.ptrDBL[i+2];
+				pdecoded.ptr8[j+2] = (u_char)(val < 0 ? 0 : val);
+			}
+		} else if( bits == 8 ) {
+			for( i = 0; i < cell_no; i++ ) {
 				val = (int)pdecoded.ptr8[i] - (int)calibration_buffer.start.ptrDBL[i];
 				pdecoded.ptr8[i] = (u_char)(val < 0 ? 0 : val);
 			}
-		}
-		else if( bits == 16 )
-		{
-			for( i = 0; i < cell_no; i++ )
-			{
+		} else if( bits == 16 ) {
+			for( i = 0; i < cell_no; i++ ) {
 				val = (int)pdecoded.ptr16[i] - (int)calibration_buffer.start.ptrDBL[i];
 				pdecoded.ptr16[i] = (uint16_t)(val < 0 ? 0 : val);
 			}
@@ -1013,15 +1021,17 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		if( is_color() ) cell_no = pix_no * 3;
 
 		// accumulating frames
-		if( bits == 8 )
-		{
+		if ( is_webcam ) {
+			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 ) {
+				calibration_buffer.start.ptrDBL[i]   += (double)pdecoded.ptr8[j];
+				calibration_buffer.start.ptrDBL[i+1] += (double)pdecoded.ptr8[j+1];
+				calibration_buffer.start.ptrDBL[i+2] += (double)pdecoded.ptr8[j+2];
+			}
+		} else if( bits == 8 ) {
 			for( i = 0; i < cell_no; i++ ) {
 				calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr8[i];
 			}
-		}
-		else
-		if( bits == 16 )
-		{
+		} else if( bits == 16 ) {
 			for( i = 0; i < cell_no; i++ ) {
 				calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr16[i];
 			}
@@ -1047,7 +1057,10 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	{
 		if( is_color() )
 		{
-			if(bits == 8) {
+			if ( is_webcam ) {
+				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
+					mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
+			} else if(bits == 8) {
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
 					mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
 			} else if(bits == 16){
@@ -1057,17 +1070,14 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 		else
 		{
-			int cell_no = pix_no;
-			if( is_color() ) cell_no = pix_no * 3;
-
 			if( bits == 8 )
 			{
-				for( i = 0;i < cell_no;i++ )
+				for( i = 0;i < pix_no;i++ )
 					mdst[i] = (double)pdecoded.ptr8[i];
 			}
 			else if( bits == 16 )
 			{
-				for( i = 0;i < cell_no;i++ )
+				for( i = 0;i < pix_no;i++ )
 					mdst[i] = (double)pdecoded.ptr16[i];
 			}
 		}
@@ -1076,7 +1086,14 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	// finalize - apply LUT
 	if( is_color() )
 	{
-		if( bits == 8 ) {
+		if ( is_webcam ) {
+			int cell_no = pix_no << 2;
+			for( i = 0;i < cell_no;i+=4 ) {
+				pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
+				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+1] ];
+				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+2] ];
+			}
+		} else if( bits == 8 ) {
 			int cell_no = pix_no << 2;
 			for( i = 0, j = 0;i < cell_no;i+=4, j+=3 )
 			{
