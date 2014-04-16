@@ -958,9 +958,9 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		bayer_to_rgb24(psrc.ptr8, tmp_buffer, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
 		if (is_grey) {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				tmp_buffer[j]   =
-				tmp_buffer[j+1] =
-				tmp_buffer[j+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
+				tmp_buffer[i]   =
+				tmp_buffer[i+1] =
+				tmp_buffer[i+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
 			}
 		}
 #else

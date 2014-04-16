@@ -103,6 +103,8 @@ private:
 
 	double get_temperature( void );
 
+	unsigned int get_pix_fmt( void );
+
 	// current settings
 	// int m_exposuretime;	// stores in capture_params.fps
 	// int m_gain;	// stores in capture_params.gain
