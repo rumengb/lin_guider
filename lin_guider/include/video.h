@@ -401,6 +401,7 @@ protected:
 	buffer *buffers;
 	unsigned int n_buffers;
 	unsigned char *tmp_buffer;
+	uint16_t *tmp_buffer16;
 
 	buffer calibration_buffer;
 	int calibration_frame_cnt;

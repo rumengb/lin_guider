@@ -93,6 +93,12 @@ void bayer_to_rgb24(const unsigned char *bayer,
 void bayer_to_bgr24(const unsigned char *bayer,
   unsigned char *rgb, int width, int height, unsigned int pixfmt);
 
+void bayer_to_rgb48(const uint16_t *bayer,
+  uint16_t *rgb, int width, int height, unsigned int pixfmt);
+
+void bayer_to_bgr48(const uint16_t *bayer,
+  uint16_t *rgb, int width, int height, unsigned int pixfmt);
+
 #ifdef __cplusplus
 }
 #endif

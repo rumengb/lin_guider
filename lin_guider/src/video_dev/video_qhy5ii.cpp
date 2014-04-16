@@ -185,7 +185,6 @@ int cvideo_qhy5ii::get_vcaps( void )
 	} else {
 		device_formats[0].format = V4L2_PIX_FMT_Y16; //V4L2_PIX_FMT_GREY; //V4L2_PIX_FMT_Y16;/*  8 or 16  Greyscale     */	// this is a fake format.
 	}
-	//device_formats[0].format = V4L2_PIX_FMT_Y16;
 
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
@@ -342,8 +341,8 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 	{
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > 4096 ) v = 4096;
-		int top = 4096 - v;
+		if( v > 65535 ) v = 65535;
+		int top = 65535 - v;
 		if( top <= 0 )
 		{
 			log_e( "cvideo_qhy5ii::set_control(): invalid exposure" );
@@ -475,6 +474,7 @@ int cvideo_qhy5ii::init_device( void )
 	#else
 		set_speed( true );
 	#endif
+	SetQHY5LIIHDR(false);
 	set_resolution( capture_params.width, capture_params.height );
 	set_gain( capture_params.gain );
 	set_usb_traffic( m_usb_traf );
@@ -639,7 +639,7 @@ int cvideo_qhy5ii::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	queryctrl.maximum = 4096; //255; 65535
+	queryctrl.maximum = 65535; //255; 65535
 	queryctrl.step = 1;
 	queryctrl.default_value = 0;
 	queryctrl.flags = 0;
@@ -943,11 +943,7 @@ void cvideo_qhy5ii::SWIFT_MSBLSBQHY5LII( unsigned char *ImgData )
 	unsigned int i = 0, val = 0;
 	while( i < capture_params.width*capture_params.height*2 )
 	{
-		//ImgData[i] = ImgData[i+1];
-		//ImgData[i+1] = ImgData[i];
-		//i += 2;
-
-		val = ((ImgData[i + 1] + (ImgData[i] << 4)));
+		val = ((ImgData[i + 1] + (ImgData[i] << 4)) << 4);
 		ImgData[i + 1] = val >> 8;
 		ImgData[i] = val - ImgData[i + 1];
 		i += 2;

@@ -497,6 +497,7 @@ cvideo_base::cvideo_base()
 	buffers 	       = NULL;
 	n_buffers 	       = 0;
 	tmp_buffer	       = NULL;
+	tmp_buffer16       = NULL;
 
 	
     calibration_frame_cnt = 1;
@@ -528,8 +529,12 @@ cvideo_base::cvideo_base()
 
 cvideo_base::~cvideo_base()
 {
+
 	if( tmp_buffer )
 		free( tmp_buffer );
+
+	if( tmp_buffer16 )
+		free( tmp_buffer16 );
 
 	free_decoder();
 
@@ -541,6 +546,7 @@ cvideo_base::~cvideo_base()
 
 	if( lut_to8bit.start.ptr )
 		free( lut_to8bit.start.ptr );
+
 }
 
 
@@ -808,7 +814,6 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	int width, height;
 	bool reverse = false;
 
-
 	pix_no = capture_params.width * capture_params.height;
 
 	// check params
@@ -915,9 +920,33 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		pdecoded.ptr16 = psrc.ptr16;
 		break;
 	case V4L2_PIX_FMT_SGRBG12:
-		log_i("FRAMEEEEEEEEEEEEE");
-		pdecoded.ptr16 = psrc.ptr16;
-                break;
+	{
+#ifndef __arm__
+		int data_len = pix_no * 6;
+		int cell_no = pix_no * 3;
+		if (!tmp_buffer16) tmp_buffer16 = (uint16_t*) malloc(data_len);
+		if (tmp_buffer16 == NULL) {
+			log_e("%s(): Can not allocate tmp_buffer16", __FUNCTION__ );
+			return;
+		}
+		bayer_to_rgb48(psrc.ptr16, tmp_buffer16, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG12);
+		if (is_grey) {
+			for( i = 0, j = 0;i < cell_no; i +=3, j += 4 ) {
+				tmp_buffer16[i]   =
+				tmp_buffer16[i+1] =
+				tmp_buffer16[i+2] = (uint16_t)((tmp_buffer16[i+2] + tmp_buffer16[i+1] + tmp_buffer16[i]) / 3);
+			}
+		}
+#else
+		for( i = 0, j = 0;i < pix_no; i ++, j += 4 ) {
+			tmp_buffer16[i] =
+			tmp_buffer16[i+1] =
+			tmp_buffer16[i+2] = psrc.ptr16[i];
+		}
+#endif
+		pdecoded.ptr16 = tmp_buffer16;
+	}
+		break;
 	case V4L2_PIX_FMT_SGRBG8:
 	{
 #ifndef __arm__
@@ -930,25 +959,19 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		bayer_to_rgb24(psrc.ptr8, tmp_buffer, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
 		if (is_grey) {
 			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				pdst[j]   =
-				pdst[j+1] =
-				pdst[j+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
-			}
-		} else {
-			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				pdst[j]   = tmp_buffer[i+2];
-				pdst[j+1] = tmp_buffer[i+1];
-				pdst[j+2] = tmp_buffer[i];
+				tmp_buffer[j]   =
+				tmp_buffer[j+1] =
+				tmp_buffer[j+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
 			}
 		}
 #else
 		for( i = 0, j = 0;i < pix_no; i ++, j += 4 ) {
-			pdst[j] =
-			pdst[j+1] =
-			pdst[j+2] = psrc.ptr8[i];
+			tmp_buffer[j] =
+			tmp_buffer[j+1] =
+			tmp_buffer[j+2] = psrc.ptr8[i];
 		}
 #endif
-		pdecoded.ptr8 = pdst;
+		pdecoded.ptr8 = tmp_buffer;
 	}
 		break;
 	default:
@@ -962,38 +985,24 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	if( render_calibrated )
 	{
 		int val = 0;
-		if( is_color() )
+
+		int cell_no = pix_no;
+		if( is_color() ) cell_no = pix_no * 3;
+
+		if( bits == 8 )
 		{
-			//log_i("CALIBRATE");
-			int cell_no = pix_no * 3;
-			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 )
+			for( i = 0; i < cell_no; i++ )
 			{
-				val = (int)pdecoded.ptr8[j]   - (int)calibration_buffer.start.ptrDBL[i];
-				pdecoded.ptr8[j]   = (u_char)(val < 0 ? 0 : val);
-				val = (int)pdecoded.ptr8[j+1] - (int)calibration_buffer.start.ptrDBL[i+1];
-				pdecoded.ptr8[j+1] = (u_char)(val < 0 ? 0 : val);
-				val = (int)pdecoded.ptr8[j+2] - (int)calibration_buffer.start.ptrDBL[i+2];
-				pdecoded.ptr8[j+2] = (u_char)(val < 0 ? 0 : val);
+				val = (int)pdecoded.ptr8[i] - (int)calibration_buffer.start.ptrDBL[i];
+				pdecoded.ptr8[i] = (u_char)(val < 0 ? 0 : val);
 			}
 		}
-		else
+		else if( bits == 16 )
 		{
-			if( bits == 8 )
+			for( i = 0; i < cell_no; i++ )
 			{
-				for( i = 0, j = 0;i < pix_no;i++, j += 4 )
-				{
-					val = (int)pdecoded.ptr8[i] - (int)calibration_buffer.start.ptrDBL[i];
-					pdecoded.ptr8[i] = (u_char)(val < 0 ? 0 : val);
-				}
-			}
-			else
-			if( bits == 16 )
-			{
-				for( i = 0, j = 0;i < pix_no;i++, j += 4 )
-				{
-					val = (int)psrc.ptr16[i] - (int)calibration_buffer.start.ptrDBL[i];
-					pdecoded.ptr16[i] = (u_short)(val < 0 ? 0 : val);
-				}
+				val = (int)pdecoded.ptr16[i] - (int)calibration_buffer.start.ptrDBL[i];
+				pdecoded.ptr16[i] = (uint16_t)(val < 0 ? 0 : val);
 			}
 		}
 	}
@@ -1001,29 +1010,21 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	// perform calibration
 	if( is_calibrating )
 	{
+		int cell_no = pix_no;
+		if( is_color() ) cell_no = pix_no * 3;
+
 		// accumulating frames
-		if( is_color() )
+		if( bits == 8 )
 		{
-			int cell_no = pix_no * 3;
-			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 )
-			{
-				calibration_buffer.start.ptrDBL[i]   += (double)pdecoded.ptr8[j];
-				calibration_buffer.start.ptrDBL[i+1] += (double)pdecoded.ptr8[j+1];
-				calibration_buffer.start.ptrDBL[i+2] += (double)pdecoded.ptr8[j+2];
+			for( i = 0; i < cell_no; i++ ) {
+				calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr8[i];
 			}
 		}
 		else
+		if( bits == 16 )
 		{
-			if( bits == 8 )
-			{
-				for( i = 0;i < pix_no;i++ )
-					calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr8[i];
-			}
-			else
-			if( bits == 16 )
-			{
-				for( i = 0;i < pix_no;i++ )
-					calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr16[i];
+			for( i = 0; i < cell_no; i++ ) {
+				calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr16[i];
 			}
 		}
 
@@ -1031,20 +1032,8 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			calibration_frame++;
 		else	// done!
 		{
-			if( is_color() )
-			{
-				int cell_no = pix_no * 3;
-				for( i = 0;i < cell_no;i+=3 )
-				{
-					calibration_buffer.start.ptrDBL[i]   /= (double)calibration_frame_cnt;
-					calibration_buffer.start.ptrDBL[i+1] /= (double)calibration_frame_cnt;
-					calibration_buffer.start.ptrDBL[i+2] /= (double)calibration_frame_cnt;
-				}
-			}
-			else
-			{
-				for( i = 0;i < pix_no;i++ )
-					calibration_buffer.start.ptrDBL[i] /= (double)calibration_frame_cnt;
+			for( i = 0; i < cell_no; i++ ) {
+				calibration_buffer.start.ptrDBL[i] /= (double)calibration_frame_cnt;
 			}
 
 			is_calibrating = false;
@@ -1059,20 +1048,27 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	{
 		if( is_color() )
 		{
-			for( i = 0, j = 0;i < pix_no;i++, j+=4 )
-				mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
+			if(bits == 8) {
+				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
+					mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
+			} else if(bits == 16){
+				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
+					mdst[i] = (double)pdecoded.ptr16[j] + (double)pdecoded.ptr16[j+1] + (double)pdecoded.ptr16[j+2];
+			}
 		}
 		else
 		{
+			int cell_no = pix_no;
+			if( is_color() ) cell_no = pix_no * 3;
+
 			if( bits == 8 )
 			{
-				for( i = 0;i < pix_no;i++ )
+				for( i = 0;i < cell_no;i++ )
 					mdst[i] = (double)pdecoded.ptr8[i];
 			}
-			else
-			if( bits == 16 )
+			else if( bits == 16 )
 			{
-				for( i = 0;i < pix_no;i++ )
+				for( i = 0;i < cell_no;i++ )
 					mdst[i] = (double)pdecoded.ptr16[i];
 			}
 		}
@@ -1081,12 +1077,22 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	// finalize - apply LUT
 	if( is_color() )
 	{
-		int cell_no = pix_no << 2;
-		for( i = 0;i < cell_no;i+=4 )
-		{
-			pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
-			pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+1] ];
-			pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+2] ];
+		if( bits == 8 ) {
+			int cell_no = pix_no << 2;
+			for( i = 0, j = 0;i < cell_no;i+=4, j+=3 )
+			{
+				pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr8[j+2] ];
+				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[j+1] ];
+				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[j] ];
+			}
+		} else if(bits == 16) {
+			int cell_no = pix_no << 2;
+			for( i = 0, j = 0; i < cell_no; i+=4, j+=3 )
+			{
+				pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr16[j+2] ];
+				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr16[j+1] ];
+				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr16[j] ];
+			}
 		}
 	}
 	else
@@ -1593,8 +1599,8 @@ int cvideo_base::bpp( void ) const
 bool cvideo_base::is_color( void ) const
 {
  	if( capture_params.pixel_format == V4L2_PIX_FMT_GREY || 
-		capture_params.pixel_format == V4L2_PIX_FMT_Y16 ||
-		capture_params.pixel_format == V4L2_PIX_FMT_SGRBG12)
+		capture_params.pixel_format == V4L2_PIX_FMT_Y16 )
+		// || capture_params.pixel_format == V4L2_PIX_FMT_SGRBG12 )
 		return false;
 
  return true;
