@@ -482,7 +482,7 @@ int cvideo_qhy5ii::init_device( void )
 	set_exposure( capture_params.exposure );
 
 	start_video_mode();
-	// The camera fails when it starts for the first time after commect in 12bit mode.
+	// The camera fails when it starts for the first time after connect in 12bit mode.
 	// So intitialize it in 8bit and switch to 16 bit.
 	set_transfer_bit( 16 );
 
@@ -562,7 +562,7 @@ int cvideo_qhy5ii::read_frame( void )
 	// synchronize data with GUI
 	void *ptr =  buffers[0].start.ptr16;
 
-	log_i( "DATA: %d %d %d", *((uint16_t*)ptr+10), *((uint16_t*)ptr+7000), *((uint16_t*)ptr+10000) );
+	//log_i( "DATA: %d %d %d", *((uint16_t*)ptr+10), *((uint16_t*)ptr+7000), *((uint16_t*)ptr+10000) );
 
 	emit renderImage( ptr, buffers[0].length );
 

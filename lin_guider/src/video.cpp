@@ -529,7 +529,6 @@ cvideo_base::cvideo_base()
 
 cvideo_base::~cvideo_base()
 {
-
 	if( tmp_buffer )
 		free( tmp_buffer );
 

@@ -18,7 +18,6 @@
  */
 
 #include <inttypes.h>
-//#include <asm/types.h>		/* for videodev2.h */
 #include <linux/videodev2.h>
 
 #include <string.h>
