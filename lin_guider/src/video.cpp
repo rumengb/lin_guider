@@ -921,15 +921,15 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		break;
 	case V4L2_PIX_FMT_SGRBG12:
 	{
-#ifndef __arm__
 		int data_len = pix_no * 6;
-		int cell_no = pix_no * 3;
 		if( !tmp_buffer.ptr ) tmp_buffer.ptr = malloc(data_len);
 		if( tmp_buffer.ptr == NULL)
 		{
 			log_e("%s(): Can not allocate tmp_buffer", __FUNCTION__ );
 			return;
 		}
+#ifndef __arm__
+		int cell_no = pix_no * 3;
 		bayer_to_rgb48(psrc.ptr16, tmp_buffer.ptr16, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG12);
 		if( is_grey )
 		{
@@ -942,11 +942,11 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 #else
 		assert( tmp_buffer.ptr );
-		for( i = 0;i < pix_no;i++ )
+		for( i = 0, j = 0;i < pix_no; i ++, j += 3 )
 		{
-			tmp_buffer.ptr16[i] =
-			tmp_buffer.ptr16[i+1] =
-			tmp_buffer.ptr16[i+2] = psrc.ptr16[i];
+			tmp_buffer.ptr16[j] =
+			tmp_buffer.ptr16[j+1] =
+			tmp_buffer.ptr16[j+2] = psrc.ptr16[i];
 		}
 #endif
 		pdecoded.ptr16 = tmp_buffer.ptr16;
@@ -954,7 +954,6 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		break;
 	case V4L2_PIX_FMT_SGRBG8:
 	{
-#ifndef __arm__
 		int data_len = pix_no * 3;
 		if( !tmp_buffer.ptr ) tmp_buffer.ptr = malloc(data_len);
 		if( tmp_buffer.ptr == NULL )
@@ -962,6 +961,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			log_e("%s(): Can not allocate tmp_buffer", __FUNCTION__ );
 			return;
 		}
+#ifndef __arm__
 		bayer_to_rgb24(psrc.ptr8, tmp_buffer.ptr8, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
 		if( is_grey )
 		{
@@ -974,7 +974,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 #else
 		assert( tmp_buffer.ptr );
-		for( i = 0, j = 0;i < pix_no; i ++, j += 4 )
+		for( i = 0, j = 0;i < pix_no; i ++, j += 3 )
 		{
 			tmp_buffer.ptr8[j] =
 			tmp_buffer.ptr8[j+1] =
@@ -1770,6 +1770,9 @@ int cvideo_base::detect_best_device( int devtype, const char *devname )
  	case DT_QHY6:
 		log_i( "Trying QHY6..." );
 		return DRV_QHY6;
+	case DT_ATIK:
+		log_i( "Trying ATIK..." );
+		return DRV_ATIK;
  	case DT_NULL:
 		log_i( "Trying NULL-camera..." );
 		return DRV_NULL;

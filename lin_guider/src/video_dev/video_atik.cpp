@@ -107,7 +107,10 @@ int cvideo_atik::open_device( void )
 	log_i("Camera found: %s", camera->getName());
 
 	bool success = camera->open();
-	if (!success) return 2;
+	if (!success) {
+		return 2;
+		log_i("Can not open camera.");
+	}
 
 	success = camera->getCapabilities(&name, &type, &hasShutter, &hasGuidePort,
 		&pixelCountX, &pixelCountY, &pixelSizeX, &pixelSizeY, &maxBinX, &maxBinY, &cooler);
