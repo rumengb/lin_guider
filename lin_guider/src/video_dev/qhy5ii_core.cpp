@@ -39,7 +39,7 @@
 
 
 // disables hardware access for QHY5II
-//#define NO_QHY5II
+// #define NO_QHY5II
 
 pthread_mutex_t qhy5ii_core_shared::m_mutex = PTHREAD_MUTEX_INITIALIZER;
 libusb_device_handle *qhy5ii_core_shared::m_handle = NULL;

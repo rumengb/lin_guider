@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <assert.h>
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -496,8 +497,7 @@ cvideo_base::cvideo_base()
 
 	buffers 	       = NULL;
 	n_buffers 	       = 0;
-	tmp_buffer	       = NULL;
-	tmp_buffer16       = NULL;
+	tmp_buffer.ptr     = NULL;
 
 	
     calibration_frame_cnt = 1;
@@ -529,11 +529,8 @@ cvideo_base::cvideo_base()
 
 cvideo_base::~cvideo_base()
 {
-	if( tmp_buffer )
-		free( tmp_buffer );
-
-	if( tmp_buffer16 )
-		free( tmp_buffer16 );
+	if( tmp_buffer.ptr )
+		free( tmp_buffer.ptr );
 
 	free_decoder();
 
@@ -877,30 +874,30 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		width = capture_params.width;
 		height = capture_params.height;
 
-		if( jpeg_decode(&tmp_buffer, psrc.ptr8, &width, &height) < 0 )
+		if( jpeg_decode(&tmp_buffer.ptr8, psrc.ptr8, &width, &height) < 0 )
 		{
 			log_e("jpeg decode errors");
 		}
 		else
-			if( tmp_buffer )
-			{
-				width = capture_params.width;
-				height = capture_params.height;
+		if( tmp_buffer.ptr )
+		{
+			width = capture_params.width;
+			height = capture_params.height;
 
-				if( is_grey )
-				{
-					for( i = 0, j = 0;i < pix_no;i++, j+=4 )
-						pdst[j]   =
-						pdst[j+1] =
-						pdst[j+2] = tmp_buffer[i<<1];
-				}
-				else
-				{
-					convert_yuv422_to_rgb32( tmp_buffer, pdst, width, height );
-				}
-				pdecoded.ptr8 = pdst;
+			if( is_grey )
+			{
+				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
+					pdst[j]   =
+					pdst[j+1] =
+					pdst[j+2] = tmp_buffer.ptr8[i<<1];
 			}
-			is_webcam = true;
+			else
+			{
+				convert_yuv422_to_rgb32( tmp_buffer.ptr8, pdst, width, height );
+			}
+			pdecoded.ptr8 = pdst;
+		}
+		is_webcam = true;
 		break;
 	}
 	case V4L2_PIX_FMT_YUYV:
@@ -927,54 +924,64 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 #ifndef __arm__
 		int data_len = pix_no * 6;
 		int cell_no = pix_no * 3;
-		if (!tmp_buffer16) tmp_buffer16 = (uint16_t*) malloc(data_len);
-		if (tmp_buffer16 == NULL) {
-			log_e("%s(): Can not allocate tmp_buffer16", __FUNCTION__ );
+		if( !tmp_buffer.ptr ) tmp_buffer.ptr = malloc(data_len);
+		if( tmp_buffer.ptr == NULL)
+		{
+			log_e("%s(): Can not allocate tmp_buffer", __FUNCTION__ );
 			return;
 		}
-		bayer_to_rgb48(psrc.ptr16, tmp_buffer16, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG12);
-		if (is_grey) {
-			for( i = 0, j = 0;i < cell_no; i +=3, j += 4 ) {
-				tmp_buffer16[i]   =
-				tmp_buffer16[i+1] =
-				tmp_buffer16[i+2] = (uint16_t)((tmp_buffer16[i+2] + tmp_buffer16[i+1] + tmp_buffer16[i]) / 3);
+		bayer_to_rgb48(psrc.ptr16, tmp_buffer.ptr16, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG12);
+		if( is_grey )
+		{
+			for( i = 0;i < cell_no;i +=3 )
+			{
+				tmp_buffer.ptr16[i]   =
+				tmp_buffer.ptr16[i+1] =
+				tmp_buffer.ptr16[i+2] = (uint16_t)((tmp_buffer.ptr16[i+2] + tmp_buffer.ptr16[i+1] + tmp_buffer.ptr16[i]) / 3);
 			}
 		}
 #else
-		for( i = 0, j = 0;i < pix_no; i ++, j += 4 ) {
-			tmp_buffer16[i] =
-			tmp_buffer16[i+1] =
-			tmp_buffer16[i+2] = psrc.ptr16[i];
+		assert( tmp_buffer.ptr );
+		for( i = 0;i < pix_no;i++ )
+		{
+			tmp_buffer.ptr16[i] =
+			tmp_buffer.ptr16[i+1] =
+			tmp_buffer.ptr16[i+2] = psrc.ptr16[i];
 		}
 #endif
-		pdecoded.ptr16 = tmp_buffer16;
+		pdecoded.ptr16 = tmp_buffer.ptr16;
 	}
 		break;
 	case V4L2_PIX_FMT_SGRBG8:
 	{
 #ifndef __arm__
 		int data_len = pix_no * 3;
-		if (!tmp_buffer) tmp_buffer = (unsigned char*) malloc(data_len);
-		if (tmp_buffer == NULL) {
+		if( !tmp_buffer.ptr ) tmp_buffer.ptr = malloc(data_len);
+		if( tmp_buffer.ptr == NULL )
+		{
 			log_e("%s(): Can not allocate tmp_buffer", __FUNCTION__ );
 			return;
 		}
-		bayer_to_rgb24(psrc.ptr8, tmp_buffer, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
-		if (is_grey) {
-			for( i = 0, j = 0;i < data_len; i +=3, j += 4 ) {
-				tmp_buffer[i]   =
-				tmp_buffer[i+1] =
-				tmp_buffer[i+2] = (u_char)((tmp_buffer[i+2] + tmp_buffer[i+1] + tmp_buffer[i]) / 3);
+		bayer_to_rgb24(psrc.ptr8, tmp_buffer.ptr8, capture_params.width, capture_params.height, V4L2_PIX_FMT_SGRBG8);
+		if( is_grey )
+		{
+			for( i = 0, j = 0;i < data_len; i +=3, j += 4 )
+			{
+				tmp_buffer.ptr8[i]   =
+				tmp_buffer.ptr8[i+1] =
+				tmp_buffer.ptr8[i+2] = (u_char)((tmp_buffer.ptr8[i+2] + tmp_buffer.ptr8[i+1] + tmp_buffer.ptr8[i]) / 3);
 			}
 		}
 #else
-		for( i = 0, j = 0;i < pix_no; i ++, j += 4 ) {
-			tmp_buffer[j] =
-			tmp_buffer[j+1] =
-			tmp_buffer[j+2] = psrc.ptr8[i];
+		assert( tmp_buffer.ptr );
+		for( i = 0, j = 0;i < pix_no; i ++, j += 4 )
+		{
+			tmp_buffer.ptr8[j] =
+			tmp_buffer.ptr8[j+1] =
+			tmp_buffer.ptr8[j+2] = psrc.ptr8[i];
 		}
 #endif
-		pdecoded.ptr8 = tmp_buffer;
+		pdecoded.ptr8 = tmp_buffer.ptr8;
 	}
 		break;
 	default:
@@ -992,8 +999,10 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		int cell_no = pix_no;
 		if( is_color() ) cell_no = pix_no * 3;
 
-		if( is_webcam ) {
-			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 ) {
+		if( is_webcam )
+		{
+			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 )
+			{
 				val = (int)pdecoded.ptr8[j]   - (int)calibration_buffer.start.ptrDBL[i];
 				pdecoded.ptr8[j]   = (u_char)(val < 0 ? 0 : val);
 				val = (int)pdecoded.ptr8[j+1] - (int)calibration_buffer.start.ptrDBL[i+1];
@@ -1001,13 +1010,21 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 				val = (int)pdecoded.ptr8[j+2] - (int)calibration_buffer.start.ptrDBL[i+2];
 				pdecoded.ptr8[j+2] = (u_char)(val < 0 ? 0 : val);
 			}
-		} else if( bits == 8 ) {
-			for( i = 0; i < cell_no; i++ ) {
+		}
+		else
+		if( bits == 8 )
+		{
+			for( i = 0; i < cell_no; i++ )
+			{
 				val = (int)pdecoded.ptr8[i] - (int)calibration_buffer.start.ptrDBL[i];
 				pdecoded.ptr8[i] = (u_char)(val < 0 ? 0 : val);
 			}
-		} else if( bits == 16 ) {
-			for( i = 0; i < cell_no; i++ ) {
+		}
+		else
+		if( bits == 16 )
+		{
+			for( i = 0; i < cell_no; i++ )
+			{
 				val = (int)pdecoded.ptr16[i] - (int)calibration_buffer.start.ptrDBL[i];
 				pdecoded.ptr16[i] = (uint16_t)(val < 0 ? 0 : val);
 			}
@@ -1021,29 +1038,34 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		if( is_color() ) cell_no = pix_no * 3;
 
 		// accumulating frames
-		if ( is_webcam ) {
-			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 ) {
+		if ( is_webcam )
+		{
+			for( i = 0, j = 0;i < cell_no;i+=3, j+=4 )
+			{
 				calibration_buffer.start.ptrDBL[i]   += (double)pdecoded.ptr8[j];
 				calibration_buffer.start.ptrDBL[i+1] += (double)pdecoded.ptr8[j+1];
 				calibration_buffer.start.ptrDBL[i+2] += (double)pdecoded.ptr8[j+2];
 			}
-		} else if( bits == 8 ) {
-			for( i = 0; i < cell_no; i++ ) {
+		}
+		else
+		if( bits == 8 )
+		{
+			for( i = 0; i < cell_no; i++ )
 				calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr8[i];
-			}
-		} else if( bits == 16 ) {
-			for( i = 0; i < cell_no; i++ ) {
+		}
+		else
+		if( bits == 16 )
+		{
+			for( i = 0; i < cell_no; i++ )
 				calibration_buffer.start.ptrDBL[i] += (double)pdecoded.ptr16[i];
-			}
 		}
 
 		if( calibration_frame < calibration_frame_cnt )
 			calibration_frame++;
 		else	// done!
 		{
-			for( i = 0; i < cell_no; i++ ) {
+			for( i = 0; i < cell_no; i++ )
 				calibration_buffer.start.ptrDBL[i] /= (double)calibration_frame_cnt;
-			}
 
 			is_calibrating = false;
 			have_calibration = true;
@@ -1057,13 +1079,20 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	{
 		if( is_color() )
 		{
-			if ( is_webcam ) {
+			if ( is_webcam )
+			{
 				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
 					mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
-			} else if(bits == 8) {
+			}
+			else
+			if( bits == 8 )
+			{
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
 					mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
-			} else if(bits == 16){
+			}
+			else
+			if( bits == 16 )
+			{
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
 					mdst[i] = (double)pdecoded.ptr16[j] + (double)pdecoded.ptr16[j+1] + (double)pdecoded.ptr16[j+2];
 			}
@@ -1075,7 +1104,8 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 				for( i = 0;i < pix_no;i++ )
 					mdst[i] = (double)pdecoded.ptr8[i];
 			}
-			else if( bits == 16 )
+			else
+			if( bits == 16 )
 			{
 				for( i = 0;i < pix_no;i++ )
 					mdst[i] = (double)pdecoded.ptr16[i];
@@ -1086,14 +1116,19 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	// finalize - apply LUT
 	if( is_color() )
 	{
-		if ( is_webcam ) {
+		if( is_webcam )
+		{
 			int cell_no = pix_no << 2;
-			for( i = 0;i < cell_no;i+=4 ) {
+			for( i = 0;i < cell_no;i+=4 )
+			{
 				pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
 				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+1] ];
 				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+2] ];
 			}
-		} else if( bits == 8 ) {
+		}
+		else
+		if( bits == 8 )
+		{
 			int cell_no = pix_no << 2;
 			for( i = 0, j = 0;i < cell_no;i+=4, j+=3 )
 			{
@@ -1101,7 +1136,10 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[j+1] ];
 				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[j] ];
 			}
-		} else if(bits == 16) {
+		}
+		else
+		if( bits == 16 )
+		{
 			int cell_no = pix_no << 2;
 			for( i = 0, j = 0; i < cell_no; i+=4, j+=3 )
 			{
@@ -1732,9 +1770,6 @@ int cvideo_base::detect_best_device( int devtype, const char *devname )
  	case DT_QHY6:
 		log_i( "Trying QHY6..." );
 		return DRV_QHY6;
-	case DT_ATIK:
-		log_i( "Trying ATIK..." );
-		return DRV_ATIK;
  	case DT_NULL:
 		log_i( "Trying NULL-camera..." );
 		return DRV_NULL;

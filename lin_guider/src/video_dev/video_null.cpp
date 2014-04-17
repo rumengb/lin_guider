@@ -102,7 +102,7 @@ int  cvideo_null::get_vcaps( void )
 	int i = 0;
 	point_t pt;
 
-	device_formats[0].format = V4L2_PIX_FMT_GREY;
+	device_formats[0].format = V4L2_PIX_FMT_SGRBG12; //V4L2_PIX_FMT_GREY;
 
 	pt.x = 320;
 	pt.y = 240;
@@ -158,7 +158,8 @@ int  cvideo_null::set_control( unsigned int control_id, const param_val_t &val )
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
 		if( v > 100 ) v = 100;
-		int top = 256 - 2.55*v;
+		//int top = 256 - 2.55*v;
+		int top = 65536 - 655.35*v;
 		if( top <= 0 )
 		{
 			log_e( "cvideo_null::set_control(): invalid exposure" );
@@ -218,7 +219,7 @@ int cvideo_null::init_device( void )
  	}
 
  	buffers[0].length = sizeimage;
- 	buffers[0].start.ptr = malloc( sizeimage );
+ 	buffers[0].start.ptr = malloc( sizeimage * 2 );
 
  	if( !buffers[0].start.ptr )
  	{
@@ -268,8 +269,8 @@ int cvideo_null::uninit_device( void )
 	{
 		for( int i = 0;i < (int)n_buffers;i++ )
 		{
-			if( buffers[i].start.ptr8 )
-				free( buffers[i].start.ptr8 );
+			if( buffers[i].start.ptr )
+				free( buffers[i].start.ptr );
 		}
 		free( buffers );
 		buffers = NULL;
@@ -356,7 +357,7 @@ int cvideo_null::set_format( void )
  int i, j;
  point_t pt = {0, 0};
 
-	capture_params.pixel_format = V4L2_PIX_FMT_GREY;/*  8  Greyscale     */	// this is a fake format. to work only with 1st item in array device_formats[]
+	capture_params.pixel_format = V4L2_PIX_FMT_SGRBG12; //V4L2_PIX_FMT_GREY;/*  8  Greyscale     */	// this is a fake format. to work only with 1st item in array device_formats[]
 
 	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ )
 	{
@@ -466,9 +467,9 @@ void cvideo_null::generate_emu_stars( void )
 				double val = (double)star.lum*lum_rand / sqrt(2*M_PI)*exp( -(i*i+j*j)/2/(sigma*sigma) );
 				// add some noise to star
 				// add background
-				val += (double)raw.ptr8[idx];
+				val += (double)raw.ptr16[idx];
 
-				raw.ptr8[idx] = (uint8_t)((int)val < pix_max ? (int)val : pix_max);
+				raw.ptr16[idx] = (uint16_t)((int)val < pix_max ? (int)val : pix_max);
 			}
 		}
 	}
@@ -476,7 +477,7 @@ void cvideo_null::generate_emu_stars( void )
 	for( size_t k = 0;k < m_emu_badpix.size();k++ )
 	{
 		emu_star_t &bp = m_emu_badpix[k];
-		raw.ptr8[bp.y*capture_params.width+bp.x] = bp.lum;
+		raw.ptr16[bp.y*capture_params.width+bp.x] = bp.lum;
 	}
 
 	// Create noise
@@ -496,7 +497,7 @@ void cvideo_null::generate_emu_field( void )
 	data_ptr raw = buffers[0].start;
 	for( size_t i = 0;i < buffers[0].length;i++ )
 	{
-		raw.ptr8[i] = 32+rand()%25;
+		raw.ptr16[i] = (32+rand()%25)*256;
 	}
 
 	/*
