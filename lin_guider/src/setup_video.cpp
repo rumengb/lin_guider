@@ -71,6 +71,9 @@ setup_video::setup_video(lin_guider *parent)
 	connect( ui.comboBox_DeviceList,   		SIGNAL(activated(int)),         	this, SLOT(onDeviceListChanged(int)) );
 	connect( ui.comboBox_FPS, 		   		SIGNAL(activated(int)), 			this, SLOT(onFPSChanged(int)) );
 	connect( ui.comboBox_FrameSize,    		SIGNAL(activated(int)), 			this, SLOT(onFrameSizeChanged(int)) );
+	connect( ui.checkBox_BW,                SIGNAL(stateChanged(int)),          this, SLOT(onBWChecked(int)) );
+	connect( ui.checkBox_HalfOutFPS,        SIGNAL(stateChanged(int)),          this, SLOT(onHalfFPSChecked(int)) );
+	connect( ui.checkBox_UseCalibration,    SIGNAL(stateChanged(int)),          this, SLOT(onUseCalibrationChecked(int)) );
 	connect( ui.checkBox_AutoGain,     		SIGNAL(stateChanged(int)),			this, SLOT(onAutogainChanged(int)) );
 	connect( ui.spinBox_Gain,		   		SIGNAL(valueChanged(int)), 			this, SLOT(onSpinGainChanged(int)) );
 	connect( ui.horizontalSlider_Gain, 		SIGNAL(valueChanged(int)), 			this, SLOT(onSliderGainChanged(int)) );
@@ -150,7 +153,7 @@ void setup_video::showEvent( QShowEvent * event )
 
 void setup_video::closeEvent ( QCloseEvent * /*event*/ )
 {
-	if( applied )
+	//if( applied )
 	{
 		pmain_wnd->guider_params = guider_params;
 		pmain_wnd->ui_params = ui_params;
@@ -160,6 +163,7 @@ void setup_video::closeEvent ( QCloseEvent * /*event*/ )
 		pmain_wnd->m_math->set_guider_params( guider_params.ccd_pixel_width, guider_params.ccd_pixel_height, guider_params.aperture, guider_params.focal );
 
 		pmain_wnd->capture_params = params;
+		pmain_wnd->m_video->set_use_calibration( params.use_calibration );
 	}
 }
 
@@ -457,6 +461,24 @@ void setup_video::onFrameSizeChanged( int /*index*/ )
 }
 
 
+void setup_video::onBWChecked( int state )
+{
+	pmain_wnd->guider_params.bw_video = state == Qt::Checked;
+}
+
+
+void setup_video::onHalfFPSChecked( int state )
+{
+	pmain_wnd->ui_params.half_refresh_rate = state == Qt::Checked;
+}
+
+
+void setup_video::onUseCalibrationChecked( int state )
+{
+	pmain_wnd->m_video->set_use_calibration( state == Qt::Checked );
+}
+
+
 void setup_video::onAutogainChanged ( int state )
 {
  video_drv::post_param_t prm;
@@ -637,7 +659,7 @@ void setup_video::onOkButtonClick()
 	ui_params.half_refresh_rate = ui.checkBox_HalfOutFPS->isChecked();
 
 	params.use_calibration = ui.checkBox_UseCalibration->isChecked();
-	pmain_wnd->m_video->set_use_calibration( params.use_calibration );
+
 /*
 	// autogain has higher priority than gain
 	if( ui.checkBox_AutoGain->isChecked() != autogain )

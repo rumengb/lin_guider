@@ -67,6 +67,9 @@ protected slots:
 	void onDeviceListChanged( int index );
 	void onFPSChanged( int index );
 	void onFrameSizeChanged( int index );
+	void onBWChecked( int state );
+	void onHalfFPSChecked( int state );
+	void onUseCalibrationChecked( int state );
 	void onAutogainChanged ( int state );
 	void onSpinGainChanged( int value );
 	void onSliderGainChanged( int value );

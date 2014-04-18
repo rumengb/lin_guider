@@ -497,8 +497,6 @@ cvideo_base::cvideo_base()
 
 	buffers 	       = NULL;
 	n_buffers 	       = 0;
-	tmp_buffer.ptr     = NULL;
-
 	
     calibration_frame_cnt = 1;
 	calibration_frame     = 0;

@@ -101,9 +101,12 @@ int cvideo_qhy5ii::open_device( void )
 	if( ret != EXIT_SUCCESS )
 		return ret;
 	ret = m_qhy5ii_obj->get_dev_info( &m_dev_type, &m_is_color );
-	// disable color for non-L as here's no code it
+	// disable color and 16bit for non-L as here's no code it
 	if( m_dev_type == DEVICETYPE_QHY5II )
+	{
 		m_is_color = false;
+		m_transfer_bit = 8;	// 16bit as default crashes QHY5-II (non-L) as set_transfer_bit() drops down m_transfer_bit to 8 and init_device() allocates too few mem
+	}
 	// for tests and debugging
 	//m_is_color = true;
 
