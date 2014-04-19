@@ -487,10 +487,13 @@ int cvideo_qhy5ii::init_device( void )
 	if (tmp_transfer_bit == 16) {
 		set_transfer_bit( 16 );
 		log_i("Camera is in pseudo 16bit mode");
+		stop_video_mode();
+		set_fps( capture_params.fps );
+		start_video_mode();
+		set_exposure( capture_params.exposure );
 	} else {
 		log_i("Camera is in 8bit mode");
 	}
-	set_exposure( capture_params.exposure );
 
 	m_data_size = m_width * m_height * (m_transfer_bit >> 3);
 
