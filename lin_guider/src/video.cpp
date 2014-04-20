@@ -1080,19 +1080,19 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			if ( is_webcam )
 			{
 				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
-					mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
+					mdst[i] = (double)(pdecoded.ptr8[j] + pdecoded.ptr8[j+1] + pdecoded.ptr8[j+2]);
 			}
 			else
 			if( bits == 8 )
 			{
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
-					mdst[i] = (double)pdecoded.ptr8[j] + (double)pdecoded.ptr8[j+1] + (double)pdecoded.ptr8[j+2];
+					mdst[i] = (double)(pdecoded.ptr8[j] + pdecoded.ptr8[j+1] + pdecoded.ptr8[j+2]);
 			}
 			else
 			if( bits == 16 )
 			{
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
-					mdst[i] = (double)pdecoded.ptr16[j] + (double)pdecoded.ptr16[j+1] + (double)pdecoded.ptr16[j+2];
+					mdst[i] = (double)(pdecoded.ptr16[j] + pdecoded.ptr16[j+1] + pdecoded.ptr16[j+2]);
 			}
 		}
 		else
