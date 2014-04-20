@@ -483,7 +483,8 @@ int cvideo_qhy5ii::init_device( void )
 	set_fps( capture_params.fps );
 	start_video_mode();
 	// The camera fails when it starts for the first time after connect in 12bit mode.
-	// So intitialize it in 8bit and switch to 16 bit.
+	// So intitialize it in 8bit and switch to 16 bit. This breaks the exposure times
+	// and reinitialization of the exposure time is needed.
 	if (tmp_transfer_bit == 16) {
 		set_transfer_bit( 16 );
 		log_i("Camera is in pseudo 16bit mode");
