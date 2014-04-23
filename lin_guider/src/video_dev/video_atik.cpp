@@ -134,13 +134,19 @@ int cvideo_atik::open_device( void )
 
 	bool success = m_camera->open();
 	if (!success) {
-		return 2;
 		log_i("Can not open camera.");
+		return 2;
 	}
 
 	success = m_camera->getCapabilities(&m_name, &m_type, &m_has_shutter, &m_has_guide_port,
 		&m_pixel_count_X, &m_pixel_count_Y, &m_pixel_size_X, &m_pixel_size_Y, &m_max_bin_X, &m_max_bin_Y, &m_cooler);
 	if (!success) return 3;
+
+	success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
+	if (!success) log_i("Could not set timings.");
+
+	success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
+	if (!success) log_i("Could not set timings.");
 
 	return 0;
 }
@@ -173,6 +179,7 @@ int  cvideo_atik::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 2 );
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 10 );
 	i++;
 
 	// add empty tail

@@ -18,9 +18,11 @@
 #define GUIDE_CLEAR_WE         (0x0F & ~(GUIDE_WEST | GUIDE_EAST))
 #define GUIDE_CLEAR_NS         (0x0F & ~(GUIDE_NORTH | GUIDE_SOUTH))
 
-//extern bool AtikDebug;
+#define QUICKER_START_EXPOSURE_DELAY  1
+#define QUICKER_READ_CCD_DELAY        2
+
+extern bool AtikDebug;
 extern bool AtikDebugOn;
-extern long delay1, delay2, delay3;
 
 enum CAMERA_TYPE {
 	ORIGINAL_HSC = 1, IC24, QUICKER
@@ -40,6 +42,7 @@ class AtikCamera {
 		virtual const char *getName() = 0;
 		virtual bool open() = 0;
 		virtual void close() = 0;
+		virtual bool setParam(int code, long value) = 0;
 		virtual bool getCapabilities(const char **name, CAMERA_TYPE *type, bool *hasShutter, bool* hasGuidePort, unsigned* pixelCountX, unsigned* pixelCountY, double* pixelSizeX, double* pixelSizeY, unsigned* maxBinX, unsigned* maxBinY, COOLER_TYPE* cooler) = 0;
 		virtual bool initiateWarmUp() = 0;
 		virtual bool getCoolerState(COOLING_STATE *state, float* targetTemp, float* currentTemp) = 0;
