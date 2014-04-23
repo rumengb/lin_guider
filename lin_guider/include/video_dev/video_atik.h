@@ -31,6 +31,9 @@
 
 #define CAM_MAX 5
 
+typedef int AtikCamera_list_t(AtikCamera**, int);
+typedef void AtikCamera_destroy_t(AtikCamera*);
+
 namespace video_drv
 {
 
@@ -55,21 +58,25 @@ protected:
 	virtual int get_control( unsigned int control_id, param_val_t *val );
 
 private:
-	AtikCamera *camera_list[CAM_MAX];
-	AtikCamera *camera;
-	int camera_count;
-	const char* name;
-	CAMERA_TYPE type;
-	bool hasShutter;
-	bool hasGuidePort;
-	unsigned pixelCountX, pixelCountY;
-	double pixelSizeX, pixelSizeY;
-	unsigned maxBinX, maxBinY;
-	COOLER_TYPE cooler;
-	COOLING_STATE state;
-	float targetTemp;
-	float currentTemp;
-	struct timeval expstart;
+	AtikCamera *m_camera_list[CAM_MAX];
+	AtikCamera *m_camera;
+	int m_camera_count;
+	const char* m_name;
+	CAMERA_TYPE m_type;
+	bool m_has_shutter;
+	bool m_has_guide_port;
+	unsigned m_pixel_count_X, m_pixel_count_Y;
+	double m_pixel_size_X, m_pixel_size_Y;
+	unsigned m_max_bin_X, m_max_bin_Y;
+	COOLER_TYPE m_cooler;
+	COOLING_STATE m_cooler_state;
+	float m_target_temp;
+	float m_current_temp;
+	struct timeval m_expstart;
+
+	void* atik_sdk;
+	AtikCamera_list_t *AtikCamera_list;
+	AtikCamera_destroy_t *AtikCamera_destroy;
 
 	virtual int init_device( void );		// get&check capabilities, apply format
 	virtual int uninit_device( void );		// deinit device

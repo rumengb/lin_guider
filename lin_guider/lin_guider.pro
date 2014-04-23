@@ -114,6 +114,6 @@ INCLUDEPATH += include/ \
     include/io_dev/ \
     include/video_dev/ \
     ./
-LIBS += -latikccd -lusb-1.0 \
+LIBS += -lusb-1.0 \
     -ldl \
     -lrt

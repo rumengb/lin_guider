@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <math.h>
 #include <unistd.h>
+#include <dlfcn.h>
 
 #include "video_atik.h"
 #include "timer.h"
@@ -50,8 +51,6 @@ namespace video_drv
 cvideo_atik::cvideo_atik( bool stub )
 {
 	device_type = DT_ATIK;
-	AtikDebug = 0;
-
 	stub_mode = stub;
 }
 
@@ -95,25 +94,52 @@ time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 
 int cvideo_atik::open_device( void )
 {
-	// TODO:  dlopen(), dlsym() etc...
-	camera_count = AtikCamera::list(camera_list, CAM_MAX);
-	if (camera_count <=0) {
+	atik_sdk = dlopen("libatikccd.so", RTLD_LAZY);
+	if (!atik_sdk) {
+        log_e("Cannot load library: %s", dlerror());
+        return 1;
+	}
+
+	AtikCamera_list = (AtikCamera_list_t *) dlsym(atik_sdk, "AtikCamera_list");
+	const char* dlsym_error = dlerror();
+	if (dlsym_error) {
+		log_e("Cannot load AtikCamera_list(): %s", dlsym_error);
+		return 1;
+	}
+
+	AtikCamera_destroy = (AtikCamera_destroy_t *) dlsym(atik_sdk, "AtikCamera_destroy");
+	dlsym_error = dlerror();
+	if (dlsym_error) {
+		log_e("Cannot load symbol AtikCamera_destroy(): %s", dlsym_error);
+		return 1;
+	}
+
+	bool *AtikDebug = (bool *) dlsym(atik_sdk, "AtikDebug");
+	dlsym_error = dlerror();
+	if (dlsym_error) {
+		log_e("Cannot load symbol AtikDebug: %s", dlsym_error);
+		return 1;
+	}
+	*AtikDebug = 0;
+
+	m_camera_count = AtikCamera_list(m_camera_list, CAM_MAX);
+	if (m_camera_count <=0) {
 		log_e("No Atik camera found");
 		return 1;
 	}
 
 	// TODO: select a camera with guiderport and delete all other
-	camera = camera_list[0];
-	log_i("Camera found: %s", camera->getName());
+	m_camera = m_camera_list[0];
+	log_i("Camera found: %s", m_camera->getName());
 
-	bool success = camera->open();
+	bool success = m_camera->open();
 	if (!success) {
 		return 2;
 		log_i("Can not open camera.");
 	}
 
-	success = camera->getCapabilities(&name, &type, &hasShutter, &hasGuidePort,
-		&pixelCountX, &pixelCountY, &pixelSizeX, &pixelSizeY, &maxBinX, &maxBinY, &cooler);
+	success = m_camera->getCapabilities(&m_name, &m_type, &m_has_shutter, &m_has_guide_port,
+		&m_pixel_count_X, &m_pixel_count_Y, &m_pixel_size_X, &m_pixel_size_Y, &m_max_bin_X, &m_max_bin_Y, &m_cooler);
 	if (!success) return 3;
 
 	return 0;
@@ -122,10 +148,9 @@ int cvideo_atik::open_device( void )
 
 int cvideo_atik::close_device( void )
 {
-	camera->close();
-
-	// TODO Delete camera with the dlsym() finction
-
+	m_camera->close();
+	AtikCamera_destroy(m_camera);
+	dlclose(atik_sdk);
 	return 0;
 }
 
@@ -137,8 +162,8 @@ int  cvideo_atik::get_vcaps( void )
 
 	device_formats[0].format = V4L2_PIX_FMT_Y16;
 
-	pt.x = pixelCountX;
-	pt.y = pixelCountY;
+	pt.x = m_pixel_count_X;
+	pt.y = m_pixel_count_Y;
 	device_formats[0].frame_table[ i ].size =  pt;
 	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
 	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
@@ -252,7 +277,7 @@ int cvideo_atik::uninit_device( void )
 
 int cvideo_atik::start_capturing( void )
 {
-	bool success = camera->startExposure(false);
+	bool success = m_camera->startExposure(false);
 	if( !success ) {
 		log_e("startExposure(): failed");
 		return 1;
@@ -260,7 +285,7 @@ int cvideo_atik::start_capturing( void )
 	if( DBG_VERBOSITY )
 		log_i( "Exposure started" );
 
-	gettimeofday(&expstart, NULL);
+	gettimeofday(&m_expstart, NULL);
 
 	return 0;
 }
@@ -268,7 +293,7 @@ int cvideo_atik::start_capturing( void )
 
 int cvideo_atik::stop_capturing( void )
 {
-	camera->abortExposure();
+	m_camera->abortExposure();
 
 	return 0;
 }
@@ -283,15 +308,15 @@ int cvideo_atik::read_frame( void )
         (void)raw;
 
 	gettimeofday(&now, NULL);
-	time_elapsed = time_diff(&expstart, &now);
+	time_elapsed = time_diff(&m_expstart, &now);
 	// if exposure time is not elapsed
 	// wait for some time to offload the CPU and return
-	if (time_elapsed < frame_delay) {
+	if (time_elapsed < (long)frame_delay) {
 		usleep((frame_delay - time_elapsed) / 2);
 		return 0;
 	}
 
-	success = camera->readCCD(0, 0, pixelCountX, pixelCountY, 1, 1);
+	success = m_camera->readCCD(0, 0, m_pixel_count_X, m_pixel_count_Y, 1, 1);
 	if( !success ) {
 		log_e("readCCD(): failed");
 		return 1;
@@ -299,7 +324,7 @@ int cvideo_atik::read_frame( void )
 	if( DBG_VERBOSITY )
 		log_i("Exposure finished. Reading %d bytes", buffers[0].length);
 
-	success = camera->getImage(raw.ptr16, pixelCountX * pixelCountY);
+	success = m_camera->getImage(raw.ptr16, m_pixel_count_X * m_pixel_count_Y);
 	if( !success ) {
 		log_e("getImage(): failed");
 		return 1;
@@ -307,17 +332,17 @@ int cvideo_atik::read_frame( void )
 	if( DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
 
-	success = camera->startExposure(false);
+	success = m_camera->startExposure(false);
 	if( !success ) {
 		log_e("startExposure(): failed");
 		return 1;
 	}
 
-	struct timeval prev = expstart;
-	gettimeofday(&expstart, NULL);
+	struct timeval prev = m_expstart;
+	gettimeofday(&m_expstart, NULL);
 
 	if( DBG_VERBOSITY ) {
-		long exptime = time_diff(&prev, &expstart);
+		long exptime = time_diff(&prev, &m_expstart);
 		log_i( "Exposure started. Last frame took %d ms", exptime);
 	}
 
