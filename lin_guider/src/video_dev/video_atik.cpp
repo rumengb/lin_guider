@@ -26,7 +26,6 @@
 #include <assert.h>
 #include <math.h>
 #include <unistd.h>
-#include <dlfcn.h>
 
 #include "video_atik.h"
 #include "timer.h"
@@ -48,10 +47,9 @@ namespace video_drv
 {
 
 
-cvideo_atik::cvideo_atik( bool stub )
+cvideo_atik::cvideo_atik()
 {
 	device_type = DT_ATIK;
-	stub_mode = stub;
 }
 
 
@@ -94,70 +92,13 @@ time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 
 int cvideo_atik::open_device( void )
 {
-	atik_sdk = dlopen("libatikccd.so", RTLD_LAZY);
-	if (!atik_sdk) {
-        log_e("Cannot load library: %s", dlerror());
-        return 1;
-	}
-
-	AtikCamera_list = (AtikCamera_list_t *) dlsym(atik_sdk, "AtikCamera_list");
-	const char* dlsym_error = dlerror();
-	if (dlsym_error) {
-		log_e("Cannot load AtikCamera_list(): %s", dlsym_error);
-		return 1;
-	}
-
-	AtikCamera_destroy = (AtikCamera_destroy_t *) dlsym(atik_sdk, "AtikCamera_destroy");
-	dlsym_error = dlerror();
-	if (dlsym_error) {
-		log_e("Cannot load symbol AtikCamera_destroy(): %s", dlsym_error);
-		return 1;
-	}
-
-	bool *AtikDebug = (bool *) dlsym(atik_sdk, "AtikDebug");
-	dlsym_error = dlerror();
-	if (dlsym_error) {
-		log_e("Cannot load symbol AtikDebug: %s", dlsym_error);
-		return 1;
-	}
-	*AtikDebug = 0;
-
-	m_camera_count = AtikCamera_list(m_camera_list, CAM_MAX);
-	if (m_camera_count <=0) {
-		log_e("No Atik camera found");
-		return 1;
-	}
-
-	// TODO: select a camera with guiderport and delete all other
-	m_camera = m_camera_list[0];
-	log_i("Camera found: %s", m_camera->getName());
-
-	bool success = m_camera->open();
-	if (!success) {
-		log_i("Can not open camera.");
-		return 2;
-	}
-
-	success = m_camera->getCapabilities(&m_name, &m_type, &m_has_shutter, &m_has_guide_port,
-		&m_pixel_count_X, &m_pixel_count_Y, &m_pixel_size_X, &m_pixel_size_Y, &m_max_bin_X, &m_max_bin_Y, &m_cooler);
-	if (!success) return 3;
-
-	success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
-	if (!success) log_i("Could not set timings.");
-
-	success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
-	if (!success) log_i("Could not set timings.");
-
-	return 0;
+	return atik_open();
 }
 
 
 int cvideo_atik::close_device( void )
 {
-	m_camera->close();
-	AtikCamera_destroy(m_camera);
-	dlclose(atik_sdk);
-	return 0;
+	return atik_close();
 }
 
 
