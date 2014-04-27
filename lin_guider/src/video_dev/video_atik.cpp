@@ -264,23 +264,27 @@ int cvideo_atik::read_frame( void )
 		return 0;
 	}
 
+	pthread_mutex_lock(&m_mutex);
 	success = m_camera->readCCD(0, 0, m_pixel_count_X, m_pixel_count_Y, 1, 1);
 	if( !success ) {
 		log_e("readCCD(): failed");
-		return 1;
+		//return 1;
 	}
 	if( DBG_VERBOSITY )
 		log_i("Exposure finished. Reading %d bytes", buffers[0].length);
 
 	success = m_camera->getImage(raw.ptr16, m_pixel_count_X * m_pixel_count_Y);
+	pthread_mutex_unlock(&m_mutex);
 	if( !success ) {
 		log_e("getImage(): failed");
-		return 1;
+		//return 1;
 	}
 	if( DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
 
+	pthread_mutex_lock(&m_mutex);
 	success = m_camera->startExposure(false);
+	pthread_mutex_unlock(&m_mutex);
 	if( !success ) {
 		log_e("startExposure(): failed");
 		return 1;

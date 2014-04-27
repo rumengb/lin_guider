@@ -71,6 +71,7 @@ enum device_type
 	DT_GPIO,
 	DT_QHY5II,
 	DT_NEXSTAR,
+	DT_ATIK,
 	DT_MAX,
 	DEVICE_CNT = DT_MAX-1
 };

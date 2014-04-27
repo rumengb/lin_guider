@@ -34,6 +34,7 @@
 #include "io_gpio.h"
 #include "io_qhy5ii.h"
 #include "io_nexstar.h"
+#include "io_atik.h"
 
 #include "video.h"
 #include "video_pwc.h"
@@ -127,6 +128,9 @@ lin_guider::lin_guider(QWidget *parent)
 		break;
 	case io_drv::DT_NEXSTAR:
 		m_driver = new io_drv::cio_driver_nexstar();
+		break;
+	case io_drv::DT_ATIK:
+		m_driver = new io_drv::cio_driver_atik();
 		break;
 	default:
 		m_driver = new io_drv::cio_driver_null( true );

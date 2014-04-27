@@ -116,6 +116,15 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										"External library libnexstar is required. http://sourceforge.net/projects/libnexstar/",
 										"<html><head/><body><p>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required.</p></body></html>"
 									},
+									{
+										DT_ATIK,
+										false,
+										4,
+										"atik",
+										"stikccdsdk is required",
+										"<html><head/><body><p>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required.</p></body></html>"
+									},
+
 								};
 
 device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
@@ -125,6 +134,7 @@ device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{1, 3, 2, 0, 7, 7, 7, 7}},
+									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}}

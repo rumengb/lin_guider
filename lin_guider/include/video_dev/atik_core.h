@@ -42,15 +42,17 @@ typedef void AtikCamera_destroy_t(AtikCamera*);
 class atik_core
 {
 public:
-	static int m_ref_count;
-	static AtikCamera *m_camera;
-	static void* atik_sdk;
-	static pthread_mutex_t m_mutex;
-	
 	atik_core() {};
 	virtual ~atik_core() {};
 	AtikCamera* get_camera() { return m_camera; };
 
+	static int m_ref_count;
+	static AtikCamera *m_camera;
+	static void* atik_sdk;
+	static pthread_mutex_t m_mutex;
+	static AtikCamera_list_t *AtikCamera_list;
+	static AtikCamera_destroy_t *AtikCamera_destroy;
+	
 	int m_camera_count;
 	AtikCamera *m_camera_list[CAM_MAX];
 	const char* m_name;
@@ -65,9 +67,6 @@ public:
 	float m_target_temp;
 	float m_current_temp;
 	struct timeval m_expstart;
-
-	AtikCamera_list_t *AtikCamera_list;
-	AtikCamera_destroy_t *AtikCamera_destroy;
 
 	int atik_open( void );		// get&check capabilities, apply format
 	int atik_close( void );		// deinit device

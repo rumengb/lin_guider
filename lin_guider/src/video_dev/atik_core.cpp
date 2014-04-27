@@ -33,65 +33,75 @@ AtikCamera* atik_core::m_camera = NULL;
 int atik_core::m_ref_count = 0;
 void* atik_core::atik_sdk = NULL;
 pthread_mutex_t atik_core::m_mutex = PTHREAD_MUTEX_INITIALIZER;
+AtikCamera_list_t* atik_core::AtikCamera_list = NULL;
+AtikCamera_destroy_t* atik_core::AtikCamera_destroy = NULL;
 
 int atik_core::atik_open( void )
 {
+	bool success;
+
 	pthread_mutex_lock( &m_mutex );
-	atik_sdk = dlopen("libatikccd.so", RTLD_LAZY);
-	if (!atik_sdk) {
-        log_e("Cannot load library: %s", dlerror());
-        pthread_mutex_unlock( &m_mutex );
-        return 1;
+
+	if (atik_sdk == NULL) {
+		atik_sdk = dlopen("libatikccd.so", RTLD_LAZY);
+		if (!atik_sdk) {
+			log_e("Cannot load library: %s", dlerror());
+			pthread_mutex_unlock( &m_mutex );
+			return 1;
+		}
+
+		AtikCamera_list = (AtikCamera_list_t *) dlsym(atik_sdk, "AtikCamera_list");
+		const char* dlsym_error = dlerror();
+		if (dlsym_error) {
+			log_e("Cannot load AtikCamera_list(): %s", dlsym_error);
+			pthread_mutex_unlock( &m_mutex );
+			return 1;
+		}
+
+		AtikCamera_destroy = (AtikCamera_destroy_t *) dlsym(atik_sdk, "AtikCamera_destroy");
+		dlsym_error = dlerror();
+		if (dlsym_error) {
+			log_e("Cannot load symbol AtikCamera_destroy(): %s", dlsym_error);
+			pthread_mutex_unlock( &m_mutex );
+			return 1;
+		}
+
+		bool *AtikDebug = (bool *) dlsym(atik_sdk, "AtikDebug");
+		dlsym_error = dlerror();
+		if (dlsym_error) {
+			log_e("Cannot load symbol AtikDebug: %s", dlsym_error);
+			pthread_mutex_unlock( &m_mutex );
+			return 1;
+		}
+		*AtikDebug = 0;
 	}
 
-	AtikCamera_list = (AtikCamera_list_t *) dlsym(atik_sdk, "AtikCamera_list");
-	const char* dlsym_error = dlerror();
-	if (dlsym_error) {
-		log_e("Cannot load AtikCamera_list(): %s", dlsym_error);
-		pthread_mutex_unlock( &m_mutex );
-		return 1;
+	if (m_ref_count == 0) {
+		m_camera_count = AtikCamera_list(m_camera_list, CAM_MAX);
+		if (m_camera_count <=0) {
+			log_e("No Atik camera found");
+			pthread_mutex_unlock( &m_mutex );
+			return 1;
+		}
+
+		// TODO: select a camera with guiderport and delete all other
+		m_camera = m_camera_list[0];
+		log_i("Camera found: %s", m_camera->getName());
+
+		success = m_camera->open();
+		if (!success) {
+			log_i("Can not open camera.");
+			pthread_mutex_unlock( &m_mutex );
+			return 2;
+		}
+
+		success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
+		if (!success) log_i("Could not set timings.");
+
+		success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
+		if (!success) log_i("Could not set timings.");
 	}
-
-	AtikCamera_destroy = (AtikCamera_destroy_t *) dlsym(atik_sdk, "AtikCamera_destroy");
-	dlsym_error = dlerror();
-	if (dlsym_error) {
-		log_e("Cannot load symbol AtikCamera_destroy(): %s", dlsym_error);
-		pthread_mutex_unlock( &m_mutex );
-		return 1;
-	}
-
-	bool *AtikDebug = (bool *) dlsym(atik_sdk, "AtikDebug");
-	dlsym_error = dlerror();
-	if (dlsym_error) {
-		log_e("Cannot load symbol AtikDebug: %s", dlsym_error);
-		pthread_mutex_unlock( &m_mutex );
-		return 1;
-	}
-	*AtikDebug = 0;
-
-	m_camera_count = AtikCamera_list(m_camera_list, CAM_MAX);
-	if (m_camera_count <=0) {
-		log_e("No Atik camera found");
-		pthread_mutex_unlock( &m_mutex );
-		return 1;
-	}
-
-	// TODO: select a camera with guiderport and delete all other
-	m_camera = m_camera_list[0];
-	log_i("Camera found: %s", m_camera->getName());
-
-	bool success = m_camera->open();
-	if (!success) {
-		log_i("Can not open camera.");
-		pthread_mutex_unlock( &m_mutex );
-		return 2;
-	}
-
-	success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
-	if (!success) log_i("Could not set timings.");
-
-	success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
-	if (!success) log_i("Could not set timings.");
+	m_ref_count++;
 
 	pthread_mutex_unlock( &m_mutex );
 
@@ -107,9 +117,13 @@ int atik_core::atik_close( void )
 {
 	pthread_mutex_lock( &m_mutex );
 
-	m_camera->close();
-	AtikCamera_destroy(m_camera);
-	dlclose(atik_sdk);
+	if (m_ref_count == 1) {
+		m_camera->close();
+		AtikCamera_destroy(m_camera);
+		dlclose(atik_sdk);
+		atik_sdk = NULL;
+		m_ref_count = 0;
+	} else if (m_ref_count > 1) m_ref_count--;
 
 	pthread_mutex_unlock( &m_mutex );
 
