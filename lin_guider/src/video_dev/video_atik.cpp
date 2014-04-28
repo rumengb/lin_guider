@@ -264,11 +264,18 @@ int cvideo_atik::read_frame( void )
 		return 0;
 	}
 
+	// If a guide pulse is trigerred between readCCD and getImage()
+	// images can not be read and restart is needed. So syncronization with
+	// the pusle driver is unavoidable. This may delay the guide pulse
+	// by 200ms. This should not be a problem, because in autoguiding mode
+	// usually exposures > 0.5s are used and the guiding pulse should be
+	// finished by tje time nex exposure is being read. However this may
+	// affect pressing RA+, RA-, DEC+ and DEC- buttons and shorter exposure
+	// autoguiding.
 	pthread_mutex_lock(&m_mutex);
 	success = m_camera->readCCD(0, 0, m_pixel_count_X, m_pixel_count_Y, 1, 1);
 	if( !success ) {
 		log_e("readCCD(): failed");
-		//return 1;
 	}
 	if( DBG_VERBOSITY )
 		log_i("Exposure finished. Reading %d bytes", buffers[0].length);
@@ -277,7 +284,6 @@ int cvideo_atik::read_frame( void )
 	pthread_mutex_unlock(&m_mutex);
 	if( !success ) {
 		log_e("getImage(): failed");
-		//return 1;
 	}
 	if( DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
