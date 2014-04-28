@@ -52,6 +52,13 @@ int cio_driver_atik::open_device( void ) {
 	int res = atik_open();
 	if (res) return res;
 
+	if(!m_has_guide_port) {
+		log_e("This Atik camera does not have a guider port.");
+		return 1;
+	} else {
+		log_i("Atik guider port initialized.");
+	}
+
 	return 0;
 }
 
@@ -119,7 +126,7 @@ void cio_driver_atik::write_data( unsigned int dByte ) {
 		return;
 
 	if( DBG_VERBOSITY )
-		log_i("direction = %d\n", direction);
+		log_i("direction = %d", direction);
 
 	pthread_mutex_lock(&m_mutex);
 	m_camera->setGuideRelays(direction);
