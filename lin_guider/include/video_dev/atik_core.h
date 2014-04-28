@@ -1,5 +1,5 @@
 /*
- * atik_base.h
+ * atik_core.h
  *
  *  Created on: april 2014
  *      Author: Rumen G.Bogdanovski
@@ -38,7 +38,7 @@ typedef void AtikCamera_destroy_t(AtikCamera*);
 /*
  * Atik camera core class
  */
- 
+
 class atik_core
 {
 public:
@@ -52,7 +52,7 @@ public:
 	static pthread_mutex_t m_mutex;
 	static AtikCamera_list_t *AtikCamera_list;
 	static AtikCamera_destroy_t *AtikCamera_destroy;
-	
+
 	int m_camera_count;
 	AtikCamera *m_camera_list[CAM_MAX];
 	const char* m_name;

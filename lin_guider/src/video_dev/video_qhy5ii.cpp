@@ -64,7 +64,7 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 	m_dev_type( DEVICETYPE_UNKOWN ),
 	m_width( 0 ),
 	m_height( 0 ),
-	m_transfer_bit( 16 ),
+	m_transfer_bit( 8 ),
 	m_bin( 11 ),
 	m_transfer_speed( 0 ),
 	m_usb_traf( 0 ),

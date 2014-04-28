@@ -122,7 +122,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										4,
 										"atik",
 										"Atikccdsdk is required",
-										"<html><head/><body><p>External library <a href=\"http://atiksdk\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
+										"<html><head/><body><p>External library <a href=\"http://www.cloudmakers.eu/indi\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
 									},
 
 								};
@@ -137,7 +137,7 @@ device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
 									{{0, 1, 2, 3, 4, 5, 6, 7}},
-									{{0, 1, 2, 3, 4, 5, 6, 7}}
+									{{3, 2, 1, 0, 4, 5, 6, 7}}
 									};
 
 

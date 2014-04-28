@@ -1,7 +1,7 @@
 /*
- * io_nexstar.cpp
+ * io_atik.cpp
  *
- *  Created on: 01.10.2013
+ *  Created on: 26.04.2014
  *      Author: Rumen G.Bogdanovski
  *
  * This file is part of Lin_guider.
@@ -48,7 +48,7 @@ cio_driver_atik::~cio_driver_atik() {
 int cio_driver_atik::open_device( void ) {
 
 	if (DBG_VERBOSITY) log_i("%s", __FUNCTION__);
-	
+
 	int res = atik_open();
 	if (res) return res;
 
@@ -80,13 +80,13 @@ void cio_driver_atik::write_data( unsigned int dByte ) {
 	for( int i = 0;i < 8;i++ )
 	{
 		 if( bit_actions[i] == RA_INC_DIR )
-			 ra_inc_pos = i;
+			ra_inc_pos = i;
 		 if( bit_actions[i] == RA_DEC_DIR )
-		 	 ra_dec_pos = i;
+			ra_dec_pos = i;
 		 if( bit_actions[i] == DEC_INC_DIR )
-		 	 dec_inc_pos = i;
+			dec_inc_pos = i;
 		 if( bit_actions[i] == DEC_DEC_DIR )
-		 	 dec_dec_pos = i;
+			dec_dec_pos = i;
 	}
 
 	inverse_ra = ra_inc_pos > ra_dec_pos;
