@@ -96,7 +96,7 @@ void cio_driver_qhy5ii::write_data( unsigned int dByte )
 	u_char mapped = bit_map_encoder[ (u_char)dByte ];
 
 	if( DBG_VERBOSITY )
-		log_i("mapped =%d", (int)mapped);
+		log_i("mapped = %d", (int)mapped);
 
 	for( int i = 0;i < 8;i++ )
 	{

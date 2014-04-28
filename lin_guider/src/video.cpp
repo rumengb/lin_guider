@@ -98,12 +98,12 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 													NULL
 												},
 												{
-                                                                                                        DT_ATIK,
-                                                                                                        false,
-                                                                                                        "atik",
-                                                                                                        NULL,
-                                                                                                        NULL
-                                                                                                }
+													DT_ATIK,
+													false,
+													"atik",
+													"Atikccdsdk is required",
+													"<html><head/><body><p>External library <a href=\"http://atiksdk\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
+												}
 
 											};
 

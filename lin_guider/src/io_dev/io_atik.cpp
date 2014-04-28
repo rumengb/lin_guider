@@ -69,27 +69,17 @@ void cio_driver_atik::write_data( unsigned int dByte ) {
 	int ra_dec_pos = 0;
 	int dec_inc_pos = 0;
 	int dec_dec_pos = 0;
-	
-	log_i("byte = %d", dByte);
 
 	for( int i = 0;i < 8;i++ )
 	{
-		 if( bit_actions[i] == RA_INC_DIR ) {
+		 if( bit_actions[i] == RA_INC_DIR )
 			 ra_inc_pos = i;
-			 log_i("==> RA_INC_DIR");
-		 }
-		 if( bit_actions[i] == RA_DEC_DIR ) {
+		 if( bit_actions[i] == RA_DEC_DIR )
 		 	 ra_dec_pos = i;
-		 	 log_i("==> RA_DEC_DIR");
-		 }
-		 if( bit_actions[i] == DEC_INC_DIR ) {
+		 if( bit_actions[i] == DEC_INC_DIR )
 		 	 dec_inc_pos = i;
-		 	 log_i("==> DE_INC_DIR");
-		 }
-		 if( bit_actions[i] == DEC_DEC_DIR ) {
+		 if( bit_actions[i] == DEC_DEC_DIR )
 		 	 dec_dec_pos = i;
-		 	 log_i("==> DE_DEC_DIR");
-		 }
 	}
 
 	inverse_ra = ra_inc_pos > ra_dec_pos;
@@ -109,15 +99,12 @@ void cio_driver_atik::write_data( unsigned int dByte ) {
 			{
 			case RA_INC_DIR:
 				direction |= (inverse_ra ? GUIDE_WEST : GUIDE_EAST);
-				log_i("RA_INC_DIR dir = %d", direction);
 				break;
 			case RA_DEC_DIR:
 				direction |= (inverse_ra ? GUIDE_EAST : GUIDE_WEST);
-				log_i("RA_DEC_DIR dir = %d", direction);
 				break;
 			case DEC_INC_DIR:
 				direction |= (inverse_dec ? GUIDE_SOUTH : GUIDE_NORTH);
-				log_i("DEC_INC_DIR dir = %d", direction);
 				break;
 			case DEC_DEC_DIR:
 				direction |= (inverse_dec ? GUIDE_NORTH : GUIDE_SOUTH);
@@ -131,7 +118,9 @@ void cio_driver_atik::write_data( unsigned int dByte ) {
 	if( !initialized )
 		return;
 
-	log_i("DIR= %d\n", direction);
+	if( DBG_VERBOSITY )
+		log_i("direction = %d\n", direction);
+
 	pthread_mutex_lock(&m_mutex);
 	m_camera->setGuideRelays(direction);
 	pthread_mutex_unlock(&m_mutex);

@@ -121,8 +121,8 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										false,
 										4,
 										"atik",
-										"stikccdsdk is required",
-										"<html><head/><body><p>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required.</p></body></html>"
+										"Atikccdsdk is required",
+										"<html><head/><body><p>External library <a href=\"http://atiksdk\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
 									},
 
 								};
