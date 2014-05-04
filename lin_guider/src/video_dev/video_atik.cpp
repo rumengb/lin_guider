@@ -225,7 +225,9 @@ int cvideo_atik::uninit_device( void )
 
 int cvideo_atik::start_capturing( void )
 {
+	pthread_mutex_lock( &m_mutex );
 	bool success = m_camera->startExposure(false);
+	pthread_mutex_unlock( &m_mutex );
 	if( !success ) {
 		log_e("startExposure(): failed");
 		return 1;
@@ -241,7 +243,9 @@ int cvideo_atik::start_capturing( void )
 
 int cvideo_atik::stop_capturing( void )
 {
+	pthread_mutex_lock( &m_mutex );
 	m_camera->abortExposure();
+	pthread_mutex_unlock( &m_mutex );
 
 	return 0;
 }
