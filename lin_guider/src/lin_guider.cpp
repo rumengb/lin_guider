@@ -23,6 +23,9 @@
 #include <stddef.h>
 
 #include "lin_guider.h"
+#include "params.h"
+#include "utils.h"
+#include "maindef.h"
 
 #include "io_driver.h"
 #include "io_lpt.h"
@@ -45,9 +48,6 @@
 #include "video_qhy6.h"
 #include "video_qhy5ii.h"
 #include "video_atik.h"
-
-#include "utils.h"
-#include "maindef.h"
 
 
 lin_guider::lin_guider(QWidget *parent)
@@ -81,17 +81,18 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionGuiding, 		SIGNAL(triggered()), this, SLOT(onShowGuiding()) );
 	connect( ui.actionSettings, 	SIGNAL(triggered()), this, SLOT(onShowSettings()) );
 	connect( ui.actionAbout, 		SIGNAL(triggered()), this, SLOT(onShowAbout()) );
+	connect( ui.action_Toggle_Calibration_Guider, SIGNAL(triggered()), this, SLOT(onToggleCalibrationGuider()) );
 
 	param_block = new params();
 
 	param_block->load();
 
 	// get params
-	capture_params	= param_block->get_capture_params();
-	guider_params	= param_block->get_guider_params();
-	ui_params		= param_block->get_ui_params();
-	device_params   = param_block->get_device_params();
-	calibration_params = param_block->get_calibration_params();
+	m_capture_params	 = param_block->get_capture_params();
+	m_guider_params	     = param_block->get_guider_params();
+	m_ui_params		     = param_block->get_ui_params();
+	m_device_params      = param_block->get_device_params();
+	m_calibration_params = param_block->get_calibration_params();
 	param_block->get_video_dev( dev_name_video, sizeof(dev_name_video) );
 	param_block->get_io_dev( dev_name_io, sizeof(dev_name_io) );
 	m_net_params    = param_block->get_net_params();
@@ -100,7 +101,7 @@ lin_guider::lin_guider(QWidget *parent)
 
 	// create devices...
 	// io driver
-	switch( device_params.type )
+	switch( m_device_params.type )
 	{
 	case io_drv::DT_LPT:
 		m_driver = new io_drv::cio_driver_lpt();
@@ -136,14 +137,14 @@ lin_guider::lin_guider(QWidget *parent)
 		m_driver = new io_drv::cio_driver_null( true );
 
 	}
-	res = m_driver->set_deviceparams( device_params );
+	res = m_driver->set_deviceparams( m_device_params );
 	if( !res )
 		QMessageBox::warning( this, tr("Warning"), tr("Pulse-driver direction map possibly incorrect.\nIt may be cause of guiding errors or device corruption!\n\n\
 It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_driver->start( dev_name_io );
 
 	// video device
-	int cam_type =  video_drv::cvideo_base::detect_best_device( capture_params.type, dev_name_video );
+	int cam_type =  video_drv::cvideo_base::detect_best_device( m_capture_params.type, dev_name_video );
 	switch( cam_type )
 	{
 	case video_drv::DRV_UVC:
@@ -176,13 +177,13 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	connect( m_video, SIGNAL( renderImage(const void *, int) ), this, SLOT( onGetVideo(const void *, int) ) );
 
-	m_video->set_capture_params( capture_params );	// try to set desired params
+	m_video->set_capture_params( m_capture_params );	// try to set desired params
 	res = m_video->start( dev_name_video );
-	capture_params = m_video->get_capture_params();	// receive actual params
+	m_capture_params = m_video->get_capture_params();	// receive actual params
 
 	// create receiving video buffer
-	m_v_buf = (u_char *)malloc( capture_params.width * capture_params.height * sizeof(uint32_t) );
-	memset( m_v_buf, 0, capture_params.width * capture_params.height * sizeof(uint32_t) );
+	m_v_buf = (u_char *)malloc( m_capture_params.width * m_capture_params.height * sizeof(uint32_t) );
+	memset( m_v_buf, 0, m_capture_params.width * m_capture_params.height * sizeof(uint32_t) );
 
 
 	// create server
@@ -198,18 +199,18 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	// calibration window
 	reticle_wnd = new rcalibration( this );
-	reticle_wnd->set_video_params( capture_params.width, capture_params.height );
+	reticle_wnd->set_video_params( m_capture_params.width, m_capture_params.height );
 
 	// guider dialog
 	guider_wnd = new guider( this, m_driver, &m_drift_view_params, m_common_params );
-	guider_wnd->set_half_refresh_rate( ui_params.half_refresh_rate );
+	guider_wnd->set_half_refresh_rate( m_ui_params.half_refresh_rate );
 
 	// movie recorder dialog
 	recorder_wnd = new mrecorder( this );
-	recorder_wnd->set_video_params( m_v_buf, capture_params.width, capture_params.height );
+	recorder_wnd->set_video_params( m_v_buf, m_capture_params.width, m_capture_params.height );
 
 	// settings dialog
-	settings_wnd = new settings( this, &m_net_params, &m_common_params );
+	settings_wnd = new settings( this, &m_net_params, &m_common_params, &m_ui_params );
 
 	// about dialog
 	about_wnd = new about( this );
@@ -222,11 +223,11 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_video_out->move( ui.videoFrame->frameWidth(), ui.videoFrame->frameWidth() );
 	m_video_out->setAttribute( Qt::WA_NoSystemBackground, true );
 
-	m_video_buffer = new QImage( m_v_buf, capture_params.width, capture_params.height, QImage::Format_RGB32 );
+	m_video_buffer = new QImage( m_v_buf, m_capture_params.width, m_capture_params.height, QImage::Format_RGB32 );
 
 	// set all sizes
 	m_video_out->set_source( m_video_buffer, m_mouse_delegate );
-	ui.videoFrame->resize( capture_params.width + 2*ui.videoFrame->frameWidth(), capture_params.height + 2*ui.videoFrame->frameWidth() );
+	ui.videoFrame->resize( m_capture_params.width + 2*ui.videoFrame->frameWidth(), m_capture_params.height + 2*ui.videoFrame->frameWidth() );
 
 	// Init scroller
 	QScrollArea *scrollArea = new QScrollArea( centralWidget() );
@@ -239,8 +240,8 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	//math...
 	m_math = new cgmath( m_common_params );
-	m_math->set_video_params( capture_params.width, capture_params.height );
-	m_math->set_guider_params( guider_params.ccd_pixel_width, guider_params.ccd_pixel_height, guider_params.aperture, guider_params.focal );
+	m_math->set_video_params( m_capture_params.width, m_capture_params.height );
+	m_math->set_guider_params( m_guider_params.ccd_pixel_width, m_guider_params.ccd_pixel_height, m_guider_params.aperture, m_guider_params.focal );
 	m_math->set_in_params( param_block->get_math_in_params() );
 
 
@@ -266,6 +267,8 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	update_sb_video_info();
 	update_sb_io_info();
+
+	set_ui_params();
 
 	// test
 	m_long_task_conn = NULL;
@@ -370,14 +373,14 @@ void lin_guider::closeEvent( QCloseEvent *event )
 		about_wnd->close();
 
 	// save params
-	param_block->set_capture_params( capture_params );
+	param_block->set_capture_params( m_capture_params );
 	param_block->set_capture_next_params( m_video->get_next_params() );
 	param_block->set_device_params( m_driver->get_deviceparams() );
 	param_block->save_device_cfg = m_driver->is_initialized();
-	param_block->set_guider_params( guider_params );
+	param_block->set_guider_params( m_guider_params );
 	param_block->set_math_in_params( *m_math->get_in_params() );
-	param_block->set_ui_params( ui_params );
-	param_block->set_calibration_params( calibration_params );
+	param_block->set_ui_params( m_ui_params );
+	param_block->set_calibration_params( m_calibration_params );
 	param_block->set_video_dev( dev_name_video );
 	param_block->set_io_dev( dev_name_io );
 	param_block->set_net_params( m_net_params );
@@ -420,6 +423,8 @@ void lin_guider::onShowGuiding()
 void lin_guider::onShowSettings()
 {
 	settings_wnd->exec();
+	//check UI changes
+	set_ui_params();
 }
 
 
@@ -432,6 +437,22 @@ void lin_guider::onShowAbout()
 void lin_guider::onActionExit()
 {
 	close();
+}
+
+
+void lin_guider::onToggleCalibrationGuider()
+{
+	if( reticle_wnd->isVisible() )
+	{
+		reticle_wnd->close();
+		guider_wnd->show();
+	}
+	else
+	if( guider_wnd->isVisible() )
+	{
+		guider_wnd->close();
+		reticle_wnd->show();
+	}
 }
 
 
@@ -449,11 +470,11 @@ void lin_guider::onGetVideo( const void *src, int len )
 
 	// decode video frame
  	m_video->process_frame( (void *)m_v_buf,
-			capture_params.width * capture_params.height * sizeof(uint32_t),
+			m_capture_params.width * m_capture_params.height * sizeof(uint32_t),
 			math_buf,
 			math_buf_size,
 			src,
-			guider_params.bw_video,
+			m_guider_params.bw_video,
 			len );
 
 	// unfreeze video thread
@@ -467,7 +488,7 @@ void lin_guider::onGetVideo( const void *src, int len )
 
 	tick++;
 	// skip half frames
-	if( ui_params.half_refresh_rate && (tick & 1) )
+	if( m_ui_params.half_refresh_rate && (tick & 1) )
 		return;
 
 	// draw overlays over video frame AFTER math
@@ -658,7 +679,7 @@ void lin_guider::set_visible_overlays( int ovr_mask, bool set )
 void lin_guider::lock_toolbar( bool lock )
 {
 	ui.menubar->setEnabled( !lock );
-	ui.toolBar->setEnabled( !lock );
+	ui.toolBar_Main->setEnabled( !lock );
 }
 
 
@@ -751,4 +772,10 @@ void lin_guider::update_sb_video_info( int override_fps_idx )
 void lin_guider::update_sb_io_info( void )
 {
 	m_io_name_label->setText( tr("IO: ") + QString(m_driver->get_name()) );
+}
+
+
+void lin_guider::set_ui_params( void )
+{
+	ui.toolBar_Helper->setVisible( m_ui_params.show_helper_TB );
 }

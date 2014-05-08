@@ -188,6 +188,7 @@ bool params::load( void )
 	// ui params
 	settings.beginGroup("ui");
 		m_ui_params.half_refresh_rate = settings.value( "half_refresh_rate" ).toBool();
+		m_ui_params.show_helper_TB = settings.value( "show_helper_TB", false ).toBool();
 	settings.endGroup();
 
 	// guider params
@@ -334,6 +335,7 @@ bool params::save( void )
 	// ui params
 	settings.beginGroup( "ui" );
 		settings.setValue( "half_refresh_rate", m_ui_params.half_refresh_rate );
+		settings.setValue( "show_helper_TB", m_ui_params.show_helper_TB );
 	settings.endGroup();
 
 	// guider params

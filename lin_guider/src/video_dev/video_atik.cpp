@@ -33,6 +33,7 @@
 #include "filters.h"
 
 
+// TODO: replace it with ctimer class
 long time_diff(struct timeval *start, struct timeval *end) {
 	long msec;
 
@@ -92,13 +93,13 @@ time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 
 int cvideo_atik::open_device( void )
 {
-	return atik_open();
+	return open();
 }
 
 
 int cvideo_atik::close_device( void )
 {
-	return atik_close();
+	return close();
 }
 
 
@@ -109,8 +110,9 @@ int  cvideo_atik::get_vcaps( void )
 
 	device_formats[0].format = V4L2_PIX_FMT_Y16;
 
-	pt.x = m_pixel_count_X;
-	pt.y = m_pixel_count_Y;
+	const atik_core::caps_s& caps = get_caps();
+	pt.x = caps.pixel_count_X;
+	pt.y = caps.pixel_count_Y;
 	device_formats[0].frame_table[ i ].size =  pt;
 	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
 	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
@@ -225,9 +227,9 @@ int cvideo_atik::uninit_device( void )
 
 int cvideo_atik::start_capturing( void )
 {
-	pthread_mutex_lock( &m_mutex );
-	bool success = m_camera->startExposure(false);
-	pthread_mutex_unlock( &m_mutex );
+	lock();
+	bool success = get_camera()->startExposure(false);
+	unlock();
 	if( !success ) {
 		log_e("startExposure(): failed");
 		return 1;
@@ -243,9 +245,9 @@ int cvideo_atik::start_capturing( void )
 
 int cvideo_atik::stop_capturing( void )
 {
-	pthread_mutex_lock( &m_mutex );
-	m_camera->abortExposure();
-	pthread_mutex_unlock( &m_mutex );
+	lock();
+	get_camera()->abortExposure();
+	unlock();
 
 	return 0;
 }
@@ -276,25 +278,24 @@ int cvideo_atik::read_frame( void )
 	// finished by tje time nex exposure is being read. However this may
 	// affect pressing RA+, RA-, DEC+ and DEC- buttons and shorter exposure
 	// autoguiding.
-	pthread_mutex_lock(&m_mutex);
-	success = m_camera->readCCD(0, 0, m_pixel_count_X, m_pixel_count_Y, 1, 1);
-	if( !success ) {
+	const atik_core::caps_s& caps = get_caps();
+	lock();
+	success = get_camera()->readCCD(0, 0, caps.pixel_count_X, caps.pixel_count_Y, 1, 1);
+	if( !success )
 		log_e("readCCD(): failed");
-	}
 	if( DBG_VERBOSITY )
 		log_i("Exposure finished. Reading %d bytes", buffers[0].length);
 
-	success = m_camera->getImage(raw.ptr16, m_pixel_count_X * m_pixel_count_Y);
-	pthread_mutex_unlock(&m_mutex);
-	if( !success ) {
+	success = get_camera()->getImage(raw.ptr16, caps.pixel_count_X * caps.pixel_count_Y);
+	unlock();
+	if( !success )
 		log_e("getImage(): failed");
-	}
 	if( DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
 
-	pthread_mutex_lock(&m_mutex);
-	success = m_camera->startExposure(false);
-	pthread_mutex_unlock(&m_mutex);
+	lock();
+	success = get_camera()->startExposure(false);
+	unlock();
 	if( !success ) {
 		log_e("startExposure(): failed");
 		return 1;

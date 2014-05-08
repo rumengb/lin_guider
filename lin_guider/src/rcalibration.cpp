@@ -95,7 +95,7 @@ void rcalibration::showEvent ( QShowEvent * event )
 	if( event->spontaneous() )
 		return;
 	
-	calibration_params = pmain_wnd->calibration_params;
+	calibration_params = pmain_wnd->m_calibration_params;
 
 	pmain_wnd->lock_toolbar( true );
 
@@ -130,7 +130,7 @@ void rcalibration::closeEvent( QCloseEvent * )
 	calibration_params.auto_mode = (ui.checkBox_AutoMode->checkState() == Qt::Checked);
 	calibration_params.dift_time = ui.spinBox_DriftTime->value();
 	calibration_params.frame_count = ui.spinBox_FrameCount->value();
-	pmain_wnd->calibration_params = calibration_params;
+	pmain_wnd->m_calibration_params = calibration_params;
 }
 
 

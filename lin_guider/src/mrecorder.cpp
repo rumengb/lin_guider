@@ -173,7 +173,7 @@ bool mrecorder::start( char *fname )
 		log_e("%s\n", AVI_strerror());
 		return false;
 	}
-	AVI_set_video( pavi, video_width, video_height, video_drv::time_fract::to_fps( pmain_wnd->capture_params.fps ), (char *)"RGB");
+	AVI_set_video( pavi, video_width, video_height, video_drv::time_fract::to_fps( pmain_wnd->m_capture_params.fps ), (char *)"RGB");
 
 	frame_cnt = 0;
 

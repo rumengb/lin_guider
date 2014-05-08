@@ -49,10 +49,12 @@ int cio_driver_atik::open_device( void ) {
 
 	if (DBG_VERBOSITY) log_i("%s", __FUNCTION__);
 
-	int res = atik_open();
+	int res = open();
 	if (res) return res;
 
-	if(!m_has_guide_port) {
+	const atik_core::caps_s& caps = get_caps();
+
+	if(!caps.has_guide_port) {
 		log_e("This Atik camera does not have a guider port.");
 		return 1;
 	} else {
@@ -64,7 +66,7 @@ int cio_driver_atik::open_device( void ) {
 
 
 int cio_driver_atik::close_device( void ) {
-	return atik_close();
+	return close();
 }
 
 
@@ -128,9 +130,7 @@ void cio_driver_atik::write_data( unsigned int dByte ) {
 	if( DBG_VERBOSITY )
 		log_i("direction = %d", direction);
 
-	pthread_mutex_lock(&m_mutex);
-	m_camera->setGuideRelays(direction);
-	pthread_mutex_unlock(&m_mutex);
+	set_guide_relays( direction );
 }
 
 

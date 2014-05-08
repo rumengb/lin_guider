@@ -116,8 +116,8 @@ void setup_video::showEvent( QShowEvent * event )
 	params			    = pmain_wnd->m_video->get_capture_params();
 	next_params			= pmain_wnd->m_video->get_next_params();
 
-	guider_params 		= pmain_wnd->guider_params;
-	ui_params 			= pmain_wnd->ui_params;
+	guider_params 		= pmain_wnd->m_guider_params;
+	half_refresh_rate   = pmain_wnd->m_ui_params.half_refresh_rate;
 	snprintf( dev_name_video, sizeof(dev_name_video), "%s", pmain_wnd->dev_name_video );
 	capture_sz.x		= next_params.width ? next_params.width : params.width;
 	capture_sz.y		= next_params.height ? next_params.height : params.height;
@@ -155,14 +155,14 @@ void setup_video::closeEvent ( QCloseEvent * /*event*/ )
 {
 	//if( applied )
 	{
-		pmain_wnd->guider_params = guider_params;
-		pmain_wnd->ui_params = ui_params;
+		pmain_wnd->m_guider_params = guider_params;
+		pmain_wnd->m_ui_params.half_refresh_rate = half_refresh_rate;
 		snprintf( pmain_wnd->dev_name_video, sizeof(pmain_wnd->dev_name_video), "%s", dev_name_video );
 
-		pmain_wnd->guider_wnd->set_half_refresh_rate( ui_params.half_refresh_rate );
+		pmain_wnd->guider_wnd->set_half_refresh_rate( half_refresh_rate );
 		pmain_wnd->m_math->set_guider_params( guider_params.ccd_pixel_width, guider_params.ccd_pixel_height, guider_params.aperture, guider_params.focal );
 
-		pmain_wnd->capture_params = params;
+		pmain_wnd->m_capture_params = params;
 		pmain_wnd->m_video->set_use_calibration( params.use_calibration );
 	}
 }
@@ -206,7 +206,7 @@ void setup_video::fill_interface( void )
 	ui.lineEdit_VideoDevice->setText( QString(dev_name_video) );
 	update_dev_string_visibility( actual_dev_type );
 	ui.checkBox_BW->setChecked( guider_params.bw_video );
-	ui.checkBox_HalfOutFPS->setChecked( ui_params.half_refresh_rate );
+	ui.checkBox_HalfOutFPS->setChecked( half_refresh_rate );
 	ui.checkBox_UseCalibration->setChecked( params.use_calibration );
 	ui.checkBox_UseCalibration->setEnabled( pmain_wnd->m_video->is_calibrated() );
 
@@ -463,13 +463,13 @@ void setup_video::onFrameSizeChanged( int /*index*/ )
 
 void setup_video::onBWChecked( int state )
 {
-	pmain_wnd->guider_params.bw_video = state == Qt::Checked;
+	pmain_wnd->m_guider_params.bw_video = state == Qt::Checked;
 }
 
 
 void setup_video::onHalfFPSChecked( int state )
 {
-	pmain_wnd->ui_params.half_refresh_rate = state == Qt::Checked;
+	pmain_wnd->m_ui_params.half_refresh_rate = state == Qt::Checked;
 }
 
 
@@ -656,7 +656,7 @@ void setup_video::onOkButtonClick()
 
 	guider_params.bw_video = ui.checkBox_BW->isChecked();
 
-	ui_params.half_refresh_rate = ui.checkBox_HalfOutFPS->isChecked();
+	half_refresh_rate = ui.checkBox_HalfOutFPS->isChecked();
 
 	params.use_calibration = ui.checkBox_UseCalibration->isChecked();
 

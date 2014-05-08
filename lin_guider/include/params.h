@@ -24,6 +24,7 @@
 
 #include <string.h>
 
+#include "lin_guider.h"
 #include "common.h"
 #include "io_driver.h"
 #include "video.h"

@@ -61,6 +61,8 @@ private:
 
 	// local
 	virtual int enum_controls( void );
+
+	struct timeval m_expstart;
 };
 
 }

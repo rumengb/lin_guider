@@ -30,6 +30,7 @@
 
 
 class lin_guider;
+struct uiparams_s;
 
 class settings : public QDialog
 {
@@ -38,7 +39,8 @@ class settings : public QDialog
 public:
     settings( lin_guider *parent,
     		net_params_t *net_params,
-    		common_params * comm_params );
+    		common_params * comm_params,
+    		struct uiparams_s * ui_params );
     virtual ~settings();
 
 protected slots:
@@ -59,6 +61,7 @@ private:
 
     net_params_t *m_pnet_params;
     common_params * const m_pcommon_params;
+    struct uiparams_s *m_ui_params;
 private:
     Ui::settingsClass ui;
 };

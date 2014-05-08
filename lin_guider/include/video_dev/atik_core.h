@@ -26,9 +26,12 @@
 
 #include <vector>
 #include <time.h>
+#include <assert.h>
+
 #include "video.h"
-#include <utils.h>
-#include <atikccdusb.h>
+#include "utils.h"
+#include "atikccdusb.h"
+
 
 #define CAM_MAX 5
 
@@ -42,34 +45,55 @@ typedef void AtikCamera_destroy_t(AtikCamera*);
 class atik_core
 {
 public:
-	atik_core() {};
-	virtual ~atik_core() {};
-	AtikCamera* get_camera() { return m_camera; };
+	struct caps_s
+	{
+		caps_s() :
+			name( NULL ),
+			type( (enum CAMERA_TYPE)0 ),
+			has_shutter( false),
+			has_guide_port( false ),
+			pixel_count_X( 0 ),
+			pixel_count_Y( 0 ),
+			pixel_size_X( 0 ),
+			pixel_size_Y( 0 ),
+			max_bin_X( 0 ),
+			max_bin_Y( 0 ),
+			cooler( COOLER_NONE )
+		{}
+		const char* name;
+		CAMERA_TYPE type;
+		bool has_shutter;
+		bool has_guide_port;
+		unsigned pixel_count_X, pixel_count_Y;
+		double pixel_size_X, pixel_size_Y;
+		unsigned max_bin_X, max_bin_Y;
+		COOLER_TYPE cooler;
+	};
+	atik_core() {}
+	virtual ~atik_core() {}
 
+protected:
+	AtikCamera* get_camera() { return m_camera; }
+	int open( void );		// get&check capabilities, apply format
+	int close( void );		// deinit device
+	const atik_core::caps_s& get_caps( void ) const;
+	int set_guide_relays( int dir );
+	void lock( void ) const;
+	void unlock( void ) const;
+
+private:
 	static int m_ref_count;
 	static AtikCamera *m_camera;
-	static void* atik_sdk;
+	static void* m_atik_sdk;
 	static pthread_mutex_t m_mutex;
 	static AtikCamera_list_t *AtikCamera_list;
 	static AtikCamera_destroy_t *AtikCamera_destroy;
+	static struct caps_s m_caps;
 
-	int m_camera_count;
-	AtikCamera *m_camera_list[CAM_MAX];
-	const char* m_name;
-	CAMERA_TYPE m_type;
-	bool m_has_shutter;
-	bool m_has_guide_port;
-	unsigned m_pixel_count_X, m_pixel_count_Y;
-	double m_pixel_size_X, m_pixel_size_Y;
-	unsigned m_max_bin_X, m_max_bin_Y;
-	COOLER_TYPE m_cooler;
+	// TODO: access through const atik_core::cooler_state_s& get_cooler_state( void );
 	COOLING_STATE m_cooler_state;
 	float m_target_temp;
 	float m_current_temp;
-	struct timeval m_expstart;
-
-	int atik_open( void );		// get&check capabilities, apply format
-	int atik_close( void );		// deinit device
 };
 
 #endif /* ATIK_CORE_H_ */

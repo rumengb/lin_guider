@@ -32,10 +32,12 @@
 
 settings::settings( lin_guider *parent,
 		net_params_t *net_params,
-		common_params *comm_params ) :
+		common_params *comm_params,
+		struct uiparams_s * ui_params ) :
 	QDialog(parent),
     m_pnet_params( net_params ),
-    m_pcommon_params( comm_params )
+    m_pcommon_params( comm_params ),
+    m_ui_params( ui_params )
 {
 	ui.setupUi(this);
 
@@ -99,6 +101,9 @@ void settings::fill_interface( void )
 
 	// debug verbosity
 	ui.checkBox_DBGVerbosity->setChecked( DBG_VERBOSITY );
+
+	// UI toolbars
+	ui.checkBox_ShowHelperTB->setChecked( m_ui_params->show_helper_TB );
 }
 
 
@@ -168,6 +173,8 @@ void settings::onOkButtonClick()
 
 	memcpy( m_pnet_params, &m_net_params, sizeof(net_params_t) );
 	*m_pcommon_params = m_common_params;
+
+	m_ui_params->show_helper_TB = ui.checkBox_ShowHelperTB->isChecked();
 
 	close();
 }

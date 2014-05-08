@@ -27,30 +27,33 @@
 #include <math.h>
 #include <unistd.h>
 #include <dlfcn.h>
-#include <atik_core.h>
+
+#include "atik_core.h"
+
 
 AtikCamera* atik_core::m_camera = NULL;
 int atik_core::m_ref_count = 0;
-void* atik_core::atik_sdk = NULL;
+void* atik_core::m_atik_sdk = NULL;
 pthread_mutex_t atik_core::m_mutex = PTHREAD_MUTEX_INITIALIZER;
 AtikCamera_list_t* atik_core::AtikCamera_list = NULL;
 AtikCamera_destroy_t* atik_core::AtikCamera_destroy = NULL;
+atik_core::caps_s atik_core::m_caps = atik_core::caps_s();
 
-int atik_core::atik_open( void )
+int atik_core::open( void )
 {
-	bool success;
+	bool success = false;
 
 	pthread_mutex_lock( &m_mutex );
 
-	if (atik_sdk == NULL) {
-		atik_sdk = dlopen("libatikccd.so", RTLD_LAZY);
-		if (!atik_sdk) {
+	if (m_atik_sdk == NULL) {
+		m_atik_sdk = dlopen("libatikccd.so", RTLD_LAZY);
+		if (!m_atik_sdk) {
 			log_e("Cannot load library: %s", dlerror());
 			pthread_mutex_unlock( &m_mutex );
 			return 1;
 		}
 
-		AtikCamera_list = (AtikCamera_list_t *) dlsym(atik_sdk, "AtikCamera_list");
+		AtikCamera_list = (AtikCamera_list_t *) dlsym(m_atik_sdk, "AtikCamera_list");
 		const char* dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load AtikCamera_list(): %s", dlsym_error);
@@ -58,7 +61,7 @@ int atik_core::atik_open( void )
 			return 1;
 		}
 
-		AtikCamera_destroy = (AtikCamera_destroy_t *) dlsym(atik_sdk, "AtikCamera_destroy");
+		AtikCamera_destroy = (AtikCamera_destroy_t *) dlsym(m_atik_sdk, "AtikCamera_destroy");
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load symbol AtikCamera_destroy(): %s", dlsym_error);
@@ -66,7 +69,7 @@ int atik_core::atik_open( void )
 			return 1;
 		}
 
-		bool *AtikDebug = (bool *) dlsym(atik_sdk, "AtikDebug");
+		bool *AtikDebug = (bool *) dlsym(m_atik_sdk, "AtikDebug");
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load symbol AtikDebug: %s", dlsym_error);
@@ -76,16 +79,19 @@ int atik_core::atik_open( void )
 		*AtikDebug = 0;
 	}
 
-	if (m_ref_count == 0) {
-		m_camera_count = AtikCamera_list(m_camera_list, CAM_MAX);
-		if (m_camera_count <=0) {
+	if (m_ref_count == 0)
+	{
+		int camera_count;
+		AtikCamera *camera_list[CAM_MAX];
+		camera_count = AtikCamera_list( camera_list, CAM_MAX );
+		if (camera_count <=0) {
 			log_e("No Atik camera found");
 			pthread_mutex_unlock( &m_mutex );
 			return 1;
 		}
 
 		// TODO: select a camera with guiderport and delete all other
-		m_camera = m_camera_list[0];
+		m_camera = camera_list[0];
 		log_i("Camera found: %s", m_camera->getName());
 
 		success = m_camera->open();
@@ -100,32 +106,71 @@ int atik_core::atik_open( void )
 
 		success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
 		if (!success) log_i("Could not set timings.");
+
+		success = m_camera->getCapabilities(&m_caps.name,
+											&m_caps.type,
+											&m_caps.has_shutter,
+											&m_caps.has_guide_port,
+											&m_caps.pixel_count_X,
+											&m_caps.pixel_count_Y,
+											&m_caps.pixel_size_X,
+											&m_caps.pixel_size_Y,
+											&m_caps.max_bin_X,
+											&m_caps.max_bin_Y,
+											&m_caps.cooler);
+		if (!success) return 3;
 	}
 	m_ref_count++;
 
 	pthread_mutex_unlock( &m_mutex );
 
-	success = m_camera->getCapabilities(&m_name, &m_type, &m_has_shutter, &m_has_guide_port,
-		&m_pixel_count_X, &m_pixel_count_Y, &m_pixel_size_X, &m_pixel_size_Y, &m_max_bin_X, &m_max_bin_Y, &m_cooler);
-	if (!success) return 3;
-
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 
-int atik_core::atik_close( void )
+int atik_core::close( void )
 {
 	pthread_mutex_lock( &m_mutex );
 
-	if (m_ref_count == 1) {
+	assert( m_ref_count > 0 );
+	m_ref_count--;
+	if( m_ref_count == 0)
+	{
 		m_camera->close();
 		AtikCamera_destroy(m_camera);
-		dlclose(atik_sdk);
-		atik_sdk = NULL;
-		m_ref_count = 0;
-	} else if (m_ref_count > 1) m_ref_count--;
+		dlclose(m_atik_sdk);
+		m_atik_sdk = NULL;
+	}
 
 	pthread_mutex_unlock( &m_mutex );
 
-	return 0;
+	return EXIT_SUCCESS;
+}
+
+
+const atik_core::caps_s& atik_core::get_caps( void ) const
+{
+	return m_caps;
+}
+
+
+int atik_core::set_guide_relays( int dir )
+{
+	pthread_mutex_lock( &m_mutex );
+	m_camera->setGuideRelays( dir );
+	pthread_mutex_unlock( &m_mutex );
+
+	return EXIT_SUCCESS;
+}
+
+
+void atik_core::lock( void ) const
+{
+	pthread_mutex_lock( &m_mutex );
+}
+
+
+void atik_core::unlock( void ) const
+{
+	pthread_mutex_unlock( &m_mutex );
 }

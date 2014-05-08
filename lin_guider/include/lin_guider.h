@@ -35,7 +35,6 @@
 #include "server.h"
 #include "guider.h"
 #include "gmath.h"
-#include "params.h"
 #include "about.h"
 #include "server.h"
 #include "settings.h"
@@ -48,7 +47,19 @@ typedef struct
 }drag_object_t;
 
 
+typedef struct uiparams_s
+{
+	uiparams_s() :
+		half_refresh_rate( false ),
+		show_helper_TB( false )
+	{}
+	bool half_refresh_rate;
+	bool show_helper_TB;
+}uiparams_t;
+
+
 class drawer_delegate;
+class params;
 
 
 class lin_guider : public QMainWindow
@@ -73,7 +84,7 @@ public:
     // test stuff
 
 protected slots:
-	// tool bar
+	// Main toolbar
 	void onShowSetupGuider();
 	void onShowSetupDriver();
 	void onRecord();
@@ -82,6 +93,10 @@ protected slots:
 	void onShowSettings();
 	void onShowAbout();
 	void onActionExit();
+
+	// Helper toolbar
+	void onToggleCalibrationGuider();
+
 	//
 	void onGetVideo(const void *, int);
 	void onRemoteCmd( void );
@@ -111,11 +126,11 @@ private:
 	QImage  *m_video_buffer;
 	QColor SQR_OVL_COLOR, RA_COLOR, DEC_COLOR, RET_ORG_COLOR;
 
-	video_drv::captureparams_t capture_params;
-	guiderparams_t  guider_params;
-	uiparams_t ui_params;
-	io_drv::device_init_params_t device_params;
-	calibrationparams_t calibration_params;
+	video_drv::captureparams_t m_capture_params;
+	guiderparams_t  m_guider_params;
+	uiparams_t m_ui_params;
+	io_drv::device_init_params_t m_device_params;
+	calibrationparams_t m_calibration_params;
 	net_params_t m_net_params;
 	common_params m_common_params;
 	guider::drift_view_params_s m_drift_view_params;
@@ -130,6 +145,7 @@ private:
 
 	void update_sb_video_info( int override_fps_idx = -1 );
 	void update_sb_io_info( void );
+	void set_ui_params( void );
 
 	drag_object_t d_objs[2];
 	drawer_delegate *m_mouse_delegate;

@@ -39,10 +39,6 @@ typedef struct
 	bool bw_video;
 }guiderparams_t;
 
-typedef struct
-{
-	bool half_refresh_rate;
-}uiparams_t;
 
 class lin_guider;
 
@@ -93,7 +89,7 @@ private:
 	double calc_arc( int pix, double pix_sz, double focal );
 
 	guiderparams_t  guider_params;
-	uiparams_t ui_params;
+	bool half_refresh_rate;
 	video_drv::captureparams_t params;
 	char dev_name_video[64];
 	point_t capture_sz;
