@@ -37,6 +37,8 @@ namespace io_drv {
 cio_driver_atik::cio_driver_atik() {
 	device_type = DT_ATIK;
 	set_bit_map_template( device_bit_map_template[DT_ATIK-1] );
+	min_pulse_length = 0;
+	max_pulse_length = 0xFFFFFF;
 }
 
 

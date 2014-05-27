@@ -136,14 +136,17 @@ int cvideo_qhy6::get_vcaps( void )
 	pt.x = QHY6_WIDTH_B1;
 	pt.y = QHY6_HEIGHT_B1;
 	device_formats[0].frame_table[ i ].size =  pt;
-	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 4, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 2, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 1, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 1, 2 );
-	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 3 );
-	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 4 );
-	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
-	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 4, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 3, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 2, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 2 );
+	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 3 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 4 );
+	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 10 );
 	i++;
 
 	// add empty tail
