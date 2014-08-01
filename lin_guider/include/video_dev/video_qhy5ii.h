@@ -63,6 +63,9 @@ namespace video_drv
 #define QHY5II_WIDTH_B3		640
 #define QHY5II_HEIGHT_B3	480
 
+#define V4L2_CID_USER_8BIT		(V4L2_CID_USER_CLASS + 1)
+#define V4L2_CID_USER_USB_TRAF 	(V4L2_CID_USER_CLASS + 2)
+
 /*
  * qhy5ii camera
  */

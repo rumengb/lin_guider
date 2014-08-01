@@ -101,6 +101,35 @@ int cvideo_qhy5ii::open_device( void )
 	if( ret != EXIT_SUCCESS )
 		return ret;
 	ret = m_qhy5ii_obj->get_dev_info( &m_dev_type, &m_is_color );
+
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_8BIT, m_transfer_bit == 8 ? 1 : 0 ) );
+	m_transfer_bit = capture_params.ext_params[ V4L2_CID_USER_8BIT ] == 0 ? 16 : 8;
+
+	m_usb_traf = 32;
+	if( m_dev_type == DEVICETYPE_QHY5LII )
+	{
+		#ifdef __arm__
+			log_i("System CPU is ARM");
+			m_usb_traf = 40;
+		#else
+			log_i("System CPU is not ARM");
+			m_usb_traf = 5;
+		#endif
+	}
+	else
+	if( m_dev_type == DEVICETYPE_QHY5II )
+	{
+		#ifdef __arm__
+			log_i("System CPU is ARM");
+			m_usb_traf = 150;
+		#else
+			log_i("System CPU is not ARM");
+			m_usb_traf = 30;
+		#endif
+	}
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_USB_TRAF, m_usb_traf ) );
+	m_usb_traf = capture_params.ext_params[ V4L2_CID_USER_USB_TRAF ];
+
 	// disable color and 16bit for non-L as here's no code it
 	if( m_dev_type == DEVICETYPE_QHY5II )
 	{
@@ -109,6 +138,14 @@ int cvideo_qhy5ii::open_device( void )
 	}
 	// for tests and debugging
 	//m_is_color = true;
+
+	if( m_is_color )
+	{
+		capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wbred ) );
+		capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wbblue ) );
+		m_wbred = capture_params.ext_params[ V4L2_CID_RED_BALANCE ];
+		m_wbblue = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
+	}
 
 	return ret;
 }
@@ -394,6 +431,25 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		}
 	}
 		break;
+	case V4L2_CID_USER_8BIT:
+	{
+		capture_params.ext_params[ control_id ] = val.values[0];
+		log_i( "Ctrl 8-bit: %d, (restart is required)", val.values[0] );
+	}
+		break;
+	case V4L2_CID_USER_USB_TRAF:
+	{
+		int v = val.values[0];
+		if( v < 1 || v > 255 )
+			log_e( "%s: invalid USB traf value", __FUNCTION__ );
+		v = v < 1 ? 1 : v;
+		v = v > 255 ? 255 : v;
+		capture_params.ext_params[ control_id ] = v;
+		m_usb_traf = v;
+		set_usb_traffic( m_usb_traf );
+		log_i( "USB traf: %d", v );
+	}
+		break;
 	default:
 		return -1;
 	}
@@ -417,6 +473,8 @@ int cvideo_qhy5ii::get_control( unsigned int control_id, param_val_t *val )
 	}
 	case V4L2_CID_RED_BALANCE:
 	case V4L2_CID_BLUE_BALANCE:
+	case V4L2_CID_USER_8BIT:
+	case V4L2_CID_USER_USB_TRAF:
 	{
 		val->values[0] = capture_params.ext_params[ control_id ];
 		break;
@@ -430,22 +488,12 @@ int cvideo_qhy5ii::get_control( unsigned int control_id, param_val_t *val )
 
 int cvideo_qhy5ii::init_device( void )
 {
-	int sizeimage = 0;
-//	int ret = EXIT_FAILURE;
-
 	// set desired size
-	sizeimage = set_format();
+	int sizeimage = set_format();
 	if( sizeimage <= 0 )
 		return EXIT_FAILURE;
 
-	if( m_is_color )
-	{
-		capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wbred ) );
-		capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wbblue ) );
-		m_wbred = capture_params.ext_params[ V4L2_CID_RED_BALANCE ];
-		m_wbblue = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
-	}
-
+	/*
 	m_usb_traf = 30;
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
@@ -468,6 +516,9 @@ int cvideo_qhy5ii::init_device( void )
 			m_usb_traf = 30;
 		#endif
 	}
+	*/
+	m_usb_traf = m_usb_traf < 1 ? 1 : m_usb_traf;
+	m_usb_traf = m_usb_traf > 255 ? 255 : m_usb_traf;
 
 	int tmp_transfer_bit = m_transfer_bit;
 	set_transfer_bit( 8 );
@@ -493,6 +544,7 @@ int cvideo_qhy5ii::init_device( void )
 		start_video_mode();
 		set_exposure( capture_params.exposure );
 	} else {
+		set_exposure( capture_params.exposure );
 		log_i("Camera is in 8bit mode");
 	}
 
@@ -672,6 +724,51 @@ int cvideo_qhy5ii::enum_controls( void )
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
+
+	// create virtual control
+	queryctrl.id = V4L2_CID_USER_8BIT;
+	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "8-bit" );
+	queryctrl.minimum = 0;
+	queryctrl.maximum = 1;
+	queryctrl.step = 1;
+	queryctrl.default_value = 0;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
+
+	// create virtual control
+	queryctrl.id = V4L2_CID_USER_USB_TRAF;
+	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "USB traf" );
+	queryctrl.minimum = 1;
+	queryctrl.maximum = 255;
+	queryctrl.step = 1;
+	if( m_dev_type == DEVICETYPE_QHY5LII )
+	{
+		#ifdef __arm__
+			log_i("System CPU is ARM");
+			queryctrl.default_value = 40;
+		#else
+			log_i("System CPU is not ARM");
+			queryctrl.default_value = 5;
+		#endif
+	}
+	else
+	if( m_dev_type == DEVICETYPE_QHY5II )
+	{
+		#ifdef __arm__
+			log_i("System CPU is ARM");
+			queryctrl.default_value = 150;
+		#else
+			log_i("System CPU is not ARM");
+			queryctrl.default_value = 30;
+		#endif
+	}
+
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
 
 	if( m_is_color )
 	{
