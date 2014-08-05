@@ -1,3 +1,8 @@
+2014-08-05 Lin_guider 2.11.0 (c)Galaxy Master  <galaxy_master@mail.ru>
+
+	* Added support of ATIK cameras (video and pulse drivers)
+	* Misc. improvements and bugfixes
+
 2014-04-05 Lin_guider 2.10.0 (c)Galaxy Master  <galaxy_master@mail.ru>
 
 	* Added Nexstar IO driver

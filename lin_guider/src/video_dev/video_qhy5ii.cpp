@@ -147,6 +147,10 @@ int cvideo_qhy5ii::open_device( void )
 		m_wbblue = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
 	}
 
+	// warning
+	if( m_dev_type == DEVICETYPE_QHY5LII && m_transfer_bit == 16 )
+		log_i( "Note! 12-bit video mode disables guider port." );
+
 	return ret;
 }
 
@@ -435,6 +439,8 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 	{
 		capture_params.ext_params[ control_id ] = val.values[0];
 		log_i( "Ctrl 8-bit: %d, (restart is required)", val.values[0] );
+		if( val.values[0] == 0 ) // mode 12-bit
+			log_i( "Note! 12-bit video mode disables guider port." );
 	}
 		break;
 	case V4L2_CID_USER_USB_TRAF:

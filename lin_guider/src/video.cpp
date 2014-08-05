@@ -117,7 +117,7 @@ int cvideo_base::enum_frame_intervals( unsigned int pixfmt, unsigned int width, 
 	fival.pixel_format = pixfmt;
 	fival.width = width;
 	fival.height = height;
-	log_i("\tTime interval between frame: ");
+	log_i("\tTime interval between frames: ");
 
 	while( (ret = xioctl(fd, VIDIOC_ENUM_FRAMEINTERVALS, &fival)) == 0 )
 	{

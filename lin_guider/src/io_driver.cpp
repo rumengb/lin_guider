@@ -57,8 +57,8 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										false,
 										8,
 										"ftdi",
-										"External library libio_ftdi.so is required",
-										"External library libio_ftdi.so is required"
+										"External library libio_ftdi.so is required.",
+										"External library libio_ftdi.so is required."
 									},
 									{
 										DT_QHY5,
@@ -105,8 +105,8 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										false,
 										4,
 										"qhy5ii",
-										NULL,
-										NULL
+										"Works only in 8-bit video mode.",
+										"Works only in 8-bit video mode."
 									},
 									{
 										DT_NEXSTAR,
