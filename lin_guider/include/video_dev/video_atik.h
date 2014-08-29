@@ -27,6 +27,7 @@
 #include <vector>
 #include <time.h>
 #include "video.h"
+#include "timer.h"
 #include <atik_core.h>
 
 namespace video_drv
@@ -62,7 +63,8 @@ private:
 	// local
 	virtual int enum_controls( void );
 
-	struct timeval m_expstart;
+	ctimer exp_timer;
+	long m_expstart;
 };
 
 }

@@ -34,6 +34,7 @@
 
 
 // TODO: replace it with ctimer class
+/*
 long time_diff(struct timeval *start, struct timeval *end) {
 	long msec;
 
@@ -42,7 +43,7 @@ long time_diff(struct timeval *start, struct timeval *end) {
 
 	return msec;
 }
-
+*/
 
 namespace video_drv
 {
@@ -237,7 +238,7 @@ int cvideo_atik::start_capturing( void )
 	if( DBG_VERBOSITY )
 		log_i( "Exposure started" );
 
-	gettimeofday(&m_expstart, NULL);
+	m_expstart = exp_timer.gettime();
 
 	return 0;
 }
@@ -255,14 +256,14 @@ int cvideo_atik::stop_capturing( void )
 
 int cvideo_atik::read_frame( void )
 {
-	struct timeval now;
+	long now;
 	long time_elapsed;
 	bool success;
 	data_ptr raw = buffers[0].start;
         (void)raw;
 
-	gettimeofday(&now, NULL);
-	time_elapsed = time_diff(&m_expstart, &now);
+	now = exp_timer.gettime();
+	time_elapsed = now - m_expstart;
 	// if exposure time is not elapsed
 	// wait for some time to offload the CPU and return
 	if (time_elapsed < (long)frame_delay) {
@@ -301,11 +302,11 @@ int cvideo_atik::read_frame( void )
 		return 1;
 	}
 
-	struct timeval prev = m_expstart;
-	gettimeofday(&m_expstart, NULL);
+	long prev = m_expstart;
+	m_expstart = exp_timer.gettime();
 
 	if( DBG_VERBOSITY ) {
-		long exptime = time_diff(&prev, &m_expstart);
+		long exptime = m_expstart - prev;
 		log_i( "Exposure started. Last frame took %d ms", exptime);
 	}
 
