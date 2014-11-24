@@ -20,6 +20,7 @@
 
 #define QUICKER_START_EXPOSURE_DELAY  1
 #define QUICKER_READ_CCD_DELAY        2
+#define MAX_PACKET_SIZE               3
 
 extern bool AtikDebug;
 extern bool AtikDebugOn;
@@ -50,9 +51,11 @@ class AtikCamera {
 		virtual bool startExposure(bool amp) = 0;
 		virtual bool abortExposure() = 0;
 		virtual bool readCCD(unsigned startX, unsigned startY, unsigned sizeX, unsigned sizeY, unsigned binX, unsigned binY) = 0;
+		virtual bool readCCD(unsigned startX, unsigned startY, unsigned sizeX, unsigned sizeY, unsigned binX, unsigned binY, double delay) = 0;
 		virtual bool getImage(unsigned short* imgBuf, unsigned imgSize) = 0;
 		virtual bool setShutter(bool open) = 0;
 		virtual bool setGuideRelays(short mask) = 0;
+		virtual unsigned int delay(double delay) = 0;
     virtual ~AtikCamera() { };
 };
 
