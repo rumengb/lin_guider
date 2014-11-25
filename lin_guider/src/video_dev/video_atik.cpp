@@ -259,7 +259,6 @@ int cvideo_atik::read_frame( void )
 	long time_left;
 	bool success;
 	data_ptr raw = buffers[0].start;
-        (void)raw;
 
 	time_left = m_expstart + (long)frame_delay - exp_timer.gettime();
 	// if exposure time is not elapsed wait for some time to offload the CPU
