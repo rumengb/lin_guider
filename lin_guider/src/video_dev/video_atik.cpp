@@ -256,20 +256,20 @@ int cvideo_atik::stop_capturing( void )
 
 int cvideo_atik::read_frame( void )
 {
-	long now;
-	long time_elapsed;
+	long time_left;
 	bool success;
 	data_ptr raw = buffers[0].start;
         (void)raw;
 
-	now = exp_timer.gettime();
-	time_elapsed = now - m_expstart;
+	time_left = m_expstart + (long)frame_delay - exp_timer.gettime();
 	// if exposure time is not elapsed wait for some time to offload the CPU
 	// and return. This way we do not have to wait for the long exposures to finish.
-	if (time_elapsed < (long)frame_delay) {
-		usleep(1000); // sleep 1ms
-		return 0;
-	}
+	if( time_left > 10 ) {
+		usleep(10000);
+		return 0; // too much time left, wait some more
+	} else if( time_left > 0 )
+		usleep(time_left * 1000);
+
 
 	// If a guide pulse is trigerred between readCCD and getImage()
 	// images can not be read and restart is needed. So syncronization with
