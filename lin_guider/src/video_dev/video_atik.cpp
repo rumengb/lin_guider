@@ -264,10 +264,10 @@ int cvideo_atik::read_frame( void )
 
 	now = exp_timer.gettime();
 	time_elapsed = now - m_expstart;
-	// if exposure time is not elapsed
-	// wait for some time to offload the CPU and return
+	// if exposure time is not elapsed wait for some time to offload the CPU
+	// and return. This way we do not have to wait for the long exposures to finish.
 	if (time_elapsed < (long)frame_delay) {
-		usleep((frame_delay - time_elapsed) / 2);
+		usleep(1000); // sleep 1ms
 		return 0;
 	}
 
@@ -276,7 +276,7 @@ int cvideo_atik::read_frame( void )
 	// the pusle driver is unavoidable. This may delay the guide pulse
 	// by 200ms. This should not be a problem, because in autoguiding mode
 	// usually exposures > 0.5s are used and the guiding pulse should be
-	// finished by tje time nex exposure is being read. However this may
+	// finished by the time next exposure is being read. However this may
 	// affect pressing RA+, RA-, DEC+ and DEC- buttons and shorter exposure
 	// autoguiding.
 	const atik_core::caps_s& caps = get_caps();
