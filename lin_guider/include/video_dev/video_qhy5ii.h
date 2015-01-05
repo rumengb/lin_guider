@@ -65,6 +65,7 @@ namespace video_drv
 
 #define V4L2_CID_USER_8BIT		(V4L2_CID_USER_CLASS + 1)
 #define V4L2_CID_USER_USB_TRAF 	(V4L2_CID_USER_CLASS + 2)
+#define V4L2_CID_USER_DSPEED    (V4L2_CID_USER_CLASS + 3)
 
 /*
  * qhy5ii camera

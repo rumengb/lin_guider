@@ -568,6 +568,8 @@ void setup_video::onExtParamChanged( int index )
 	if( index == -1 )
 		return;
 
+	is_filling_ui = true;
+
 	unsigned int ctl_id = ui.comboBox_ExtParamList->itemData( index ).toUInt();
 	video_drv::cam_control_t *control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXTCTL, ctl_id );
 	if( control )
@@ -580,6 +582,8 @@ void setup_video::onExtParamChanged( int index )
 		ui.horizontalSlider_ExtValue->setMaximum( control->max );
 		ui.horizontalSlider_ExtValue->setValue( params.ext_params[ control->id ] );
 	}
+
+	is_filling_ui = false;
 }
 
 

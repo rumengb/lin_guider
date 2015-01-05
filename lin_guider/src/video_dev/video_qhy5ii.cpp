@@ -106,6 +106,7 @@ int cvideo_qhy5ii::open_device( void )
 	m_transfer_bit = capture_params.ext_params[ V4L2_CID_USER_8BIT ] == 0 ? 16 : 8;
 
 	m_usb_traf = 32;
+	m_transfer_speed = 0;
 	if( m_dev_type == DEVICETYPE_QHY5LII )
 	{
 		#ifdef __arm__
@@ -129,6 +130,8 @@ int cvideo_qhy5ii::open_device( void )
 	}
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_USB_TRAF, m_usb_traf ) );
 	m_usb_traf = capture_params.ext_params[ V4L2_CID_USER_USB_TRAF ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_DSPEED, m_transfer_speed ) );
+	m_transfer_speed = capture_params.ext_params[ V4L2_CID_USER_DSPEED ];
 
 	// disable color and 16bit for non-L as here's no code it
 	if( m_dev_type == DEVICETYPE_QHY5II )
@@ -456,6 +459,19 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		log_i( "USB traf: %d", v );
 	}
 		break;
+	case V4L2_CID_USER_DSPEED:
+	{
+		int v = val.values[0];
+		if( v < 0 || v > 1 )
+			log_e( "%s: invalid download speed value", __FUNCTION__ );
+		v = v < 0 ? 0 : v;
+		v = v > 1 ? 1 : v;
+		capture_params.ext_params[ control_id ] = v;
+		m_transfer_speed = v;
+		set_speed( (m_transfer_speed != 0) );
+		log_i( "Download speed: %d", v );
+	}
+		break;
 	default:
 		return -1;
 	}
@@ -481,6 +497,7 @@ int cvideo_qhy5ii::get_control( unsigned int control_id, param_val_t *val )
 	case V4L2_CID_BLUE_BALANCE:
 	case V4L2_CID_USER_8BIT:
 	case V4L2_CID_USER_USB_TRAF:
+	case V4L2_CID_USER_DSPEED:
 	{
 		val->values[0] = capture_params.ext_params[ control_id ];
 		break;
@@ -525,14 +542,19 @@ int cvideo_qhy5ii::init_device( void )
 	*/
 	m_usb_traf = m_usb_traf < 1 ? 1 : m_usb_traf;
 	m_usb_traf = m_usb_traf > 255 ? 255 : m_usb_traf;
+	m_transfer_speed = m_transfer_speed < 0 ? 0 : m_transfer_speed;
+	m_transfer_speed = m_transfer_speed > 1 ? 1 : m_transfer_speed;
 
 	int tmp_transfer_bit = m_transfer_bit;
 	set_transfer_bit( 8 );
+	set_speed( (m_transfer_speed != 0) );
+	/*
 	#ifdef __arm__
 		set_speed( false );
 	#else
 		set_speed( true );
 	#endif
+	*/
 	SetQHY5LIIHDR(false);
 	set_resolution( capture_params.width, capture_params.height );
 	set_gain( capture_params.gain );
@@ -776,6 +798,18 @@ int cvideo_qhy5ii::enum_controls( void )
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n, true );
 
+	// create virtual control
+	queryctrl.id = V4L2_CID_USER_DSPEED;
+	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Speed" );
+	queryctrl.minimum = 0;
+	queryctrl.maximum = 1;
+	queryctrl.step = 1;
+	queryctrl.default_value = 0;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
+
 	if( m_is_color )
 	{
 		// create virtual control (extended ctl)
@@ -894,10 +928,7 @@ void cvideo_qhy5ii::set_transfer_bit( int Bit )
 			Set14Bit(1);
 		else
 			Set14Bit(0);
-		if( m_transfer_speed == 1 )
-			set_speed( true );
-		else
-			set_speed( false );
+		set_speed( (m_transfer_speed != 0) );
 	}
 	else
 		m_transfer_bit = 8;
