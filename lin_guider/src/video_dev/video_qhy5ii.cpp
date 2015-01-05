@@ -469,6 +469,12 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		capture_params.ext_params[ control_id ] = v;
 		m_transfer_speed = v;
 		set_speed( (m_transfer_speed != 0) );
+
+		/* We need to reset FPS as set_speed() breaks the exposuere timing */
+		stop_video_mode();
+		set_fps( capture_params.fps );
+		start_video_mode();
+
 		log_i( "Download speed: %d", v );
 	}
 		break;
