@@ -44,10 +44,12 @@ class AtikCamera {
 		virtual bool open() = 0;
 		virtual void close() = 0;
 		virtual bool setParam(int code, long value) = 0;
-		virtual bool getCapabilities(const char **name, CAMERA_TYPE *type, bool *hasShutter, bool* hasGuidePort, unsigned* pixelCountX, unsigned* pixelCountY, double* pixelSizeX, double* pixelSizeY, unsigned* maxBinX, unsigned* maxBinY, COOLER_TYPE* cooler) = 0;
+		virtual bool getCapabilities(const char **name, CAMERA_TYPE *type, bool *hasShutter, bool* hasGuidePort, bool* hasFilterWheel, unsigned* pixelCountX, unsigned* pixelCountY, double* pixelSizeX, double* pixelSizeY, unsigned* maxBinX, unsigned* maxBinY, COOLER_TYPE* cooler) = 0;
 		virtual bool initiateWarmUp() = 0;
 		virtual bool getCoolerState(COOLING_STATE *state, float* targetTemp, float* currentTemp) = 0;
 		virtual bool setCooling(float targetTemp) = 0;
+		virtual bool getFilterWheelState(int *filterCount, int *moving, int *current, int *target) = 0;
+		virtual bool setFilter(int index) = 0;
 		virtual bool startExposure(bool amp) = 0;
 		virtual bool abortExposure() = 0;
 		virtual bool readCCD(unsigned startX, unsigned startY, unsigned sizeX, unsigned sizeY, unsigned binX, unsigned binY) = 0;

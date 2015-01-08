@@ -111,6 +111,7 @@ int atik_core::open( void )
 											&m_caps.type,
 											&m_caps.has_shutter,
 											&m_caps.has_guide_port,
+											&m_caps.has_filter_wheel,
 											&m_caps.pixel_count_X,
 											&m_caps.pixel_count_Y,
 											&m_caps.pixel_size_X,
