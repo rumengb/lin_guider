@@ -349,7 +349,7 @@ void setup_video::onApertureChanged( double val )
  QString str;
 
 	ui.l_FbyD->setText( str.setNum( ui.spinBox_Focal->value() / val, 'f', 1) );
-	ui.l_Resolution->setText( str.setNum( 120.0 / val, 'f', 1) );
+	ui.l_Resolution->setText( str.setNum( 120.0 / val, 'f', 2) );
 }
 
 
@@ -358,8 +358,8 @@ void setup_video::onFocalChanged( double val )
  QString str;
 
 	ui.l_FbyD->setText( str.setNum( val / ui.spinBox_Aperture->value(), 'f', 1) );
-	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), val ), 'f', 1) + "x" +
-									QString().setNum(calc_arc( 1, ui.spinBox_PixelHeight->value(), val ), 'f', 1 ) );
+	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), val ), 'f', 2) + "x" +
+									QString().setNum(calc_arc( 1, ui.spinBox_PixelHeight->value(), val ), 'f', 2 ) );
 	ui.l_FOV->setText( QString().setNum(calc_arc( ui.spinBox_CCD_Width->value(), ui.spinBox_PixelWidth->value(), val ) / 60.0, 'f', 1) + "x" +
 			 QString().setNum(calc_arc( ui.spinBox_CCD_Height->value(), ui.spinBox_PixelHeight->value(), val ) / 60.0, 'f', 1 ) );
 
@@ -368,8 +368,8 @@ void setup_video::onFocalChanged( double val )
 
 void setup_video::onMatrixWidthChanged( int val )
 {
-	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ), 'f', 1) + "x" +
-								QString().setNum(calc_arc( 1, ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ), 'f', 1 ) );
+	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ), 'f', 2) + "x" +
+								QString().setNum(calc_arc( 1, ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ), 'f', 2 ) );
 	ui.l_FOV->setText( QString().setNum(calc_arc( val, ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ) / 60.0, 'f', 1) + "x" +
 					QString().setNum(calc_arc( ui.spinBox_CCD_Height->value(), ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ) / 60.0, 'f', 1 ) );
 
@@ -378,7 +378,7 @@ void setup_video::onMatrixWidthChanged( int val )
 
 void setup_video::onMatrixHeightChanged( int val )
 {
-	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ), 'f', 1) + "x" +
+	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ), 'f', 2) + "x" +
 								QString().setNum(calc_arc( 1, ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ), 'f', 1 ) );
 	ui.l_FOV->setText( QString().setNum(calc_arc( ui.spinBox_CCD_Width->value(), ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ) / 60.0, 'f', 1) + "x" +
 					QString().setNum(calc_arc( val, ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ) / 60.0, 'f', 1 ) );
@@ -387,8 +387,8 @@ void setup_video::onMatrixHeightChanged( int val )
 
 void setup_video::onPixeWidthChanged( double val )
 {
-	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, val, ui.spinBox_Focal->value() ), 'f', 1) + "x" +
-									QString().setNum(calc_arc( 1, ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ), 'f', 1 ) );
+	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, val, ui.spinBox_Focal->value() ), 'f', 2) + "x" +
+									QString().setNum(calc_arc( 1, ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ), 'f', 2 ) );
 	ui.l_FOV->setText( QString().setNum(calc_arc( ui.spinBox_CCD_Width->value(), val, ui.spinBox_Focal->value() ) / 60.0, 'f', 1) + "x" +
 					QString().setNum(calc_arc( ui.spinBox_CCD_Height->value(), ui.spinBox_PixelHeight->value(), ui.spinBox_Focal->value() ) / 60.0, 'f', 1 ) );
 }
@@ -396,8 +396,8 @@ void setup_video::onPixeWidthChanged( double val )
 
 void setup_video::onPixeHeightChanged( double val )
 {
-	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ), 'f', 1) + "x" +
-									QString().setNum(calc_arc( 1, val, ui.spinBox_Focal->value() ), 'f', 1 ) );
+	ui.l_PixResolution->setText( QString().setNum(calc_arc( 1, ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ), 'f', 2) + "x" +
+									QString().setNum(calc_arc( 1, val, ui.spinBox_Focal->value() ), 'f', 2 ) );
 	ui.l_FOV->setText( QString().setNum(calc_arc( ui.spinBox_CCD_Width->value(), ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ) / 60.0, 'f', 1) + "x" +
 					QString().setNum(calc_arc( ui.spinBox_CCD_Height->value(), val, ui.spinBox_Focal->value() ) / 60.0, 'f', 1 ) );
 }
@@ -568,8 +568,6 @@ void setup_video::onExtParamChanged( int index )
 	if( index == -1 )
 		return;
 
-	is_filling_ui = true;
-
 	unsigned int ctl_id = ui.comboBox_ExtParamList->itemData( index ).toUInt();
 	video_drv::cam_control_t *control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXTCTL, ctl_id );
 	if( control )
@@ -582,8 +580,6 @@ void setup_video::onExtParamChanged( int index )
 		ui.horizontalSlider_ExtValue->setMaximum( control->max );
 		ui.horizontalSlider_ExtValue->setValue( params.ext_params[ control->id ] );
 	}
-
-	is_filling_ui = false;
 }
 
 
