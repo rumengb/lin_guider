@@ -130,7 +130,7 @@ void cio_driver_atik::write_data( unsigned int dByte ) {
 		return;
 
 	if( DBG_VERBOSITY )
-		log_i("direction = %d", direction);
+		log_i("direction = 0x%X", direction);
 
 	set_guide_relays( direction );
 }
