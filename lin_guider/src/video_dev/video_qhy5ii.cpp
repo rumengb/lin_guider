@@ -71,6 +71,7 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 
 	m_wbblue( 145 ),
 	m_wbred( 115 ),
+	m_do_debayer( false ),
 
 	m_qhy5iiDeNoise( false )
 {
@@ -146,8 +147,10 @@ int cvideo_qhy5ii::open_device( void )
 	{
 		capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wbred ) );
 		capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wbblue ) );
+		capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_DODEBAYER, m_do_debayer ) );
 		m_wbred = capture_params.ext_params[ V4L2_CID_RED_BALANCE ];
 		m_wbblue = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
+		m_do_debayer = capture_params.ext_params[ V4L2_CID_USER_DODEBAYER ];
 	}
 
 	// warning
@@ -469,13 +472,18 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		capture_params.ext_params[ control_id ] = v;
 		m_transfer_speed = v;
 		set_speed( (m_transfer_speed != 0) );
-
-		/* We need to reset FPS as set_speed() breaks the exposuere timing */
-		stop_video_mode();
-		set_fps( capture_params.fps );
-		start_video_mode();
-
 		log_i( "Download speed: %d", v );
+	}
+		break;
+	case V4L2_CID_USER_DODEBAYER:
+	{
+		int v = val.values[0];
+		v = v < 0 ? 0 : v;
+		v = v > 1 ? 1 : v;
+		capture_params.ext_params[ control_id ] = v;
+		m_do_debayer = (v == 1);
+		capture_params.pixel_format = get_pix_fmt();
+		log_i( "Debayering is %s", m_do_debayer ? "ON" : "OFFs" );
 	}
 		break;
 	default:
@@ -675,13 +683,13 @@ int cvideo_qhy5ii::read_frame( void )
 unsigned int cvideo_qhy5ii::get_pix_fmt( void )
 {
 	if (m_transfer_bit == 16) {
-		if ((m_dev_type == DEVICETYPE_QHY5LII) && (m_is_color)) {
+		if (m_dev_type == DEVICETYPE_QHY5LII && m_is_color && m_do_debayer) {
 			return V4L2_PIX_FMT_SGRBG12;
 		} else {
 			return V4L2_PIX_FMT_Y16;
 		}
 	} else if (m_transfer_bit == 8){
-		if ((m_dev_type == DEVICETYPE_QHY5LII) && (m_is_color)) {
+		if (m_dev_type == DEVICETYPE_QHY5LII && m_is_color && m_do_debayer) {
 			return V4L2_PIX_FMT_SGRBG8;
 		} else {
 			return V4L2_PIX_FMT_GREY;
@@ -806,7 +814,7 @@ int cvideo_qhy5ii::enum_controls( void )
 
 	// create virtual control
 	queryctrl.id = V4L2_CID_USER_DSPEED;
-	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Speed" );
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1;
@@ -838,6 +846,18 @@ int cvideo_qhy5ii::enum_controls( void )
 		queryctrl.maximum = 255; //100
 		queryctrl.step = 1;
 		queryctrl.default_value = m_wbblue;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n, true );
+
+		// create virtual control (extended ctl)
+		queryctrl.id = V4L2_CID_USER_DODEBAYER;
+		queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "do debayer" );
+		queryctrl.minimum = 0;
+		queryctrl.maximum = 1;
+		queryctrl.step = 1;
+		queryctrl.default_value = m_do_debayer;
 		queryctrl.flags = 0;
 		// Add control to control list
 		controls = add_control( -1, &queryctrl, controls, &n, true );

@@ -66,6 +66,7 @@ namespace video_drv
 #define V4L2_CID_USER_8BIT		(V4L2_CID_USER_CLASS + 1)
 #define V4L2_CID_USER_USB_TRAF 	(V4L2_CID_USER_CLASS + 2)
 #define V4L2_CID_USER_DSPEED    (V4L2_CID_USER_CLASS + 3)
+#define V4L2_CID_USER_DODEBAYER (V4L2_CID_USER_CLASS + 4)
 
 /*
  * qhy5ii camera
@@ -137,6 +138,7 @@ private:
 
 	int m_wbblue; //Used to set the white balance
 	int m_wbred;
+	bool m_do_debayer;
 
 	bool m_qhy5iiDeNoise;
 
