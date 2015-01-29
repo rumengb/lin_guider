@@ -1,5 +1,5 @@
 /*
- Starlight Xpress CCD INDI Driver
+ Starlight Xpress Lin_guider Driver
 
  Code is based on SX SDK by David Schmenk and Craig Stark
  Copyright (c) 2003 David Schmenk
@@ -8,6 +8,8 @@
  Changes for INDI project by Peter Polakovic
  Copyright (c) 2012-2013 Cloudmakers, s. r. o.
  All Rights Reserved.
+
+ Changes for Lin_guider project 2015 by Rumen G.Bogdanovski
 
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the

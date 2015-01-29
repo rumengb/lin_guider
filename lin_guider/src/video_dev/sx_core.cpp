@@ -38,7 +38,7 @@ char* sx_core::m_oddBuf = NULL;
 char* sx_core::m_evenBuf = NULL;
 
 int sx_core::open( void )
-{	
+{
 	DEVICE devices[CAM_MAX];
 	const char* names[CAM_MAX];
 	bool success;
@@ -63,10 +63,10 @@ int sx_core::open( void )
 			log_i("sxOpen(): Error opening camera.");
 			pthread_mutex_unlock( &m_mutex );
 			return 2;
-		} 
-		
+		}
+
 		sxReset(m_camera);
-		
+
 		memset(&m_caps, 0, sizeof(m_caps));
 		success = sxGetCameraParams(m_camera, 0, &m_caps);
 		if (!success) {
@@ -74,7 +74,7 @@ int sx_core::open( void )
 			pthread_mutex_unlock( &m_mutex );
 			return 3;
 		}
-		
+
 		m_model = sxGetCameraModel(m_camera);
 		m_is_interleaced = sxIsInterlaced(m_model);
 		if (m_is_interleaced) {
@@ -109,14 +109,13 @@ int sx_core::close( void )
 
 	assert( m_ref_count > 0 );
 	m_ref_count--;
-	if( m_ref_count == 0)
-	{
+	if( m_ref_count == 0) {
 		sxClose(&m_camera);
 	}
 
 	pthread_mutex_unlock( &m_mutex );
-	
-	if (m_is_interleaced) {		
+
+	if (m_is_interleaced) {
 			if (m_oddBuf) free(m_oddBuf);
 			if (m_evenBuf) free(m_evenBuf);
 	}
@@ -127,7 +126,7 @@ int sx_core::close( void )
 
 bool sx_core::start_exposure() {
 	int rc;
-	
+
 	pthread_mutex_lock( &m_mutex );
 	if (m_is_interleaced) {
 		if( DBG_VERBOSITY ) {
@@ -141,11 +140,11 @@ bool sx_core::start_exposure() {
 	}
 	if (m_caps.extra_caps & SXUSB_CAPS_SHUTTER)	sxSetShutter(m_camera, 0);
 	pthread_mutex_unlock( &m_mutex );
-	
+
 	return (bool)rc;
 }
 
-bool sx_core::abort_exposure() {	
+bool sx_core::abort_exposure() {
     if (m_caps.extra_caps & SXUSB_CAPS_SHUTTER) {
 		pthread_mutex_lock( &m_mutex );
 		sxSetShutter(m_camera, 1);
@@ -163,8 +162,8 @@ bool sx_core::read_image(char *buf, int buf_size) {
 	int binX = 1;
 	int binY = 1;
 	int subWW = subW * 2;
-    int size;
-    
+	int size;
+
 	// must chekck buf_size and figure out bbp stuff
 	if (m_is_interleaced && binY > 1) {
 		size = subW * subH / 2 / binX / (binY / 2);
@@ -180,7 +179,7 @@ bool sx_core::read_image(char *buf, int buf_size) {
 		} else {
 			rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_EVEN | CCD_EXP_FLAGS_SPARE2 , 0, subX, subY / 2, subW, subH / 2, binX, 1);
 			if (rc) {
-				long start_time = delay_timer.gettime(); 
+				long start_time = delay_timer.gettime();
 				rc = sxReadPixels(m_camera, m_evenBuf, size);
 				// measure the delay needed between wiping even and odd roes to ensure uniform exposure
 				m_wipe_delay = (delay_timer.gettime() - start_time) * 1000;

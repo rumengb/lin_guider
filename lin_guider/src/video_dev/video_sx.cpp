@@ -264,7 +264,7 @@ int cvideo_sx::read_frame( void )
 		return 0; // too much time left, wait some more
 	} else if( time_left > 0 )
 		usleep(time_left * 1000);
-	
+
 	success = read_image((char *) raw.ptr16, raw_size);
 	if( !success )
 		log_e("read_image(): failed");

@@ -62,15 +62,15 @@ private:
 	static int m_ref_count;
 	static pthread_mutex_t m_mutex;
 	static HANDLE m_camera;
-	
+
 	bool m_is_interleaced;
-	
-	// if the camera has no shutter ans is interleased we need to know 
-	// the exact time between between wiping the odd and even rows to 
-	// in order to expose then the same time. 
+
+	// if the camera has no shutter ans is interleased we need to know
+	// the exact time between between wiping the odd and even rows to
+	// in order to expose then the same time.
 	ctimer delay_timer;
 	long m_wipe_delay;
-	
+
 	// if the camera is interleased we read the even and odd rows separately
 	static char* m_oddBuf;
 	static char* m_evenBuf;
