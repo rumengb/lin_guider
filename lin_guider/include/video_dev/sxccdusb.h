@@ -147,7 +147,7 @@ struct t_sxccd_params {
 
 void sxDebug(bool enable);
 int sxList(DEVICE *sxDevices, const char **names, int maxCount);
-//int sxOpen(HANDLE *sxHandles);
+int sxOpen(HANDLE *sxHandles);
 int sxOpen(DEVICE sxDevice, HANDLE *sxHandle);
 void sxClose(HANDLE *sxHandle);
 unsigned short sxGetCameraModel(HANDLE sxHandle);

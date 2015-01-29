@@ -36,6 +36,8 @@ HANDLE sx_core::m_camera = NULL;
 struct t_sxccd_params sx_core::m_caps = {0,0,0,0,0,0,0,0,0,0,0,0,0};
 char* sx_core::m_oddBuf = NULL;
 char* sx_core::m_evenBuf = NULL;
+long sx_core::m_wipe_delay = 130000; //this will be updated in read_image();
+bool sx_core::m_is_interlaced = false;
 
 int sx_core::open( void )
 {
@@ -181,7 +183,7 @@ bool sx_core::read_image(char *buf, int buf_size) {
 			if (rc) {
 				long start_time = delay_timer.gettime();
 				rc = sxReadPixels(m_camera, m_evenBuf, size);
-				// measure the delay needed between wiping even and odd roes to ensure uniform exposure
+				// measure the delay needed between wiping even and odd rows to ensure uniform exposure
 				m_wipe_delay = (delay_timer.gettime() - start_time) * 1000;
 			}
 			if (rc) rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_ODD | CCD_EXP_FLAGS_SPARE2, 0, subX, subY / 2, subW, subH / 2, binX, 1);

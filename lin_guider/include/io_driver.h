@@ -72,6 +72,7 @@ enum device_type
 	DT_QHY5II,
 	DT_NEXSTAR,
 	DT_ATIK,
+	DT_SX,
 	DT_MAX,
 	DEVICE_CNT = DT_MAX-1
 };
