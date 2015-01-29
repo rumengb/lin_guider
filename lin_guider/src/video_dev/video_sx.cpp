@@ -94,7 +94,14 @@ time_fract_t cvideo_sx::set_fps( const time_fract &new_fps )
 
 int cvideo_sx::open_device( void )
 {
-	return open();
+	int rc = open();
+	m_sensor_info = video_drv::sensor_info_s(
+		m_caps.pix_width,
+		m_caps.pix_height,
+		m_caps.width,
+		m_caps.height
+	);
+	return rc;
 }
 
 
