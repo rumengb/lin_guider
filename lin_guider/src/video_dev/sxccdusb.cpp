@@ -280,7 +280,7 @@ int sxOpen(HANDLE *sxHandles) {
 }
 
 void sxClose(HANDLE *sxHandle) {
-  int rc;
+  //int rc;
   libusb_close(*sxHandle);
   *sxHandle = NULL;
   DEBUG(log(true, "sxClose: libusb_close\n"));
@@ -647,7 +647,7 @@ int sxSetSTAR2000(HANDLE sxHandle, char star2k) {
 }
 
 int sxSetSerialPort(HANDLE sxHandle, unsigned short portIndex, unsigned short property, unsigned short value) {
-  log(false, "sxSetSerialPort is not implemented");
+  log(false, "called: sxSetSerialPort(%p,%d,%d,%d) but it is not implemented.", sxHandle, portIndex, property, value);
   return 0;
 }
 

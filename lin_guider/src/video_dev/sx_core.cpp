@@ -96,7 +96,6 @@ int sx_core::open( void )
 				return 4;
 			}
 		}
-		m_wipe_delay = 130000; //this will be updated in read_image();
 	}
 	m_ref_count++;
 	pthread_mutex_unlock( &m_mutex );
@@ -132,7 +131,7 @@ bool sx_core::start_exposure() {
 	pthread_mutex_lock( &m_mutex );
 	if (m_is_interlaced) {
 		if( DBG_VERBOSITY ) {
-			log_i("wipe_delay = %d us", m_wipe_delay );
+			log_i("m_wipe_delay = %d us", m_wipe_delay );
 		}
 		rc = sxClearPixels(m_camera, CCD_EXP_FLAGS_FIELD_EVEN | CCD_EXP_FLAGS_NOWIPE_FRAME, 0);
 		usleep(m_wipe_delay); // measured in read_image()
