@@ -56,6 +56,9 @@ cvideo_dsi2pro::cvideo_dsi2pro() :
 
 	if( ret != 0 )
 		log_e( "cvideo_dsi2pro::cvideo_dsi2pro(): Could not open initialize libusb" );
+
+	// this may be placed inside of initialization code
+	m_sensor_info = video_drv::sensor_info_s( 8.6, 8.3, DSI2PRO_IMG_WIDTH, DSI2PRO_IMG_HEIGHT );
 }
 
 

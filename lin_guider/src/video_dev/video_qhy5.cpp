@@ -46,6 +46,9 @@ cvideo_qhy5::cvideo_qhy5()
 	device_type = DT_QHY5;
 
 	m_qhy5_obj = new qhy5_core_shared();
+
+	// this may be placed inside of initialization code
+	m_sensor_info = video_drv::sensor_info_s( 1, 1, 640, 480 );
 }
 
 

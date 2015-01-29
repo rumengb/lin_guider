@@ -60,6 +60,7 @@ protected slots:
 	void onMatrixHeightChanged( int val );
 	void onPixeWidthChanged( double val );
 	void onPixeHeightChanged( double val );
+	void onGetSensorInfoButtonClick();
 	void onDeviceListChanged( int index );
 	void onFPSChanged( int index );
 	void onFrameSizeChanged( int index );
