@@ -48,6 +48,7 @@
 #include "video_qhy6.h"
 #include "video_qhy5ii.h"
 #include "video_atik.h"
+#include "video_sx.h"
 
 
 lin_guider::lin_guider(QWidget *parent)
@@ -170,6 +171,9 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 		break;
 	case video_drv::DRV_ATIK:
 		m_video = new video_drv::cvideo_atik( );
+		break;
+	case video_drv::DRV_SX:
+		m_video = new video_drv::cvideo_sx( );
 		break;
 	default:
 		m_video = new video_drv::cvideo_null( true );

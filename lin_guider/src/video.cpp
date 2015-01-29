@@ -103,6 +103,13 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 													"atik",
 													"Atikccdsdk is required",
 													"<html><head/><body><p>External library <a href=\"https://sourceforge.net/projects/linguider/files/atik_sdk/\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
+												},
+												{
+													DT_SX,
+													false,
+													"Starlight Xpress",
+													NULL,
+													NULL
 												}
 
 											};
@@ -1771,6 +1778,9 @@ int cvideo_base::detect_best_device( int devtype, const char *devname )
 	case DT_ATIK:
 		log_i( "Trying ATIK..." );
 		return DRV_ATIK;
+	case DT_SX:
+		log_i( "Trying Starlight Xpress..." );
+		return DRV_SX;
  	case DT_NULL:
 		log_i( "Trying NULL-camera..." );
 		return DRV_NULL;
