@@ -153,6 +153,22 @@ int cvideo_qhy5ii::open_device( void )
 		m_do_debayer = capture_params.ext_params[ V4L2_CID_USER_DODEBAYER ];
 	}
 
+	if( m_dev_type == DEVICETYPE_QHY5LII ) {
+		m_sensor_info = video_drv::sensor_info_s(
+			3.75,
+			3.75,
+			QHY5LII_MATRIX_WIDTH,
+			QHY5LII_MATRIX_HEIGHT
+		);
+	} else {
+		m_sensor_info = video_drv::sensor_info_s(
+			5.2,
+			5.2,
+			QHY5II_MATRIX_WIDTH,
+			QHY5II_MATRIX_HEIGHT
+		);
+	}
+
 	// warning
 	if( m_dev_type == DEVICETYPE_QHY5LII && m_transfer_bit == 16 )
 		log_i( "Note! 12-bit video mode disables guider port." );
