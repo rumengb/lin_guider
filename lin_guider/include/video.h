@@ -264,7 +264,6 @@ typedef struct
 }post_param_t;
 
 
-
 typedef enum
 {
 	CI_FPS = 1,
@@ -273,6 +272,38 @@ typedef enum
 	CI_EXPO,
 	CI_EXTCTL
 }control_id_t;
+
+
+struct sensor_info_s
+{
+	sensor_info_s() :
+		pixel_width( 0 ),
+		pixel_height( 0 ),
+		matrix_width( 0 ),
+		matrix_height( 0 ),
+		is_available( false )
+	{}
+	sensor_info_s( double pw,
+				   double ph,
+				   int mw,
+				   int mh ) :
+		pixel_width( pw ),
+		pixel_height( ph ),
+		matrix_width( mw ),
+		matrix_height( mh ),
+		is_available( true )
+	{
+		if( pixel_width < 0.01 || pixel_width > 1000 ) is_available = false;
+		if( pixel_height < 0.01 || pixel_height > 1000 ) is_available = false;
+		if( matrix_width < 1 || matrix_width > 100000 ) is_available = false;
+		if( matrix_height < 1 || matrix_height > 100000 ) is_available = false;
+	}
+	double pixel_width;
+	double pixel_height;
+	int    matrix_width;
+	int    matrix_height;
+	bool   is_available;
+};
 
 
 
@@ -307,6 +338,7 @@ public:
 	void set_use_calibration( bool use );
 	bool is_calibrated( void ) const;
 	const char* get_name( void ) const;
+	const struct sensor_info_s& get_sensor_info( void ) const;
 
 	static int detect_best_device( int devtype, const char *devname );
 
@@ -424,6 +456,8 @@ protected:
 	int fd;				// file descriptor
 
 	bool is_v4l_1;
+
+	struct sensor_info_s m_sensor_info;
 };
 
 }

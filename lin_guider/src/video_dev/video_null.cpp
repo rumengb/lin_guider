@@ -44,6 +44,9 @@ cvideo_null::cvideo_null( bool stub )
 	is_v4l_1 = true;
 
 	stub_mode = stub;
+
+	// this may be placed inside of initialization code
+	m_sensor_info = video_drv::sensor_info_s( 4.5, 4.5, 640, 480 );
 }
 
 

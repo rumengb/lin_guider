@@ -52,6 +52,9 @@ namespace video_drv
 cvideo_atik::cvideo_atik()
 {
 	device_type = DT_ATIK;
+
+	// this may be placed inside of initialization code
+	m_sensor_info = video_drv::sensor_info_s( 1, 1, 640, 480 );
 }
 
 

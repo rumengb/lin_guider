@@ -470,9 +470,6 @@ void cvideo_base::free_controls( void )
 
 cvideo_base::cvideo_base()
 {
- int i, j, k;
-
-
 	init_decoder();
 
 	initialized = false;
@@ -508,11 +505,11 @@ cvideo_base::cvideo_base()
 	memset( &posted_param, 0, sizeof(posted_param) );
 
 	memset( device_formats, 0, sizeof(device_formats) );
-	for( i = 0;i < MAX_FMT;i++ )
+	for( int i = 0;i < MAX_FMT;i++ )
 	{
-		for( j = 0;j < MAX_FMT;j++ )
+		for( int j = 0;j < MAX_FMT;j++ )
 		{
-			for( k = 0;k < 3 && k < MAX_FMT;k++ )
+			for( int k = 0;k < 3 && k < MAX_FMT;k++ )
 				device_formats[i].frame_table[j].fps_table[k] = time_fract::mk_fps( 1, (k+1)*5 );
 		}
 	}
@@ -1514,6 +1511,12 @@ const char* cvideo_base::get_name( void ) const
 		return "error";
 
 	return device_type == DT_WEBCAM ? (const char*)dev_name : device_desc_list[device_type-1].desc;
+}
+
+
+const struct sensor_info_s& cvideo_base::get_sensor_info( void ) const
+{
+	return m_sensor_info;
 }
 
 

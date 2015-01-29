@@ -21,6 +21,9 @@
  */
 #include <unistd.h>
 
+#include <map>
+#include <string>
+
 #include "lin_guider.h"
 #include "setup_video.h"
 #include "utils.h"
@@ -61,6 +64,9 @@ setup_video::setup_video(lin_guider *parent)
 	else
 		ui.comboBox_ExtParamList->setCurrentIndex( 0 );
 
+	const struct video_drv::sensor_info_s &si = pmain_wnd->m_video->get_sensor_info();
+	ui.pushButton_GetSensorInfo->setEnabled( si.is_available );
+
 	// connect...
 	connect( ui.spinBox_Aperture,	   		SIGNAL(valueChanged(double)),		this, SLOT(onApertureChanged(double)) );
 	connect( ui.spinBox_Focal,		   		SIGNAL(valueChanged(double)),		this, SLOT(onFocalChanged(double)) );
@@ -68,6 +74,7 @@ setup_video::setup_video(lin_guider *parent)
 	connect( ui.spinBox_CCD_Height,    		SIGNAL(valueChanged(int)),			this, SLOT(onMatrixHeightChanged(int)) );
 	connect( ui.spinBox_PixelWidth,	   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeWidthChanged(double)) );
 	connect( ui.spinBox_PixelHeight,   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeHeightChanged(double)) );
+	connect( ui.pushButton_GetSensorInfo,	SIGNAL(clicked()), 					this, SLOT(onGetSensorInfoButtonClick()) );
 	connect( ui.comboBox_DeviceList,   		SIGNAL(activated(int)),         	this, SLOT(onDeviceListChanged(int)) );
 	connect( ui.comboBox_FPS, 		   		SIGNAL(activated(int)), 			this, SLOT(onFPSChanged(int)) );
 	connect( ui.comboBox_FrameSize,    		SIGNAL(activated(int)), 			this, SLOT(onFrameSizeChanged(int)) );
@@ -400,6 +407,16 @@ void setup_video::onPixeHeightChanged( double val )
 									QString().setNum(calc_arc( 1, val, ui.spinBox_Focal->value() ), 'f', 2 ) );
 	ui.l_FOV->setText( QString().setNum(calc_arc( ui.spinBox_CCD_Width->value(), ui.spinBox_PixelWidth->value(), ui.spinBox_Focal->value() ) / 60.0, 'f', 1) + "x" +
 					QString().setNum(calc_arc( ui.spinBox_CCD_Height->value(), val, ui.spinBox_Focal->value() ) / 60.0, 'f', 1 ) );
+}
+
+
+void setup_video::onGetSensorInfoButtonClick()
+{
+	const struct video_drv::sensor_info_s &si = pmain_wnd->m_video->get_sensor_info();
+	ui.spinBox_CCD_Width->setValue( si.matrix_width );
+	ui.spinBox_CCD_Height->setValue( si.matrix_height );
+	ui.spinBox_PixelWidth->setValue( si.pixel_width );
+	ui.spinBox_PixelHeight->setValue( si.pixel_height );
 }
 
 
