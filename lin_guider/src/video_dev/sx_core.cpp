@@ -76,8 +76,8 @@ int sx_core::open( void )
 		}
 
 		m_model = sxGetCameraModel(m_camera);
-		m_is_interleaced = sxIsInterlaced(m_model);
-		if (m_is_interleaced) {
+		m_is_interlaced = sxIsInterlaced(m_model);
+		if (m_is_interlaced) {
 			m_caps.pix_height /= 2;
 			m_caps.height *= 2;
 			int bytes_pix = m_caps.bits_per_pixel / 8;
@@ -115,7 +115,7 @@ int sx_core::close( void )
 
 	pthread_mutex_unlock( &m_mutex );
 
-	if (m_is_interleaced) {
+	if (m_is_interlaced) {
 			if (m_oddBuf) free(m_oddBuf);
 			if (m_evenBuf) free(m_evenBuf);
 	}
@@ -128,7 +128,7 @@ bool sx_core::start_exposure() {
 	int rc;
 
 	pthread_mutex_lock( &m_mutex );
-	if (m_is_interleaced) {
+	if (m_is_interlaced) {
 		if( DBG_VERBOSITY ) {
 			log_i("wipe_delay = %d us", m_wipe_delay );
 		}
@@ -165,14 +165,14 @@ bool sx_core::read_image(char *buf, int buf_size) {
 	int size;
 
 	// must chekck buf_size and figure out bbp stuff
-	if (m_is_interleaced && binY > 1) {
+	if (m_is_interlaced && binY > 1) {
 		size = subW * subH / 2 / binX / (binY / 2);
 	} else {
 		size = subW * subH / binX / binY;
 	}
 	pthread_mutex_lock( &m_mutex );
 	if (m_caps.extra_caps & SXUSB_CAPS_SHUTTER) sxSetShutter(m_camera, 1);
-	if (m_is_interleaced) {
+	if (m_is_interlaced) {
 		if (binY > 1) {
 			rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_BOTH, 0, subX, subY, subW, subH / 2, binX, binY / 2);
 			if (rc) rc = sxReadPixels(m_camera, buf, size * 2);

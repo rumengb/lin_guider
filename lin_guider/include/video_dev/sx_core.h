@@ -63,7 +63,7 @@ private:
 	static pthread_mutex_t m_mutex;
 	static HANDLE m_camera;
 
-	bool m_is_interleaced;
+	bool m_is_interlaced;
 
 	// if the camera has no shutter ans is interleased we need to know
 	// the exact time between between wiping the odd and even rows to
