@@ -58,7 +58,7 @@ cvideo_qhy6::cvideo_qhy6() :
 	m_qhy6_obj = new qhy6_core_shared();
 
 	// this may be placed inside of initialization code
-	m_sensor_info = video_drv::sensor_info_s( 6.5, 6.25, QHY6_MATRIX_WIDTH, QHY6_MATRIX_HEIGHT );
+	m_sensor_info = video_drv::sensor_info_s( 6.25, 6.25, QHY6_MATRIX_WIDTH, QHY6_MATRIX_HEIGHT );
 }
 
 
