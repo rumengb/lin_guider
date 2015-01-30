@@ -52,14 +52,6 @@ namespace video_drv
 cvideo_atik::cvideo_atik()
 {
 	device_type = DT_ATIK;
-
-	const atik_core::caps_s& caps = get_caps();
-	m_sensor_info = video_drv::sensor_info_s(
-		caps.pixel_size_X,
-		caps.pixel_size_Y,
-		caps.pixel_count_X,
-		caps.pixel_count_Y
-	);
 }
 
 
@@ -211,6 +203,14 @@ int cvideo_atik::init_device( void )
 		free( buffers );
 		return EXIT_FAILURE;
 	}
+
+	const atik_core::caps_s& caps = get_caps();
+	m_sensor_info = video_drv::sensor_info_s(
+		caps.pixel_size_X,
+		caps.pixel_size_Y,
+		caps.pixel_count_X,
+		caps.pixel_count_Y
+	);
 
 	set_exposure( capture_params.exposure );
 	get_exposure();
