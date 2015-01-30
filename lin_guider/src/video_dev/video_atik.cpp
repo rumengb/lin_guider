@@ -126,6 +126,20 @@ int  cvideo_atik::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 10 );
 	i++;
 
+	pt.x = caps.pixel_count_X/2;
+	pt.y = caps.pixel_count_Y/2;
+	device_formats[0].frame_table[ i ].size =  pt;
+	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 3, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 2, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 2 );
+	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 3 );
+	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 10 );
+	i++;
+
 	// add empty tail
 	pt.x = pt.y = 0;
 	device_formats[0].frame_table[ i++ ].size = pt;
@@ -204,13 +218,33 @@ int cvideo_atik::init_device( void )
 		return EXIT_FAILURE;
 	}
 
+	m_width = capture_params.width;
+	m_height = capture_params.height;
+
 	const atik_core::caps_s& caps = get_caps();
+
+	// if the capture resolution is half the physical,
+	// read the full sensor but use bining
+	if (m_width*2 == caps.pixel_count_X) {
+		m_width *= 2;
+		m_binX = 2;
+	} else m_binX = 1;
+
+	if (m_height*2 == caps.pixel_count_Y) {
+		m_height *= 2;
+		m_binY = 2;
+	} else m_binY = 1;
+
 	m_sensor_info = video_drv::sensor_info_s(
-		caps.pixel_size_X,
-		caps.pixel_size_Y,
-		caps.pixel_count_X,
-		caps.pixel_count_Y
+		caps.pixel_size_X * m_binX,
+		caps.pixel_size_Y * m_binY,
+		capture_params.width,
+		capture_params.height
 	);
+
+	if( DBG_VERBOSITY ) {
+		log_i("Image %dx%d binning %dx%d", m_width, m_height, m_binX, m_binY);
+	}
 
 	set_exposure( capture_params.exposure );
 	get_exposure();
@@ -286,15 +320,14 @@ int cvideo_atik::read_frame( void )
 	// finished by the time next exposure is being read. However this may
 	// affect pressing RA+, RA-, DEC+ and DEC- buttons and shorter exposure
 	// autoguiding.
-	const atik_core::caps_s& caps = get_caps();
 	lock();
-	success = get_camera()->readCCD(0, 0, caps.pixel_count_X, caps.pixel_count_Y, 1, 1);
+	success = get_camera()->readCCD(0, 0, m_width, m_height, m_binX, m_binY);
 	if( !success )
 		log_e("readCCD(): failed");
 	if( DBG_VERBOSITY )
 		log_i("Exposure finished. Reading %d bytes", buffers[0].length);
 
-	success = get_camera()->getImage(raw.ptr16, caps.pixel_count_X * caps.pixel_count_Y);
+	success = get_camera()->getImage(raw.ptr16, capture_params.width * capture_params.height);
 	unlock();
 	if( !success )
 		log_e("getImage(): failed");

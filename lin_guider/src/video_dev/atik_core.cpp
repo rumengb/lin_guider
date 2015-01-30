@@ -38,6 +38,10 @@ pthread_mutex_t atik_core::m_mutex = PTHREAD_MUTEX_INITIALIZER;
 AtikCamera_list_t* atik_core::AtikCamera_list = NULL;
 AtikCamera_destroy_t* atik_core::AtikCamera_destroy = NULL;
 atik_core::caps_s atik_core::m_caps = atik_core::caps_s();
+unsigned int atik_core::m_width = 0;
+unsigned int atik_core::m_height = 0;
+unsigned int atik_core::m_binX = 1;
+unsigned int atik_core::m_binY = 1;
 
 int atik_core::open( void )
 {
@@ -101,12 +105,6 @@ int atik_core::open( void )
 			return 2;
 		}
 
-		success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
-		if (!success) log_i("Could not set timings.");
-
-		success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
-		if (!success) log_i("Could not set timings.");
-
 		success = m_camera->getCapabilities(&m_caps.name,
 											&m_caps.type,
 											&m_caps.has_shutter,
@@ -119,6 +117,16 @@ int atik_core::open( void )
 											&m_caps.max_bin_Y,
 											&m_caps.cooler);
 		if (!success) return 3;
+
+		if (m_caps.type == QUICKER) {
+			success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
+			if (!success) log_i("Could not set timings.");
+
+			success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
+			if (!success) log_i("Could not set timings.");
+		}
+
+		if (DBG_VERBOSITY) log_i("Camera name: %s, type: %d", m_caps.name, m_caps.type);
 	}
 	m_ref_count++;
 

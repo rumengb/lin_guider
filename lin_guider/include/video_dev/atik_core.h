@@ -72,6 +72,11 @@ public:
 	atik_core() {}
 	virtual ~atik_core() {}
 
+	static unsigned int m_width;
+	static unsigned int m_height;
+	static unsigned int m_binX;
+	static unsigned int m_binY;
+
 protected:
 	AtikCamera* get_camera() { return m_camera; }
 	int open( void );		// get&check capabilities, apply format
@@ -89,11 +94,6 @@ private:
 	static AtikCamera_list_t *AtikCamera_list;
 	static AtikCamera_destroy_t *AtikCamera_destroy;
 	static struct caps_s m_caps;
-
-	// TODO: access through const atik_core::cooler_state_s& get_cooler_state( void );
-	COOLING_STATE m_cooler_state;
-	float m_target_temp;
-	float m_current_temp;
 };
 
 #endif /* ATIK_CORE_H_ */
