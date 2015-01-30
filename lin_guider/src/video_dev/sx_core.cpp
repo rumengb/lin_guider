@@ -38,6 +38,10 @@ char* sx_core::m_oddBuf = NULL;
 char* sx_core::m_evenBuf = NULL;
 long sx_core::m_wipe_delay = 130000; //this will be updated in read_image();
 bool sx_core::m_is_interlaced = false;
+int sx_core::m_width = 0;
+int sx_core::m_height = 0;
+int sx_core::m_binX = 1;
+int sx_core::m_binY = 1;
 
 int sx_core::open( void )
 {
@@ -129,7 +133,7 @@ bool sx_core::start_exposure() {
 	int rc;
 
 	pthread_mutex_lock( &m_mutex );
-	if (m_is_interlaced) {
+	if (m_is_interlaced && m_binY == 1) {
 		if( DBG_VERBOSITY ) {
 			log_i("m_wipe_delay = %d us", m_wipe_delay );
 		}
@@ -158,10 +162,10 @@ bool sx_core::read_image(char *buf, int buf_size) {
 	int rc;
 	int subX = 0;
 	int subY = 0;
-	int subW = m_caps.width;
-	int subH = m_caps.height;
-	int binX = 1;
-	int binY = 1;
+	int subW = m_width;
+	int subH = m_height;
+	int binX = m_binX;
+	int binY = m_binY;
 	int subWW = subW * 2;
 	int size;
 

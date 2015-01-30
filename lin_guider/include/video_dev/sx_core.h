@@ -48,6 +48,11 @@ public:
 
 protected:
 	static struct t_sxccd_params m_caps;
+	static int m_width;
+	static int m_height;
+	static int m_binX;
+	static int m_binY;
+
 	int open( void );
 	int close( void );
 	int set_guide_relays( int dir );

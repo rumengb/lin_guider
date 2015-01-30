@@ -95,12 +95,12 @@ time_fract_t cvideo_sx::set_fps( const time_fract &new_fps )
 int cvideo_sx::open_device( void )
 {
 	int rc = open();
-	m_sensor_info = video_drv::sensor_info_s(
-		m_caps.pix_width,
-		m_caps.pix_height,
-		m_caps.width,
-		m_caps.height
-	);
+	//m_sensor_info = video_drv::sensor_info_s(
+	//	m_caps.pix_width,
+	//	m_caps.pix_height,
+	//	m_caps.width,
+	//	m_caps.height
+	//);
 	return rc;
 }
 
@@ -120,6 +120,21 @@ int  cvideo_sx::get_vcaps( void )
 
 	pt.x = m_caps.width;
 	pt.y = m_caps.height;
+	device_formats[0].frame_table[ i ].size =  pt;
+	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 3, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 2, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 2 );
+	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 3 );
+	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 20 );
+	i++;
+
+	pt.x = m_caps.width/2;
+	pt.y = m_caps.height/2;
 	device_formats[0].frame_table[ i ].size =  pt;
 	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
 	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
@@ -210,6 +225,26 @@ int cvideo_sx::init_device( void )
 		free( buffers );
 		return EXIT_FAILURE;
 	}
+
+	m_width = capture_params.width;
+	m_height = capture_params.height;
+
+	if (m_width*2 == m_caps.width) {
+		m_width *= 2;
+		m_binX = 2;
+	} else m_binX = 1;
+
+	if (m_height*2 == m_caps.height) {
+		m_height *= 2;
+		m_binY = 2;
+	} else m_binY = 1;
+
+	m_sensor_info = video_drv::sensor_info_s(
+		m_caps.pix_width * m_binX,
+		m_caps.pix_height * m_binY,
+		capture_params.width,
+		capture_params.height
+	);
 
 	set_exposure( capture_params.exposure );
 	get_exposure();
