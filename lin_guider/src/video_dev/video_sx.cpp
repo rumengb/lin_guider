@@ -94,14 +94,7 @@ time_fract_t cvideo_sx::set_fps( const time_fract &new_fps )
 
 int cvideo_sx::open_device( void )
 {
-	int rc = open();
-	//m_sensor_info = video_drv::sensor_info_s(
-	//	m_caps.pix_width,
-	//	m_caps.pix_height,
-	//	m_caps.width,
-	//	m_caps.height
-	//);
-	return rc;
+	return open();
 }
 
 
@@ -116,7 +109,12 @@ int  cvideo_sx::get_vcaps( void )
 	int i = 0;
 	point_t pt;
 
-	device_formats[0].format = V4L2_PIX_FMT_Y16;
+	if (m_caps.bits_per_pixel == 16)
+		device_formats[0].format = V4L2_PIX_FMT_Y16;
+	else if (m_caps.bits_per_pixel == 8)
+		device_formats[0].format = V4L2_PIX_FMT_GREY;
+	else
+		return 1;
 
 	pt.x = m_caps.width;
 	pt.y = m_caps.height;
@@ -351,7 +349,13 @@ int cvideo_sx::set_format( void )
 	int i, j;
 	point_t pt = {0, 0};
 
-	capture_params.pixel_format = V4L2_PIX_FMT_Y16;
+	if (m_caps.bits_per_pixel == 16)
+		capture_params.pixel_format = V4L2_PIX_FMT_Y16;
+	else if (m_caps.bits_per_pixel == 8)
+		capture_params.pixel_format = V4L2_PIX_FMT_GREY;
+	else
+		return 0;
+
 	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ ) {
 		if( device_formats[i].format != capture_params.pixel_format )
 			continue;
@@ -372,7 +376,7 @@ int cvideo_sx::set_format( void )
 	capture_params.width  = pt.x;
 	capture_params.height = pt.y;
 
-	return capture_params.width * capture_params.height * 2;
+	return capture_params.width * capture_params.height * m_caps.bits_per_pixel/8;
 }
 
 
