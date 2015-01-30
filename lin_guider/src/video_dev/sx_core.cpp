@@ -158,54 +158,46 @@ bool sx_core::abort_exposure() {
     return true;
 }
 
+
 bool sx_core::read_image(char *buf, int buf_size) {
 	int rc;
 	int subX = 0;
 	int subY = 0;
-	int subW = m_width;
-	int subH = m_height;
-	int binX = m_binX;
-	int binY = m_binY;
-	int subWW = subW * 2;
-	int size;
+	int width_b = m_width * m_caps.bits_per_pixel/8;
+	int size = (width_b * m_height) / (m_binX * m_binY);
 
-	// must chekck buf_size and figure out bbp stuff
-	if (m_is_interlaced && binY > 1) {
-		size = subW * subH / 2 / binX / (binY / 2);
-	} else {
-		size = subW * subH / binX / binY;
-	}
+	if (size > buf_size) return false; // data will fit in buf
+
 	pthread_mutex_lock( &m_mutex );
 	if (m_caps.extra_caps & SXUSB_CAPS_SHUTTER) sxSetShutter(m_camera, 1);
 	if (m_is_interlaced) {
-		if (binY > 1) {
-			rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_BOTH, 0, subX, subY, subW, subH / 2, binX, binY / 2);
-			if (rc) rc = sxReadPixels(m_camera, buf, size * 2);
+		if (m_binY > 1) {
+			rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_BOTH, 0, subX, subY, m_width, m_height/2, m_binX, m_binY/2);
+			if (rc) rc = sxReadPixels(m_camera, buf, size);
 		} else {
-			rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_EVEN | CCD_EXP_FLAGS_SPARE2 , 0, subX, subY / 2, subW, subH / 2, binX, 1);
+			rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_EVEN | CCD_EXP_FLAGS_SPARE2 , 0, subX, subY/2, m_width, m_height/2, m_binX, 1);
 			if (rc) {
 				long start_time = delay_timer.gettime();
-				rc = sxReadPixels(m_camera, m_evenBuf, size);
+				rc = sxReadPixels(m_camera, m_evenBuf, size/2);
 				// measure the delay needed between wiping even and odd rows to ensure uniform exposure
 				m_wipe_delay = (delay_timer.gettime() - start_time) * 1000;
 			}
-			if (rc) rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_ODD | CCD_EXP_FLAGS_SPARE2, 0, subX, subY / 2, subW, subH / 2, binX, 1);
-			if (rc) rc = sxReadPixels(m_camera, m_oddBuf, size);
+			if (rc) rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_ODD | CCD_EXP_FLAGS_SPARE2, 0, subX, subY/2, m_width, m_height/2, m_binX, 1);
+			if (rc) rc = sxReadPixels(m_camera, m_oddBuf, size/2);
 			if (rc) {
-				for (int i = 0, j = 0; i < subH; i += 2, j++) {
-					memcpy(buf + i * subWW, m_oddBuf + (j * subWW), subWW);
-					memcpy(buf + ((i + 1) * subWW), m_evenBuf + (j * subWW), subWW);
+				for (int i = 0, j = 0; i < m_height; i += 2, j++) {
+					memcpy(buf + i * width_b, m_oddBuf + (j * width_b), width_b);
+					memcpy(buf + ((i + 1) * width_b), m_evenBuf + (j * width_b), width_b);
 				}
 			}
 		}
 	} else {
-		rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_BOTH, 0, subX, subY, subW, subH, binX, binY);
-		if (rc) rc = sxReadPixels(m_camera, buf, size * 2);
+		rc = sxLatchPixels(m_camera, CCD_EXP_FLAGS_FIELD_BOTH, 0, subX, subY, m_width, m_height, m_binX, m_binY);
+		if (rc) rc = sxReadPixels(m_camera, buf, size);
 	}
 	pthread_mutex_unlock( &m_mutex );
 	return (bool)rc;
 }
-
 
 
 int sx_core::set_guide_relays( int dir )

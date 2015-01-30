@@ -229,6 +229,8 @@ int cvideo_sx::init_device( void )
 	m_width = capture_params.width;
 	m_height = capture_params.height;
 
+	// if the capture resolution is half the physical,
+	// read the full sensor but use bining
 	if (m_width*2 == m_caps.width) {
 		m_width *= 2;
 		m_binX = 2;
@@ -245,6 +247,10 @@ int cvideo_sx::init_device( void )
 		capture_params.width,
 		capture_params.height
 	);
+
+	if( DBG_VERBOSITY ) {
+		log_i("Image %dx%d binning %dx%d", m_width, m_height, m_binX, m_binY);
+	}
 
 	set_exposure( capture_params.exposure );
 	get_exposure();
