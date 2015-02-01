@@ -146,6 +146,23 @@ int  cvideo_sx::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 20 );
 	i++;
 
+	if (m_caps.width > 1300) {
+		pt.x = m_caps.width/4;
+		pt.y = m_caps.height/4;
+		device_formats[0].frame_table[ i ].size =  pt;
+		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 3, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 2, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 2 );
+		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 3 );
+		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 5 );
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 10 );
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 20 );
+		i++;
+	}
+
 	// add empty tail
 	pt.x = pt.y = 0;
 	device_formats[0].frame_table[ i++ ].size = pt;
@@ -229,14 +246,20 @@ int cvideo_sx::init_device( void )
 
 	// if the capture resolution is half the physical,
 	// read the full sensor but use bining
-	if (m_width*2 == m_caps.width) {
+	if (m_width == m_caps.width/2) {
 		m_width *= 2;
 		m_binX = 2;
+	} else if (m_width == m_caps.width/4) {
+		m_width *= 4;
+		m_binX = 4;
 	} else m_binX = 1;
 
-	if (m_height*2 == m_caps.height) {
+	if (m_height == m_caps.height/2) {
 		m_height *= 2;
 		m_binY = 2;
+	} else if (m_height == m_caps.height/4) {
+		m_height *= 4;
+		m_binY = 4;
 	} else m_binY = 1;
 
 	m_sensor_info = video_drv::sensor_info_s(
