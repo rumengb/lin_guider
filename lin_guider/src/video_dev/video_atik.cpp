@@ -108,37 +108,66 @@ int  cvideo_atik::get_vcaps( void )
 {
 	int i = 0;
 	point_t pt;
+	AtikCamera* camera = get_camera();
+	const atik_core::caps_s& caps = get_caps();
 
 	device_formats[0].format = V4L2_PIX_FMT_Y16;
 
-	const atik_core::caps_s& caps = get_caps();
 	pt.x = caps.pixel_count_X;
 	pt.y = caps.pixel_count_Y;
 	device_formats[0].frame_table[ i ].size =  pt;
-	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 3, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 2, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 2 );
-	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 3 );
-	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 5 );
-	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 20, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 10, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 5, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 3, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 2, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 2 );
+	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
+	device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
 	i++;
 
-	pt.x = caps.pixel_count_X/2;
-	pt.y = caps.pixel_count_Y/2;
-	device_formats[0].frame_table[ i ].size =  pt;
-	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 10, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 5, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 3, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 2, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 2 );
-	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 3 );
-	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 5 );
-	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 10 );
-	i++;
+	if (caps.max_bin_X >= 2 && caps.max_bin_Y >= 2) {
+		pt.x = camera->imageWidth(caps.pixel_count_X, 2);
+		pt.y = camera->imageHeight(caps.pixel_count_Y, 2);
+		device_formats[0].frame_table[ i ].size =  pt;
+		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 20, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 10, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 5, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 3, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 2, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 2 );
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
+		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
+		device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
+		i++;
+	}
+
+	// enable bin 4x4 for cameras with width > 1300
+	if (caps.pixel_count_X  > 1300 && caps.max_bin_X >= 4 && caps.max_bin_Y >= 4) {
+		pt.x = camera->imageWidth(caps.pixel_count_X, 4);
+		pt.y = camera->imageHeight(caps.pixel_count_Y, 4);
+		device_formats[0].frame_table[ i ].size =  pt;
+		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 20, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 10, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 5, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 3, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 2, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 1 );
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 2 );
+		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
+		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
+		device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
+		i++;
+	}
 
 	// add empty tail
 	pt.x = pt.y = 0;
@@ -223,17 +252,24 @@ int cvideo_atik::init_device( void )
 
 	const atik_core::caps_s& caps = get_caps();
 
-	// if the capture resolution is half the physical,
+	// if the capture resolution is less than the physical,
 	// read the full sensor but use bining
-	if (m_width*2 == caps.pixel_count_X) {
+	AtikCamera* camera = get_camera();
+	if (m_width == camera->imageWidth(caps.pixel_count_X, 2)) { // binX=2
 		m_width *= 2;
 		m_binX = 2;
-	} else m_binX = 1;
+	} else if (m_width == camera->imageWidth(caps.pixel_count_X, 4)) { //binX=4
+		m_width *= 4;
+		m_binX = 4;
+	} else m_binX = 1; //binX=1
 
-	if (m_height*2 == caps.pixel_count_Y) {
+	if (m_height == camera->imageHeight(caps.pixel_count_Y, 2)) { //binY=2
 		m_height *= 2;
 		m_binY = 2;
-	} else m_binY = 1;
+	} else if(m_height == camera->imageHeight(caps.pixel_count_Y, 4)) { //binY=4
+		m_height *= 4;
+		m_binY = 4;
+	} else m_binY = 1; //binY=1
 
 	m_sensor_info = video_drv::sensor_info_s(
 		caps.pixel_size_X * m_binX,
