@@ -64,9 +64,6 @@ setup_video::setup_video(lin_guider *parent)
 	else
 		ui.comboBox_ExtParamList->setCurrentIndex( 0 );
 
-	const struct video_drv::sensor_info_s &si = pmain_wnd->m_video->get_sensor_info();
-	ui.pushButton_GetSensorInfo->setEnabled( si.is_available );
-
 	// connect...
 	connect( ui.spinBox_Aperture,	   		SIGNAL(valueChanged(double)),		this, SLOT(onApertureChanged(double)) );
 	connect( ui.spinBox_Focal,		   		SIGNAL(valueChanged(double)),		this, SLOT(onFocalChanged(double)) );
@@ -74,7 +71,6 @@ setup_video::setup_video(lin_guider *parent)
 	connect( ui.spinBox_CCD_Height,    		SIGNAL(valueChanged(int)),			this, SLOT(onMatrixHeightChanged(int)) );
 	connect( ui.spinBox_PixelWidth,	   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeWidthChanged(double)) );
 	connect( ui.spinBox_PixelHeight,   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeHeightChanged(double)) );
-	connect( ui.pushButton_GetSensorInfo,	SIGNAL(clicked()), 					this, SLOT(onGetSensorInfoButtonClick()) );
 	connect( ui.checkBox_AutoSensorInfo,    SIGNAL(stateChanged(int)),          this, SLOT(onAutoInfoChecked(int)) );
 	connect( ui.comboBox_DeviceList,   		SIGNAL(activated(int)),         	this, SLOT(onDeviceListChanged(int)) );
 	connect( ui.comboBox_FPS, 		   		SIGNAL(activated(int)), 			this, SLOT(onFPSChanged(int)) );
@@ -197,9 +193,7 @@ void setup_video::fill_interface( void )
 	ui.spinBox_Focal->setValue( guider_params.focal );
 
 	if( params.auto_info )
-	{
-		onGetSensorInfoButtonClick();
-	}
+		fill_sensor_info();
 	else
 	{
 		ui.spinBox_CCD_Width->setValue( guider_params.matrix_width );
@@ -242,7 +236,7 @@ void setup_video::fill_interface( void )
 			// fill fps list
 			cur_frm = format_state.frame_idx < 0 ? 0 : format_state.frame_idx;
 			for( i = 0;format_state.format_desc->frame_table[cur_frm].fps_table[i].denominator > 0 && i < MAX_FMT;i++ )
-				ui.comboBox_FPS->addItem( QString().setNum( int( video_drv::time_fract::to_msecs( format_state.format_desc->frame_table[cur_frm].fps_table[i] ) ) ) );
+				ui.comboBox_FPS->addItem( QString().setNum( video_drv::time_fract::to_msecs( format_state.format_desc->frame_table[cur_frm].fps_table[i] ) / 1000.0, 'g', 2 ) );
 
 		}
 
@@ -334,6 +328,18 @@ void setup_video::fill_interface( void )
 }
 
 
+void setup_video::fill_sensor_info( void )
+{
+	const struct video_drv::sensor_info_s &si = pmain_wnd->m_video->get_sensor_info();
+	if( !si.is_available )
+		return;
+	ui.spinBox_CCD_Width->setValue( si.matrix_width );
+	ui.spinBox_CCD_Height->setValue( si.matrix_height );
+	ui.spinBox_PixelWidth->setValue( si.pixel_width );
+	ui.spinBox_PixelHeight->setValue( si.pixel_height );
+}
+
+
 void setup_video::update_dev_string_visibility( int dev_type )
 {
 	ui.lineEdit_VideoDevice->setVisible( false );
@@ -420,22 +426,10 @@ void setup_video::onPixeHeightChanged( double val )
 }
 
 
-void setup_video::onGetSensorInfoButtonClick()
-{
-	const struct video_drv::sensor_info_s &si = pmain_wnd->m_video->get_sensor_info();
-	if( !si.is_available )
-		return;
-	ui.spinBox_CCD_Width->setValue( si.matrix_width );
-	ui.spinBox_CCD_Height->setValue( si.matrix_height );
-	ui.spinBox_PixelWidth->setValue( si.pixel_width );
-	ui.spinBox_PixelHeight->setValue( si.pixel_height );
-}
-
-
 void setup_video::onAutoInfoChecked( int state )
 {
 	if( state == Qt::Checked )
-		onGetSensorInfoButtonClick();
+		fill_sensor_info();
 
 	ui.spinBox_CCD_Width->setEnabled( state != Qt::Checked );
 	ui.spinBox_CCD_Height->setEnabled( state != Qt::Checked );

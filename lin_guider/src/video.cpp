@@ -704,7 +704,7 @@ void cvideo_base::get_current_format_params_string( char *str, size_t str_sz, in
 			len += snprintf( str+len, str_sz-len, "Frame: %dx%d", format_state.format_desc->frame_table[frame_idx].size.x,
 															 format_state.format_desc->frame_table[frame_idx].size.y );
 			if( fps_idx != -1 )
-				len += snprintf( str+len, str_sz-len, ", Expo: %dms", int( video_drv::time_fract::to_msecs( format_state.format_desc->frame_table[frame_idx].fps_table[fps_idx] ) ) );
+				len += snprintf( str+len, str_sz-len, ", Expo: %.2gs", video_drv::time_fract::to_msecs( format_state.format_desc->frame_table[frame_idx].fps_table[fps_idx] ) / 1000.0 );
 		}
 	}
 }

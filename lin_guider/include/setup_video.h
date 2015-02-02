@@ -60,7 +60,6 @@ protected slots:
 	void onMatrixHeightChanged( int val );
 	void onPixeWidthChanged( double val );
 	void onPixeHeightChanged( double val );
-	void onGetSensorInfoButtonClick();
 	void onAutoInfoChecked( int state );
 	void onDeviceListChanged( int index );
 	void onFPSChanged( int index );
@@ -87,6 +86,7 @@ protected:
 	// ALL params
 private:
 	void fill_interface( void );
+	void fill_sensor_info( void );
 	void update_dev_string_visibility( int dev_type );
 	double calc_arc( int pix, double pix_sz, double focal );
 
