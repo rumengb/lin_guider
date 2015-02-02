@@ -56,51 +56,51 @@ namespace video_drv
 
 device_desc_t device_desc_list[DEVICE_CNT] = {
 												{
-													DT_WEBCAM,
-													true,
-													"webcam (default)",
-													NULL,
-													NULL
-												},
-												{
 													DT_NULL,
 													false,
-													"null",
+													"Null (default)",
 													NULL,
 													NULL
 												},
 												{
-													DT_QHY5,
-													false,
-													"qhy5",
+													DT_WEBCAM,
+													true,
+													"Web Camera",
 													NULL,
 													NULL
 												},
 												{
 													DT_DSI2PRO,
 													false,
-													"dsi2pro",
+													"DSI 2 Pro",
+													NULL,
+													NULL
+												},
+												{
+													DT_QHY5,
+													false,
+													"QHY 5",
 													NULL,
 													NULL
 												},
 												{
 													DT_QHY6,
 													false,
-													"qhy6",
+													"QHY 6",
 													NULL,
 													NULL
 												},
 												{
 													DT_QHY5II,
 													false,
-													"qhy5ii",
+													"QHY 5II / 5LII",
 													NULL,
 													NULL
 												},
 												{
 													DT_ATIK,
 													false,
-													"atik",
+													"Atik",
 													"Atikccdsdk is required",
 													"<html><head/><body><p>External library <a href=\"https://sourceforge.net/projects/linguider/files/atik_sdk/\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
 												},

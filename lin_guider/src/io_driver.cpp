@@ -45,10 +45,18 @@ struct guide_dir_desc  bit_list_data[5] = {
 
 device_desc_t device_desc_list[DEVICE_CNT] = {
 									{
+										DT_NULL,
+										false,
+										8,
+										"Null (Default)",
+										NULL,
+										NULL
+									},
+									{
 										DT_LPT,
 										true,
 										8,
-										"lpt (default)",
+										"LPT",
 										NULL,
 										NULL
 									},
@@ -56,39 +64,15 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_FTDI,
 										false,
 										8,
-										"ftdi",
+										"FTDI",
 										"External library libio_ftdi.so is required.",
 										"External library libio_ftdi.so is required."
-									},
-									{
-										DT_QHY5,
-										false,
-										4,
-										"qhy5",
-										NULL,
-										NULL
-									},
-									{
-										DT_NULL,
-										false,
-										8,
-										"null",
-										NULL,
-										NULL
-									},
-									{
-										DT_QHY6,
-										false,
-										4,
-										"qhy6",
-										NULL,
-										NULL
 									},
 									{
 										DT_GPUSB,
 										false,
 										4,
-										"gpusb",
+										"GPUSB",
 										NULL,
 										NULL
 									},
@@ -96,7 +80,23 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_GPIO,
 										false,
 										4,
-										"gpio",
+										"GIPO",
+										NULL,
+										NULL
+									},
+									{
+										DT_QHY5,
+										false,
+										4,
+										"QHY 5",
+										NULL,
+										NULL
+									},
+									{
+										DT_QHY6,
+										false,
+										4,
+										"QHY 6",
 										NULL,
 										NULL
 									},
@@ -104,7 +104,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_QHY5II,
 										false,
 										4,
-										"qhy5ii",
+										"QHY 5II / 5LII",
 										"Works only in 8-bit video mode.",
 										"Works only in 8-bit video mode."
 									},
@@ -112,7 +112,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_NEXSTAR,
 										true,
 										4,
-										"nexstar",
+										"NexStar",
 										"External library libnexstar is required. http://sourceforge.net/projects/libnexstar/",
 										"<html><head/><body><p>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required.</p></body></html>"
 									},
@@ -120,7 +120,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_ATIK,
 										false,
 										4,
-										"atik",
+										"Atik",
 										"Atikccdsdk is required",
 										"<html><head/><body><p>External library <a href=\"http://www.cloudmakers.eu/indi\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
 									},
