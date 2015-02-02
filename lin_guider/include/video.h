@@ -175,7 +175,8 @@ typedef struct captureparams_s
 		gain( 0 ),
 		exposure( 0 ),
 		use_calibration( false ),
-		ext_params( std::map< unsigned int, int >() )
+		ext_params( std::map< unsigned int, int >() ),
+		auto_info( false )
 	{}
 	int type;
 	io_method	 io_mtd;
@@ -189,6 +190,8 @@ typedef struct captureparams_s
 	bool         use_calibration;
 
 	std::map< unsigned int, int > ext_params;
+
+	bool auto_info;
 
 	struct captureparams_s& operator=( const struct captureparams_s &v )
 	{
@@ -207,6 +210,8 @@ typedef struct captureparams_s
 
 		if( ext_params.size() <= v.ext_params.size() )
 			ext_params = v.ext_params;
+
+		auto_info       = v.auto_info;
 		return *this;
 	}
 }captureparams_t;

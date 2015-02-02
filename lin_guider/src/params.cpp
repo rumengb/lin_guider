@@ -183,6 +183,7 @@ bool params::load( void )
 			}
 			settings.endArray();
 		}
+		m_capture_params.auto_info = settings.value( "auto_info" ).toBool();
 	settings.endGroup();
 
 	// ui params
@@ -330,6 +331,7 @@ bool params::save( void )
 			}
 			settings.endArray();
 		}
+		settings.setValue( "auto_info", m_capture_params.auto_info );
 	settings.endGroup();
 
 	// ui params

@@ -75,6 +75,7 @@ setup_video::setup_video(lin_guider *parent)
 	connect( ui.spinBox_PixelWidth,	   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeWidthChanged(double)) );
 	connect( ui.spinBox_PixelHeight,   		SIGNAL(valueChanged(double)),		this, SLOT(onPixeHeightChanged(double)) );
 	connect( ui.pushButton_GetSensorInfo,	SIGNAL(clicked()), 					this, SLOT(onGetSensorInfoButtonClick()) );
+	connect( ui.checkBox_AutoSensorInfo,    SIGNAL(stateChanged(int)),          this, SLOT(onAutoInfoChecked(int)) );
 	connect( ui.comboBox_DeviceList,   		SIGNAL(activated(int)),         	this, SLOT(onDeviceListChanged(int)) );
 	connect( ui.comboBox_FPS, 		   		SIGNAL(activated(int)), 			this, SLOT(onFPSChanged(int)) );
 	connect( ui.comboBox_FrameSize,    		SIGNAL(activated(int)), 			this, SLOT(onFrameSizeChanged(int)) );
@@ -194,10 +195,19 @@ void setup_video::fill_interface( void )
 
 	ui.spinBox_Aperture->setValue( guider_params.aperture );
 	ui.spinBox_Focal->setValue( guider_params.focal );
-	ui.spinBox_CCD_Width->setValue( guider_params.matrix_width );
-	ui.spinBox_CCD_Height->setValue( guider_params.matrix_height );
-	ui.spinBox_PixelWidth->setValue( guider_params.ccd_pixel_width );
-	ui.spinBox_PixelHeight->setValue( guider_params.ccd_pixel_height );
+
+	if( params.auto_info )
+	{
+		onGetSensorInfoButtonClick();
+	}
+	else
+	{
+		ui.spinBox_CCD_Width->setValue( guider_params.matrix_width );
+		ui.spinBox_CCD_Height->setValue( guider_params.matrix_height );
+		ui.spinBox_PixelWidth->setValue( guider_params.ccd_pixel_width );
+		ui.spinBox_PixelHeight->setValue( guider_params.ccd_pixel_height );
+	}
+	ui.checkBox_AutoSensorInfo->setChecked( params.auto_info );
 
 	//select from device list
 	int actual_dev_type = next_params.type ? next_params.type : params.type;
@@ -232,7 +242,7 @@ void setup_video::fill_interface( void )
 			// fill fps list
 			cur_frm = format_state.frame_idx < 0 ? 0 : format_state.frame_idx;
 			for( i = 0;format_state.format_desc->frame_table[cur_frm].fps_table[i].denominator > 0 && i < MAX_FMT;i++ )
-				ui.comboBox_FPS->addItem( QString().setNum( video_drv::time_fract::to_fps( format_state.format_desc->frame_table[cur_frm].fps_table[i] ), 'g', 2 ) );
+				ui.comboBox_FPS->addItem( QString().setNum( int( video_drv::time_fract::to_msecs( format_state.format_desc->frame_table[cur_frm].fps_table[i] ) ) ) );
 
 		}
 
@@ -413,10 +423,24 @@ void setup_video::onPixeHeightChanged( double val )
 void setup_video::onGetSensorInfoButtonClick()
 {
 	const struct video_drv::sensor_info_s &si = pmain_wnd->m_video->get_sensor_info();
+	if( !si.is_available )
+		return;
 	ui.spinBox_CCD_Width->setValue( si.matrix_width );
 	ui.spinBox_CCD_Height->setValue( si.matrix_height );
 	ui.spinBox_PixelWidth->setValue( si.pixel_width );
 	ui.spinBox_PixelHeight->setValue( si.pixel_height );
+}
+
+
+void setup_video::onAutoInfoChecked( int state )
+{
+	if( state == Qt::Checked )
+		onGetSensorInfoButtonClick();
+
+	ui.spinBox_CCD_Width->setEnabled( state != Qt::Checked );
+	ui.spinBox_CCD_Height->setEnabled( state != Qt::Checked );
+	ui.spinBox_PixelWidth->setEnabled( state != Qt::Checked );
+	ui.spinBox_PixelHeight->setEnabled( state != Qt::Checked );
 }
 
 
@@ -639,6 +663,8 @@ void setup_video::onOkButtonClick()
 {
  char fname[64];
  video_drv::current_format_state_t format_state;
+
+ 	params.auto_info = ui.checkBox_AutoSensorInfo->isChecked();
 
 	guider_params.aperture = ui.spinBox_Aperture->value();
 	guider_params.focal = ui.spinBox_Focal->value();

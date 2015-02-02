@@ -41,7 +41,9 @@ namespace video_drv
 
 //-------------------------------------------- QHY5 ---------------------------------------------------------
 // QHY5 stuff
-cvideo_qhy5::cvideo_qhy5()
+cvideo_qhy5::cvideo_qhy5() :
+	m_qhy5_obj( NULL ),
+	m_real_height( 0 )
 {
 	device_type = DT_QHY5;
 

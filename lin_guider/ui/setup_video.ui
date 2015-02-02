@@ -110,7 +110,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="l_7">
         <property name="text">
-         <string>fps</string>
+         <string>Expo, ms</string>
         </property>
        </widget>
       </item>
@@ -168,7 +168,7 @@
       <item row="4" column="2">
        <widget class="QLabel" name="label_Expo">
         <property name="text">
-         <string>Expo</string>
+         <string>White pt.</string>
         </property>
        </widget>
       </item>
@@ -177,13 +177,6 @@
       </item>
       <item row="5" column="0" colspan="2">
        <widget class="QSlider" name="horizontalSlider_Gain">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2" colspan="2">
-       <widget class="QSlider" name="horizontalSlider_Expo">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -204,6 +197,13 @@
       </item>
       <item row="6" column="3">
        <widget class="QSlider" name="horizontalSlider_ExtValue">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2" colspan="2">
+       <widget class="QSlider" name="horizontalSlider_Expo">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -487,10 +487,17 @@
         </layout>
        </widget>
       </item>
-      <item row="5" column="2" colspan="2">
+      <item row="5" column="2">
        <widget class="QPushButton" name="pushButton_GetSensorInfo">
         <property name="text">
          <string>Get sensor info</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QCheckBox" name="checkBox_AutoSensorInfo">
+        <property name="text">
+         <string>auto inf.</string>
         </property>
        </widget>
       </item>
@@ -508,6 +515,7 @@
   <tabstop>spinBox_PixelWidth</tabstop>
   <tabstop>spinBox_PixelHeight</tabstop>
   <tabstop>pushButton_GetSensorInfo</tabstop>
+  <tabstop>checkBox_AutoSensorInfo</tabstop>
   <tabstop>comboBox_DeviceList</tabstop>
   <tabstop>lineEdit_VideoDevice</tabstop>
   <tabstop>comboBox_FPS</tabstop>

@@ -49,7 +49,8 @@ namespace video_drv
 {
 
 
-cvideo_atik::cvideo_atik()
+cvideo_atik::cvideo_atik() :
+	m_expstart( 0 )
 {
 	device_type = DT_ATIK;
 }

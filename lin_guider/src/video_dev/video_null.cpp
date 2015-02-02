@@ -46,7 +46,7 @@ cvideo_null::cvideo_null( bool stub )
 	stub_mode = stub;
 
 	// this may be placed inside of initialization code
-	m_sensor_info = video_drv::sensor_info_s( 4.5, 4.5, 640, 480 );
+	//m_sensor_info = video_drv::sensor_info_s( 4.5, 4.5, 640, 480 );
 }
 
 
@@ -238,6 +238,11 @@ int cvideo_null::init_device( void )
  	get_autogain();
  	get_gain();
  	get_exposure();
+
+ 	{
+ 		int factor = capture_params.width == 640 ? 1 : 2;
+ 		m_sensor_info = video_drv::sensor_info_s( 4.5 * factor, 4.5 * factor, 640 / factor, 480 / factor );
+ 	}
 
  	// init emu
  	for( int i = 0;i < star_no;i++ )
