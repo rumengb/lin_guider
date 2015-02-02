@@ -183,7 +183,6 @@ bool params::load( void )
 			}
 			settings.endArray();
 		}
-		m_capture_params.auto_info = settings.value( "auto_info" ).toBool();
 	settings.endGroup();
 
 	// ui params
@@ -201,6 +200,7 @@ bool params::load( void )
 		m_guider_params.ccd_pixel_width = settings.value( "ccd_pixel_width" ).toDouble(&ok);
 		m_guider_params.ccd_pixel_height = settings.value( "ccd_pixel_height" ).toDouble(&ok);
 		m_guider_params.bw_video = settings.value( "bw_video" ).toBool();
+		m_guider_params.auto_info = settings.value( "auto_info" ).toBool();
 	settings.endGroup();
 
 	// calibration params
@@ -331,7 +331,6 @@ bool params::save( void )
 			}
 			settings.endArray();
 		}
-		settings.setValue( "auto_info", m_capture_params.auto_info );
 	settings.endGroup();
 
 	// ui params
@@ -349,6 +348,7 @@ bool params::save( void )
 		settings.setValue( "ccd_pixel_width", m_guider_params.ccd_pixel_width );
 		settings.setValue( "ccd_pixel_height", m_guider_params.ccd_pixel_height );
 		settings.setValue( "bw_video", m_guider_params.bw_video );
+		settings.setValue( "auto_info", m_guider_params.auto_info );
 	settings.endGroup();
 
 	// calibration params

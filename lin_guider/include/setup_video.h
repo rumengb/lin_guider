@@ -37,6 +37,7 @@ typedef struct
 	int matrix_width, matrix_height;
 	video_drv::time_fract_t fps;
 	bool bw_video;
+	bool auto_info;
 }guiderparams_t;
 
 
