@@ -80,7 +80,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_GPIO,
 										false,
 										4,
-										"GIPO",
+										"GPIO",
 										NULL,
 										NULL
 									},
@@ -128,7 +128,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										DT_SX,
 										false,
 										4,
-										"StarLight Xpress",
+										"Starlight Xpress",
 										NULL,
 										NULL
 									},
