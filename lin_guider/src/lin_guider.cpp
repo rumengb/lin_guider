@@ -62,7 +62,7 @@ lin_guider::lin_guider(QWidget *parent)
 	ui.setupUi(this);
 
 	setWindowTitle( QString(CPY_RIGHT(VERSION)) );
-	setWindowIcon( QIcon(QString::fromUtf8(":/new/prefix1/guiding.png")) );
+	setWindowIcon( QIcon(QString::fromUtf8(":/new/prefix1/lin_guider.png")) );
 
 	m_video_name_label = new QLabel();
 	m_video_name_label->setFrameShape( QFrame::Panel );

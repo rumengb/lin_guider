@@ -175,7 +175,7 @@ p, li { white-space: pre-wrap; }
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../rc/lin_guider.qrc">:/new/prefix1/about_inf.png</pixmap>
+        <pixmap resource="../rc/lin_guider.qrc">:/new/prefix1/lin_guider.png</pixmap>
        </property>
       </widget>
      </item>
