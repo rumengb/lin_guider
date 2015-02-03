@@ -94,7 +94,8 @@ enum driver_type
 
 enum device_type
 {
-	DT_NULL = 1,
+	DT_MIN = 0,
+	DT_NULL,
 	DT_WEBCAM,
 	DT_DSI2PRO,
 	DT_QHY5,

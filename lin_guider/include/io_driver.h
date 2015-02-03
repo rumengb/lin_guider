@@ -62,7 +62,8 @@ typedef struct
 
 enum device_type
 {
-	DT_NULL = 1,
+	DT_MIN = 0,
+	DT_NULL,
 	DT_LPT,
 	DT_FTDI,
 	DT_GPUSB,

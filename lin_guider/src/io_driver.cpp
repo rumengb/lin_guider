@@ -322,7 +322,7 @@ bool cio_driver_base::set_deviceparams( const device_init_params_t &params )
 	DT		= params.death_time.delay;
 
 	device_type = params.type;
-	if( device_type < DT_LPT || device_type >= DT_MAX )
+	if( device_type <= DT_MIN || device_type >= DT_MAX )
 	{
 		device_type = DT_NULL;
 		log_e( "cio_driver_base::set_deviceparams(): invalid device_type = %d, fall back to null device", device_type );
