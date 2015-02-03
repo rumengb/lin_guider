@@ -62,13 +62,13 @@ typedef struct
 
 enum device_type
 {
-	DT_LPT = 1,
+	DT_NULL = 1,
+	DT_LPT,
 	DT_FTDI,
-	DT_QHY5,
-	DT_NULL,
-	DT_QHY6,
 	DT_GPUSB,
 	DT_GPIO,
+	DT_QHY5,
+	DT_QHY6,
 	DT_QHY5II,
 	DT_NEXSTAR,
 	DT_ATIK,

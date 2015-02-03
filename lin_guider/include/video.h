@@ -80,11 +80,11 @@ typedef struct
 
 enum driver_type
 {
-	DRV_UVC = 1,
+	DRV_NULL = 1,
+	DRV_UVC,
 	DRV_PWC,
-	DRV_NULL,
-	DRV_QHY5,
 	DRV_DSI2PRO,
+	DRV_QHY5,
 	DRV_QHY6,
 	DRV_QHY5II,
 	DRV_ATIK,
@@ -94,10 +94,10 @@ enum driver_type
 
 enum device_type
 {
-	DT_WEBCAM = 1,
-	DT_NULL,
-	DT_QHY5,
+	DT_NULL = 1,
+	DT_WEBCAM,
 	DT_DSI2PRO,
+	DT_QHY5,
 	DT_QHY6,
 	DT_QHY5II,
 	DT_ATIK,
