@@ -122,7 +122,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										4,
 										"Atik",
 										"Atikccdsdk is required",
-										"<html><head/><body><p>External library <a href=\"http://www.cloudmakers.eu/indi\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
+										"<html><head/><body><p>External library <a href=\"https://sourceforge.net/projects/linguider/files/atik_sdk/\"><span style=\"text-decoration: underline; color:#0000ff;\">atikccdsdk</span></a> is required.</p></body></html>"
 									},
 									{
 										DT_SX,

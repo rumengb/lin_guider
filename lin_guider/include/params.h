@@ -24,6 +24,8 @@
 
 #include <string.h>
 
+
+
 #include "lin_guider.h"
 #include "common.h"
 #include "io_driver.h"
@@ -35,10 +37,12 @@
 #include "guider.h"
 
 
+class QMainWindow;
+
 class params
 {
 public:
-	params();
+	params( QMainWindow *main_wnd );
 	virtual ~params();
 
 	bool load( void );
@@ -119,6 +123,7 @@ private:
 	char m_dev_name_video[64];
 	char m_dev_name_io[64];
 
+	QMainWindow *m_main_wnd;
 };
 
 

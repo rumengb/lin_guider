@@ -192,7 +192,8 @@ void setup_video::fill_interface( void )
 	ui.spinBox_Aperture->setValue( guider_params.aperture );
 	ui.spinBox_Focal->setValue( guider_params.focal );
 
-	if( guider_params.auto_info )
+	const struct video_drv::sensor_info_s &si = pmain_wnd->m_video->get_sensor_info();
+	if( si.is_available && guider_params.auto_info )
 		fill_sensor_info();
 	else
 	{
@@ -201,7 +202,8 @@ void setup_video::fill_interface( void )
 		ui.spinBox_PixelWidth->setValue( guider_params.ccd_pixel_width );
 		ui.spinBox_PixelHeight->setValue( guider_params.ccd_pixel_height );
 	}
-	ui.checkBox_AutoSensorInfo->setChecked( guider_params.auto_info );
+	ui.checkBox_AutoSensorInfo->setChecked( si.is_available && guider_params.auto_info );
+	ui.checkBox_AutoSensorInfo->setEnabled( si.is_available );
 
 	//select from device list
 	int actual_dev_type = next_params.type ? next_params.type : params.type;
@@ -658,7 +660,7 @@ void setup_video::onOkButtonClick()
  char fname[64];
  video_drv::current_format_state_t format_state;
 
- 	guider_params.auto_info = ui.checkBox_AutoSensorInfo->isChecked();
+	guider_params.auto_info = ui.checkBox_AutoSensorInfo->isChecked();
 
 	guider_params.aperture = ui.spinBox_Aperture->value();
 	guider_params.focal = ui.spinBox_Focal->value();

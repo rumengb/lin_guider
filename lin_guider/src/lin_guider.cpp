@@ -85,7 +85,7 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionAbout, 		SIGNAL(triggered()), this, SLOT(onShowAbout()) );
 	connect( ui.action_Toggle_Calibration_Guider, SIGNAL(triggered()), this, SLOT(onToggleCalibrationGuider()) );
 
-	param_block = new params();
+	param_block = new params( this );
 
 	param_block->load();
 

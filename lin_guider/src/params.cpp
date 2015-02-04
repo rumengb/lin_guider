@@ -20,18 +20,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QSettings>
 #include <stdio.h>
 #include <unistd.h>
+#include <assert.h>
 
 #include <map>
+
+#include <QSettings>
 
 #include "params.h"
 #include "utils.h"
 
 
 
-params::params()
+params::params( QMainWindow *main_wnd )
 {
 	save_device_cfg = true;	// true if device was successuly initialized
 
@@ -86,6 +88,8 @@ params::params()
 	// common params are initialized by ctor()
 
 	// drift view params are initialized by ctor()
+	assert( main_wnd );
+	m_main_wnd = main_wnd;
 }
 
 
@@ -189,6 +193,8 @@ bool params::load( void )
 	settings.beginGroup("ui");
 		m_ui_params.half_refresh_rate = settings.value( "half_refresh_rate" ).toBool();
 		m_ui_params.show_helper_TB = settings.value( "show_helper_TB", false ).toBool();
+		m_main_wnd->restoreGeometry( settings.value("main_wnd_geometry").toByteArray() );
+		m_main_wnd->restoreState( settings.value("main_wnd_state").toByteArray() );
 	settings.endGroup();
 
 	// guider params
@@ -337,6 +343,8 @@ bool params::save( void )
 	settings.beginGroup( "ui" );
 		settings.setValue( "half_refresh_rate", m_ui_params.half_refresh_rate );
 		settings.setValue( "show_helper_TB", m_ui_params.show_helper_TB );
+		settings.setValue("main_wnd_geometry", m_main_wnd->saveGeometry() );
+		settings.setValue("main_wnd_state", m_main_wnd->saveState() );
 	settings.endGroup();
 
 	// guider params
