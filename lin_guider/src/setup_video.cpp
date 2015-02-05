@@ -35,7 +35,7 @@ setup_video::setup_video(lin_guider *parent)
 {
 	ui.setupUi(this);
 
-	setWindowTitle( tr("Guider setup") );
+	setWindowTitle( tr("Video Settings") );
 
 	// init device list
 	ui.comboBox_DeviceList->clear();

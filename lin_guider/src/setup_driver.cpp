@@ -59,7 +59,7 @@ setup_driver::setup_driver(lin_guider *parent)
 
 	ui.setupUi(this);
 
-	setWindowTitle( tr("Pulse driver setup") );
+	setWindowTitle( tr("Pulse Device Settings") );
 
 	// dbg
 	ui.testButton->setVisible( false );

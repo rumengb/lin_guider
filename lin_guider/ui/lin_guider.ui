@@ -129,10 +129,10 @@
      <normaloff>:/new/prefix1/driver.png</normaloff>:/new/prefix1/driver.png</iconset>
    </property>
    <property name="text">
-    <string>Dr&amp;iver setup</string>
+    <string>Pulse Dev&amp;ice Settings</string>
    </property>
    <property name="toolTip">
-    <string>Driver setup</string>
+    <string>Pulse Device Settings</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
@@ -144,13 +144,13 @@
      <normaloff>:/new/prefix1/video.png</normaloff>:/new/prefix1/video.png</iconset>
    </property>
    <property name="text">
-    <string>G&amp;uider setup</string>
+    <string>&amp;Video Settings</string>
    </property>
    <property name="iconText">
-    <string>Guider setup</string>
+    <string>Video Settings</string>
    </property>
    <property name="toolTip">
-    <string>Guider setup</string>
+    <string>Video Settings</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>
@@ -224,7 +224,7 @@
      <normaloff>:/new/prefix1/record.png</normaloff>:/new/prefix1/record.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Record</string>
+    <string>Movie &amp;Record</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>

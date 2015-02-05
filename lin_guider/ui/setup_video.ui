@@ -127,7 +127,7 @@
       <item row="2" column="3">
        <widget class="QCheckBox" name="checkBox_UseCalibration">
         <property name="text">
-         <string>use calibration</string>
+         <string>Dark subtract</string>
         </property>
        </widget>
       </item>
@@ -490,7 +490,7 @@
       <item row="5" column="2" colspan="2">
        <widget class="QCheckBox" name="checkBox_AutoSensorInfo">
         <property name="text">
-         <string>sensor auto info</string>
+         <string>Auto sensor info</string>
         </property>
        </widget>
       </item>
