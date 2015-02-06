@@ -148,7 +148,7 @@ int  cvideo_sx::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
-	device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 15 );
+	device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
 	i++;
 
 	if (m_caps.width > 1300) {
@@ -167,7 +167,7 @@ int  cvideo_sx::get_vcaps( void )
 		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
 		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
 		device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
-		device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 15 );
+		device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
 		i++;
 	}
 
@@ -305,6 +305,7 @@ int cvideo_sx::uninit_device( void )
 
 int cvideo_sx::start_capturing( void )
 {
+	m_expstart = exp_timer.gettime();
 	bool success = start_exposure();
 	if( !success ) {
 		log_e("startExposure(): failed");
@@ -312,8 +313,6 @@ int cvideo_sx::start_capturing( void )
 	}
 	if( DBG_VERBOSITY )
 		log_i( "Exposure started" );
-
-	m_expstart = exp_timer.gettime();
 
 	return 0;
 }
@@ -348,14 +347,14 @@ int cvideo_sx::read_frame( void )
 	if( DBG_VERBOSITY )
 		log_i( "Exposure finished. Read: %d bytes", raw_size);
 
-	start_exposure();
+	long prev = m_expstart;
+	m_expstart = exp_timer.gettime();
+
+	success = start_exposure();
 	if( !success ) {
 		log_e("start_exposure(): failed");
 		return 1;
 	}
-
-	long prev = m_expstart;
-	m_expstart = exp_timer.gettime();
 
 	if( DBG_VERBOSITY ) {
 		long exptime = m_expstart - prev;
