@@ -101,6 +101,11 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>lineEdit_FileName</tabstop>
+  <tabstop>pushButton_Record</tabstop>
+  <tabstop>pushButton_Stop</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

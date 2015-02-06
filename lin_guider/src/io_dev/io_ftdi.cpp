@@ -142,7 +142,7 @@ int cio_driver_ftdi::open_device( void )
 	if( chip_type == TYPE_R )
 		set_bit_map_template( device_bit_map_template[DT_FTDI-1] );
 	else
-		set_bit_map_template( device_bit_map_template[DT_LPT-1] );
+		set_bit_map_template( device_bit_map_template[DT_NULL-1] );
 
 
  return res;

@@ -160,14 +160,14 @@ cio_driver_base::cio_driver_base()
 
 	memset( dev_name, 0, sizeof(dev_name) );
 	strcpy( dev_name, "/dev/parport0" );
-	device_type = DT_LPT;
+	device_type = DT_NULL;
 	next_device_type = -1;
 	is_inverse = false;
 	min_pulse_length = 0;
 	max_pulse_length = 0;
 
 	// initialize default lowlevel bit map encoder
-	set_bit_map_template( device_bit_map_template[DT_LPT-1] );
+	set_bit_map_template( device_bit_map_template[ device_type-1 ] );
 
 	bit_actions[0] =
 	bit_actions[1] =
