@@ -415,17 +415,19 @@ int cvideo_qhy6::read_frame( void )
 			while( t-- ) {
 				// average several optical black pixels
 				int black1 = (src1[2]+src1[3]+src1[4]+src1[5]+src1[6]+src1[7]) / 6;
+				float a1 = 65535.0/(65535-black1);
 				int black2 = (src2[2]+src2[3]+src2[4]+src2[5]+src2[6]+src2[7]) / 6;
+				float a2 = 65535.0/(65535-black2);
 #ifdef QHY6_WITH_ST4
 				for(unsigned i=0; i < capture_params.width; i++) {
-					tgt[i] = (src1[i] > black1) ? src1[i] - black1 : 0;
-					tgt[i+capture_params.width] = (src2[i] > black2) ? src2[i]-black2 : 0;
+					tgt[i] = (src1[i] > black1) ? (src1[i] - black1)*a1 : 0;
+					tgt[i+capture_params.width] = (src2[i] > black2) ? (src2[i]-black2)*a2 : 0;
 				}
 				tgt += 2*capture_params.width;
 #else
 				for(unsigned i=0; i < capture_params.width; i++) {
-					tgt[i] = (src2[i] > black2) ? src2[i] - black2 : 0;
-					tgt[i+capture_params.width] = (src1[i] > black1) ? src1[i]-black1 : 0;
+					tgt[i] = (src2[i] > black2) ? (src2[i] - black2)*a2 : 0;
+					tgt[i+capture_params.width] = (src1[i] > black1) ? (src1[i]-black1)*a1 : 0;
 				}
 				tgt += 2*capture_params.width;
 #endif
