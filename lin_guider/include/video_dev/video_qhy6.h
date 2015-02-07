@@ -70,6 +70,7 @@ private:
 	int m_amp;
 	int m_vbe;
 	int m_data_size;
+	bool m_use_black_point;
 };
 
 }

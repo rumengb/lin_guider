@@ -7,6 +7,7 @@
 	* Reorder lists of video and io devices and make names more descriptive, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* All dialogs are resizable now
 	* Added sensor info
+	* Added Optical black pixel callibration for QHY6, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Created new icon set and some text changes, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 
 2015-01-15 Lin_guider 2.11.2 (c)Galaxy Master  <galaxy_master@mail.ru>

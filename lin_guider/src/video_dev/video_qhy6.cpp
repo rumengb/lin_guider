@@ -47,7 +47,8 @@ cvideo_qhy6::cvideo_qhy6() :
 	m_speed( 1 ), // 0 - slow, 1 - fast readout
  	m_amp( 2 ),
 	m_vbe( 1 ),	// must be 1. else correct exposure time in read_frame()
-	m_data_size( 0 )
+	m_data_size( 0 ),
+	m_use_black_point( true )
 {
 	device_type = DT_QHY6;
 
@@ -58,7 +59,7 @@ cvideo_qhy6::cvideo_qhy6() :
 	m_qhy6_obj = new qhy6_core_shared();
 
 	// this may be placed inside of initialization code
-	m_sensor_info = video_drv::sensor_info_s( 6.25, 6.25, QHY6_MATRIX_WIDTH, QHY6_MATRIX_HEIGHT );
+	m_sensor_info = video_drv::sensor_info_s( 6.50, 6.25, QHY6_MATRIX_WIDTH, QHY6_MATRIX_HEIGHT );
 }
 
 
@@ -198,6 +199,17 @@ int cvideo_qhy6::set_control( unsigned int control_id, const param_val_t &val )
 		capture_params.exposure = v;
 		break;
 	}
+	case V4L2_CID_USER_BLACK_POINT:
+	{
+		int v = val.values[0];
+		v = v < 0 ? 0 : v;
+		v = v > 1 ? 1 : v;
+		capture_params.ext_params[ control_id ] = v;
+		m_use_black_point = (v == 1);
+		if (DBG_VERBOSITY)
+			log_i( "Black point correction is %s", m_use_black_point ? "ON" : "OFF" );
+		break;
+	}
 	default:
 		return -1;
 	}
@@ -238,6 +250,9 @@ int cvideo_qhy6::init_device( void )
 		return EXIT_FAILURE;
 
 	set_fps( capture_params.fps );
+
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_BLACK_POINT, m_use_black_point ) );
+	m_use_black_point = capture_params.ext_params[ V4L2_CID_USER_BLACK_POINT ];
 
 	// prepare...
 	int wd, ht;
@@ -396,23 +411,43 @@ int cvideo_qhy6::read_frame( void )
   		src1 = buffers[1].start.ptr16;
   		src2 = buffers[1].start.ptr16 + capture_params.width * t;
   		tgt = buffers[0].start.ptr16;
-
-  		while( t-- )
-  		{
+		if (m_use_black_point) {
+			while( t-- ) {
+				// average several optical black pixels
+				int black1 = (src1[2]+src1[3]+src1[4]+src1[5]+src1[6]+src1[7]) / 6;
+				int black2 = (src2[2]+src2[3]+src2[4]+src2[5]+src2[6]+src2[7]) / 6;
 #ifdef QHY6_WITH_ST4
-  			memcpy( tgt, src1, line_sz );
-  			tgt += capture_params.width;
-  			memcpy( tgt, src2, line_sz );
-  			tgt += capture_params.width;
+				for(unsigned i=0; i < capture_params.width; i++) {
+					tgt[i] = (src1[i] > black1) ? src1[i] - black1 : 0;
+					tgt[i+capture_params.width] = (src2[i] > black2) ? src2[i]-black2 : 0;
+				}
+				tgt += 2*capture_params.width;
 #else
-  			memcpy( tgt, src2, line_sz );
-  			tgt += capture_params.width;
-  			memcpy( tgt, src1, line_sz );
-  			tgt += capture_params.width;
+				for(unsigned i=0; i < capture_params.width; i++) {
+					tgt[i] = (src2[i] > black2) ? src2[i] - black2 : 0;
+					tgt[i+capture_params.width] = (src1[i] > black1) ? src1[i]-black1 : 0;
+				}
+				tgt += 2*capture_params.width;
 #endif
-
-  			src1 += capture_params.width;
-  			src2 += capture_params.width;
+				src1 += capture_params.width;
+				src2 += capture_params.width;
+			}
+		} else {
+			while( t-- ) {
+#ifdef QHY6_WITH_ST4
+				memcpy( tgt, src1, line_sz );
+				tgt += capture_params.width;
+				memcpy( tgt, src2, line_sz );
+				tgt += capture_params.width;
+#else
+				memcpy( tgt, src2, line_sz );
+				tgt += capture_params.width;
+				memcpy( tgt, src1, line_sz );
+				tgt += capture_params.width;
+#endif
+				src1 += capture_params.width;
+				src2 += capture_params.width;
+			}
   		}
   		break;
   	case 2:  //2X2 binning
@@ -509,6 +544,18 @@ int cvideo_qhy6::enum_controls( void )
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
+
+	// create virtual control (extended ctl)
+	queryctrl.id = V4L2_CID_USER_BLACK_POINT;
+	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Use CCD black pt." );
+	queryctrl.minimum = 0;
+	queryctrl.maximum = 1;
+	queryctrl.step = 1;
+	queryctrl.default_value = m_use_black_point;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
 
 	num_controls = n;
 
