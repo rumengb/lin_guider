@@ -59,7 +59,7 @@ cvideo_qhy6::cvideo_qhy6() :
 	m_qhy6_obj = new qhy6_core_shared();
 
 	// this may be placed inside of initialization code
-	m_sensor_info = video_drv::sensor_info_s( 6.50, 6.25, QHY6_MATRIX_WIDTH, QHY6_MATRIX_HEIGHT );
+	m_sensor_info = video_drv::sensor_info_s( 6.50, 6.25, QHY6_EFFECTIVE_WIDTH, QHY6_EFFECTIVE_HEIGHT );
 }
 
 
@@ -137,8 +137,8 @@ int cvideo_qhy6::get_vcaps( void )
 
 	device_formats[0].format = V4L2_PIX_FMT_Y16;
 
-	pt.x = QHY6_WIDTH_B1;
-	pt.y = QHY6_HEIGHT_B1;
+	pt.x = QHY6_EFFECTIVE_WIDTH;
+	pt.y = QHY6_EFFECTIVE_HEIGHT;
 	device_formats[0].frame_table[ i ].size =  pt;
 	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 4, 1 );
 	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 2, 1 );
@@ -263,11 +263,11 @@ int cvideo_qhy6::init_device( void )
 		log_e( "cvideo_qhy6::init_device(): set_params() failed." );
 		return -1;
 	}
-	assert( wd == (int)capture_params.width && ht == (int)capture_params.height
-#ifdef QHY6_WITH_ST4
-			&& m_data_size == sizeimage
-#endif
-			 );
+//	assert( wd == (int)capture_params.width && ht == (int)capture_params.height
+//#ifdef QHY6_WITH_ST4
+//			&& m_data_size == sizeimage
+//#endif
+//			 );
 
 	n_buffers = 2;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
@@ -278,7 +278,7 @@ int cvideo_qhy6::init_device( void )
 		return EXIT_FAILURE;
 	}
 
-	buffers[0].length = m_data_size; //sizeimage;
+	buffers[0].length = capture_params.height*capture_params.width*2; //sizeimage;
 	buffers[0].start.ptr = malloc( buffers[0].length );
 	if( !buffers[0].start.ptr )
 	{
@@ -408,8 +408,8 @@ int cvideo_qhy6::read_frame( void )
   	{
   	case 1:  //1X1 binning
   		t = capture_params.height >> 1;
-  		src1 = buffers[1].start.ptr16;
-  		src2 = buffers[1].start.ptr16 + capture_params.width * t;
+		src1 = buffers[1].start.ptr16 + QHY6_MATRIX_WIDTH * (QHY6_SKIP_Y + t - 1);
+		src2 = buffers[1].start.ptr16 + QHY6_MATRIX_WIDTH * QHY6_SKIP_Y / 2;
   		tgt = buffers[0].start.ptr16;
 		if (m_use_black_point) {
 			while( t-- ) {
@@ -419,27 +419,27 @@ int cvideo_qhy6::read_frame( void )
 				int black2 = (src2[2]+src2[3]+src2[4]+src2[5]+src2[6]+src2[7]) / 6;
 				float a2 = 65535.0/(65535-black2);
 #ifdef QHY6_WITH_ST4
-				for(unsigned i=0; i < capture_params.width; i++) {
-					tgt[i] = (src1[i] > black1) ? (src1[i] - black1)*a1 : 0;
-					tgt[i+capture_params.width] = (src2[i] > black2) ? (src2[i]-black2)*a2 : 0;
+				for(unsigned i=0, j= QHY6_SKIP_X; i < capture_params.width; i++, j++) {
+					tgt[i] = (src1[j] > black1) ? (src1[j] - black1)*a1 : 0;
+					tgt[i+capture_params.width] = (src2[j] > black2) ? (src2[j]-black2)*a2 : 0;
 				}
 				tgt += 2*capture_params.width;
 #else
-				for(unsigned i=0; i < capture_params.width; i++) {
-					tgt[i] = (src2[i] > black2) ? (src2[i] - black2)*a2 : 0;
-					tgt[i+capture_params.width] = (src1[i] > black1) ? (src1[i]-black1)*a1 : 0;
+				for(unsigned i=0, j = QHY6_SKIP_X; i < capture_params.width; i++, j++) {
+					tgt[i] = (src2[j] > black2) ? (src2[j] - black2)*a2 : 0;
+					tgt[i+capture_params.width] = (src1[j] > black1) ? (src1[j]-black1)*a1 : 0;
 				}
 				tgt += 2*capture_params.width;
 #endif
-				src1 += capture_params.width;
-				src2 += capture_params.width;
+				src1 += QHY6_MATRIX_WIDTH;
+				src2 += QHY6_MATRIX_WIDTH;
 			}
 		} else {
 			while( t-- ) {
 #ifdef QHY6_WITH_ST4
-				memcpy( tgt, src1, line_sz );
+				memcpy( tgt, src1+QHY6_SKIP_X, line_sz );
 				tgt += capture_params.width;
-				memcpy( tgt, src2, line_sz );
+				memcpy( tgt, src2+QHY6_SKIP_X, line_sz );
 				tgt += capture_params.width;
 #else
 				memcpy( tgt, src2, line_sz );
@@ -447,8 +447,8 @@ int cvideo_qhy6::read_frame( void )
 				memcpy( tgt, src1, line_sz );
 				tgt += capture_params.width;
 #endif
-				src1 += capture_params.width;
-				src2 += capture_params.width;
+				src1 += QHY6_MATRIX_WIDTH;
+				src2 += QHY6_MATRIX_WIDTH;
 			}
   		}
   		break;

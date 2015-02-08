@@ -47,6 +47,9 @@ enum {
 	#define QHY6_MATRIX_WIDTH	800
 	#define QHY6_MATRIX_HEIGHT	596
 
+	#define QHY6_SKIP_X	34
+	#define QHY6_SKIP_Y	14
+
 #else
 	// old
 	#define QHY6_VENDOR_ID   0x16C0 //0x1618 //0x16C0
@@ -54,7 +57,11 @@ enum {
 
 	#define QHY6_MATRIX_WIDTH	796
 	#define QHY6_MATRIX_HEIGHT	596
+
 #endif
+
+#define QHY6_EFFECTIVE_WIDTH	752
+#define QHY6_EFFECTIVE_HEIGHT	582
 
 #define V4L2_CID_USER_BLACK_POINT (V4L2_CID_USER_CLASS + 1)
 

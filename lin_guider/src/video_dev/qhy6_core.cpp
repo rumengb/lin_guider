@@ -360,7 +360,7 @@ int qhy6_core_shared::set_params( int exposuretime, int binn, int gain, int offs
 	switch( binn )
 	{
 	case 1:
-		width  = QHY6_WIDTH_B1; height = QHY6_HEIGHT_B1; Vbin = binn; Hbin = binn; P_Size = 932*1024;
+		width  = QHY6_MATRIX_WIDTH; height = QHY6_MATRIX_HEIGHT; Vbin = binn; Hbin = binn; P_Size = 932*1024;
 		break;
 	case 2:
 		width  = QHY6_WIDTH_B2; height = QHY6_HEIGHT_B2; Vbin = binn; Hbin = binn; P_Size = 234*1024;
