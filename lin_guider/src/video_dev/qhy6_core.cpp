@@ -170,8 +170,6 @@ int qhy6_core_shared::ctrl_msg( int request_type, int request, unsigned int valu
 }
 
 
-#ifdef QHY6_WITH_ST4
-
 int qhy6_core_shared::start_exposure( unsigned int exposure )
 {
 	(void)exposure;
@@ -198,34 +196,6 @@ int qhy6_core_shared::start_exposure( unsigned int exposure )
 	return ret;
 }
 
-#else
-
-int qhy6_core_shared::start_exposure( unsigned int exposure )
-{
-	(void)exposure;
-
-#ifdef NO_QHY6
-	if( m_handle == NULL )
-		return 0;
-#endif
-
-	pthread_mutex_lock( &m_mutex );
-
-	int ret = EXIT_SUCCESS;
-	unsigned char REG[2];
-
-	REG[0] = 0;
-	REG[1] = 100;
-	ret = ctrl_msg( 0x42, 0xB3, 0, 0, REG, sizeof(REG) );
-
-	pthread_mutex_unlock( &m_mutex );
-
-	return ret;
-}
-#endif
-
-
-#ifdef QHY6_WITH_ST4
 
 int qhy6_core_shared::read_exposure( unsigned char *image, unsigned int image_size )
 {
@@ -265,48 +235,6 @@ int qhy6_core_shared::read_exposure( unsigned char *image, unsigned int image_si
  return ret;
 }
 
-#else
-
-int qhy6_core_shared::read_exposure( unsigned char *image, unsigned int image_size )
-{
-	int result, ret = EXIT_SUCCESS;
-
-#ifdef NO_QHY6
-	if( m_handle == NULL )
-		return 0;
-#endif
-
-	unsigned int magic_number = 0;  // 256 - starange magic number
-	unsigned int corrected_size = image_size - magic_number;
-
-	//pthread_mutex_lock( &m_mutex );
-
-	assert( m_handle != NULL );
-
-	if( DBG_VERBOSITY )
-		log_i("Reading %d bytes...", corrected_size);
-
-	libusb_bulk_transfer( m_handle, 0x82, image, corrected_size, &result, m_exposuretime+2000 );
-
-	if( result == (int)corrected_size )
-	{
-		if( DBG_VERBOSITY )
-			log_i( "Done" );
-	}
-	else
-	{
-		log_e("Failed to read image. Got: %d, expected %u", result, corrected_size);
-		ret = EXIT_FAILURE;
-	}
-
-	//pthread_mutex_unlock( &m_mutex );
-
- return ret;
-}
-
-#endif
-
-#ifdef QHY6_WITH_ST4
 
 unsigned char qhy6_core_shared::MSB( unsigned int i )
 {
@@ -470,108 +398,12 @@ int qhy6_core_shared::set_params( int exposuretime, int binn, int gain, int offs
 
 	return ret;
 }
-#else
-int qhy6_core_shared::set_params( int exposuretime, int binn, int gain, int offset, int speed, int amp, int vbe, int *out_width, int *out_height, int *out_buffer_size )
-{
-
-	unsigned char RM =  0x04;
-	unsigned char HM =  0x00;
-	int H_SIZE, V_SIZE, Padding, ret, time;
-	unsigned char Regs[24];
-	int width = 0;
-	int height = 0;
-
-	memset( Regs , 0 , 24 );
-
-	m_exposuretime = exposuretime;
-
-	time = (int) (exposuretime - (exposuretime/100));
-	if( amp == 2 )
-	{
-		if( time > 550 )
-			amp = 0;
-	}
-	if( amp == 0 )
-	{
-		HM = 0x40;
-		time = MAX( 1, time - 500 );
-	}
-
-	switch ( binn )
-	{
-	case 1:
-		H_SIZE = QHY6_WIDTH_B1*2 ;
-		V_SIZE = QHY6_HEIGHT_B1;
-		width = QHY6_WIDTH_B1;
-		height = QHY6_HEIGHT_B1;
-		Regs[6] = vbe-1;
-		break;
-	case 2:
-		H_SIZE =  QHY6_WIDTH_B2*2;
-		V_SIZE =  QHY6_HEIGHT_B2;
-		RM |= 0x08;
-		width  =  QHY6_WIDTH_B2;
-		height =  QHY6_HEIGHT_B2;
-		Regs[6] = 2;
-		RM |= 0x48;
-		break;
-	default:
-		return 2;
-	}
-
-	int totalsize = H_SIZE * V_SIZE;
-	totalsize = ((totalsize>>10)+1)<<10;
-	Padding = totalsize-(H_SIZE*V_SIZE);
-
-	if( out_width )
-		*out_width = width;
-	if( out_height )
-		*out_height = height;
-	if( out_buffer_size )
-		*out_buffer_size = totalsize;
-
-	if( speed )
-		RM |= 0x80;
-
-	Regs[0] = (int)((gain*63)/100);
-	Regs[1] = (time >> 16) & 0xFF;
-	Regs[2] = (time >> 8 ) & 0xFF;
-	Regs[3] = (time      ) & 0xFF;
-	Regs[4] = RM;
-	Regs[5] = HM;
-	Regs[7] = offset;
-	BUFWORD( Regs,  8 , 0xACAC );
-	BUFWORD( Regs, 14 , H_SIZE );
-	BUFWORD( Regs, 16 , V_SIZE );
-	BUFWORD( Regs, 18 , Padding );
-	Regs[20] = (binn == 4) ? 1 : 0;
-	Regs[23] = 0xAC;
-
-#ifdef NO_QHY6
-	if( m_handle == NULL )
-		return EXIT_SUCCESS;
-#endif
-
-	pthread_mutex_lock( &m_mutex );
-
-	ret = ctrl_msg( 0x42, SENDREGS, 0, 0, Regs, sizeof(Regs) );
-
-	pthread_mutex_unlock( &m_mutex );
-
-	return ret;
-}
-
-#endif
-
-
 
 
 int qhy6_core_shared::guide( int direction, int duration_msec )
 {
 	int ret = EXIT_SUCCESS;
-#ifndef QHY6_WITH_ST4
-	return ret;
-#endif
+
 	unsigned char cmd = 0x00;
 
 	if( !(direction & (QHY6_NORTH | QHY6_SOUTH | QHY6_EAST | QHY6_WEST)) )

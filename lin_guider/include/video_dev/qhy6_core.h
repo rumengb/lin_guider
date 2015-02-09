@@ -30,7 +30,6 @@
 #include <pthread.h>
 #include <libusb-1.0/libusb.h>
 
-#define QHY6_WITH_ST4
 
 enum {
         QHY6_NORTH = 0x04,
@@ -39,26 +38,14 @@ enum {
         QHY6_WEST  = 0x08,
 };
 
-#ifdef QHY6_WITH_ST4
-	// new
-	#define QHY6_VENDOR_ID   0x1618
-	#define QHY6_PRODUCT_ID  0x025A
+#define QHY6_VENDOR_ID   0x1618
+#define QHY6_PRODUCT_ID  0x025A
 
-	#define QHY6_MATRIX_WIDTH	800
-	#define QHY6_MATRIX_HEIGHT	596
+#define QHY6_MATRIX_WIDTH	800
+#define QHY6_MATRIX_HEIGHT	596
 
-	#define QHY6_SKIP_X	34
-	#define QHY6_SKIP_Y	14
-
-#else
-	// old
-	#define QHY6_VENDOR_ID   0x16C0 //0x1618 //0x16C0
-	#define QHY6_PRODUCT_ID  0x081D //0x0259 //0x081D
-
-	#define QHY6_MATRIX_WIDTH	796
-	#define QHY6_MATRIX_HEIGHT	596
-
-#endif
+#define QHY6_SKIP_X	34
+#define QHY6_SKIP_Y	14
 
 #define QHY6_EFFECTIVE_WIDTH	752
 #define QHY6_EFFECTIVE_HEIGHT	582
