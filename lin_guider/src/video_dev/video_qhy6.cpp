@@ -58,8 +58,6 @@ cvideo_qhy6::cvideo_qhy6() :
 
 	m_qhy6_obj = new qhy6_core_shared();
 
-	// this may be placed inside of initialization code
-	m_sensor_info = video_drv::sensor_info_s( 6.50, 6.25, QHY6_EFFECTIVE_WIDTH, QHY6_EFFECTIVE_HEIGHT );
 }
 
 
@@ -299,6 +297,9 @@ int cvideo_qhy6::init_device( void )
 	}
 
 	set_exposure( capture_params.exposure );
+
+	// this may be placed inside of initialization code
+	m_sensor_info = video_drv::sensor_info_s( 6.50, 6.25, capture_params.width, capture_params.height );
 
 	get_autogain();
 	get_gain();
