@@ -119,7 +119,8 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	m_drift_out->set_source( m_drift_graph->get_buffer(), NULL );
 	m_drift_graph->on_paint();
 
-	ui.frame_Graph->resize( DRIFT_GRAPH_WIDTH + 2*ui.frame_Graph->frameWidth(), DRIFT_GRAPH_HEIGHT + 2*ui.frame_Graph->frameWidth() );
+	ui.frame_Graph->setMaximumSize( DRIFT_GRAPH_WIDTH + 2*ui.frame_Graph->frameWidth(), DRIFT_GRAPH_HEIGHT + 2*ui.frame_Graph->frameWidth() );
+	ui.frame_Graph->setMinimumSize( ui.frame_Graph->maximumSize() );
 
 	// not UI vars
 	is_started = false;
