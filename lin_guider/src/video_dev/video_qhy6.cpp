@@ -150,6 +150,20 @@ int cvideo_qhy6::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
 	i++;
 
+	// bin 2x2
+	pt.x = QHY6_EFFECTIVE_WIDTH_B2;
+	pt.y = QHY6_EFFECTIVE_HEIGHT_B2;
+	device_formats[0].frame_table[ i ].size =  pt;
+	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 4, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 2, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 1, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 1, 2 );
+	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 3 );
+	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 4 );
+	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+	i++;
+
 	// add empty tail
 	pt.x = pt.y = 0;
 	device_formats[0].frame_table[ i++ ].size = pt;
@@ -255,6 +269,26 @@ int cvideo_qhy6::init_device( void )
 
 	// prepare...
 	int wd, ht;
+
+	if ((capture_params.height == QHY6_EFFECTIVE_HEIGHT_B2) &&
+	   (capture_params.width == QHY6_EFFECTIVE_WIDTH_B2)) {
+		m_binn = 2;
+		m_sensor_info = video_drv::sensor_info_s (
+				QHY6_PIXEL_WIDTH * 2,
+				QHY6_PIXEL_HEIGHT * 2,
+				capture_params.width,
+				capture_params.height
+		);
+	} else {
+		m_binn = 1;
+		m_sensor_info = video_drv::sensor_info_s (
+				QHY6_PIXEL_WIDTH,
+				QHY6_PIXEL_HEIGHT,
+				capture_params.width,
+				capture_params.height
+		);
+	}
+
 	ret = m_qhy6_obj->set_params( time_fract::to_msecs( capture_params.fps ), m_binn, capture_params.gain, m_offset, m_speed, m_amp, m_vbe, &wd, &ht, &m_data_size );
 
 	if( ret != EXIT_SUCCESS )
@@ -282,7 +316,7 @@ int cvideo_qhy6::init_device( void )
 	}
 
 	// init internal buffer.
-	buffers[1].length = QHY6_BUFFER_LEN * sizeof(unsigned short);
+	buffers[1].length = m_data_size; //QHY6_BUFFER_LEN * sizeof(unsigned short);
 	buffers[1].start.ptr = malloc( buffers[1].length );
 	if( !buffers[1].start.ptr )
 	{
@@ -293,9 +327,6 @@ int cvideo_qhy6::init_device( void )
 	}
 
 	set_exposure( capture_params.exposure );
-
-	// this may be placed inside of initialization code
-	m_sensor_info = video_drv::sensor_info_s( 6.50, 6.25, capture_params.width, capture_params.height );
 
 	get_autogain();
 	get_gain();
@@ -324,7 +355,14 @@ int cvideo_qhy6::uninit_device( void )
 
 int cvideo_qhy6::start_capturing( void )
 {
-	return 0;
+	int ret = 0;
+	// Ugly hack! sometimes first exposure is broken so make a dummy one;
+	ret = m_qhy6_obj->start_exposure( 1 );
+	if( ret ) return ret;
+
+	ret = m_qhy6_obj->read_exposure( buffers[1].start.ptr8, m_data_size );
+
+	return ret;
 }
 
 
@@ -408,7 +446,27 @@ int cvideo_qhy6::read_frame( void )
   		}
   		break;
   	case 2:  //2X2 binning
-  		log_e( "cvideo_qhy6::read_frame(): binning x2 not supported" );
+		t = capture_params.height;
+		src1 = buffers[1].start.ptr16 + (QHY6_MATRIX_WIDTH_B2 * (QHY6_SKIP_Y_B2 ));
+		tgt = buffers[0].start.ptr16;
+		if (m_use_black_point) {
+			while( t-- ) {
+				// average several optical black pixels
+				int black1 = (src1[2]+src1[3]+src1[4]+src1[5]+src1[6]+src1[7]) / 6;
+				float a1 = 65535.0/(65535-black1);
+				for(unsigned i=0, j = QHY6_SKIP_X_B2; i < capture_params.width; i++, j++) {
+					tgt[i] = (src1[j] > black1) ? (src1[j] - black1)*a1 : 0;
+				}
+				tgt += capture_params.width;
+				src1 += QHY6_MATRIX_WIDTH_B2;
+			}
+		} else {
+			while ( t-- ) {
+				memcpy( tgt, src1+QHY6_SKIP_X_B2, line_sz );
+				tgt += capture_params.width;
+				src1 += QHY6_MATRIX_WIDTH_B2;
+			}
+		}
   		break;
   	}
 

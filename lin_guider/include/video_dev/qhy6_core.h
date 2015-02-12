@@ -44,21 +44,27 @@ enum {
 #define QHY6_MATRIX_WIDTH	800
 #define QHY6_MATRIX_HEIGHT	596
 
+#define QHY6_MATRIX_WIDTH_B2	400
+#define QHY6_MATRIX_HEIGHT_B2	298
+
 #define QHY6_SKIP_X	34
 #define QHY6_SKIP_Y	14
+
+#define QHY6_SKIP_X_B2	22
+#define QHY6_SKIP_Y_B2	7
 
 #define QHY6_EFFECTIVE_WIDTH	752
 #define QHY6_EFFECTIVE_HEIGHT	582
 
+#define QHY6_EFFECTIVE_WIDTH_B2 	375  // QHY6_EFFECTIVE_WIDTH / 2 - 1
+#define QHY6_EFFECTIVE_HEIGHT_B2	290 // QHY6_EFFECTIVE_HEIGHT / 2 - 1
+
+#define QHY6_PIXEL_WIDTH	6.50  // um
+#define QHY6_PIXEL_HEIGHT	6.25  // um
+
 #define V4L2_CID_USER_BLACK_POINT (V4L2_CID_USER_CLASS + 1)
 
-#define QHY6_WIDTH_B1	QHY6_MATRIX_WIDTH
-#define QHY6_HEIGHT_B1	QHY6_MATRIX_HEIGHT
-
-#define QHY6_WIDTH_B2	(QHY6_WIDTH_B1>>1)
-#define QHY6_HEIGHT_B2	(QHY6_HEIGHT_B1>>1)
-
-#define QHY6_BUFFER_LEN 480000	// 800*600
+//#define QHY6_BUFFER_LEN 480000	// 800*600
 
 
 class qhy6_core_shared
@@ -88,6 +94,7 @@ private:
 	static int m_init_cnt;
 	//static int gain_lut[74];
 	static int m_exposuretime;
+	static unsigned m_magic_size; //Why the hell is that ?!?! should read m_magic_size less byted per image
 };
 
 #endif /* QHY6_CORE_H_ */

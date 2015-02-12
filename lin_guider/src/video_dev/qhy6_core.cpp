@@ -50,6 +50,7 @@ pthread_mutex_t qhy6_core_shared::m_mutex = PTHREAD_MUTEX_INITIALIZER;
 libusb_device_handle *qhy6_core_shared::m_handle = NULL;
 int qhy6_core_shared::m_init_cnt = 0;
 int qhy6_core_shared::m_exposuretime = 0;
+unsigned qhy6_core_shared::m_magic_size = 0;
 
 
 qhy6_core_shared::qhy6_core_shared( void )
@@ -206,8 +207,7 @@ int qhy6_core_shared::read_exposure( unsigned char *image, unsigned int image_si
 		return 0;
 #endif
 
-	unsigned int magic_number = 256;  // 256 - starange magic number
-	unsigned int corrected_size = image_size - magic_number;
+	unsigned int corrected_size = image_size - m_magic_size;
 
 	//pthread_mutex_lock( &m_mutex );
 
@@ -216,7 +216,7 @@ int qhy6_core_shared::read_exposure( unsigned char *image, unsigned int image_si
 	ret = libusb_bulk_transfer( m_handle, 0x82, image, corrected_size, &result, m_exposuretime+2000 );
 	if( ret < 0 )
 	{
-		log_e( "Failed to read image: libusb_bulk_transfer() failed. ret = %d err = '%s'", ret, strerror(errno) );
+		log_e( "Failed to read image: libusb_bulk_transfer() failed. size_read = %d ret = %d err = '%s'", result, ret, strerror(errno) );
 		return EXIT_FAILURE;
 	}
 	if( result == (int)corrected_size )
@@ -288,10 +288,12 @@ int qhy6_core_shared::set_params( int exposuretime, int binn, int gain, int offs
 	switch( binn )
 	{
 	case 1:
-		width  = QHY6_MATRIX_WIDTH; height = QHY6_MATRIX_HEIGHT; Vbin = binn; Hbin = binn; P_Size = 932*1024;
+		width = QHY6_MATRIX_WIDTH; height = QHY6_MATRIX_HEIGHT; Vbin = binn; Hbin = binn; P_Size = 932*1024;
+		m_magic_size = 256;  // No idea why 256!
 		break;
 	case 2:
-		width  = QHY6_WIDTH_B2; height = QHY6_HEIGHT_B2; Vbin = binn; Hbin = binn; P_Size = 234*1024;
+		width = QHY6_MATRIX_WIDTH/2; height = QHY6_MATRIX_HEIGHT/2; Vbin = binn; Hbin = binn; P_Size = 233*1024;
+		m_magic_size = 320;  // No idea why 320!
 		break;
 	default:
 		return EXIT_FAILURE;
