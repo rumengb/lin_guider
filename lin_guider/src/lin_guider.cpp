@@ -68,6 +68,7 @@ lin_guider::lin_guider(QWidget *parent)
 	m_hfd_info_label->setFrameShape( QFrame::Panel );
 	m_hfd_info_label->setFrameShadow( QFrame::Sunken );
 	ui.statusbar->addWidget( m_hfd_info_label, 0 );
+	m_hfd_info_label->setHidden(true);
 
 	m_video_name_label = new QLabel();
 	m_video_name_label->setFrameShape( QFrame::Panel );
@@ -449,6 +450,7 @@ void lin_guider::onShowSettings()
 	//check UI changes
 	set_ui_params();
 	m_hfd_info_label->setText( QString() );
+	m_hfd_info_label->setHidden(true);
 }
 
 
@@ -555,6 +557,7 @@ void lin_guider::onGetVideo( const void *src, int len )
 	if( m_common_params.hfd_on )
 	{
 		const cproc_out_params *out = m_math->get_out_params();
+		if (m_hfd_info_label->isHidden()) m_hfd_info_label->setHidden(false);
 		m_hfd_info_label->setText( QString("HFD: ") +
 								   (out->hfd_h > 0 ? QString().setNum(out->hfd_h, 'f', 2) : QString("-.-")) +
 								   QString("\", Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );
