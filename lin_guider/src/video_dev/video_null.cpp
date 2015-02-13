@@ -505,18 +505,9 @@ void cvideo_null::generate_emu_field( void )
 	data_ptr raw = buffers[0].start;
 	for( size_t i = 0;i < buffers[0].length;i++ )
 	{
-		raw.ptr16[i] = (32+rand()%25)*256;
+		//raw.ptr16[i] = (32+rand()%25)*256;
+		raw.ptr16[i] = 32*256 + rand()%20*128;
 	}
-
-	/*
-	for( int j = 0;j < capture_params.height;j++ )
-	{
-		for( int i = 0;i < capture_params.width;i++ )
-		{
-			raw.ptr8[
-		}
-	}
-	*/
 }
 
 }

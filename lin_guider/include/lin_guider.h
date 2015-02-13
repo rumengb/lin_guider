@@ -154,6 +154,7 @@ private:
 
 private:
     Ui::lin_guiderClass ui;
+    QLabel *m_hfd_info_label;
     QLabel *m_video_name_label;
     QLabel *m_io_name_label;
 

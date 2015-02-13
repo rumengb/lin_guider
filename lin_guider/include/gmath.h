@@ -166,6 +166,8 @@ public:
 	int	    			pulse_length[2];
 	double				sigma[2];
 	double      		quality;
+	double				hfd_h;
+	double				hfd_lum_max;
 };
 
 
@@ -244,6 +246,29 @@ public:
 	void get_speed_info( double *ra_v, double *dec_v ) const;
 
 private:
+	struct hfd_item_s
+	{
+		hfd_item_s() :
+			in_circle( false ),
+			distance( 0 )
+		{}
+		bool   in_circle;
+		double distance;
+	};
+	struct hfd_sqr_s
+	{
+		hfd_sqr_s() :
+			data( NULL ),
+			area_cnt( 0 ),
+			bkgd_cnt( 0 ),
+			dist_sum( 0 )
+		{}
+		struct hfd_item_s *data;
+		double area_cnt;
+		double bkgd_cnt;
+		double dist_sum;
+	};
+
 	const common_params &m_common_params;
 
 	// sys...
@@ -300,6 +325,9 @@ private:
 	double m_ra_drift_v; // pixels per second (fills by calibration procedure)
 	double m_dec_drift_v;// pixels per second
 
+	// hfd
+	mutable struct hfd_sqr_s *m_hfd_sqr_info;
+
 	// proc
 	void do_ticks( void );
 	Vector point2arcsec( const Vector &p ) const;
@@ -308,6 +336,10 @@ private:
 	void calc_square_err( void );
 	void calc_quality( void );
 	
+	void hfd_init( void ) const;
+	void hfd_destroy( void ) const;
+	void hfd_calc( void );
+
 	cgmath( const cgmath& );
 	cgmath& operator=( const cgmath& );
 };

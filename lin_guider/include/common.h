@@ -104,7 +104,9 @@ public:
 		udp_send_drift_data( false ),
 
 		dithering_range( 5 ),
-		dithering_rest_tout( 3 )
+		dithering_rest_tout( 3 ),
+
+		hfd_on( false )
 	{
 	}
 
@@ -116,6 +118,8 @@ public:
 
 	int dithering_range;
 	int dithering_rest_tout;
+
+	bool hfd_on;
 };
 
 #endif /* COMMON_H_ */

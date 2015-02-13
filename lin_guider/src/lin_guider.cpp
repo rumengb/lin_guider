@@ -64,6 +64,11 @@ lin_guider::lin_guider(QWidget *parent)
 	setWindowTitle( QString(CPY_RIGHT(VERSION)) );
 	setWindowIcon( QIcon(QString::fromUtf8(":/new/prefix1/lin_guider.png")) );
 
+	m_hfd_info_label = new QLabel();
+	m_hfd_info_label->setFrameShape( QFrame::Panel );
+	m_hfd_info_label->setFrameShadow( QFrame::Sunken );
+	ui.statusbar->addWidget( m_hfd_info_label, 0 );
+
 	m_video_name_label = new QLabel();
 	m_video_name_label->setFrameShape( QFrame::Panel );
 	m_video_name_label->setFrameShadow( QFrame::Sunken );
@@ -534,6 +539,13 @@ void lin_guider::onGetVideo( const void *src, int len )
 		}
 	}
 	painter.end();
+
+	// HFD
+	if( m_common_params.hfd_on )
+	{
+		const cproc_out_params *out = m_math->get_out_params();
+		m_hfd_info_label->setText( QString("HFD: H,\": ") + QString().setNum(out->hfd_h, 'f', 2) + QString(" Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );
+	}
 
 	// update frame
 	m_video_out->update();

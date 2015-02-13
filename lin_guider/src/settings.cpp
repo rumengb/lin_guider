@@ -104,6 +104,9 @@ void settings::fill_interface( void )
 
 	// UI toolbars
 	ui.checkBox_ShowHelperTB->setChecked( m_ui_params->show_helper_TB );
+
+	// HFD
+	ui.checkBox_HFD_on->setChecked( m_common_params.hfd_on );
 }
 
 
@@ -172,9 +175,13 @@ void settings::onOkButtonClick()
 	server::set_msg_map( msg_map );
 
 	memcpy( m_pnet_params, &m_net_params, sizeof(net_params_t) );
-	*m_pcommon_params = m_common_params;
 
 	m_ui_params->show_helper_TB = ui.checkBox_ShowHelperTB->isChecked();
+
+	m_common_params.hfd_on = ui.checkBox_HFD_on->isChecked();
+
+	// final
+	*m_pcommon_params = m_common_params;
 
 	close();
 }

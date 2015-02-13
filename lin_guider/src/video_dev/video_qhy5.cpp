@@ -48,9 +48,6 @@ cvideo_qhy5::cvideo_qhy5() :
 	device_type = DT_QHY5;
 
 	m_qhy5_obj = new qhy5_core_shared();
-
-	// this may be placed inside of initialization code
-	m_sensor_info = video_drv::sensor_info_s( 1, 1, 640, 480 );
 }
 
 
@@ -241,6 +238,31 @@ int cvideo_qhy5::init_device( void )
 		return EXIT_FAILURE;
 
 	set_fps( capture_params.fps );
+
+#ifdef QHY5_SCALER
+	int binn_factor = 1;
+	switch( capture_params.width )
+	{
+	case QHY5_IMAGE_WIDTH/2:
+		binn_factor = 2;
+		break;
+	case QHY5_IMAGE_WIDTH/4:
+		binn_factor = 4;
+		break;
+	}
+#endif
+	m_sensor_info = video_drv::sensor_info_s(
+#ifdef QHY5_SCALER
+			5.6 * binn_factor,
+			5.6 * binn_factor,
+#else
+			5.6,
+			5.6,
+#endif
+			capture_params.width,
+			capture_params.height
+		);
+
 
 	n_buffers = 2;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );

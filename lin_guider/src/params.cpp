@@ -233,6 +233,7 @@ bool params::load( void )
 		m_common_params.dithering_range = settings.value( "dithering_range", 5 ).toInt();
 		m_common_params.dithering_rest_tout = settings.value( "dithering_rest_tout", 3 ).toInt();
 		DBG_VERBOSITY = settings.value( "dbg_verbosity", false ).toBool();
+		m_common_params.hfd_on = settings.value( "hfd_on", false ).toBool();
 	settings.endGroup();
 
 	// drift view
@@ -382,6 +383,7 @@ bool params::save( void )
 		settings.setValue( "dithering_range", m_common_params.dithering_range );
 		settings.setValue( "dithering_rest_tout", m_common_params.dithering_rest_tout );
 		settings.setValue( "dbg_verbosity", DBG_VERBOSITY );
+		settings.setValue( "hfd_on", m_common_params.hfd_on );
 	settings.endGroup();
 
 	// drift view

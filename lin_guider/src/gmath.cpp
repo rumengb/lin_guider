@@ -122,6 +122,10 @@ cgmath::cgmath( const common_params &comm_params ) :
 	// info
 	m_ra_drift_v  = 0;
 	m_dec_drift_v = 0;
+
+	m_hfd_sqr_info = NULL;
+
+	hfd_init();
 }
 
 
@@ -131,6 +135,8 @@ cgmath::~cgmath()
 	delete [] drift[DEC];
 
 	delete [] pdata;
+
+	hfd_destroy();
 }
 
 
@@ -1020,8 +1026,10 @@ void cgmath::do_processing( void )
  	scr_star_pos = star_pos = find_star_local_pos();
 
 	// move square overlay
- 	//move_square( round(star_pos.x) - (double)square_size/2, round(star_pos.y) - (double)square_size/2 );
- 	move_square( ceil(star_pos.x) - (double)square_size/2, ceil(star_pos.y) - (double)square_size/2 );
+ 	move_square( round(star_pos.x) - (double)square_size/2, round(star_pos.y) - (double)square_size/2 );
+
+ 	if( m_common_params.hfd_on )
+ 		hfd_calc();
 
 	if( preview_mode )
 		return;
@@ -1110,6 +1118,112 @@ void cgmath::calc_quality( void )
 	q_avg /= (double)cnt;
 
 	out_params.quality = q_avg * 100.0;
+}
+
+
+void cgmath::hfd_init( void ) const
+{
+	if( m_hfd_sqr_info )
+		return;
+
+	int sqr_cnt = (int)(sizeof(guide_squares)/sizeof(guide_square_t));
+	m_hfd_sqr_info = new struct hfd_sqr_s [ sqr_cnt ];
+	for( int i = 0;i < sqr_cnt;i++ )
+	{
+		if( guide_squares[ i ].size != -1 )
+			m_hfd_sqr_info[ i ].data = new struct hfd_item_s [ guide_squares[ i ].size * guide_squares[ i ].size ];
+	}
+
+	for( int k = 0;k < sqr_cnt;k++ )
+	{
+		struct hfd_sqr_s *hfd_sqr = &m_hfd_sqr_info[ k ];
+		if( !hfd_sqr )
+			continue;
+
+		int sqr_size = guide_squares[ k ].size/*-1*/;
+		int sqr_cx = sqr_size / 2;
+		int sqr_cy = sqr_cx;
+		double r = sqr_size / 2;
+
+		for( int j = 0;j < sqr_size;j++ )
+		{
+			for( int i = 0;i < sqr_size;i++ )
+			{
+				int idx = j * sqr_size + i;
+				double dist = sqrt( (i-sqr_cx)*(i-sqr_cx) + (j-sqr_cy)*(j-sqr_cy) );
+				bool in =  dist <= r;
+				if( in )
+				{
+					hfd_sqr->dist_sum += dist;
+					hfd_sqr->area_cnt++;
+				}
+				else
+					hfd_sqr->bkgd_cnt++;
+				hfd_sqr->data[ idx ].in_circle = in;
+				hfd_sqr->data[ idx ].distance  = dist;
+			}
+		}
+	}
+}
+
+
+void cgmath::hfd_destroy( void ) const
+{
+	if( !m_hfd_sqr_info )
+		return;
+
+	for( int i = 0;m_hfd_sqr_info[ i ].data;i++ )
+		delete [] m_hfd_sqr_info[ i ].data;
+	delete [] m_hfd_sqr_info;
+}
+
+
+void cgmath::hfd_calc( void )
+{
+	if( !m_hfd_sqr_info )
+		return;
+	struct hfd_sqr_s *hfd_sqr = &m_hfd_sqr_info[ square_idx ];
+	struct hfd_item_s *hfd_sqr_data = hfd_sqr->data;
+	assert( hfd_sqr_data );
+
+	double *psrc   = NULL;
+	double *pptr   = NULL;
+	double v_sum   = 0;
+	double vd_sum  = 0;
+	double bkgd    = 0;
+	double lum_max = 0;
+
+	psrc = pdata + (int)square_pos.y*video_width + (int)square_pos.x;
+	for( int j = 0, idx = 0;j < square_size;j++ )
+	{
+		for( int i = 0;i < square_size;i++, idx++ )
+		{
+			pptr = psrc+i;
+			double val = *pptr;
+			val = val > 0 ? val : -val;
+			if( hfd_sqr_data[ idx ].in_circle )
+			{
+				v_sum  += val;
+				vd_sum += val * hfd_sqr_data[ idx ].distance;
+				if( val > lum_max )
+					lum_max = val;
+			}
+			else
+				bkgd += val;
+		}
+		psrc += video_width;
+	}
+	bkgd /= (double)hfd_sqr->bkgd_cnt;
+
+	double numerator   = vd_sum - bkgd * hfd_sqr->dist_sum;
+	double denominator = v_sum - hfd_sqr->area_cnt * bkgd;
+	if( denominator == 0 )
+		denominator = 1;
+	double H = 2 * fabs( numerator / denominator );
+
+	Vector arc_h = point2arcsec( Vector(H, 0, 0) );
+	out_params.hfd_h       = arc_h.x;
+	out_params.hfd_lum_max = lum_max;
 }
 
 
@@ -1315,8 +1429,6 @@ void cgmath::get_speed_info( double *ra_v, double *dec_v ) const
 
 
 
-
-
 //---------------------------------------------------------------------------------------
 cproc_in_params::cproc_in_params()
 {
@@ -1366,4 +1478,6 @@ void cproc_out_params::reset( void )
 		sigma[k] 		= 0;
 	}
 	quality = 0;
+	hfd_h = 0;
+	hfd_lum_max = 0;
 }
