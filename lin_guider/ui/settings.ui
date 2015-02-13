@@ -192,7 +192,7 @@
       <item row="6" column="0">
        <widget class="QCheckBox" name="checkBox_HFD_on">
         <property name="text">
-         <string>calc. HFD</string>
+         <string>calculate HFD</string>
         </property>
        </widget>
       </item>

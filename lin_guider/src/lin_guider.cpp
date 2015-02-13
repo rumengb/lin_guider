@@ -193,6 +193,16 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_video->set_capture_params( m_capture_params );	// try to set desired params
 	res = m_video->start( dev_name_video );
 	m_capture_params = m_video->get_capture_params();	// receive actual params
+	{
+		const struct video_drv::sensor_info_s &si = m_video->get_sensor_info();
+		if( si.is_available && m_guider_params.auto_info )
+		{
+			m_guider_params.matrix_width     = si.matrix_width;
+			m_guider_params.matrix_height    = si.matrix_height;
+			m_guider_params.ccd_pixel_width  = si.pixel_width;
+			m_guider_params.ccd_pixel_height = si.pixel_height;
+		}
+	}
 
 	// create receiving video buffer
 	m_v_buf = (u_char *)malloc( m_capture_params.width * m_capture_params.height * sizeof(uint32_t) );
@@ -544,7 +554,9 @@ void lin_guider::onGetVideo( const void *src, int len )
 	if( m_common_params.hfd_on )
 	{
 		const cproc_out_params *out = m_math->get_out_params();
-		m_hfd_info_label->setText( QString("HFD: H,\": ") + QString().setNum(out->hfd_h, 'f', 2) + QString(" Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );
+		m_hfd_info_label->setText( QString("HFD: ") +
+								   (out->hfd_h > 0 ? QString().setNum(out->hfd_h, 'f', 2) : QString("-.-")) +
+								   QString("\", Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );
 	}
 
 	// update frame

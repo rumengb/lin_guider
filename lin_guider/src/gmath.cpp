@@ -402,12 +402,14 @@ void cgmath::resize_square( int size_idx )
 	if( size_idx < 0 || size_idx >= (int)(sizeof(guide_squares)/sizeof(guide_square_t))-1 )
 		return;
 
+	int old_hsz = square_size / 2;
+
 	square_size = guide_squares[size_idx].size;
 	square_square = guide_squares[size_idx].square;
 	square_idx = size_idx;
 
 	// check position
-	move_square( square_pos.x, square_pos.y );
+	move_square( square_pos.x + double(old_hsz - square_size/2), square_pos.y + double(old_hsz - square_size/2) );
 }
 
 
@@ -1200,7 +1202,6 @@ void cgmath::hfd_calc( void )
 		{
 			pptr = psrc+i;
 			double val = *pptr;
-			val = val > 0 ? val : -val;
 			if( hfd_sqr_data[ idx ].in_circle )
 			{
 				v_sum  += val;
@@ -1221,8 +1222,13 @@ void cgmath::hfd_calc( void )
 		denominator = 1;
 	double H = 2 * fabs( numerator / denominator );
 
-	Vector arc_h = point2arcsec( Vector(H, 0, 0) );
-	out_params.hfd_h       = arc_h.x;
+	if( H <= (double)square_size )
+	{
+		Vector arc_h = point2arcsec( Vector(H, 0, 0) );
+		out_params.hfd_h = arc_h.x;
+	}
+	else
+		out_params.hfd_h = -1;
 	out_params.hfd_lum_max = lum_max;
 }
 
