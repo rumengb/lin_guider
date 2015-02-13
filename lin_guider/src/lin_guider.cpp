@@ -448,6 +448,7 @@ void lin_guider::onShowSettings()
 	settings_wnd->exec();
 	//check UI changes
 	set_ui_params();
+	m_hfd_info_label->setText( QString() );
 }
 
 
