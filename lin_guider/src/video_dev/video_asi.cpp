@@ -194,19 +194,19 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		int v = val.values[0];
 		if( v < m_gain_caps.MinValue ) v = m_gain_caps.MinValue;
 		if( v > m_gain_caps.MaxVale ) v = m_gain_caps.MaxVale;
-		int ret = set_camera_gain(v);
-		if( ret != ASI_SUCCESS )
-		{
-			log_e( "cvideo_qhy6::set_control(): set_params() failed." );
+		bool success = set_camera_gain(v);
+		if( !success ) {
 			return -1;
 		}
 		capture_params.gain = v;
 		break;
 	}
 	case V4L2_CID_EXPOSURE: {
+		long wp_max = 255;
+		if(m_bpp == 16) wp_max = 65535;
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > 255 ) v = 255;
+		if( v > wp_max ) v = wp_max;
 		int top = 255 - v;
 		if( top <= 0 ) {
 			log_e( "cvideo_sx::set_control(): invalid exposure" );
@@ -389,7 +389,6 @@ int cvideo_asi::read_frame( void )
 	} else if( time_left > 0 )
 		usleep(time_left * 1000);
 */
-	log_i("read_image(): start");
 	success = read_image((char *) raw.ptr8, raw_size, frame_delay);
 	if( !success )
 		log_e("read_image(): failed");
@@ -456,7 +455,7 @@ int cvideo_asi::set_format( void )
 	capture_params.width  = pt.x;
 	capture_params.height = pt.y;
 
-	return capture_params.width * capture_params.height *2;
+	return capture_params.width * capture_params.height * m_bpp / 8;
 }
 
 
@@ -479,12 +478,14 @@ int cvideo_asi::enum_controls( void )
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
 
+	long wp_max = 255;
+	if(m_bpp == 16) wp_max = 65535;
 	// create virtual control
 	queryctrl.id = V4L2_CID_EXPOSURE;
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	queryctrl.maximum = 255;
+	queryctrl.maximum = wp_max;
 	queryctrl.step = 1;
 	queryctrl.default_value = 0;
 	queryctrl.flags = 0;
