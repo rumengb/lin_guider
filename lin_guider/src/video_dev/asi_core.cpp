@@ -44,6 +44,9 @@ int asi_core::m_width = 0;
 int asi_core::m_height = 0;
 int asi_core::m_binX = 1;
 int asi_core::m_binY = 1;
+int asi_core::m_bandwidth = 0;
+unsigned char asi_core::m_bpp = 0;
+ASI_IMG_TYPE asi_core::m_img_type = ASI_IMG_END;
 
 int asi_core::open( void )
 {
@@ -101,6 +104,21 @@ int asi_core::open( void )
 				break;
 			}
 		}
+
+		int x,y,d;
+		ASIGetROIFormat(m_camera, &x, &y,  &d, &m_img_type);
+		switch (m_img_type) {
+		case ASI_IMG_RAW8:
+		case ASI_IMG_Y8:
+			m_bpp = 8;
+			break;
+		case ASI_IMG_RAW16:
+			m_bpp = 16;
+			break;
+		case ASI_IMG_RGB24:
+			m_bpp = 24;
+			break;
+		}
 	}
 
 	m_ref_count++;
@@ -146,11 +164,57 @@ bool asi_core::abort_exposure() {
 }
 
 
-bool asi_core::read_image(char *buf, int buf_size) {
+bool asi_core::set_camera_exposure(long exp_time) {
+	exp_time *= 1000; //convert to us
+	if((exp_time < m_expo_caps.MinValue) || (exp_time > m_expo_caps.MaxVale)) {
+		log_e("Exposure time %d not supported", exp_time);
+		return false;
+	}
+	pthread_mutex_lock( &m_mutex );
+	int rc = ASISetControlValue(m_camera, m_expo_caps.ControlID, exp_time, ASI_FALSE);
+	pthread_mutex_unlock( &m_mutex );
+	if(rc) {
+		log_e("ASISetControlValue(expossure): returned error %d", rc);
+		return false;
+	}
+    return true;
+}
+
+bool asi_core::set_camera_gain(unsigned char gain) {
+	if((gain < m_gain_caps.MinValue) || (gain > m_gain_caps.MaxVale)) {
+		log_e("Gain %d not supported", gain);
+		return false;
+	}
+	pthread_mutex_lock( &m_mutex );
+	int rc = ASISetControlValue(m_camera, m_gain_caps.ControlID, gain, ASI_FALSE);
+	pthread_mutex_unlock( &m_mutex );
+	if(rc) {
+		log_e("ASISetControlValue(gain): returned error %d", rc);
+		return false;
+	}
+    return true;
+}
+
+bool asi_core::set_band_width(unsigned char bwidth) {
+	if((bwidth < m_bwidth_caps.MinValue) || (bwidth > m_bwidth_caps.MaxVale)) {
+		log_e("Bandwidth %d not supported", bwidth);
+		return false;
+	}
+	pthread_mutex_lock( &m_mutex );
+	int rc = ASISetControlValue(m_camera, m_bwidth_caps.ControlID, bwidth, ASI_FALSE);
+	pthread_mutex_unlock( &m_mutex );
+	if(rc) {
+		log_e("ASISetControlValue(bandwidth): returned error %d", rc);
+		return false;
+	}
+    return true;
+}
+
+bool asi_core::read_image(char *buf, int buf_size, long exp_time) {
 	int rc;
 
 	pthread_mutex_lock( &m_mutex );
-	rc = ASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, -1);
+	rc = ASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, exp_time*2+500);
 	pthread_mutex_unlock( &m_mutex );
 	if(rc) return false;
 	return true;

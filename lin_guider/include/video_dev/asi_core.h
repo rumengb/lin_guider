@@ -35,6 +35,8 @@
 
 #define CAM_MAX 5
 
+#define V4L2_CID_USER_BANDWIDTH (V4L2_CID_USER_CLASS + 1)
+
 /*
  * ZWO ASI camera core class
  */
@@ -50,6 +52,9 @@ protected:
 	static int m_height;
 	static int m_binX;
 	static int m_binY;
+	static int m_bandwidth;
+	static unsigned char m_bpp;
+	static ASI_IMG_TYPE m_img_type;
 
 	static ASI_CONTROL_CAPS m_expo_caps;
 	static bool m_has_expo;
@@ -66,7 +71,10 @@ protected:
 	int set_guide_relays( int dir );
 	bool start_exposure();
 	bool abort_exposure();
-	bool read_image(char *buf, int buf_size);
+	bool set_camera_exposure(long exp_time);
+	bool set_camera_gain(unsigned char gain);
+	bool set_band_width(unsigned char bwidth);
+	bool read_image(char *buf, int buf_size, long exp_time);
 	void lock( void ) const;
 	void unlock( void ) const;
 

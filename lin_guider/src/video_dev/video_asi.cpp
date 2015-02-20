@@ -84,6 +84,7 @@ time_fract_t cvideo_asi::set_fps( const time_fract &new_fps )
 
 	capture_params.fps = set_fps;
 	frame_delay = time_fract::to_msecs( capture_params.fps );
+	set_camera_exposure(frame_delay);
 
 	if( initialized )
 		pthread_mutex_unlock( &cv_mutex );
@@ -117,22 +118,20 @@ int  cvideo_asi::get_vcaps( void )
 	else
 		return 1;
 */
-device_formats[0].format = V4L2_PIX_FMT_Y16;
+device_formats[0].format = V4L2_PIX_FMT_GREY;
 	pt.x = m_cam_info.MaxWidth;
 	pt.y = m_cam_info.MaxHeight;
 	device_formats[0].frame_table[ i ].size =  pt;
-	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 20, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 10, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 5, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 3, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 2, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 2 );
-	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
-	device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
-	device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 5, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 3, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 2, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 1, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 2 );
+	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 3 );
+	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
+	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 30 );
 	i++;
 
 /*
@@ -190,11 +189,25 @@ device_formats[0].format = V4L2_PIX_FMT_Y16;
 int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 {
 	switch( control_id ) {
+	case V4L2_CID_GAIN:
+	{
+		int v = val.values[0];
+		if( v < m_gain_caps.MinValue ) v = m_gain_caps.MinValue;
+		if( v > m_gain_caps.MaxVale ) v = m_gain_caps.MaxVale;
+		int ret = set_camera_gain(v);
+		if( ret != ASI_SUCCESS )
+		{
+			log_e( "cvideo_qhy6::set_control(): set_params() failed." );
+			return -1;
+		}
+		capture_params.gain = v;
+		break;
+	}
 	case V4L2_CID_EXPOSURE: {
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > 65536 ) v = 65536;
-		int top = 65536 - v;
+		if( v > 255 ) v = 255;
+		int top = 255 - v;
 		if( top <= 0 ) {
 			log_e( "cvideo_sx::set_control(): invalid exposure" );
 			return -1;
@@ -202,6 +215,19 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		init_lut_to8bit( top );
 
 		capture_params.exposure = v;
+		break;
+	}
+	case V4L2_CID_USER_BANDWIDTH:
+	{
+		//log_e( "USB Bandwidth = %d", m_bandwidth);
+		int v = val.values[0];
+		if( v < m_bwidth_caps.MinValue ) v = m_bwidth_caps.MinValue;
+		if( v > m_bwidth_caps.MaxVale-10 ) v = m_bwidth_caps.MaxVale-10;
+		capture_params.ext_params[ control_id ] = v;
+		m_bandwidth = v;
+		set_band_width(m_bandwidth);
+		if (DBG_VERBOSITY)
+			log_e( "USB Bandwidth = %d", m_bandwidth);
 		break;
 	}
 	default:
@@ -214,6 +240,11 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 int  cvideo_asi::get_control( unsigned int control_id, param_val_t *val )
 {
 	switch( control_id ) {
+	case V4L2_CID_GAIN:
+	{
+		val->values[0] = capture_params.gain;
+		break;
+	}
 	case V4L2_CID_EXPOSURE:
 		val->values[0] = capture_params.exposure;
 		break;
@@ -234,6 +265,9 @@ int cvideo_asi::init_device( void )
 		return EXIT_FAILURE;
 
 	set_fps( capture_params.fps );
+
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_BANDWIDTH, m_bandwidth ) );
+	m_bandwidth = capture_params.ext_params[ V4L2_CID_USER_BANDWIDTH ];
 
 	n_buffers = 1;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
@@ -287,16 +321,13 @@ int cvideo_asi::init_device( void )
 	set_exposure( capture_params.exposure );
 	get_exposure();
 
-	int rc = ASISetControlValue(m_camera, m_expo_caps.ControlID, 10000, ASI_FALSE);
-	rc = ASISetControlValue(m_camera, m_gain_caps.ControlID, 80, ASI_TRUE);
-	rc = ASISetControlValue(m_camera, m_bwidth_caps.ControlID, 80, ASI_FALSE);
+	log_i("exposure= %d",frame_delay);
 
-	ASI_IMG_TYPE img_type;
-	int x,y,d;
+	set_camera_exposure(100); // set short exposure as if you start with a long one it is always ~1s (wired)
+	set_camera_gain(capture_params.gain);
+	set_band_width(m_bandwidth);
 
-	ASIGetROIFormat(m_camera, &x, &y,  &d, &img_type);
-	log_i(" x= %d, y=%d, d= %d, img_type = %d",x,y,d, ASI_IMG_RAW16);
-	rc = ASISetROIFormat(m_camera, x, y,  d, ASI_IMG_RAW16);
+	int rc = ASISetROIFormat(m_camera, capture_params.width, capture_params.height,  m_binX, m_img_type);
 	log_i("ROI rc = %d",rc);
 
 	return 0;
@@ -320,6 +351,7 @@ int cvideo_asi::uninit_device( void )
 
 int cvideo_asi::start_capturing( void )
 {
+	set_camera_exposure(frame_delay);
 	m_expstart = exp_timer.gettime();
 	bool success = start_exposure();
 	if( !success ) {
@@ -358,7 +390,7 @@ int cvideo_asi::read_frame( void )
 		usleep(time_left * 1000);
 */
 	log_i("read_image(): start");
-	success = read_image((char *) raw.ptr8, raw_size);
+	success = read_image((char *) raw.ptr8, raw_size, frame_delay);
 	if( !success )
 		log_e("read_image(): failed");
 	if( DBG_VERBOSITY )
@@ -366,8 +398,6 @@ int cvideo_asi::read_frame( void )
 
 	long prev = m_expstart;
 	m_expstart = exp_timer.gettime();
-
-	log_i("XXX %d",raw.ptr8[1100]);
 
 	//success = start_exposure();
 	//if( !success ) {
@@ -405,7 +435,7 @@ int cvideo_asi::set_format( void )
 	else
 		return 0;
 */
-	capture_params.pixel_format = V4L2_PIX_FMT_Y16;
+	capture_params.pixel_format = V4L2_PIX_FMT_GREY;
 	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ ) {
 		if( device_formats[i].format != capture_params.pixel_format )
 			continue;
@@ -436,17 +466,42 @@ int cvideo_asi::enum_controls( void )
 	struct v4l2_queryctrl queryctrl;
 
 	memset( &queryctrl, 0, sizeof(v4l2_queryctrl) );
+
+	// create virtual control
+	queryctrl.id = V4L2_CID_GAIN;
+	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "gain" );
+	queryctrl.minimum = m_gain_caps.MinValue;
+	queryctrl.maximum = m_gain_caps.MaxVale;
+	queryctrl.step = 1;
+	queryctrl.default_value = m_gain_caps.DefaultValue;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n );
+
 	// create virtual control
 	queryctrl.id = V4L2_CID_EXPOSURE;
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	queryctrl.maximum = 65535;
+	queryctrl.maximum = 255;
 	queryctrl.step = 1;
 	queryctrl.default_value = 0;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
+
+	// create virtual control (extended ctl)
+	queryctrl.id = V4L2_CID_USER_BANDWIDTH;
+	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "USB Bandwidth" );
+	queryctrl.minimum = m_bwidth_caps.MinValue;
+	queryctrl.maximum = m_bwidth_caps.MaxVale-10;
+	queryctrl.step = 1;
+	queryctrl.default_value = m_bwidth_caps.DefaultValue;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
 
 	num_controls = n;
 
