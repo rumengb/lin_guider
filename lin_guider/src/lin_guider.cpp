@@ -50,6 +50,7 @@
 #include "video_qhy5ii.h"
 #include "video_atik.h"
 #include "video_sx.h"
+#include "video_asi.h"
 
 
 lin_guider::lin_guider(QWidget *parent)
@@ -144,6 +145,9 @@ lin_guider::lin_guider(QWidget *parent)
 	case io_drv::DT_SX:
 		m_driver = new io_drv::cio_driver_sx();
 		break;
+//	case io_drv::DT_ASI:
+//		m_driver = new io_drv::cio_driver_asi();
+//		break;
 	default:
 		m_driver = new io_drv::cio_driver_null( true );
 
@@ -184,6 +188,9 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 		break;
 	case video_drv::DRV_SX:
 		m_video = new video_drv::cvideo_sx( );
+		break;
+	case video_drv::DRV_ASI:
+		m_video = new video_drv::cvideo_asi( );
 		break;
 	default:
 		m_video = new video_drv::cvideo_null( true );

@@ -110,6 +110,13 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 													"Starlight Xpress",
 													NULL,
 													NULL
+												},
+												{
+													DT_ASI,
+													false,
+													"ZWO ASI",
+													NULL,
+													NULL
 												}
 
 											};
@@ -1784,6 +1791,9 @@ int cvideo_base::detect_best_device( int devtype, const char *devname )
 	case DT_SX:
 		log_i( "Trying Starlight Xpress..." );
 		return DRV_SX;
+	case DT_ASI:
+		log_i( "Trying ZWO ASI..." );
+		return DRV_ASI;
  	case DT_NULL:
 		log_i( "Trying NULL-camera..." );
 		return DRV_NULL;

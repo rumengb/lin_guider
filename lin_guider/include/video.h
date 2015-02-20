@@ -89,6 +89,7 @@ enum driver_type
 	DRV_QHY5II,
 	DRV_ATIK,
 	DRV_SX,
+	DRV_ASI,
 	DRV_MAX
 };
 
@@ -103,6 +104,7 @@ enum device_type
 	DT_QHY5II,
 	DT_ATIK,
 	DT_SX,
+	DT_ASI,
 	DT_MAX,
 	DEVICE_CNT = DT_MAX-1
 };
