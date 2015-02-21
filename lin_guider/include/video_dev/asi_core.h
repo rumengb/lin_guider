@@ -73,6 +73,7 @@ protected:
 	bool abort_exposure();
 	bool set_camera_exposure(long exp_time);
 	bool set_camera_gain(unsigned char gain);
+	void get_camera_image_type();
 	bool set_band_width(unsigned char bwidth);
 	bool read_image(char *buf, int buf_size, long exp_time);
 	void lock( void ) const;

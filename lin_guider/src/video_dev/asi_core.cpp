@@ -105,20 +105,7 @@ int asi_core::open( void )
 			}
 		}
 
-		int x,y,d;
-		ASIGetROIFormat(m_camera, &x, &y,  &d, &m_img_type);
-		switch (m_img_type) {
-		case ASI_IMG_RAW8:
-		case ASI_IMG_Y8:
-			m_bpp = 8;
-			break;
-		case ASI_IMG_RAW16:
-			m_bpp = 16;
-			break;
-		case ASI_IMG_RGB24:
-			m_bpp = 24;
-			break;
-		}
+		get_camera_image_type();
 	}
 
 	m_ref_count++;
@@ -127,6 +114,24 @@ int asi_core::open( void )
 	return EXIT_SUCCESS;
 }
 
+void asi_core::get_camera_image_type() {
+	int x,y,d;
+	ASIGetROIFormat(m_camera, &x, &y,  &d, &m_img_type);
+	//m_img_type = ASI_IMG_RAW16;
+	//ASISetROIFormat(m_camera, x,y,d, m_img_type);
+	switch (m_img_type) {
+	case ASI_IMG_RAW8:
+	case ASI_IMG_Y8:
+		m_bpp = 8;
+		break;
+	case ASI_IMG_RAW16:
+		m_bpp = 16;
+		break;
+	case ASI_IMG_RGB24:
+		m_bpp = 24;
+		break;
+	}
+}
 
 int asi_core::close( void )
 {
@@ -216,7 +221,10 @@ bool asi_core::read_image(char *buf, int buf_size, long exp_time) {
 	pthread_mutex_lock( &m_mutex );
 	rc = ASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, exp_time*2+1000);
 	pthread_mutex_unlock( &m_mutex );
-	if(rc) return false;
+	if(rc) {
+		log_e("ASIGetVideoData(): returned error %d", rc);
+		return false;
+	}
 	return true;
 }
 

@@ -110,15 +110,13 @@ int  cvideo_asi::get_vcaps( void )
 	int i = 0;
 	point_t pt;
 
-/*
-	if (m_caps.bits_per_pixel == 16)
+	if (m_bpp == 16)
 		device_formats[0].format = V4L2_PIX_FMT_Y16;
-	else if (m_caps.bits_per_pixel == 8)
+	else if (m_bpp == 8)
 		device_formats[0].format = V4L2_PIX_FMT_GREY;
 	else
 		return 1;
-*/
-device_formats[0].format = V4L2_PIX_FMT_GREY;
+
 	pt.x = m_cam_info.MaxWidth;
 	pt.y = m_cam_info.MaxHeight;
 	device_formats[0].frame_table[ i ].size =  pt;
@@ -130,49 +128,27 @@ device_formats[0].format = V4L2_PIX_FMT_GREY;
 	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
-	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
-	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 30 );
-	i++;
-
-/*
-	pt.x = m_caps.width/2;
-	pt.y = m_caps.height/2;
-	device_formats[0].frame_table[ i ].size =  pt;
-	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 20, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 10, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 5, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 3, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 2, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 1 );
-	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 2 );
-	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
-	device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
-	device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
-	device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
-	i++;
-
-	if (m_caps.width > 1300) {
-		pt.x = m_caps.width/4;
-		pt.y = m_caps.height/4;
-		device_formats[0].frame_table[ i ].size =  pt;
-		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 20, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 10, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 5, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 3, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 2, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 1 );
-		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 2 );
-		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
-		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
-		device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
-		device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
-		i++;
+	if (m_bpp == 8) {
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
 	}
-*/
+	i++;
+
+	pt.x = m_cam_info.MaxWidth/2;
+	pt.y = m_cam_info.MaxHeight/2;
+	device_formats[0].frame_table[ i ].size =  pt;
+	device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 5, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 3, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 2 ] = time_fract::mk_fps( 2, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 3 ] = time_fract::mk_fps( 1, 1 );
+	device_formats[0].frame_table[ i ].fps_table[ 4 ] = time_fract::mk_fps( 1, 2 );
+	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 3 );
+	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
+	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+	if (m_bpp == 8) {
+		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
+	}
+	i++;
+
 	// add empty tail
 	pt.x = pt.y = 0;
 	device_formats[0].frame_table[ i++ ].size = pt;
@@ -207,7 +183,7 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
 		if( v > wp_max ) v = wp_max;
-		int top = 255 - v;
+		int top = wp_max - v;
 		if( top <= 0 ) {
 			log_e( "cvideo_sx::set_control(): invalid exposure" );
 			return -1;
@@ -321,14 +297,12 @@ int cvideo_asi::init_device( void )
 	set_exposure( capture_params.exposure );
 	get_exposure();
 
-	log_i("exposure= %d",frame_delay);
+	int rc = ASISetROIFormat(m_camera, capture_params.width, capture_params.height, m_binX, m_img_type);
+	log_i("ROI rc = %d",rc);
 
 	set_camera_exposure(100); // set short exposure as if you start with a long one it is always ~1s (wired)
 	set_camera_gain(capture_params.gain);
 	set_band_width(m_bandwidth);
-
-	int rc = ASISetROIFormat(m_camera, capture_params.width, capture_params.height,  m_binX, m_img_type);
-	log_i("ROI rc = %d",rc);
 
 	return 0;
 }
@@ -398,12 +372,6 @@ int cvideo_asi::read_frame( void )
 	long prev = m_expstart;
 	m_expstart = exp_timer.gettime();
 
-	//success = start_exposure();
-	//if( !success ) {
-	//	log_e("start_exposure(): failed");
-	//	return 1;
-	//}
-
 	if( DBG_VERBOSITY ) {
 		long exptime = m_expstart - prev;
 		log_i( "Exposure started. Last frame took %d ms", exptime);
@@ -426,15 +394,14 @@ int cvideo_asi::set_format( void )
 {
 	int i, j;
 	point_t pt = {0, 0};
-/*
-	if (m_caps.bits_per_pixel == 16)
+
+	if (m_bpp == 16)
 		capture_params.pixel_format = V4L2_PIX_FMT_Y16;
-	else if (m_caps.bits_per_pixel == 8)
+	else if (m_bpp == 8)
 		capture_params.pixel_format = V4L2_PIX_FMT_GREY;
 	else
 		return 0;
-*/
-	capture_params.pixel_format = V4L2_PIX_FMT_GREY;
+
 	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ ) {
 		if( device_formats[i].format != capture_params.pixel_format )
 			continue;
