@@ -33,12 +33,12 @@
 int asi_core::m_ref_count = 0;
 pthread_mutex_t asi_core::m_mutex = PTHREAD_MUTEX_INITIALIZER;
 int asi_core::m_camera = -1;
-ASI_CAMERA_INFO asi_core::m_cam_info = {{0},0,0,0,ASI_FALSE,ASI_BAYER_RG,{0},{ASI_IMG_END},0,ASI_FALSE,ASI_FALSE};
-ASI_CONTROL_CAPS asi_core::m_expo_caps = {{0},{0},0,0,0,0,ASI_FALSE,ASI_FALSE,ASI_GAIN};
+ASI_CAMERA_INFO asi_core::m_cam_info = {{0},0,0,0,ASI_FALSE,ASI_BAYER_RG,{0},{ASI_IMG_END},0,ASI_FALSE,ASI_FALSE,ASI_FALSE,ASI_FALSE,{0}};
+ASI_CONTROL_CAPS asi_core::m_expo_caps = {{0},{0},0,0,0,ASI_FALSE,ASI_FALSE,ASI_GAIN,{0}};
 bool asi_core::m_has_expo = false;
-ASI_CONTROL_CAPS asi_core::m_gain_caps = {{0},{0},0,0,0,0,ASI_FALSE,ASI_FALSE,ASI_GAIN};
+ASI_CONTROL_CAPS asi_core::m_gain_caps = {{0},{0},0,0,0,ASI_FALSE,ASI_FALSE,ASI_GAIN,{0}};
 bool asi_core::m_has_gain = false;
-ASI_CONTROL_CAPS asi_core::m_bwidth_caps = {{0},{0},0,0,0,0,ASI_FALSE,ASI_FALSE,ASI_GAIN};
+ASI_CONTROL_CAPS asi_core::m_bwidth_caps = {{0},{0},0,0,0,ASI_FALSE,ASI_FALSE,ASI_GAIN,{0}};
 bool asi_core::m_has_bwidth = false;
 int asi_core::m_width = 0;
 int asi_core::m_height = 0;
@@ -89,7 +89,7 @@ int asi_core::open( void )
 				pthread_mutex_unlock( &m_mutex );
 				return 1;
 			}
-			switch (ctrl_caps.ControlID) {
+			switch (ctrl_caps.ControlType) {
 			case ASI_GAIN:
 				m_gain_caps = ctrl_caps;
 				m_has_gain = true;
@@ -101,6 +101,8 @@ int asi_core::open( void )
 			case ASI_BANDWIDTHOVERLOAD:
 				m_bwidth_caps = ctrl_caps;
 				m_has_bwidth = true;
+				break;
+			default:
 				break;
 			}
 		}
@@ -129,6 +131,9 @@ void asi_core::get_camera_image_type() {
 		break;
 	case ASI_IMG_RGB24:
 		m_bpp = 24;
+		break;
+	default:
+		m_bpp = 0;
 		break;
 	}
 }
@@ -171,12 +176,12 @@ bool asi_core::abort_exposure() {
 
 bool asi_core::set_camera_exposure(long exp_time) {
 	exp_time *= 1000; //convert to us
-	if((exp_time < m_expo_caps.MinValue) || (exp_time > m_expo_caps.MaxVale)) {
+	if((exp_time < m_expo_caps.MinValue) || (exp_time > m_expo_caps.MaxValue)) {
 		log_e("Exposure time %d not supported", exp_time);
 		return false;
 	}
 	pthread_mutex_lock( &m_mutex );
-	int rc = ASISetControlValue(m_camera, m_expo_caps.ControlID, exp_time, ASI_FALSE);
+	int rc = ASISetControlValue(m_camera, m_expo_caps.ControlType, exp_time, ASI_FALSE);
 	pthread_mutex_unlock( &m_mutex );
 	if(rc) {
 		log_e("ASISetControlValue(expossure): returned error %d", rc);
@@ -186,12 +191,12 @@ bool asi_core::set_camera_exposure(long exp_time) {
 }
 
 bool asi_core::set_camera_gain(unsigned char gain) {
-	if((gain < m_gain_caps.MinValue) || (gain > m_gain_caps.MaxVale)) {
+	if((gain < m_gain_caps.MinValue) || (gain > m_gain_caps.MaxValue)) {
 		log_e("Gain %d not supported", gain);
 		return false;
 	}
 	pthread_mutex_lock( &m_mutex );
-	int rc = ASISetControlValue(m_camera, m_gain_caps.ControlID, gain, ASI_FALSE);
+	int rc = ASISetControlValue(m_camera, m_gain_caps.ControlType, gain, ASI_FALSE);
 	pthread_mutex_unlock( &m_mutex );
 	if(rc) {
 		log_e("ASISetControlValue(gain): returned error %d", rc);
@@ -201,12 +206,12 @@ bool asi_core::set_camera_gain(unsigned char gain) {
 }
 
 bool asi_core::set_band_width(unsigned char bwidth) {
-	if((bwidth < m_bwidth_caps.MinValue) || (bwidth > m_bwidth_caps.MaxVale)) {
+	if((bwidth < m_bwidth_caps.MinValue) || (bwidth > m_bwidth_caps.MaxValue)) {
 		log_e("Bandwidth %d not supported", bwidth);
 		return false;
 	}
 	pthread_mutex_lock( &m_mutex );
-	int rc = ASISetControlValue(m_camera, m_bwidth_caps.ControlID, bwidth, ASI_FALSE);
+	int rc = ASISetControlValue(m_camera, m_bwidth_caps.ControlType, bwidth, ASI_FALSE);
 	pthread_mutex_unlock( &m_mutex );
 	if(rc) {
 		log_e("ASISetControlValue(bandwidth): returned error %d", rc);

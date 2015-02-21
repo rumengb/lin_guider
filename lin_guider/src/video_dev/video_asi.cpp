@@ -163,7 +163,7 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 	{
 		int v = val.values[0];
 		if( v < m_gain_caps.MinValue ) v = m_gain_caps.MinValue;
-		if( v > m_gain_caps.MaxVale ) v = m_gain_caps.MaxVale;
+		if( v > m_gain_caps.MaxValue ) v = m_gain_caps.MaxValue;
 		bool success = set_camera_gain(v);
 		if( !success ) {
 			return -1;
@@ -192,7 +192,7 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		//log_e( "USB Bandwidth = %d", m_bandwidth);
 		int v = val.values[0];
 		if( v < m_bwidth_caps.MinValue ) v = m_bwidth_caps.MinValue;
-		if( v > m_bwidth_caps.MaxVale-10 ) v = m_bwidth_caps.MaxVale-10;
+		if( v > m_bwidth_caps.MaxValue-10 ) v = m_bwidth_caps.MaxValue-10;
 		capture_params.ext_params[ control_id ] = v;
 		m_bandwidth = v;
 		set_band_width(m_bandwidth);
@@ -432,7 +432,7 @@ int cvideo_asi::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "gain" );
 	queryctrl.minimum = m_gain_caps.MinValue;
-	queryctrl.maximum = m_gain_caps.MaxVale;
+	queryctrl.maximum = m_gain_caps.MaxValue;
 	queryctrl.step = 1;
 	queryctrl.default_value = m_gain_caps.DefaultValue;
 	queryctrl.flags = 0;
@@ -458,9 +458,9 @@ int cvideo_asi::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "USB Bandwidth" );
 	queryctrl.minimum = m_bwidth_caps.MinValue;
-	queryctrl.maximum = m_bwidth_caps.MaxVale-10;
+	queryctrl.maximum = m_bwidth_caps.MaxValue-10;
 	queryctrl.step = 1;
-	queryctrl.default_value = m_bwidth_caps.DefaultValue;
+	queryctrl.default_value = 50;//s m_bwidth_caps.DefaultValue;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n, true );
