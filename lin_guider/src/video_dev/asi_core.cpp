@@ -219,6 +219,8 @@ bool asi_core::read_image(char *buf, int buf_size, long exp_time) {
 	int rc;
 
 	pthread_mutex_lock( &m_mutex );
+	rc = ASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, 0); // there are 2 internal budders that have to be cleaned
+	rc = ASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, 0); // This hack is suggested Sam Wen from ZWO
 	rc = ASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, exp_time*2+1000);
 	pthread_mutex_unlock( &m_mutex );
 	if(rc) {

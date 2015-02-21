@@ -128,9 +128,6 @@ int  cvideo_asi::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
-	if (m_bpp == 8) {
-		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
-	}
 	i++;
 
 	pt.x = m_cam_info.MaxWidth/2;
@@ -144,9 +141,6 @@ int  cvideo_asi::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
-	if (m_bpp == 8) {
-		device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
-	}
 	i++;
 
 	// add empty tail
