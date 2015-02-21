@@ -418,7 +418,7 @@ int cvideo_sx::enum_controls( void )
 	struct v4l2_queryctrl queryctrl;
 
 	memset( &queryctrl, 0, sizeof(v4l2_queryctrl) );
-	
+
 	long wp_max = 255;
 	if(m_caps.bits_per_pixel == 16) wp_max = 65535;
 	// create virtual control
