@@ -109,14 +109,12 @@ int atik_core::open( void )
 											&m_caps.type,
 											&m_caps.has_shutter,
 											&m_caps.has_guide_port,
-											NULL, NULL, NULL,
 											&m_caps.pixel_count_X,
 											&m_caps.pixel_count_Y,
 											&m_caps.pixel_size_X,
 											&m_caps.pixel_size_Y,
 											&m_caps.max_bin_X,
 											&m_caps.max_bin_Y,
-											NULL,
 											&m_caps.cooler);
 		if (!success) return 3;
 

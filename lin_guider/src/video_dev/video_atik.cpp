@@ -132,8 +132,8 @@ int  cvideo_atik::get_vcaps( void )
 	i++;
 
 	if (caps.max_bin_X >= 2 && caps.max_bin_Y >= 2) {
-		pt.x = camera->imageWidth(caps.pixel_count_X, 2);
-		pt.y = camera->imageHeight(caps.pixel_count_Y, 2);
+		pt.x = caps.pixel_count_X/2;
+		pt.y = caps.pixel_count_Y/2;
 		device_formats[0].frame_table[ i ].size =  pt;
 		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
 		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
@@ -152,8 +152,8 @@ int  cvideo_atik::get_vcaps( void )
 
 	// enable bin 4x4 for cameras with width > 1300
 	if (caps.pixel_count_X  > 1300 && caps.max_bin_X >= 4 && caps.max_bin_Y >= 4) {
-		pt.x = camera->imageWidth(caps.pixel_count_X, 4);
-		pt.y = camera->imageHeight(caps.pixel_count_Y, 4);
+		pt.x = caps.pixel_count_X/4;
+		pt.y = caps.pixel_count_Y/4;
 		device_formats[0].frame_table[ i ].size =  pt;
 		device_formats[0].frame_table[ i ].fps_table[ 0 ] = time_fract::mk_fps( 60, 1 );
 		device_formats[0].frame_table[ i ].fps_table[ 1 ] = time_fract::mk_fps( 40, 1 );
@@ -256,18 +256,18 @@ int cvideo_atik::init_device( void )
 	// if the capture resolution is less than the physical,
 	// read the full sensor but use bining
 	AtikCamera* camera = get_camera();
-	if (m_width == camera->imageWidth(caps.pixel_count_X, 2)) { // binX=2
+	if (m_width == caps.pixel_count_X/2) { // binX=2
 		m_width *= 2;
 		m_binX = 2;
-	} else if (m_width == camera->imageWidth(caps.pixel_count_X, 4)) { //binX=4
+	} else if (m_width == caps.pixel_count_X/4) { //binX=4
 		m_width *= 4;
 		m_binX = 4;
 	} else m_binX = 1; //binX=1
 
-	if (m_height == camera->imageHeight(caps.pixel_count_Y, 2)) { //binY=2
+	if (m_height == caps.pixel_count_Y/2) { //binY=2
 		m_height *= 2;
 		m_binY = 2;
-	} else if(m_height == camera->imageHeight(caps.pixel_count_Y, 4)) { //binY=4
+	} else if(m_height == caps.pixel_count_Y/4) { //binY=4
 		m_height *= 4;
 		m_binY = 4;
 	} else m_binY = 1; //binY=1
