@@ -1,0 +1,9 @@
+Package: asiccdsdk
+Version: VERSION
+Section: Science
+Priority: optional
+Architecture: ARCH
+Depends: libusb-1.0-0
+Installed-Size: 664
+Maintainer: Rumen G.Bogdanovski <rumen@skyarchive.org>
+Description: ZWO ASI Camera SDK
