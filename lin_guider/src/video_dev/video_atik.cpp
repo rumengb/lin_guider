@@ -109,7 +109,7 @@ int  cvideo_atik::get_vcaps( void )
 {
 	int i = 0;
 	point_t pt;
-	AtikCamera* camera = get_camera();
+	// AtikCamera* camera = get_camera();
 	const atik_core::caps_s& caps = get_caps();
 
 	device_formats[0].format = V4L2_PIX_FMT_Y16;
@@ -255,7 +255,7 @@ int cvideo_atik::init_device( void )
 
 	// if the capture resolution is less than the physical,
 	// read the full sensor but use bining
-	AtikCamera* camera = get_camera();
+	//AtikCamera* camera = get_camera();
 	if (m_width == caps.pixel_count_X/2) { // binX=2
 		m_width *= 2;
 		m_binX = 2;
