@@ -356,7 +356,7 @@ int cvideo_asi::read_frame( void )
 		return 0; // too much time left, wait some more
 	} else if( time_left > 0 )
 		usleep(time_left * 1000);
-*/
+	*/
 	success = read_image((char *) raw.ptr8, raw_size, frame_delay);
 	if( !success )
 		log_e("read_image(): failed");
@@ -426,18 +426,19 @@ int cvideo_asi::enum_controls( void )
 	struct v4l2_queryctrl queryctrl;
 
 	memset( &queryctrl, 0, sizeof(v4l2_queryctrl) );
-
-	// create virtual control
-	queryctrl.id = V4L2_CID_GAIN;
-	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
-	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "gain" );
-	queryctrl.minimum = m_gain_caps.MinValue;
-	queryctrl.maximum = m_gain_caps.MaxValue;
-	queryctrl.step = 1;
-	queryctrl.default_value = m_gain_caps.DefaultValue;
-	queryctrl.flags = 0;
-	// Add control to control list
-	controls = add_control( -1, &queryctrl, controls, &n );
+	if (!m_has_gain) {
+		// create virtual control
+		queryctrl.id = V4L2_CID_GAIN;
+		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "gain" );
+		queryctrl.minimum = m_gain_caps.MinValue;
+		queryctrl.maximum = m_gain_caps.MaxValue;
+		queryctrl.step = 1;
+		queryctrl.default_value = m_gain_caps.DefaultValue;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n );
+	}
 
 	long wp_max = 255;
 	if(m_bpp == 16) wp_max = 65535;
@@ -453,17 +454,19 @@ int cvideo_asi::enum_controls( void )
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
 
-	// create virtual control (extended ctl)
-	queryctrl.id = V4L2_CID_USER_BANDWIDTH;
-	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
-	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "USB Bandwidth" );
-	queryctrl.minimum = m_bwidth_caps.MinValue;
-	queryctrl.maximum = m_bwidth_caps.MaxValue-10;
-	queryctrl.step = 1;
-	queryctrl.default_value = 50;//s m_bwidth_caps.DefaultValue;
-	queryctrl.flags = 0;
-	// Add control to control list
-	controls = add_control( -1, &queryctrl, controls, &n, true );
+	if(m_has_bwidth) {
+		// create virtual control (extended ctl)
+		queryctrl.id = V4L2_CID_USER_BANDWIDTH;
+		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "USB Bandwidth" );
+		queryctrl.minimum = m_bwidth_caps.MinValue;
+		queryctrl.maximum = m_bwidth_caps.MaxValue-10;
+		queryctrl.step = 1;
+		queryctrl.default_value = 50;//s m_bwidth_caps.DefaultValue;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n, true );
+	}
 
 	num_controls = n;
 

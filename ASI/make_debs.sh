@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$USER" != "root" ]; then
+	echo "Please run as root!"
+	exit 1
+fi
+
 PACKAGE="asiccdsdk"
 VERSION="0.1.0214"
 

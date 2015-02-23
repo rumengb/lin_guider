@@ -175,6 +175,7 @@ bool asi_core::abort_exposure() {
 
 
 bool asi_core::set_camera_exposure(long exp_time) {
+	if (!m_has_expo) return false;
 	exp_time *= 1000; //convert to us
 	if((exp_time < m_expo_caps.MinValue) || (exp_time > m_expo_caps.MaxValue)) {
 		log_e("Exposure time %d not supported", exp_time);
@@ -191,6 +192,7 @@ bool asi_core::set_camera_exposure(long exp_time) {
 }
 
 bool asi_core::set_camera_gain(unsigned char gain) {
+	if (!m_has_gain) return false;
 	if((gain < m_gain_caps.MinValue) || (gain > m_gain_caps.MaxValue)) {
 		log_e("Gain %d not supported", gain);
 		return false;
@@ -206,6 +208,7 @@ bool asi_core::set_camera_gain(unsigned char gain) {
 }
 
 bool asi_core::set_band_width(unsigned char bwidth) {
+	if (!m_has_bwidth) return false;
 	if((bwidth < m_bwidth_caps.MinValue) || (bwidth > m_bwidth_caps.MaxValue)) {
 		log_e("Bandwidth %d not supported", bwidth);
 		return false;
