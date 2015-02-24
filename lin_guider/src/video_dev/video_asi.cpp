@@ -280,8 +280,8 @@ int cvideo_asi::init_device( void )
 	} else m_binY = 1;
 
 	m_sensor_info = video_drv::sensor_info_s(
-		m_cam_info.MaxWidth * m_binX,
-		m_cam_info.MaxHeight * m_binY,
+		m_cam_info.PixelSize * m_binX,
+		m_cam_info.PixelSize * m_binY,
 		capture_params.width,
 		capture_params.height
 	);
@@ -344,12 +344,14 @@ int cvideo_asi::stop_capturing( void )
 
 int cvideo_asi::read_frame( void )
 {
-	long time_left;
+	//long time_left;
 	bool success;
 	data_ptr raw = buffers[0].start;
 	int raw_size = buffers[0].length;
 
-	time_left = m_expstart + (long)frame_delay - exp_timer.gettime();
+	// DO NOT remove this code it will be utilized!!!!
+
+	//time_left = m_expstart + (long)frame_delay - exp_timer.gettime();
 	// if exposure time is not elapsed wait for some time to offload the CPU
 	// and return. This way we do not have to wait for the long exposures to finish.
 	/*
