@@ -293,7 +293,7 @@ int cvideo_asi::init_device( void )
 	set_exposure( capture_params.exposure );
 	get_exposure();
 
-	int rc = ASISetROIFormat(m_camera, capture_params.width, capture_params.height, m_binX, m_img_type);
+	int rc = pASISetROIFormat(m_camera, capture_params.width, capture_params.height, m_binX, m_img_type);
 	log_i("ROI rc = %d",rc);
 
 	set_camera_exposure(100); // set short exposure as if you start with a long one it is always ~1s (wired)

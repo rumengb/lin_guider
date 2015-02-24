@@ -79,6 +79,29 @@ protected:
 	void lock( void ) const;
 	void unlock( void ) const;
 
+	//ASI SDK stuff
+	bool init_sdk();
+	bool close_sdk();
+	static void *m_sdk_handle;
+	static int (*pASIGetNumOfConnectedCameras)();
+	static ASI_ERROR_CODE (*pASIGetCameraProperty)(ASI_CAMERA_INFO *pASICameraInfo, int iCameraIndex);
+	static ASI_ERROR_CODE (*pASIOpenCamera)(int iCameraID);
+	static ASI_ERROR_CODE (*pASICloseCamera)(int iCameraID);
+	static ASI_ERROR_CODE (*pASIGetNumOfControls)(int iCameraID, int * piNumberOfControls);
+	static ASI_ERROR_CODE (*pASIGetControlCaps)(int iCameraID, int iControlIndex, ASI_CONTROL_CAPS * pControlCaps);
+	static ASI_ERROR_CODE (*pASIGetControlValue)(int  iCameraID, int  iControlID, long *plValue, ASI_BOOL *pbAuto);
+	static ASI_ERROR_CODE (*pASISetControlValue)(int  iCameraID, int  iControlID, long lValue, ASI_BOOL bAuto);
+	static ASI_ERROR_CODE (*pASISetROIFormat)(int iCameraID, int iWidth, int iHeight,  int iBin, ASI_IMG_TYPE Img_type);
+	static ASI_ERROR_CODE (*pASIGetROIFormat)(int iCameraID, int *piWidth, int *piHeight,  int *piBin, ASI_IMG_TYPE *pImg_type);
+	static ASI_ERROR_CODE (*pASISetStartPos)(int iCameraID, int iStartX, int iStartY);
+	static ASI_ERROR_CODE (*pASIGetStartPos)(int iCameraID, int *piStartX, int *piStartY);
+	static ASI_ERROR_CODE (*pASIGetDroppedFrames)(int iCameraID,int *piDropFrames);
+	static ASI_ERROR_CODE (*pASIStartVideoCapture)(int iCameraID);
+	static ASI_ERROR_CODE (*pASIStopVideoCapture)(int iCameraID);
+	static ASI_ERROR_CODE (*pASIGetVideoData)(int iCameraID, unsigned char* pBuffer, long lBuffSize, int iWaitms);
+	static ASI_ERROR_CODE (*pASIPulseGuideOn)(int iCameraID, ASI_GUIDE_DIRECTION direction);
+	static ASI_ERROR_CODE (*pASIPulseGuideOff)(int iCameraID, ASI_GUIDE_DIRECTION direction);
+
 private:
 	static int m_ref_count;
 	static pthread_mutex_t m_mutex;
