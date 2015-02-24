@@ -132,6 +132,14 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										NULL,
 										NULL
 									},
+									{
+										DT_ASI,
+										false,
+										4,
+										"ZWO ASI",
+										NULL,
+										NULL
+									},
 								};
 
 device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
@@ -145,7 +153,8 @@ device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
 									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_QHY5II
 									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_NEXSTAR
 									{{3, 2, 1, 0, 4, 5, 6, 7}}, // DT_ATIK
-									{{0, 1, 2, 3, 4, 5, 6, 7}}  // DT_SX
+									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_SX
+									{{0, 1, 2, 3, 4, 5, 6, 7}} // DT_ASI
 									};
 
 

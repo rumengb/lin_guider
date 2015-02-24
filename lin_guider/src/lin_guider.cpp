@@ -39,6 +39,7 @@
 #include "io_nexstar.h"
 #include "io_atik.h"
 #include "io_sx.h"
+#include "io_asi.h"
 
 #include "video.h"
 #include "video_pwc.h"
@@ -145,9 +146,9 @@ lin_guider::lin_guider(QWidget *parent)
 	case io_drv::DT_SX:
 		m_driver = new io_drv::cio_driver_sx();
 		break;
-//	case io_drv::DT_ASI:
-//		m_driver = new io_drv::cio_driver_asi();
-//		break;
+	case io_drv::DT_ASI:
+		m_driver = new io_drv::cio_driver_asi();
+		break;
 	default:
 		m_driver = new io_drv::cio_driver_null( true );
 

@@ -355,7 +355,6 @@ bool asi_core::abort_exposure() {
     return true;
 }
 
-
 bool asi_core::set_camera_exposure(long exp_time) {
 	if (!m_has_expo) return false;
 	exp_time *= 1000; //convert to us
@@ -408,25 +407,16 @@ bool asi_core::set_band_width(unsigned char bwidth) {
 bool asi_core::read_image(char *buf, int buf_size, long exp_time) {
 	int rc;
 
-	pthread_mutex_lock( &m_mutex );
-	rc = pASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, 0); // there are 2 internal budders that have to be cleaned
+	//pthread_mutex_lock( &m_mutex );
+	rc = pASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, 0); // there are 2 internal buffers that have to be cleaned
 	rc = pASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, 0); // This hack is suggested Sam Wen from ZWO
 	rc = pASIGetVideoData(m_camera,(unsigned char*)buf, buf_size, exp_time*2+1000);
-	pthread_mutex_unlock( &m_mutex );
+	//pthread_mutex_unlock( &m_mutex );
 	if(rc) {
 		log_e("ASIGetVideoData(): returned error %d", rc);
 		return false;
 	}
 	return true;
-}
-
-int asi_core::set_guide_relays( int dir )
-{
-	pthread_mutex_lock( &m_mutex );
-	//sxSetSTAR2000(m_camera, dir);
-	pthread_mutex_unlock( &m_mutex );
-
-	return EXIT_SUCCESS;
 }
 
 

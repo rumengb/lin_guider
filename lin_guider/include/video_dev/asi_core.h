@@ -68,7 +68,6 @@ protected:
 
 	int open( void );
 	int close( void );
-	int set_guide_relays( int dir );
 	bool start_exposure();
 	bool abort_exposure();
 	bool set_camera_exposure(long exp_time);

@@ -22,6 +22,7 @@ HEADERS += include/io_dev/io_nexstar.h \
     include/io_dev/io_null.h \
     include/io_dev/io_qhy5.h \
     include/io_dev/io_atik.h \
+    include/io_dev/io_asi.h \
     include/io_dev/io_sx.h \
     include/io_dev/io_ftdi.h \
     include/io_dev/io_lpt.h \
@@ -71,6 +72,7 @@ SOURCES += src/io_dev/io_nexstar.cpp \
     src/video_dev/qhy5ii_core.cpp \
     src/video_dev/video_qhy5ii.cpp \
     src/video_dev/video_atik.cpp \
+    src/io_dev/io_asi.cpp \
     src/video_dev/atik_core.cpp \
     src/video_dev/sxccdusb.cpp \
     src/video_dev/video_sx.cpp \
