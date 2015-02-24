@@ -128,6 +128,7 @@ int  cvideo_asi::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
 	i++;
 
 	pt.x = m_cam_info.MaxWidth/2;
@@ -141,6 +142,7 @@ int  cvideo_asi::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 5 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
 	i++;
 
 	// add empty tail
@@ -197,7 +199,7 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		m_bandwidth = v;
 		set_band_width(m_bandwidth);
 		if (DBG_VERBOSITY)
-			log_e( "USB Bandwidth = %d", m_bandwidth);
+			log_i( "USB Bandwidth = %d", m_bandwidth);
 		break;
 	}
 	default:
