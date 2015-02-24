@@ -1,4 +1,4 @@
-Package: asiccdsdk
+Package: libasicamera
 Version: VERSION
 Section: Science
 Priority: optional

@@ -5,7 +5,7 @@ if [ "$USER" != "root" ]; then
 	exit 1
 fi
 
-PACKAGE="asiccdsdk"
+PACKAGE="libasicamera"
 VERSION="0.1.0214"
 
 # arch i386
@@ -19,7 +19,7 @@ sed "s/ARCH/$ARCH/g" -i $NAME/DEBIAN/control
 install -d $NAME/etc/udev/rules.d
 install -m 644 99-asi.rules $NAME/etc/udev/rules.d
 install -d $NAME/usr/lib
-cp lib/x86/* $NAME/usr/lib
+cp -a lib/x86/* $NAME/usr/lib
 install -d $NAME/usr/include
 install -m 644 include/* $NAME/usr/include
 
@@ -37,7 +37,7 @@ sed "s/ARCH/$ARCH/g" -i $NAME/DEBIAN/control
 install -d $NAME/etc/udev/rules.d
 install -m 644 99-asi.rules $NAME/etc/udev/rules.d
 install -d $NAME/usr/lib
-cp lib/x64/* $NAME/usr/lib
+cp -a lib/x64/* $NAME/usr/lib
 install -d $NAME/usr/include
 install -m 644 include/* $NAME/usr/include
 
@@ -55,7 +55,7 @@ sed "s/ARCH/$ARCH/g" -i $NAME/DEBIAN/control
 install -d $NAME/etc/udev/rules.d
 install -m 644 99-asi.rules $NAME/etc/udev/rules.d
 install -d $NAME/usr/lib
-cp lib/armhf/* $NAME/usr/lib
+cp -a lib/armhf/* $NAME/usr/lib
 install -d $NAME/usr/include
 install -m 644 include/* $NAME/usr/include
 
