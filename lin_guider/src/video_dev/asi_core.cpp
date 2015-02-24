@@ -75,7 +75,10 @@ int asi_core::open( void )
 
 	pthread_mutex_lock( &m_mutex );
 
-	init_sdk();
+	if(! init_sdk()) {
+		pthread_mutex_unlock( &m_mutex );
+		return 1;
+	}
 
 	if (m_ref_count == 0)
 	{
