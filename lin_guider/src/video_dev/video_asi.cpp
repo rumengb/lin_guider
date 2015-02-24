@@ -426,7 +426,7 @@ int cvideo_asi::enum_controls( void )
 	struct v4l2_queryctrl queryctrl;
 
 	memset( &queryctrl, 0, sizeof(v4l2_queryctrl) );
-	if (!m_has_gain) {
+	if (m_has_gain) {
 		// create virtual control
 		queryctrl.id = V4L2_CID_GAIN;
 		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
