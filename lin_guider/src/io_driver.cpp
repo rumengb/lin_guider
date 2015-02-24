@@ -154,7 +154,7 @@ device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
 									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_NEXSTAR
 									{{3, 2, 1, 0, 4, 5, 6, 7}}, // DT_ATIK
 									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_SX
-									{{0, 1, 2, 3, 4, 5, 6, 7}} // DT_ASI
+									{{3, 2, 1, 0, 4, 5, 6, 7}}  // DT_ASI
 									};
 
 

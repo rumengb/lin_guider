@@ -77,7 +77,7 @@ void cio_driver_asi::write_data( unsigned int dByte ) {
 	int ra_dec_pos = 0;
 	int dec_inc_pos = 0;
 	int dec_dec_pos = 0;
-	
+
 	ASI_GUIDE_DIRECTION ra_dir = ASI_GUIDE_NORTH;
 	ASI_GUIDE_DIRECTION de_dir = ASI_GUIDE_NORTH;
 	int ra_axis = 0;
@@ -135,26 +135,42 @@ void cio_driver_asi::write_data( unsigned int dByte ) {
 	if( !initialized )
 		return;
 
-	if( DBG_VERBOSITY )
-		log_i("ra_axis=%d ra_dir=%d de_axis=%d de_dir=%d", ra_axis, ra_dir, de_axis, de_dir);
-	
+	ASI_ERROR_CODE result;
 	lock();
 	// Stop all
-	pASIPulseGuideOff(m_camera, ASI_GUIDE_NORTH);
-	pASIPulseGuideOff(m_camera, ASI_GUIDE_SOUTH);
-	pASIPulseGuideOff(m_camera, ASI_GUIDE_EAST);
-	pASIPulseGuideOff(m_camera, ASI_GUIDE_WEST);
-	
+	result = pASIPulseGuideOff(m_camera, ASI_GUIDE_NORTH);
+	if (result)
+		log_e("ASIPulseGuideOff(): result = %d", result);
+
+	result = pASIPulseGuideOff(m_camera, ASI_GUIDE_SOUTH);
+	if (result)
+		log_e("ASIPulseGuideOff(): result = %d", result);
+
+	result = pASIPulseGuideOff(m_camera, ASI_GUIDE_EAST);
+	if (result)
+		log_e("ASIPulseGuideOff(): result = %d", result);
+
+	result = pASIPulseGuideOff(m_camera, ASI_GUIDE_WEST);
+	if (result)
+		log_e("ASIPulseGuideOff(): result = %d", result);
+
 	// Do corrections
 	if (ra_axis) {
-		pASIPulseGuideOff(m_camera, ra_dir);
 		if( DBG_VERBOSITY )
-			log_i("guide RA=%d", ra_dir);
+			log_i("guide RA = %d", ra_dir);
+
+		result = pASIPulseGuideOn(m_camera, ra_dir);
+		if (result)
+			log_e("ASIPulseGuideOn(): result = %d", result);
 	}
+
 	if (de_axis) {
-		pASIPulseGuideOff(m_camera, ra_dir);
 		if( DBG_VERBOSITY )
-			log_i("guide DE=%d", de_dir);
+			log_i("guide DE = %d", de_dir);
+
+		result = pASIPulseGuideOn(m_camera, de_dir);
+		if (result)
+			log_e("ASIPulseGuideOn(): result = %d", result);
 	}
 	unlock();
 }
