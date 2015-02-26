@@ -137,8 +137,13 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										false,
 										4,
 										"ZWO ASI",
-										NULL,
-										NULL
+										#ifdef __arm__
+										"libasicamera is required (Highly unstable on ARM)",
+										"<html><head/><body><p>External library <a href=\"https://sourceforge.net/projects/linguider/files/asi_sdk/\"><span style=\"text-decoration: underline; color:#0000ff;\">libasicamera</span></a> is required (Highly unstable on ARM).</p></body></html>"
+										#else
+										"Libasicamera is required",
+										"<html><head/><body><p>External library <a href=\"https://sourceforge.net/projects/linguider/files/asi_sdk/\"><span style=\"text-decoration: underline; color:#0000ff;\">libasicamera</span></a> is required.</p></body></html>"
+										#endif
 									},
 								};
 
