@@ -55,7 +55,7 @@ sed "s/ARCH/$ARCH/g" -i $NAME/DEBIAN/control
 install -d $NAME/etc/udev/rules.d
 install -m 644 99-asi.rules $NAME/etc/udev/rules.d
 install -d $NAME/usr/lib
-cp -a lib/armhf/* $NAME/usr/lib
+cp -a lib/armv6/* $NAME/usr/lib
 install -d $NAME/usr/include
 install -m 644 include/* $NAME/usr/include
 
