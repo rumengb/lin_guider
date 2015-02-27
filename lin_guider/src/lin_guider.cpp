@@ -39,6 +39,7 @@
 #include "io_nexstar.h"
 #include "io_atik.h"
 #include "io_sx.h"
+#include "io_asi.h"
 
 #include "video.h"
 #include "video_pwc.h"
@@ -50,6 +51,7 @@
 #include "video_qhy5ii.h"
 #include "video_atik.h"
 #include "video_sx.h"
+#include "video_asi.h"
 
 
 lin_guider::lin_guider(QWidget *parent)
@@ -67,8 +69,8 @@ lin_guider::lin_guider(QWidget *parent)
 	m_hfd_info_label = new QLabel();
 	m_hfd_info_label->setFrameShape( QFrame::Panel );
 	m_hfd_info_label->setFrameShadow( QFrame::Sunken );
+	m_hfd_info_label->setVisible( false );
 	ui.statusbar->addWidget( m_hfd_info_label, 0 );
-	m_hfd_info_label->setHidden(true);
 
 	m_video_name_label = new QLabel();
 	m_video_name_label->setFrameShape( QFrame::Panel );
@@ -144,6 +146,9 @@ lin_guider::lin_guider(QWidget *parent)
 	case io_drv::DT_SX:
 		m_driver = new io_drv::cio_driver_sx();
 		break;
+	case io_drv::DT_ASI:
+		m_driver = new io_drv::cio_driver_asi();
+		break;
 	default:
 		m_driver = new io_drv::cio_driver_null( true );
 
@@ -184,6 +189,9 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 		break;
 	case video_drv::DRV_SX:
 		m_video = new video_drv::cvideo_sx( );
+		break;
+	case video_drv::DRV_ASI:
+		m_video = new video_drv::cvideo_asi( );
 		break;
 	default:
 		m_video = new video_drv::cvideo_null( true );
@@ -293,6 +301,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	update_sb_io_info();
 
 	set_ui_params();
+	m_hfd_info_label->setVisible( m_common_params.hfd_on );
 
 	// test
 	m_long_task_conn = NULL;
@@ -449,8 +458,8 @@ void lin_guider::onShowSettings()
 	settings_wnd->exec();
 	//check UI changes
 	set_ui_params();
+	m_hfd_info_label->setVisible( m_common_params.hfd_on );
 	m_hfd_info_label->setText( QString() );
-	m_hfd_info_label->setHidden(true);
 }
 
 
@@ -557,7 +566,6 @@ void lin_guider::onGetVideo( const void *src, int len )
 	if( m_common_params.hfd_on )
 	{
 		const cproc_out_params *out = m_math->get_out_params();
-		if (m_hfd_info_label->isHidden()) m_hfd_info_label->setHidden(false);
 		m_hfd_info_label->setText( QString("HFD: ") +
 								   (out->hfd_h > 0 ? QString().setNum(out->hfd_h, 'f', 2) : QString("-.-")) +
 								   QString("\", Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );

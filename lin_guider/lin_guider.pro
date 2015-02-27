@@ -22,6 +22,7 @@ HEADERS += include/io_dev/io_nexstar.h \
     include/io_dev/io_null.h \
     include/io_dev/io_qhy5.h \
     include/io_dev/io_atik.h \
+    include/io_dev/io_asi.h \
     include/io_dev/io_sx.h \
     include/io_dev/io_ftdi.h \
     include/io_dev/io_lpt.h \
@@ -33,6 +34,8 @@ HEADERS += include/io_dev/io_nexstar.h \
     include/video_dev/atikccdusb.h \
     include/video_dev/video_sx.h \
     include/video_dev/sx_core.h \
+    include/video_dev/video_asi.h \
+    include/video_dev/asi_core.h \
     include/video_dev/sxccdusb.h \
     include/video_dev/video_pwc.h \
     include/video_dev/video_uvc.h \
@@ -69,10 +72,13 @@ SOURCES += src/io_dev/io_nexstar.cpp \
     src/video_dev/qhy5ii_core.cpp \
     src/video_dev/video_qhy5ii.cpp \
     src/video_dev/video_atik.cpp \
+    src/io_dev/io_asi.cpp \
     src/video_dev/atik_core.cpp \
     src/video_dev/sxccdusb.cpp \
     src/video_dev/video_sx.cpp \
     src/video_dev/sx_core.cpp \
+    src/video_dev/video_asi.cpp \
+    src/video_dev/asi_core.cpp \
     src/io_dev/io_gpio.cpp \
     src/io_dev/io_gpusb.cpp \
     src/settings.cpp \

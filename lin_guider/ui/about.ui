@@ -58,8 +58,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>294</width>
-            <height>330</height>
+            <width>404</width>
+            <height>315</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout">
@@ -73,9 +73,9 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Lin-guider is an astronomical autoguiding program.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This version supports:&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Video input:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;   Philips, Logitech, etc UVC webcams, QHY5, QHY5L-II-M, QHY5L-II-C, QHY5-II, QHY6, DSI2PRO, ATIK, Starlight Xpress special astrocams.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;   Philips, Logitech, etc UVC webcams, QHY5, QHY5L-II-M, QHY5L-II-C, QHY5-II, QHY6, DSI2PRO, ATIK, Starlight Xpress, ZWO ASI special astrocams.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Mount control:&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;   FTDI chip-based, parallel (LPT) port-based, GPIO-based commutators, GPUSB, Nexstar, QHY5, QHY5L-II-M, QHY5L-II-C, QHY5-II, QHY6, ATIK, Starlight Xpress astrocams as pulse drivers.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;   FTDI chip-based, parallel (LPT) port-based, GPIO-based commutators, GPUSB, Nexstar, QHY5, QHY5L-II-M, QHY5L-II-C, QHY5-II, QHY6, ATIK, Starlight Xpress, ZWO ASI astrocams as pulse drivers.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This is an experimental software.&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
@@ -125,8 +125,8 @@ p, li { white-space: pre-wrap; }
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>311</width>
-            <height>312</height>
+            <width>153</width>
+            <height>187</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_4">

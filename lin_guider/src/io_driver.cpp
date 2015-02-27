@@ -132,6 +132,19 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										NULL,
 										NULL
 									},
+									{
+										DT_ASI,
+										false,
+										4,
+										"ZWO ASI",
+										#ifdef __arm__
+										"libasicamera is required (Highly unstable on ARM)",
+										"<html><head/><body><p>External library <a href=\"https://sourceforge.net/projects/linguider/files/asi_sdk/\"><span style=\"text-decoration: underline; color:#0000ff;\">libasicamera</span></a> is required (Highly unstable on ARM).</p></body></html>"
+										#else
+										"Libasicamera is required",
+										"<html><head/><body><p>External library <a href=\"https://sourceforge.net/projects/linguider/files/asi_sdk/\"><span style=\"text-decoration: underline; color:#0000ff;\">libasicamera</span></a> is required.</p></body></html>"
+										#endif
+									},
 								};
 
 device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
@@ -145,7 +158,8 @@ device_bit_map_t device_bit_map_template[DEVICE_CNT] = {
 									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_QHY5II
 									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_NEXSTAR
 									{{3, 2, 1, 0, 4, 5, 6, 7}}, // DT_ATIK
-									{{0, 1, 2, 3, 4, 5, 6, 7}}  // DT_SX
+									{{0, 1, 2, 3, 4, 5, 6, 7}}, // DT_SX
+									{{3, 2, 1, 0, 4, 5, 6, 7}}  // DT_ASI
 									};
 
 

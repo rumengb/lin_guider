@@ -1,5 +1,6 @@
-2015-02-04 Lin_guider 3.0.0 (c)Galaxy Master <galaxy_master@mail.ru>
+2015-02-26 Lin_guider 3.0.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
+	* Added support for ZWO ASI cameras, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Added full support for Starlight Express cameras, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Added binning in Atik video module, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Updated Atik driver to atikccdsdk-0.24, by Rumen G.Bogdanovski <rumen@skyarchive.org>
