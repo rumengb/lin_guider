@@ -94,18 +94,23 @@ int atik_core::open( void )
 			return 1;
 		}
 
-		// TODO: select a camera with guiderport and delete all other
-		m_camera = camera_list[0];
-		log_i("Camera found: %s", m_camera->getName());
+		// Select camera with ST4 port, if not found use the last camera found
+		bool found = false;
+		int index = 0;
+		while (index < camera_count) {
+			m_camera = camera_list[index];
+			if( DBG_VERBOSITY ) {
+				log_i("Trying camera: %s", m_camera->getName());
+			}
 
-		success = m_camera->open();
-		if (!success) {
-			log_e("Can not open camera.");
-			pthread_mutex_unlock( &m_mutex );
-			return 2;
-		}
+			success = m_camera->open();
+			if (!success) {
+				log_e("Can not open camera.");
+				index++;
+				continue;
+			}
 
-		success = m_camera->getCapabilities(&m_caps.name,
+			success = m_camera->getCapabilities(&m_caps.name,
 											&m_caps.type,
 											&m_caps.has_shutter,
 											&m_caps.has_guide_port,
@@ -118,11 +123,31 @@ int atik_core::open( void )
 											&m_caps.max_bin_Y,
 											NULL,
 											&m_caps.cooler);
-		if (!success) {
-			log_e("Can not get capabilities.");
-			pthread_mutex_unlock( &m_mutex );
-			return 3;
+			if (!success) {
+				log_e("Can not get capabilities.");
+				m_camera->close();
+				AtikCamera_destroy(m_camera);
+				index++;
+				continue;
+			}
+
+			if ((m_caps.has_guide_port) || (index == camera_count-1)) {
+				found = true;
+				break;
+			} else {
+				m_camera->close();
+				AtikCamera_destroy(m_camera);
+				index++;
+			}
 		}
+
+		if (!found) {
+			log_e("No usable Atik camera found.");
+			pthread_mutex_unlock( &m_mutex );
+			return 2;
+		}
+
+		log_i("Using camera: %s", m_camera->getName());
 
 		if (m_caps.type == QUICKER) {
 			success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
