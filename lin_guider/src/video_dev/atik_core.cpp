@@ -100,7 +100,7 @@ int atik_core::open( void )
 
 		success = m_camera->open();
 		if (!success) {
-			log_i("Can not open camera.");
+			log_e("Can not open camera.");
 			pthread_mutex_unlock( &m_mutex );
 			return 2;
 		}
@@ -118,14 +118,18 @@ int atik_core::open( void )
 											&m_caps.max_bin_Y,
 											NULL,
 											&m_caps.cooler);
-		if (!success) return 3;
+		if (!success) {
+			log_e("Can not get capabilities.");
+			pthread_mutex_unlock( &m_mutex );
+			return 3;
+		}
 
 		if (m_caps.type == QUICKER) {
 			success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
-			if (!success) log_i("Could not set timings.");
+			if (!success) log_e("Could not set timings.");
 
 			success = m_camera->setParam(QUICKER_READ_CCD_DELAY, 1000);
-			if (!success) log_i("Could not set timings.");
+			if (!success) log_e("Could not set timings.");
 		}
 
 		if (DBG_VERBOSITY) log_i("Camera name: %s, type: %d", m_caps.name, m_caps.type);
