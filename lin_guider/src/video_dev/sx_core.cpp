@@ -61,25 +61,46 @@ int sx_core::open( void )
 			return 1;
 		}
 
-		// TODO: select a camera with guiderport and delete all other
-		log_i("Camera found: %s", names[0]);
+		// Select camera with ST4 port, if not found use the last camera found
+		bool found = false;
+		int index = 0;
+		while (index < camera_count) {
+			if( DBG_VERBOSITY ) {
+				log_i("Trying camera: %s", names[index]);
+			}
+			success = sxOpen(devices[index], &m_camera);
+			if (!success) {
+				log_e("sxOpen(): Error opening camera.");
+				index++;
+				continue;
+			}
 
-		success = sxOpen(devices[0], &m_camera);
-		if (!success) {
-			log_i("sxOpen(): Error opening camera.");
+			memset(&m_caps, 0, sizeof(m_caps));
+			success = sxGetCameraParams(m_camera, 0, &m_caps);
+			if (!success) {
+				log_e("sxGetCameraParams(): Error reading params.");
+				sxClose(&m_camera);
+				index++;
+				continue;
+			}
+
+			if ((m_caps.extra_caps & SXCCD_CAPS_GUIDER) || (index == camera_count-1)) {
+				found = true;
+				break;
+			} else {
+				sxClose(&m_camera);
+				index++;
+			}
+		}
+
+		if (!found) {
+			log_e("No usable Starlight Xpress camera found.");
 			pthread_mutex_unlock( &m_mutex );
 			return 2;
 		}
 
+		log_i("Using camera: %s", names[index]);
 		sxReset(m_camera);
-
-		memset(&m_caps, 0, sizeof(m_caps));
-		success = sxGetCameraParams(m_camera, 0, &m_caps);
-		if (!success) {
-			log_i("sxGetCameraParams(): Error reading params.");
-			pthread_mutex_unlock( &m_mutex );
-			return 3;
-		}
 
 		m_model = sxGetCameraModel(m_camera);
 		m_is_interlaced = sxIsInterlaced(m_model);
@@ -91,7 +112,7 @@ int sx_core::open( void )
 			if (m_oddBuf == NULL) {
 				log_i("malloc(): no memeory for m_oddBuff.");
 				pthread_mutex_unlock( &m_mutex );
-				return 4;
+				return 3;
 			}
 			m_evenBuf = (char*) malloc(m_caps.height/2 * m_caps.width * bytes_pix);
 			if (m_evenBuf == NULL) {
