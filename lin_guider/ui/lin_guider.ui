@@ -239,10 +239,10 @@
      <normaloff>:/new/prefix1/settings.png</normaloff>:/new/prefix1/settings.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Settings</string>
+    <string>General &amp;Settings</string>
    </property>
    <property name="toolTip">
-    <string>Settings</string>
+    <string>General Settings</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>

@@ -567,7 +567,7 @@ void lin_guider::onGetVideo( const void *src, int len )
 	{
 		const cproc_out_params *out = m_math->get_out_params();
 		m_hfd_info_label->setText( QString("HFD: ") +
-								   (out->hfd_h > 0 ? QString().setNum(out->hfd_h, 'f', 2) : QString("-.-")) +
+								   (out->hfd_h > 0 ? QString().setNum(out->hfd_h, 'f', 2) : QString("_.__")) +
 								   QString("\", Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );
 	}
 
