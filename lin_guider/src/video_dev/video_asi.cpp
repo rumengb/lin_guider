@@ -202,6 +202,19 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 			log_i( "USB Bandwidth = %d", m_bandwidth);
 		break;
 	}
+	case V4L2_CID_USER_CLEAR_BUFFS:
+	{
+		int v = val.values[0];
+		if( v < 0 || v > 1 )
+			log_e( "%s: invalid value", __FUNCTION__ );
+		v = v < 0 ? 0 : v;
+		v = v > 1 ? 1 : v;
+		capture_params.ext_params[ control_id ] = v;
+		m_clear_buffs = v;
+		if (DBG_VERBOSITY)
+			log_i( "Clear buffs: %d", v );
+		break;
+	}
 	default:
 		return -1;
 	}
@@ -240,6 +253,8 @@ int cvideo_asi::init_device( void )
 
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_BANDWIDTH, m_bandwidth ) );
 	m_bandwidth = capture_params.ext_params[ V4L2_CID_USER_BANDWIDTH ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_CLEAR_BUFFS, m_clear_buffs ) );
+	m_clear_buffs = capture_params.ext_params[ V4L2_CID_USER_CLEAR_BUFFS ];
 
 	n_buffers = 1;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
@@ -470,6 +485,18 @@ int cvideo_asi::enum_controls( void )
 		// Add control to control list
 		controls = add_control( -1, &queryctrl, controls, &n, true );
 	}
+
+	// create virtual control
+	queryctrl.id = V4L2_CID_USER_CLEAR_BUFFS;
+	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Clear buffers" );
+	queryctrl.minimum = 0;
+	queryctrl.maximum = 1;
+	queryctrl.step = 1;
+	queryctrl.default_value = 0;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
 
 	num_controls = n;
 

@@ -36,6 +36,7 @@
 #define CAM_MAX 5
 
 #define V4L2_CID_USER_BANDWIDTH (V4L2_CID_USER_CLASS + 1)
+#define V4L2_CID_USER_CLEAR_BUFFS (V4L2_CID_USER_CLASS + 2)
 
 /*
  * ZWO ASI camera core class
@@ -53,6 +54,7 @@ protected:
 	static int m_binX;
 	static int m_binY;
 	static int m_bandwidth;
+	static bool m_clear_buffs;
 	static unsigned char m_bpp;
 	static ASI_IMG_TYPE m_img_type;
 
