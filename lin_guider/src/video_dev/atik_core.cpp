@@ -106,6 +106,7 @@ int atik_core::open( void )
 			success = m_camera->open();
 			if (!success) {
 				log_e("Can not open camera.");
+				AtikCamera_destroy(m_camera);
 				index++;
 				continue;
 			}
@@ -139,6 +140,12 @@ int atik_core::open( void )
 				AtikCamera_destroy(m_camera);
 				index++;
 			}
+		}
+
+		// Skip the selected and destroy the rest of the camera objects
+		index++;
+		while(index < camera_count) {
+			AtikCamera_destroy(camera_list[index++]);
 		}
 
 		if (!found) {
