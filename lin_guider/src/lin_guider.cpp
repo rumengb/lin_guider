@@ -289,8 +289,8 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	set_visible_overlays( ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE, true );
 
 	memset( d_objs, 0, sizeof(d_objs) );
-	d_objs[0].type = ovr_params_t::OVR_SQUARE;
-	d_objs[1].type = ovr_params_t::OVR_RETICLE;
+	d_objs[0].type = ovr_params_t::OVR_RETICLE;
+	d_objs[1].type = ovr_params_t::OVR_SQUARE;
 
 	SQR_OVL_COLOR  = QColor( DEF_SQR_OVL_COLOR[0], DEF_SQR_OVL_COLOR[1], DEF_SQR_OVL_COLOR[2]) ;
 	RA_COLOR	   = QColor( DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2] );
