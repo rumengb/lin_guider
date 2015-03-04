@@ -243,6 +243,7 @@ int  cvideo_asi::get_control( unsigned int control_id, param_val_t *val )
 int cvideo_asi::init_device( void )
 {
 	int sizeimage = 0;
+	ASI_ERROR_CODE result;
 
 	// set desired size
 	sizeimage = set_format();
@@ -308,8 +309,11 @@ int cvideo_asi::init_device( void )
 	set_exposure( capture_params.exposure );
 	get_exposure();
 
-	// TODO: error checks!!!!
-	pASISetROIFormat(m_camera, capture_params.width, capture_params.height, m_binX, m_img_type);
+	result = pASISetROIFormat(m_camera, capture_params.width, capture_params.height, m_binX, m_img_type);
+	if(result != ASI_SUCCESS) {
+		log_e("ASISetROIFormat() returned %d", result);
+		return EXIT_FAILURE;
+	}
 	set_camera_exposure(100); // set short exposure as if you start with a long one it is always ~1s (wired)
 	set_camera_gain(capture_params.gain);
 	set_band_width(m_bandwidth);
