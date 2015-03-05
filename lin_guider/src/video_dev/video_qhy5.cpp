@@ -253,11 +253,11 @@ int cvideo_qhy5::init_device( void )
 #endif
 	m_sensor_info = video_drv::sensor_info_s(
 #ifdef QHY5_SCALER
-			5.6 * binn_factor,
-			5.6 * binn_factor,
+			5.2 * binn_factor,
+			5.2 * binn_factor,
 #else
-			5.6,
-			5.6,
+			5.2,
+			5.2,
 #endif
 			capture_params.width,
 			capture_params.height
