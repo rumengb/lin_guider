@@ -196,7 +196,9 @@ public:
 		GET_VER = 1, //
 		SET_GUIDER_SQUARE_POS,
 		SAVE_FRAME,
-		DITHER
+		DITHER,
+		DITHER_NO_WAIT_XY,
+		GET_DISTANCE
 	};
 	enum sizes
 	{

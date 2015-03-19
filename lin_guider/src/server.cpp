@@ -106,6 +106,8 @@ server::server( const net_params_t &nparams ) :
 	m_cmd_names.insert( std::make_pair( server::SET_GUIDER_SQUARE_POS, "SET_GUIDER_SQUARE_POS" ) );
 	m_cmd_names.insert( std::make_pair( server::SAVE_FRAME, "SAVE_FRAME" ) );
 	m_cmd_names.insert( std::make_pair( server::DITHER, "DITHER" ) );
+	m_cmd_names.insert( std::make_pair( server::DITHER_NO_WAIT_XY, "DITHER_NO_WAIT_XY" ) );
+	m_cmd_names.insert( std::make_pair( server::GET_DISTANCE, "GET_DISTANCE" ) );
 }
 
 

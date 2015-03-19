@@ -683,6 +683,58 @@ void lin_guider::onRemoteCmd( void )
 			answer_sz = snprintf( answer, answer_sz_max, "BUSY: in progress..." );
 	}
 		break;
+	case server::DITHER_NO_WAIT_XY:
+	{
+		if( data_sz )
+		{
+			u_make_safe_str( (const char*)data, data_sz, sizeof(data_str), data_str, &data_str_len );
+
+			// maximum relative offsets
+			double rx = -1, ry = -1;
+			unsigned int parsed = 0, arg_len = 0;
+			const char *arg = NULL;
+			for( int n = 0; u_memtok( data_str, data_str_len, ' ', &arg, &arg_len, &parsed ) && n < 2; n++ )
+			{
+				switch( n )
+				{
+				case 0:	// x
+					rx = strtod( arg, NULL );
+					break;
+				case 1:	// y
+					ry = strtod( arg, NULL );
+					break;
+				default:
+					continue;
+				}
+			}
+			// move reticle
+			if( rx != -1 && ry != -1 )
+			{
+				int res = m_math->dither_no_wait_xy(rx,ry);
+				set_visible_overlays( ovr_params_t::OVR_RETICLE_ORG, true );
+				if (res < 0) {
+					answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
+				} else {
+					answer_sz = snprintf(answer, answer_sz_max, "OK");
+				}
+				break;
+			}
+		}
+		// error
+		answer_sz = snprintf( answer, answer_sz_max, "Unable to get offsets" );
+	}
+	break;
+	case server::GET_DISTANCE:
+	{
+		double dx, dy;
+		int res = m_math->get_distance(&dx, &dy);
+		if (res < 0) {
+			answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
+		} else {
+			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dx,dy);
+		}
+	}
+	break;
 	default:
 		// write some strange answer
 		answer_sz = snprintf( answer, answer_sz_max, "Unknown command" );

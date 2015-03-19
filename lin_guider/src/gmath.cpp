@@ -466,6 +466,32 @@ int cgmath::dither( void )
 }
 
 
+int cgmath::dither_no_wait_xy(double rx, double ry)
+{
+	if( preview_mode ) {
+		log_i( "cgmath::dither_no_wait_xy(): Guiding is not started" );
+		return GUIDING_NOT_STARTED;
+	}
+
+	double newx = reticle_pos.x, newy = reticle_pos.y;
+
+	do {
+		newx = reticle_org.x + (double)(rand()%(int)rx) - (double)rx / 2.0;
+	} while( newx == reticle_pos.x );
+
+	do {
+		newy = reticle_org.y + (double)(rand()%(int)ry) - (double)ry / 2.0;
+	} while( newy == reticle_pos.y );
+
+	Vector delta( fabs(newx - reticle_pos.x), fabs(newy - reticle_pos.y), 0 );
+
+	reticle_pos.x = newx;
+	reticle_pos.y = newy;
+
+	return 0;
+}
+
+
 const char *cgmath::get_dither_errstring( int err_code ) const
 {
 	switch( err_code )
@@ -480,6 +506,20 @@ const char *cgmath::get_dither_errstring( int err_code ) const
 	return "Unknown error";
 }
 
+
+int cgmath::get_distance(double *dx, double *dy)
+{
+	if( preview_mode ) {
+		log_i( "cgmath::get_distance(): Guiding is not started" );
+		return GUIDING_NOT_STARTED;
+	}
+
+	Vector drift_px = arcsec2point(star_pos);
+	*dx = fabs(drift_px.x);
+	*dy = fabs(drift_px.y);
+
+	return 0;
+}
 
 void cgmath::set_square_algorithm_index( int alg_idx )
 {
@@ -533,6 +573,17 @@ Vector cgmath::point2arcsec( const Vector &p ) const
  	arcs.y = 206264.8062470963552 * p.y * ccd_pixel_height / focal;
 
  	return arcs;
+}
+
+
+Vector cgmath::arcsec2point( const Vector &asec ) const
+{
+	Vector px;
+
+	px.x = focal * asec.x / (206264.8062470963552 * ccd_pixel_width);
+	px.y = focal * asec.y / (206264.8062470963552 * ccd_pixel_width);
+
+	return px;
 }
 
 

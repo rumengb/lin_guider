@@ -208,12 +208,14 @@ public:
 	uint32_t get_ticks( void ) const;
 	void get_star_drift( double *dx, double *dy ) const;
 	void get_star_screen_pos( double *dx, double *dy ) const;
+	int get_distance(double *dx, double *dy);
 	bool reset( void );
 	
 	ovr_params_t *prepare_overlays( void );
 	void move_square( double newx, double newy );
 	void resize_square( int size_idx );
 	int  dither( void );
+	int  dither_no_wait_xy(double rx, double ry);
 	const char *get_dither_errstring( int err_code ) const;
 	
 	// proc
@@ -331,6 +333,7 @@ private:
 	// proc
 	void do_ticks( void );
 	Vector point2arcsec( const Vector &p ) const;
+	Vector arcsec2point( const Vector &asec ) const;
 	Vector find_star_local_pos( void );
 	void process_axes( void );
 	void calc_square_err( void );
