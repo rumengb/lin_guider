@@ -483,8 +483,6 @@ int cgmath::dither_no_wait_xy(double rx, double ry)
 		newy = reticle_org.y + (double)(rand()%(int)ry) - (double)ry / 2.0;
 	} while( newy == reticle_pos.y );
 
-	Vector delta( fabs(newx - reticle_pos.x), fabs(newy - reticle_pos.y), 0 );
-
 	reticle_pos.x = newx;
 	reticle_pos.y = newy;
 
