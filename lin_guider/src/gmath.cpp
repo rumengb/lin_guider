@@ -505,7 +505,7 @@ const char *cgmath::get_dither_errstring( int err_code ) const
 }
 
 
-int cgmath::get_distance(double *dx, double *dy)
+int cgmath::get_distance(double *dx, double *dy) const
 {
 	if( preview_mode ) {
 		log_i( "cgmath::get_distance(): Guiding is not started" );
@@ -576,10 +576,10 @@ Vector cgmath::point2arcsec( const Vector &p ) const
 
 Vector cgmath::arcsec2point( const Vector &asec ) const
 {
-	Vector px;
+	Vector px(0,0,0);
 
 	px.x = focal * asec.x / (206264.8062470963552 * ccd_pixel_width);
-	px.y = focal * asec.y / (206264.8062470963552 * ccd_pixel_width);
+	px.y = focal * asec.y / (206264.8062470963552 * ccd_pixel_height);
 
 	return px;
 }

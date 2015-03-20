@@ -208,7 +208,7 @@ public:
 	uint32_t get_ticks( void ) const;
 	void get_star_drift( double *dx, double *dy ) const;
 	void get_star_screen_pos( double *dx, double *dy ) const;
-	int get_distance(double *dx, double *dy);
+	int get_distance(double *dx, double *dy) const;
 	bool reset( void );
 	
 	ovr_params_t *prepare_overlays( void );

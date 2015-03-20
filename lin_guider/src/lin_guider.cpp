@@ -711,10 +711,10 @@ void lin_guider::onRemoteCmd( void )
 			if( rx != -1 && ry != -1 )
 			{
 				int res = m_math->dither_no_wait_xy(rx,ry);
-				set_visible_overlays( ovr_params_t::OVR_RETICLE_ORG, true );
 				if (res < 0) {
 					answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
 				} else {
+					set_visible_overlays( ovr_params_t::OVR_RETICLE_ORG, true );
 					answer_sz = snprintf(answer, answer_sz_max, "OK");
 				}
 				break;
