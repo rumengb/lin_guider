@@ -576,7 +576,7 @@ Vector cgmath::point2arcsec( const Vector &p ) const
 
 Vector cgmath::arcsec2point( const Vector &asec ) const
 {
-	Vector px(0,0,0);
+	Vector px;
 
 	px.x = focal * asec.x / (206264.8062470963552 * ccd_pixel_width);
 	px.y = focal * asec.y / (206264.8062470963552 * ccd_pixel_height);
