@@ -247,28 +247,28 @@
       <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QCheckBox" name="checkBox_useTCP">
         <property name="text">
          <string>Use  TCP</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
+      <item row="1" column="2">
        <widget class="QLineEdit" name="lineEdit_TCPPort">
         <property name="inputMask">
          <string>00000</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QLabel" name="l_lport">
         <property name="text">
          <string>Listen Port</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
+      <item row="0" column="1" colspan="2">
        <widget class="QLineEdit" name="lineEdit_lsocket">
         <property name="inputMask">
          <string/>
@@ -278,7 +278,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="0" column="0">
        <widget class="QLabel" name="l_lsocket">
         <property name="text">
          <string>Unix Domain Socket</string>
