@@ -99,6 +99,13 @@ void settings::fill_interface( void )
 	ui.spinBox_DitherRange->setValue( m_common_params.dithering_range );
 	ui.spinBox_DitherRestTout->setValue( m_common_params.dithering_rest_tout );
 
+	// TCP
+	ui.lineEdit_TCPPort->setText( QString().setNum( (unsigned short)m_net_params.listen_port) );
+	ui.lineEdit_TCPPort->setEnabled(m_net_params.use_tcp);
+	ui.lineEdit_lsocket->setText( QString(m_net_params.listen_socket) );
+	ui.lineEdit_lsocket->setDisabled(m_net_params.use_tcp);
+	ui.checkBox_useTCP->setChecked(m_net_params.use_tcp);
+
 	// debug verbosity
 	ui.checkBox_DBGVerbosity->setChecked( DBG_VERBOSITY );
 
@@ -146,6 +153,18 @@ void settings::onOkButtonClick()
 		return;
 	}
 	m_net_params.bcast_port = port;
+
+	port = ui.lineEdit_TCPPort->text().toInt( &ok );
+	if( !ok || port < 1000 || port > 65534 )
+	{
+		QMessageBox::warning( this, tr("Error"), tr("Invalid port."), QMessageBox::Ok );
+		return;
+	}
+	m_net_params.listen_port = port;
+
+	memcpy( m_net_params.listen_socket, ui.lineEdit_lsocket->text().toAscii().data(), ui.lineEdit_lsocket->text().length());
+
+	m_net_params.use_tcp = ui.checkBox_useTCP->isChecked();
 
 	m_common_params.udp_send_start_stop = ui.checkBox_StartStop->isChecked();
 	m_common_params.udp_send_image_quality = ui.checkBox_ImageQuality->isChecked();

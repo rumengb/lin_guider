@@ -54,7 +54,7 @@ using namespace std;
 
 unsigned int conn_t::autoinc_id = 0;
 
-net_params_t server::m_net_params = { "127.0.0.1", 5001 };
+net_params_t server::m_net_params = { "127.0.0.1", 5001, "/tmp/lg_ss", 5656, false };
 
 const char *server::m_bcm_names[BCM_MAX] = {
 		"DEBUG", 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -509,21 +509,40 @@ void *server::server_thread( void *param )
 	conn_t *pconn = NULL;
 	int ret = -1;
 
-
-	const char *sock_name = "/tmp/lg_ss";
+	//const char *sock_name = "/tmp/lg_ss";
 	struct epoll_event *ev, events[EPOLL_QUEUE_LEN];
 	int listen_sock, conn_sock, nfds;
-	struct sockaddr_un  cli_addr, serv_addr;
+	struct sockaddr_un  ucli_addr, userv_addr;
+	struct sockaddr_in  icli_addr, iserv_addr;
+	struct sockaddr *serv_addr, *cli_addr;
 	socklen_t serv_len, cli_len;
 	(void)serv_len;
 
-
  	send_bcast_msg( BCM_SRV_STARTED );
 
- 	unlink( sock_name );
-
+	if (m_net_params.use_tcp) {
+		memset( (char *) &iserv_addr, 0, sizeof(iserv_addr) );
+		iserv_addr.sin_family = AF_INET;
+		iserv_addr.sin_addr.s_addr = INADDR_ANY;
+		iserv_addr.sin_port = htons(m_net_params.listen_port);
+		serv_len = sizeof(iserv_addr);
+		cli_len = sizeof(icli_addr);
+		serv_addr = (struct sockaddr *)&iserv_addr;
+		cli_addr = (struct sockaddr *)&icli_addr;
+	} else {
+		memset( (char *) &userv_addr, 0, sizeof(userv_addr) );
+		userv_addr.sun_family = AF_UNIX;
+		strcpy( userv_addr.sun_path, m_net_params.listen_socket );
+		serv_len = sizeof(userv_addr);
+		cli_len = sizeof(ucli_addr);
+		unlink( m_net_params.listen_socket );
+		serv_addr = (struct sockaddr *)&userv_addr;
+		cli_addr = (struct sockaddr *)&ucli_addr;
+	}
  	// create listener
- 	listen_sock = socket( AF_UNIX,SOCK_STREAM, 0 );
+
+	log_i("%d %d %s %d %d", serv_addr->sa_family, AF_UNIX, m_net_params.bcast_ip, m_net_params.use_tcp, m_net_params.listen_port);
+	listen_sock = socket( serv_addr->sa_family, SOCK_STREAM, 0 );
  	if( listen_sock < 0 )
  	{
  		perror("creating socket");
@@ -532,11 +551,7 @@ void *server::server_thread( void *param )
  	srv->set_reuseport( listen_sock );
  	srv->set_nonblocking( listen_sock );
 
- 	memset( (char *) &serv_addr, 0, sizeof(serv_addr) );
- 	serv_addr.sun_family = AF_UNIX;
- 	strcpy( serv_addr.sun_path, sock_name );
- 	serv_len = strlen(serv_addr.sun_path) + sizeof(serv_addr.sun_family);
- 	if( bind( listen_sock, (struct sockaddr *)&serv_addr, SUN_LEN(&serv_addr) ) < 0 )
+	if( bind( listen_sock, serv_addr, serv_len ) < 0 )
  	{
  		perror("binding socket");
  		exit(EXIT_FAILURE);
@@ -596,8 +611,8 @@ void *server::server_thread( void *param )
   			// accept
   			if( ev->data.fd == listen_sock )
   			{
-  				cli_len = sizeof(cli_addr);
-  				conn_sock = accept(listen_sock,	(struct sockaddr *) &cli_addr, &cli_len);
+				socklen_t clen = cli_len;
+				conn_sock = accept(listen_sock,	cli_addr, &clen);
   				if( conn_sock == -1 )
   				{
   					perror("accept");
@@ -736,7 +751,7 @@ void *server::server_thread( void *param )
 
  	close( srv->m_epollfd );
 
- 	unlink( sock_name );
+	unlink( m_net_params.listen_socket );
 
  	send_bcast_msg( BCM_SRV_STOPPED );
 

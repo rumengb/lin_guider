@@ -84,6 +84,9 @@ params::params( QMainWindow *main_wnd )
 	//net
 	snprintf( m_net_params.bcast_ip, sizeof(m_net_params.bcast_ip), "127.0.0.1" );
 	m_net_params.bcast_port = 5001;
+	snprintf( m_net_params.listen_socket, sizeof(m_net_params.listen_socket), "/tmp/lg_ss" );
+	m_net_params.listen_port = 5656;
+	m_net_params.use_tcp = 1;
 
 	// common params are initialized by ctor()
 
@@ -222,6 +225,10 @@ bool params::load( void )
 		str = settings.value("bcast_ip", "127.0.0.1").toString();
 		snprintf( m_net_params.bcast_ip, sizeof(m_net_params.bcast_ip), "%s", str.toAscii().data() );
 		m_net_params.bcast_port = settings.value("bcast_port", "5001").toInt(&ok);
+		m_net_params.use_tcp = settings.value( "use_tcp", false ).toBool();
+		str = settings.value("listen_socket", "/tmp/lg_ss").toString();
+		snprintf( m_net_params.listen_socket, sizeof(m_net_params.listen_socket), "%s", str.toAscii().data() );
+		m_net_params.listen_port = settings.value("listen_port", "5656").toInt(&ok);
 	settings.endGroup();
 
 	// common
@@ -372,6 +379,9 @@ bool params::save( void )
 	settings.beginGroup("net");
 		settings.setValue( "bcast_ip", m_net_params.bcast_ip );
 		settings.setValue( "bcast_port", m_net_params.bcast_port );
+		settings.setValue( "use_tcp", m_net_params.use_tcp );
+		settings.setValue( "listen_port", m_net_params.listen_port );
+		settings.setValue( "listen_socket", m_net_params.listen_socket );
 	settings.endGroup();
 
 	// common

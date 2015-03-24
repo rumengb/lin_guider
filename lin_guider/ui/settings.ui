@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>302</height>
+    <width>363</width>
+    <height>448</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,7 +26,16 @@
    <string>settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="topMargin">
+    <number>4</number>
+   </property>
+   <property name="rightMargin">
+    <number>4</number>
+   </property>
+   <property name="bottomMargin">
     <number>4</number>
    </property>
    <property name="spacing">
@@ -54,7 +63,7 @@
       <item row="0" column="3">
        <widget class="QLineEdit" name="lineEdit_Port">
         <property name="inputMask">
-         <string>00000;_</string>
+         <string>00000</string>
         </property>
        </widget>
       </item>
@@ -125,14 +134,14 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QCheckBox" name="checkBox_DBGVerbosity">
         <property name="text">
          <string>debug verbosity</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QSpinBox" name="spinBox_DitherRange">
         <property name="minimum">
          <number>3</number>
@@ -145,21 +154,21 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Dithering rest timeout, sec</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label_1">
         <property name="text">
          <string>Dithering range, pix</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QSpinBox" name="spinBox_DitherRestTout">
         <property name="maximum">
          <number>10</number>
@@ -169,7 +178,7 @@
         </property>
        </widget>
       </item>
-      <item row="7" column="0">
+      <item row="8" column="0">
        <spacer name="verticalSpacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -182,17 +191,17 @@
         </property>
        </spacer>
       </item>
-      <item row="5" column="1">
-       <widget class="QCheckBox" name="checkBox_ShowHelperTB">
-        <property name="text">
-         <string>show Helper toolbar</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
+      <item row="7" column="0">
        <widget class="QCheckBox" name="checkBox_HFD_on">
         <property name="text">
          <string>calculate HFD</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QCheckBox" name="checkBox_ShowHelperTB">
+        <property name="text">
+         <string>show Helper toolbar</string>
         </property>
        </widget>
       </item>
@@ -226,6 +235,75 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox_Server">
+     <property name="title">
+      <string>Command Server</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBox_useTCP">
+        <property name="text">
+         <string>Use  TCP</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLineEdit" name="lineEdit_TCPPort">
+        <property name="inputMask">
+         <string>00000</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="l_lport">
+        <property name="text">
+         <string>Listen Port</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="lineEdit_lsocket">
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="maxLength">
+         <number>255</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="l_lsocket">
+        <property name="text">
+         <string>Unix Domain Socket</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>13</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
@@ -245,5 +323,38 @@
   <tabstop>pushButton_Cancel</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>checkBox_useTCP</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineEdit_TCPPort</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>65</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>272</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox_useTCP</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lineEdit_lsocket</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>65</x>
+     <y>183</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

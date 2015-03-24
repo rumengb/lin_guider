@@ -44,6 +44,9 @@ typedef struct
 {
 	char  bcast_ip[16];
 	int   bcast_port;
+	char  listen_socket[255];
+	int   listen_port;
+	int   use_tcp;
 }net_params_t;
 
 enum bcast_messages
