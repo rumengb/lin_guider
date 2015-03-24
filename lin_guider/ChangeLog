@@ -1,3 +1,12 @@
+2015-03-24 Lin_guider 3.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
+
+	* Make ASI buffer cleaning optional for better performance, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Add new dithering commands GET_DISTANCE and DITHER_NO_WAIT_XY, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Accept commands over TCP or Unix Sockets(default), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Reticle can be moved if the square is over it, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Make Atik and SX drivers prefer the first camera with ST4 port, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Fixes in Atik, ASI and QHY5 drivers, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+
 2015-02-26 Lin_guider 3.0.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
 	* Added support for ZWO ASI cameras, by Rumen G.Bogdanovski <rumen@skyarchive.org>
