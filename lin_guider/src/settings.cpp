@@ -163,7 +163,8 @@ void settings::onOkButtonClick()
 	}
 	m_net_params.listen_port = port;
 
-	memcpy( m_net_params.listen_socket, ui.lineEdit_lsocket->text().toAscii().data(), ui.lineEdit_lsocket->text().length());
+	memcpy( m_net_params.listen_socket, ui.lineEdit_lsocket->text().toAscii().data(), ui.lineEdit_lsocket->text().toAscii().length());
+	m_net_params.listen_socket[ui.lineEdit_lsocket->text().toAscii().length()] = 0; //null terminate
 
 	m_net_params.use_tcp = ui.checkBox_useTCP->isChecked();
 
