@@ -44,6 +44,7 @@ settings::settings( lin_guider *parent,
 	setWindowTitle( tr("Settings") );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
+	connect( ui.pushButton_OK, SIGNAL(clicked()), parent, SLOT(onApplySettings()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
 }
 

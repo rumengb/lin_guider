@@ -93,6 +93,7 @@ protected slots:
 	void onShowSettings();
 	void onShowAbout();
 	void onActionExit();
+	void onApplySettings();
 
 	// Helper toolbar
 	void onToggleCalibrationGuider();

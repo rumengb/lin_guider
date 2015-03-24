@@ -475,6 +475,25 @@ void lin_guider::onActionExit()
 }
 
 
+void lin_guider::onApplySettings()
+{
+	int answer = QMessageBox::Yes;
+	int num_conns = m_server->numActiveConnections();
+	if (num_conns) {
+		answer = QMessageBox::question(this, tr("Reset Connections"),
+			tr("There are %1 active connections to the server.\n \"Yes\" will close them and apply changes.\n \"No\" will keep them, but changes will be applied on restart.").
+			arg(num_conns), QMessageBox::Yes, QMessageBox::No|QMessageBox::Default|QMessageBox::Escape);
+	}
+
+	if (answer == QMessageBox::Yes) {
+		delete(m_server);
+		m_server = new server(m_net_params);
+		connect( m_server, SIGNAL( do_command() ), this, SLOT( onRemoteCmd() ) );
+		m_server->start();
+	}
+}
+
+
 void lin_guider::onToggleCalibrationGuider()
 {
 	if( reticle_wnd->isVisible() )

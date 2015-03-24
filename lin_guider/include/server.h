@@ -190,6 +190,7 @@ public:
 	conn_t* take_conn( void );
 	void return_conn( conn_t *cn );
 
+	int numActiveConnections();
 	static bool send_bcast_msg( int msg, const char *fmt = "", ... );
 	static void set_msg_map( const std::map<int, bool>& map );
 	static void get_msg_map( std::map<int, bool> *map );

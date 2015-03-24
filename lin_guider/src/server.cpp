@@ -396,6 +396,11 @@ int  server::close_conn( conn_t *conn )
 	return ret;
 }
 
+int server::numActiveConnections()
+{
+	return m_conns.size();
+}
+
 
 int  server::do_read( conn_t *pconn )
 {
@@ -541,7 +546,6 @@ void *server::server_thread( void *param )
 	}
  	// create listener
 
-	log_i("%d %d %s %d %d", serv_addr->sa_family, AF_UNIX, m_net_params.bcast_ip, m_net_params.use_tcp, m_net_params.listen_port);
 	listen_sock = socket( serv_addr->sa_family, SOCK_STREAM, 0 );
  	if( listen_sock < 0 )
  	{
@@ -557,6 +561,12 @@ void *server::server_thread( void *param )
  		exit(EXIT_FAILURE);
  	}
  	listen(listen_sock, 5);
+
+	if (m_net_params.use_tcp) {
+		log_i("SRV: listening on TCP port %d", m_net_params.listen_port);
+	} else {
+		log_i("SRV: listening on Unix socket %s", m_net_params.listen_socket);
+	}
 
  	//-------------------------------------------------------------
  	// create EPOLL
@@ -750,6 +760,7 @@ void *server::server_thread( void *param )
  	close( srv->m_res_fd );
 
  	close( srv->m_epollfd );
+	close( listen_sock );
 
 	unlink( m_net_params.listen_socket );
 
