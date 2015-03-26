@@ -455,11 +455,20 @@ void lin_guider::onShowGuiding()
 
 void lin_guider::onShowSettings()
 {
+	net_params_t old_net_params = m_net_params;
+
 	settings_wnd->exec();
 	//check UI changes
 	set_ui_params();
 	m_hfd_info_label->setVisible( m_common_params.hfd_on );
 	m_hfd_info_label->setText( QString() );
+	// restart server if necessary
+	if( old_net_params != m_net_params )
+	{
+		if( !restart_server() )
+			m_net_params = old_net_params;
+	}
+
 }
 
 
@@ -475,22 +484,28 @@ void lin_guider::onActionExit()
 }
 
 
-void lin_guider::onApplySettings()
+bool lin_guider::restart_server( void )
 {
-	int answer = QMessageBox::Yes;
-	int num_conns = m_server->numActiveConnections();
-	if (num_conns) {
-		answer = QMessageBox::question(this, tr("Reset Connections"),
-			tr("There are %1 active connections to the server.\n \"Yes\" will close them and apply changes.\n \"No\" will keep them, but changes will be applied on restart.").
+	size_t num_conns = m_server->get_num_active_connections();
+	if( num_conns )
+	{
+		int answer = QMessageBox::question(
+				this,
+				tr("Reset Connections"),
+				tr("There are %1 active connections to the server.\n \"Yes\" will close them and apply changes.\n \"No\" will keep them, but changes will be applied on restart.").
 			arg(num_conns), QMessageBox::Yes, QMessageBox::No|QMessageBox::Default|QMessageBox::Escape);
+
+		if( answer != QMessageBox::Yes )
+			return false;
 	}
 
-	if (answer == QMessageBox::Yes) {
-		delete(m_server);
-		m_server = new server(m_net_params);
-		connect( m_server, SIGNAL( do_command() ), this, SLOT( onRemoteCmd() ) );
-		m_server->start();
-	}
+	disconnect( m_server, 0, 0, 0 );
+	delete(m_server);
+	m_server = new server(m_net_params);
+	connect( m_server, SIGNAL( do_command() ), this, SLOT( onRemoteCmd() ) );
+	m_server->start();
+
+	return true;
 }
 
 
@@ -729,7 +744,7 @@ void lin_guider::onRemoteCmd( void )
 			// move reticle
 			if( rx != -1 && ry != -1 )
 			{
-				int res = m_math->dither_no_wait_xy(rx,ry);
+				int res = m_math->dither_no_wait_xy( fabs(rx), fabs(ry) );
 				if (res < 0) {
 					answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
 				} else {

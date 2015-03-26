@@ -86,7 +86,7 @@ params::params( QMainWindow *main_wnd )
 	m_net_params.bcast_port = 5001;
 	snprintf( m_net_params.listen_socket, sizeof(m_net_params.listen_socket), "/tmp/lg_ss" );
 	m_net_params.listen_port = 5656;
-	m_net_params.use_tcp = 1;
+	m_net_params.use_tcp = false;
 
 	// common params are initialized by ctor()
 

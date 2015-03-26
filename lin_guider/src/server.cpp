@@ -396,7 +396,7 @@ int  server::close_conn( conn_t *conn )
 	return ret;
 }
 
-int server::numActiveConnections()
+size_t server::get_num_active_connections( void ) const
 {
 	return m_conns.size();
 }

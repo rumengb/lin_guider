@@ -215,7 +215,7 @@ public:
 	void move_square( double newx, double newy );
 	void resize_square( int size_idx );
 	int  dither( void );
-	int  dither_no_wait_xy(double rx, double ry);
+	int  dither_no_wait_xy( double rx, double ry );
 	const char *get_dither_errstring( int err_code ) const;
 	
 	// proc

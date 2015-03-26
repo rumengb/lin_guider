@@ -474,6 +474,9 @@ int cgmath::dither_no_wait_xy(double rx, double ry)
 	}
 
 	double newx = reticle_pos.x, newy = reticle_pos.y;
+	// we shall avoid division by zero and infinite loops
+	if( (int)rx < 2 ) rx = 2;
+	if( (int)ry < 2 ) ry = 2;
 
 	do {
 		newx = reticle_org.x + (double)(rand()%(int)rx) - (double)rx / 2.0;

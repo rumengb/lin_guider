@@ -40,13 +40,32 @@
 
 using namespace std;
 
-typedef struct
+typedef struct net_params_s
 {
 	char  bcast_ip[16];
 	int   bcast_port;
 	char  listen_socket[255];
 	int   listen_port;
-	int   use_tcp;
+	bool  use_tcp;
+
+	bool operator == ( const net_params_s &v ) const
+	{
+		if( &v == this ) return true;
+		return !strncmp( bcast_ip, v.bcast_ip, sizeof(bcast_ip) ) &&
+				bcast_port == v.bcast_port &&
+				!strncmp( listen_socket, v.listen_socket, sizeof(listen_socket) ) &&
+				listen_port == v.listen_port &&
+				use_tcp == v.use_tcp;
+	}
+	bool operator != ( const net_params_s &v ) const
+	{
+		if( &v == this ) return false;
+		return strncmp( bcast_ip, v.bcast_ip, sizeof(bcast_ip) ) ||
+				bcast_port != v.bcast_port ||
+				strncmp( listen_socket, v.listen_socket, sizeof(listen_socket) ) ||
+				listen_port != v.listen_port ||
+				use_tcp != v.use_tcp;
+	}
 }net_params_t;
 
 enum bcast_messages
@@ -190,7 +209,7 @@ public:
 	conn_t* take_conn( void );
 	void return_conn( conn_t *cn );
 
-	int numActiveConnections();
+	size_t get_num_active_connections( void ) const;
 	static bool send_bcast_msg( int msg, const char *fmt = "", ... );
 	static void set_msg_map( const std::map<int, bool>& map );
 	static void get_msg_map( std::map<int, bool> *map );

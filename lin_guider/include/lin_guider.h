@@ -93,7 +93,6 @@ protected slots:
 	void onShowSettings();
 	void onShowAbout();
 	void onActionExit();
-	void onApplySettings();
 
 	// Helper toolbar
 	void onToggleCalibrationGuider();
@@ -147,6 +146,7 @@ private:
 	void update_sb_video_info( int override_fps_idx = -1 );
 	void update_sb_io_info( void );
 	void set_ui_params( void );
+	bool restart_server( void );
 
 	drag_object_t d_objs[2];
 	drawer_delegate *m_mouse_delegate;

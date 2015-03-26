@@ -44,7 +44,6 @@ settings::settings( lin_guider *parent,
 	setWindowTitle( tr("Settings") );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
-	connect( ui.pushButton_OK, SIGNAL(clicked()), parent, SLOT(onApplySettings()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
 }
 
@@ -64,7 +63,7 @@ void settings::showEvent( QShowEvent * event )
 		event->ignore();
 		return;
 	}
-	memcpy( &m_net_params, m_pnet_params, sizeof(net_params_t) );
+	m_net_params    = *m_pnet_params;
 	m_common_params = *m_pcommon_params;
 
 	fill_interface();
@@ -102,10 +101,10 @@ void settings::fill_interface( void )
 
 	// TCP
 	ui.lineEdit_TCPPort->setText( QString().setNum( (unsigned short)m_net_params.listen_port) );
-	ui.lineEdit_TCPPort->setEnabled(m_net_params.use_tcp);
+	ui.lineEdit_TCPPort->setEnabled( m_net_params.use_tcp );
 	ui.lineEdit_lsocket->setText( QString(m_net_params.listen_socket) );
-	ui.lineEdit_lsocket->setDisabled(m_net_params.use_tcp);
-	ui.checkBox_useTCP->setChecked(m_net_params.use_tcp);
+	ui.lineEdit_lsocket->setDisabled( m_net_params.use_tcp );
+	ui.checkBox_useTCP->setChecked( m_net_params.use_tcp );
 
 	// debug verbosity
 	ui.checkBox_DBGVerbosity->setChecked( DBG_VERBOSITY );
@@ -163,8 +162,7 @@ void settings::onOkButtonClick()
 	}
 	m_net_params.listen_port = port;
 
-	memcpy( m_net_params.listen_socket, ui.lineEdit_lsocket->text().toAscii().data(), ui.lineEdit_lsocket->text().toAscii().length());
-	m_net_params.listen_socket[ui.lineEdit_lsocket->text().toAscii().length()] = 0; //null terminate
+	snprintf( m_net_params.listen_socket, sizeof(m_net_params.listen_socket), "%s", ui.lineEdit_lsocket->text().toAscii().data() );
 
 	m_net_params.use_tcp = ui.checkBox_useTCP->isChecked();
 
@@ -195,7 +193,7 @@ void settings::onOkButtonClick()
 
 	server::set_msg_map( msg_map );
 
-	memcpy( m_pnet_params, &m_net_params, sizeof(net_params_t) );
+	*m_pnet_params = m_net_params;
 
 	m_ui_params->show_helper_TB = ui.checkBox_ShowHelperTB->isChecked();
 
