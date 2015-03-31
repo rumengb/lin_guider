@@ -6,6 +6,7 @@
 	* Reticle can be moved if the square is over it, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Make Atik and SX drivers prefer the first camera with ST4 port, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Fixes in Atik, ASI and QHY5 drivers, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Created lg_tool.pl to be used as a dithering agent or as standalone application, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 
 2015-02-26 Lin_guider 3.0.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
