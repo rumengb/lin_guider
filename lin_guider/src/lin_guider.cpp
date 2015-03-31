@@ -63,7 +63,7 @@ lin_guider::lin_guider(QWidget *parent)
 
 	ui.setupUi(this);
 
-	setWindowTitle( QString(CPY_RIGHT(VERSION)) );
+	setWindowTitle( QString("Lin-guider") );
 	setWindowIcon( QIcon(QString::fromUtf8(":/new/prefix1/lin_guider.png")) );
 
 	m_hfd_info_label = new QLabel();
