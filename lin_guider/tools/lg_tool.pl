@@ -26,8 +26,8 @@ use File::Basename;
 my $VERSION = "0.1";
 my $verbose = 0;
 
-my %command_val = ( 
-	'GET_VER' => 1, 
+my %command_val = (
+	'GET_VER' => 1,
 	'SET_GUIDER_SQUARE_POS' => 2,
 	'SAVE_FRAME' => 3,
 	'DITHER' => 4,
@@ -58,7 +58,7 @@ sub print_help() {
 	      "       -h print this help\n\n".
 	      "       LG_SOCKET environment variable can be set to change the default.\n".
 	      "       The default is '".SOCK_NAME."'. To use TCP connection use\n".
-	      "       format 'tcp://hostname:port'.\n\n";	
+	      "       format 'tcp://hostname:port'.\n\n";
 }
 
 
@@ -104,7 +104,7 @@ sub lg_recv_resp($) {
 	my ($sock) = @_;
 
 	my $resp;
-	
+
 	$sock->recv($resp, HDR_LEN);
 	if (HDR_LEN != length($resp)) {
 		return undef;
@@ -124,9 +124,9 @@ sub lg_recv_resp($) {
 
 sub lg_chat($$) {
 	my ($cmd, $paramstr) = @_;
-	
+
 	my $resp;
-	my $timeout = 60; 
+	my $timeout = 60;
 	eval {
 		local $SIG{ALRM} = sub { die "Error: can not set timeout\n" };
 		alarm($timeout);
@@ -239,7 +239,7 @@ sub main {
 	if (defined $ENV{LG_SOCKET}) {
 		$sock_name = $ENV{LG_SOCKET};
 	}
-	
+
 	if (getopts("vh", \%options) == undef) {
 		exit 1;
 	}
@@ -260,7 +260,7 @@ sub main {
 		}
 		$verbose && print "Get info succeeded.\n";
 		exit 0;
-	
+
 	} elsif ($command eq "dither") {
 		if (! dither(@ARGV)) {
 			$verbose && print STDERR "DITHER returned error.\n";
@@ -268,7 +268,7 @@ sub main {
 		}
 		$verbose && print "DITHER succeeded.\n";
 		exit 0;
-	
+
 	}  elsif ($command eq "dither_no_wait") {
 		if (! dither_no_wait(@ARGV)) {
 			$verbose && print STDERR "DITHER_NO_WAIT returned error.\n";
@@ -276,7 +276,7 @@ sub main {
 		}
 		$verbose && print "DITHER_NO_WAIT succeeded.\n";
 		exit 0;
-	
+
 	} elsif ($command eq "get_distance") {
 		if (! get_distance(@ARGV)) {
 			$verbose && print STDERR "GET_DISTANCE returned error.\n";
@@ -284,7 +284,7 @@ sub main {
 		}
 		$verbose && print "GET_DISTANCE succeeded.\n";
 		exit 0;
-	
+
 	} elsif ($command eq "set_square_pos") {
 		if (! set_square_pos(@ARGV)) {
 			$verbose && print STDERR "SET_GUIDER_SQUARE_POS returned error.\n";
@@ -292,7 +292,7 @@ sub main {
 		}
 		$verbose && print "SET_GUIDER_SQUARE_POS succeeded.\n";
 		exit 0;
-	
+
 	} elsif ($command eq "-h") {
 		print_help();
 		exit 0;
@@ -300,5 +300,4 @@ sub main {
 	} else {
 		print STDERR "There is no such command \"$command\".\n";
 	}
-	
 } main;
