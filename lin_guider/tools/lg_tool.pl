@@ -62,6 +62,9 @@ sub print_help() {
 }
 
 
+#
+# Communication routines
+#
 sub lg_connect($) {
 	my ($addr) = @_;
 
@@ -70,6 +73,7 @@ sub lg_connect($) {
 		$addr =~ s/^tcp:\/\///;
 		$sock = IO::Socket::INET->new($addr) or return undef;
 	} else {
+		$addr =~ s/^unix:\/\///; # Acept "unix://" prefix, not mandatory
 		$sock = IO::Socket::UNIX->new($addr) or return undef;
 	}
 	return $sock;
@@ -126,11 +130,12 @@ sub lg_chat($$) {
 	my ($cmd, $paramstr) = @_;
 
 	my $resp;
-	my $timeout = 60;
+	my $timeout = 60;  # Timeout for send command and receive relpy
+
+	my $sock = lg_connect($sock_name) or die "Connect to $sock_name: $!\n";
 	eval {
 		local $SIG{ALRM} = sub { die "Error: can not set timeout\n" };
 		alarm($timeout);
-		my $sock = lg_connect($sock_name) or die "Connect to $sock_name: $!\n";
 		if (! lg_send_cmd($sock, $cmd ,$paramstr)) {
 			print STDERR "Send command error.\n";
 			lg_disconnect($sock);
@@ -148,6 +153,9 @@ sub lg_chat($$) {
 }
 
 
+#
+# Lin-guider Commands
+#
 sub dither {
 	my @params = @_;
 	if ($#params >= 0) {
@@ -230,6 +238,7 @@ sub set_square_pos {
 }
 
 
+# main routine
 sub main {
 	my %options = ();
 
@@ -251,6 +260,11 @@ sub main {
 
 	if(defined($options{v})) {
 		$verbose = 1;
+	}
+
+	if ($command eq "-v") {  # allow -v before cmmand
+		$verbose = 1;
+		$command = shift @ARGV;
 	}
 
 	if ($command eq "get_ver") {
