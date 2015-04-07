@@ -79,7 +79,7 @@ cgmath::cgmath( const common_params &comm_params ) :
 	suspended	 = false;
 
 	// square variables
-	square_idx		= DEFAULT_SQR;
+	square_idx		= m_common_params.square_index;
 	square_alg_idx	= SMART_THRESHOLD;
 	square_size		= guide_squares[square_idx].size;
 	square_square 	= guide_squares[square_idx].square;
@@ -366,7 +366,7 @@ void cgmath::get_star_screen_pos( double *dx, double *dy ) const
 
 bool cgmath::reset( void )
 {
-	square_idx		= DEFAULT_SQR;
+	square_idx = m_common_params.square_index;
 	square_alg_idx	= AUTO_THRESHOLD;
 	square_size		= guide_squares[square_idx].size;
 	square_square 	= guide_squares[square_idx].square;

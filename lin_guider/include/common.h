@@ -114,7 +114,8 @@ public:
 		dithering_range( 5 ),
 		dithering_rest_tout( 3 ),
 
-		hfd_on( false )
+		hfd_on( false ),
+		square_index( 1 )
 	{
 	}
 
@@ -128,6 +129,7 @@ public:
 	int dithering_rest_tout;
 
 	bool hfd_on;
+	int square_index;
 };
 
 #endif /* COMMON_H_ */

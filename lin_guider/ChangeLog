@@ -2,6 +2,7 @@
 
 	* Make reticle and square dragging responsive (independant of the exposure time)
 	* Reticle can be moved if the square is over it, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Last used square is now saved in configuration, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Make ASI buffer cleaning optional for better performance, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Add new dithering commands GET_DISTANCE and DITHER_NO_WAIT_XY, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Accept commands over TCP or Unix Sockets(default), by Rumen G.Bogdanovski <rumen@skyarchive.org>

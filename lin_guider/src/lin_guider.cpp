@@ -405,6 +405,9 @@ void lin_guider::closeEvent( QCloseEvent *event )
 	if( about_wnd->isVisible() )
 		about_wnd->close();
 
+	// get the actual square_index before saving
+	m_common_params.square_index = m_math->get_square_index();
+
 	// save params
 	param_block->set_capture_params( m_capture_params );
 	param_block->set_capture_next_params( m_video->get_next_params() );
