@@ -22,6 +22,8 @@
 
 #include <math.h>
 #include <string.h>
+#include <stdint.h>
+
 #include <algorithm>
 #include <vector>
 #include <utility>

@@ -241,6 +241,9 @@ void rcalibration::onReticleXChanged( double val )
 
 	pmath->get_reticle_params( &x, &y, &ang );
 	pmath->set_reticle_params( val, y, ang );
+
+	// update overlay
+	pmain_wnd->update_video_out();
 }
 
 
@@ -253,6 +256,9 @@ void rcalibration::onReticleYChanged( double val )
 
 	pmath->get_reticle_params( &x, &y, &ang );
 	pmath->set_reticle_params( x, val, ang );
+
+	// update overlay
+	pmain_wnd->update_video_out();
 }
 
 
@@ -265,6 +271,9 @@ void rcalibration::onReticleAngChanged( double val )
 
 	pmath->get_reticle_params( &x, &y, &ang );
 	pmath->set_reticle_params( x, y, val );
+
+	// update overlay
+	pmain_wnd->update_video_out();
 }
 
 

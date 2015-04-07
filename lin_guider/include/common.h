@@ -27,14 +27,18 @@
 #include <QtGui>
 #include <assert.h>
 
+#include "maindef.h"
+#include "gmath.h"
 
-class mouse_delegate
+
+class complex_delegate
 {
 public:
-	virtual ~mouse_delegate() {}
+	virtual ~complex_delegate() {}
 	virtual void mouse_press( QMouseEvent *event ) = 0;
 	virtual void mouse_release( QMouseEvent *event ) = 0;
 	virtual void mouse_move( QMouseEvent *event ) = 0;
+	virtual void draw_overlays( QPainter &painter) = 0;
 };
 
 
@@ -43,19 +47,22 @@ class custom_drawer : public QWidget
     Q_OBJECT
 
 public:
-    explicit custom_drawer(QWidget *parent = NULL ) : QWidget(parent), m_mouse(NULL), m_image(NULL)
+    explicit custom_drawer(QWidget *parent = NULL ) :
+    	QWidget( parent ),
+    	m_cd( NULL ),
+    	m_image( NULL )
 	{
 	}
     ~custom_drawer()
     {
     }
-    bool set_source( QImage *image, mouse_delegate *mouse )
+    bool set_source( QImage *image, complex_delegate *cd )
     {
     	m_image = image;
     	if( !m_image )
     		return false;
     	resize( m_image->size() );
-    	m_mouse = mouse;
+    	m_cd = cd;
      return true;
     }
 protected:
@@ -66,30 +73,31 @@ protected:
     	QPainter painter;
     	painter.begin(this);
     	painter.drawImage( 0, 0, *m_image );
+    	if( m_cd )
+    		m_cd->draw_overlays( painter );
     	painter.end();
     };
-
     void mouseMoveEvent ( QMouseEvent *event )
     {
-    	if( !m_mouse )
+    	if( !m_cd )
     		return;
-    	m_mouse->mouse_move( event );
+    	m_cd->mouse_move( event );
     }
     void mousePressEvent ( QMouseEvent *event )
     {
-    	if( !m_mouse )
+    	if( !m_cd )
     	    return;
-    	m_mouse->mouse_press( event );
+    	m_cd->mouse_press( event );
     }
     void mouseReleaseEvent ( QMouseEvent *event )
     {
-    	if( !m_mouse )
+    	if( !m_cd )
     	    return;
-    	m_mouse->mouse_release( event );
+    	m_cd->mouse_release( event );
     }
 private:
-    mouse_delegate *m_mouse;
-    QImage *m_image;
+    complex_delegate *m_cd;
+    QImage           *m_image;
 };
 
 

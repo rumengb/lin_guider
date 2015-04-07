@@ -247,7 +247,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	// about dialog
 	about_wnd = new about( this );
 
-	m_mouse_delegate = new drawer_delegate( this );
+	m_drawer_delegate = new drawer_delegate( this );
 
 
 	// main window video widget...
@@ -258,7 +258,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_video_buffer = new QImage( m_v_buf, m_capture_params.width, m_capture_params.height, QImage::Format_RGB32 );
 
 	// set all sizes
-	m_video_out->set_source( m_video_buffer, m_mouse_delegate );
+	m_video_out->set_source( m_video_buffer, m_drawer_delegate );
 	ui.videoFrame->resize( m_capture_params.width + 2*ui.videoFrame->frameWidth(), m_capture_params.height + 2*ui.videoFrame->frameWidth() );
 
 	// Init scroller
@@ -330,7 +330,7 @@ lin_guider::~lin_guider()
 	// release drawer
 	delete m_video_out;
 
-	delete m_mouse_delegate;
+	delete m_drawer_delegate;
 
 	delete m_video_buffer;
 	free( m_v_buf );
@@ -560,11 +560,12 @@ void lin_guider::onGetVideo( const void *src, int len )
 	if( m_ui_params.half_refresh_rate && (tick & 1) )
 		return;
 
-	// draw overlays over video frame AFTER math
+	/*
 	ovr_params_t *povr = m_math->prepare_overlays();
 
 	QPainter painter;
 	painter.begin( m_video_buffer );
+	painter.setCompositionMode( QPainter::RasterOp_SourceXorDestination );
 	if( povr->visible & ovr_params_t::OVR_RETICLE_ORG )
 	{
 		painter.setPen( RET_ORG_COLOR );
@@ -595,6 +596,7 @@ void lin_guider::onGetVideo( const void *src, int len )
 		}
 	}
 	painter.end();
+	*/
 
 	// HFD
 	if( m_common_params.hfd_on )
@@ -605,7 +607,7 @@ void lin_guider::onGetVideo( const void *src, int len )
 								   QString("\", Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );
 	}
 
-	// update frame
+	// draw overlays over video frame AFTER math and update frame
 	m_video_out->update();
 }
 
@@ -868,14 +870,17 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 
 void lin_guider::move_drag_object( int x, int y )
 {
+	bool upd = false;
+	ovr_params_t *povr = m_math->prepare_overlays();
+
 	for( int i = 0;i < 2;i++ )
 	{
 		if( d_objs[i].active )  // lets move object
 		{
 			if( d_objs[i].type == ovr_params_t::OVR_SQUARE )
 			{
-				ovr_params_t *povr = m_math->prepare_overlays();
 				m_math->move_square( (double)(x - povr->square_size/2), (double)(y - povr->square_size/2) );
+				upd = true;
 				break;
 			}
 			else
@@ -884,8 +889,46 @@ void lin_guider::move_drag_object( int x, int y )
 				double rx, ry, rang;
 				m_math->get_reticle_params( &rx, &ry, &rang );
 				m_math->set_reticle_params( (double)x, (double)y, rang );
+				upd = true;
 				break;
 			}
+		}
+	}
+	if( upd )
+		m_video_out->update();
+}
+
+
+void lin_guider::draw_overlays( QPainter &painter )
+{
+	ovr_params_t *povr = m_math->prepare_overlays();
+
+	if( povr->visible & ovr_params_t::OVR_RETICLE_ORG )
+	{
+		painter.setPen( RET_ORG_COLOR );
+		painter.drawPoint( povr->reticle_org.x, povr->reticle_org.y );
+	}
+	if( povr->visible & ovr_params_t::OVR_SQUARE )
+	{
+		painter.setPen( SQR_OVL_COLOR );
+		painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size, povr->square_size );
+	}
+	if( povr->visible & ovr_params_t::OVR_RETICLE )
+	{
+		painter.setPen( RA_COLOR );
+		painter.drawLine( povr->reticle_pos.x,
+				povr->reticle_pos.y,
+				povr->reticle_pos.x + povr->reticle_axis_ra.x,
+				povr->reticle_pos.y + povr->reticle_axis_ra.y);
+		painter.setPen( DEC_COLOR );
+		painter.drawLine( povr->reticle_pos.x,
+				povr->reticle_pos.y,
+				povr->reticle_pos.x + povr->reticle_axis_dec.x,
+				povr->reticle_pos.y + povr->reticle_axis_dec.y);
+		if( reticle_wnd->isVisible() )
+		{
+			painter.setPen( DEC_COLOR );
+			painter.drawRect( povr->reticle_pos.x-4, povr->reticle_pos.y-4, 8, 8);
 		}
 	}
 }

@@ -25,6 +25,7 @@
 
 #include <QtGui>
 #include <assert.h>
+
 #include "ui_lin_guider.h"
 
 #include "common.h"
@@ -38,6 +39,7 @@
 #include "about.h"
 #include "server.h"
 #include "settings.h"
+#include "timer.h"
 
 
 typedef struct
@@ -142,6 +144,8 @@ private:
 	bool activate_drag_object( int x, int y );
 	bool deactivate_drag_object( int x, int y );
 	void move_drag_object( int x, int y );
+	void draw_overlays( QPainter &painter );
+	void update_video_out( void ) { m_video_out->update(); }
 
 	void update_sb_video_info( int override_fps_idx = -1 );
 	void update_sb_io_info( void );
@@ -149,7 +153,7 @@ private:
 	bool restart_server( void );
 
 	drag_object_t d_objs[2];
-	drawer_delegate *m_mouse_delegate;
+	drawer_delegate *m_drawer_delegate;
 
 	conn_t *m_long_task_conn;
 
@@ -165,7 +169,7 @@ private:
 
 
 
-class drawer_delegate : public mouse_delegate
+class drawer_delegate : public complex_delegate
 {
 public:
 	explicit drawer_delegate( lin_guider *parent ) : m_parent(parent), m_dragging(false)
@@ -187,13 +191,19 @@ public:
 	{
 		if( !m_dragging )
     		return;
-
+		if( m_tm.gettime() < 100 )	// unload CPU
+			return;
+		m_tm.start();
 		m_parent->move_drag_object( event->x(), event->y() );
+	}
+	void draw_overlays( QPainter &painter )
+	{
+		m_parent->draw_overlays( painter );
 	}
 private:
 	lin_guider *m_parent;
 	bool m_dragging;
-
+	ctimer m_tm;
 };
 
 #endif // LIN_GUIDER_H
