@@ -560,44 +560,6 @@ void lin_guider::onGetVideo( const void *src, int len )
 	if( m_ui_params.half_refresh_rate && (tick & 1) )
 		return;
 
-	/*
-	ovr_params_t *povr = m_math->prepare_overlays();
-
-	QPainter painter;
-	painter.begin( m_video_buffer );
-	painter.setCompositionMode( QPainter::RasterOp_SourceXorDestination );
-	if( povr->visible & ovr_params_t::OVR_RETICLE_ORG )
-	{
-		painter.setPen( RET_ORG_COLOR );
-		painter.drawPoint( povr->reticle_org.x, povr->reticle_org.y );
-	}
-	if( povr->visible & ovr_params_t::OVR_SQUARE )
-	{
-		painter.setPen( SQR_OVL_COLOR );
-		painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size, povr->square_size );
-	}
-	if( povr->visible & ovr_params_t::OVR_RETICLE )
-	{
-		painter.setPen( RA_COLOR );
-		painter.drawLine( povr->reticle_pos.x,
-				povr->reticle_pos.y,
-				povr->reticle_pos.x + povr->reticle_axis_ra.x,
-				povr->reticle_pos.y + povr->reticle_axis_ra.y);
-		painter.setPen( DEC_COLOR );
-		painter.drawLine( povr->reticle_pos.x,
-				povr->reticle_pos.y,
-				povr->reticle_pos.x + povr->reticle_axis_dec.x,
-				povr->reticle_pos.y + povr->reticle_axis_dec.y);
-
-		if( reticle_wnd->isVisible() )
-		{
-			painter.setPen( DEC_COLOR );
-			painter.drawRect( povr->reticle_pos.x-4, povr->reticle_pos.y-4, 8, 8);
-		}
-	}
-	painter.end();
-	*/
-
 	// HFD
 	if( m_common_params.hfd_on )
 	{

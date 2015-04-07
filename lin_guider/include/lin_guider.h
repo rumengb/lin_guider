@@ -191,9 +191,7 @@ public:
 	{
 		if( !m_dragging )
     		return;
-		if( m_tm.gettime() < 100 )	// unload CPU
-			return;
-		m_tm.start();
+
 		m_parent->move_drag_object( event->x(), event->y() );
 	}
 	void draw_overlays( QPainter &painter )
@@ -203,7 +201,6 @@ public:
 private:
 	lin_guider *m_parent;
 	bool m_dragging;
-	ctimer m_tm;
 };
 
 #endif // LIN_GUIDER_H

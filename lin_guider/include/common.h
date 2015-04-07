@@ -48,56 +48,56 @@ class custom_drawer : public QWidget
 
 public:
     explicit custom_drawer(QWidget *parent = NULL ) :
-    	QWidget( parent ),
-    	m_cd( NULL ),
-    	m_image( NULL )
+		QWidget( parent ),
+		m_cd( NULL ),
+		m_image( NULL )
 	{
 	}
-    ~custom_drawer()
-    {
-    }
-    bool set_source( QImage *image, complex_delegate *cd )
-    {
-    	m_image = image;
-    	if( !m_image )
-    		return false;
-    	resize( m_image->size() );
-    	m_cd = cd;
-     return true;
-    }
+	~custom_drawer()
+	{
+	}
+	bool set_source( QImage *image, complex_delegate *cd )
+	{
+		m_image = image;
+		if( !m_image )
+			return false;
+		resize( m_image->size() );
+		m_cd = cd;
+	return true;
+	}
 protected:
-    void paintEvent(QPaintEvent *)
-    {
-    	if( !m_image )
-    		return;
-    	QPainter painter;
-    	painter.begin(this);
-    	painter.drawImage( 0, 0, *m_image );
-    	if( m_cd )
-    		m_cd->draw_overlays( painter );
-    	painter.end();
-    };
-    void mouseMoveEvent ( QMouseEvent *event )
-    {
-    	if( !m_cd )
-    		return;
-    	m_cd->mouse_move( event );
-    }
-    void mousePressEvent ( QMouseEvent *event )
-    {
-    	if( !m_cd )
-    	    return;
-    	m_cd->mouse_press( event );
-    }
+	void paintEvent(QPaintEvent *)
+	{
+		if( !m_image )
+			return;
+		QPainter painter;
+		painter.begin(this);
+		painter.drawImage( 0, 0, *m_image );
+		if( m_cd )
+			m_cd->draw_overlays( painter );
+		painter.end();
+	};
+	void mouseMoveEvent ( QMouseEvent *event )
+	{
+		if( !m_cd )
+			return;
+		m_cd->mouse_move( event );
+	}
+	void mousePressEvent ( QMouseEvent *event )
+	{
+		if( !m_cd )
+			return;
+		m_cd->mouse_press( event );
+	}
     void mouseReleaseEvent ( QMouseEvent *event )
-    {
-    	if( !m_cd )
-    	    return;
-    	m_cd->mouse_release( event );
-    }
+	{
+		if( !m_cd )
+			return;
+		m_cd->mouse_release( event );
+	}
 private:
-    complex_delegate *m_cd;
-    QImage           *m_image;
+	complex_delegate *m_cd;
+	QImage           *m_image;
 };
 
 
