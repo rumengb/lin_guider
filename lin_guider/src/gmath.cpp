@@ -79,9 +79,7 @@ cgmath::cgmath( const common_params &comm_params ) :
 	suspended	 = false;
 
 	// square variables
-	square_idx = m_common_params.square_index;
-	if( square_idx < 0 || square_idx >= (int)(sizeof(guide_squares)/sizeof(guide_square_t))-1 )
-		square_idx = DEFAULT_SQR;
+	square_idx = fix_square_index( m_common_params.square_index );
 	square_alg_idx	= SMART_THRESHOLD;
 	square_size		= guide_squares[square_idx].size;
 	square_square 	= guide_squares[square_idx].square;
@@ -246,6 +244,15 @@ bool cgmath::get_reticle_params( double *x, double *y, double *ang ) const
 }
 
 
+int  cgmath::fix_square_index( int square_index ) const
+{
+	if( square_index < 0 || square_index >= (int)(sizeof(guide_squares)/sizeof(guide_square_t))-1 )
+		return DEFAULT_SQR;
+
+	 return square_index;
+}
+
+
 int  cgmath::get_square_index( void ) const
 {
 	return square_idx;
@@ -368,9 +375,7 @@ void cgmath::get_star_screen_pos( double *dx, double *dy ) const
 
 bool cgmath::reset( void )
 {
-	square_idx = m_common_params.square_index;
-	if( square_idx < 0 || square_idx >= (int)(sizeof(guide_squares)/sizeof(guide_square_t))-1 )
-		square_idx = DEFAULT_SQR;
+	square_idx 		= fix_square_index( m_common_params.square_index );
 	square_alg_idx	= AUTO_THRESHOLD;
 	square_size		= guide_squares[square_idx].size;
 	square_square 	= guide_squares[square_idx].square;
@@ -405,8 +410,7 @@ void cgmath::move_square( double newx, double newy )
 
 void cgmath::resize_square( int size_idx )
 {
-	if( size_idx < 0 || size_idx >= (int)(sizeof(guide_squares)/sizeof(guide_square_t))-1 )
-		size_idx = DEFAULT_SQR;
+	size_idx = fix_square_index( size_idx );
 
 	int old_hsz = square_size / 2;
 

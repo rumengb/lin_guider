@@ -195,6 +195,7 @@ public:
 	bool set_guider_params( double ccd_pix_wd, double ccd_pix_ht, double guider_aperture, double guider_focal );
 	bool set_reticle_params( double x, double y, double ang );
 	bool get_reticle_params( double *x, double *y, double *ang ) const;
+	int  fix_square_index( int square_index ) const;
 	int  get_square_index( void ) const;
 	int  get_square_algorithm_index( void ) const;
 	void set_square_algorithm_index( int alg_idx );
