@@ -51,7 +51,7 @@ class common_params;
 #define SGN_POS  0
 #define SGN_NEG  1
 #define CHANNEL_CNT	2
-//#define DEFAULT_SQR	1
+#define DEFAULT_SQR	1
 
 #define  MAX_ACCUM_CNT	50
 
