@@ -115,7 +115,7 @@ public:
 		dithering_rest_tout( 3 ),
 
 		hfd_on( false ),
-		square_index( 1 )
+		square_index( DEFAULT_SQR )
 	{
 	}
 

@@ -241,7 +241,7 @@ bool params::load( void )
 		m_common_params.dithering_rest_tout = settings.value( "dithering_rest_tout", 3 ).toInt();
 		DBG_VERBOSITY = settings.value( "dbg_verbosity", false ).toBool();
 		m_common_params.hfd_on = settings.value( "hfd_on", false ).toBool();
-		m_common_params.square_index = settings.value( "square_index", 1 ).toInt();
+		m_common_params.square_index = settings.value( "square_index", DEFAULT_SQR ).toInt();
 	settings.endGroup();
 
 	// drift view
