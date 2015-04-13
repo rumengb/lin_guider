@@ -1,4 +1,4 @@
-2015-04-10 Lin_guider 3.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
+2015-04-12 Lin_guider 3.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
 	* Make reticle and square dragging responsive (independent of the exposure time)
 	* Reticle can be moved if the square is over it, by Rumen G.Bogdanovski <rumen@skyarchive.org>

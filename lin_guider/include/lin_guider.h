@@ -171,6 +171,10 @@ private:
 
 class drawer_delegate : public complex_delegate
 {
+	enum consts
+	{
+		SKIP_TM = 40
+	};
 public:
 	explicit drawer_delegate( lin_guider *parent ) : m_parent(parent), m_dragging(false)
 	{
@@ -192,7 +196,7 @@ public:
 	{
 		if( !m_dragging )
     		return;
-		if( m_tm.gettime() < 100 )	// unload CPU
+		if( m_tm.gettime() < drawer_delegate::SKIP_TM )	// unload CPU
 			return;
 		m_tm.start();
 		m_parent->move_drag_object( event->x(), event->y() );
