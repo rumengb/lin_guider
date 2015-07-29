@@ -156,6 +156,13 @@
         <item row="1" column="1">
          <widget class="QComboBox" name="comboBox_QualityControl"/>
         </item>
+        <item row="1" column="2" colspan="3">
+         <widget class="QCheckBox" name="checkBox_normalizeGain">
+          <property name="text">
+           <string>Normalize gains</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="4">
          <widget class="QComboBox" name="comboBox_ThresholdAlg"/>
         </item>
@@ -455,7 +462,7 @@
         <item row="6" column="3">
          <widget class="QDoubleSpinBox" name="spinBox_DerGainDEC">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="maximum">
            <double>1000.000000000000000</double>
@@ -501,7 +508,7 @@
         <item row="6" column="2">
          <widget class="QDoubleSpinBox" name="spinBox_DerGainRA">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="maximum">
            <double>1000.000000000000000</double>
@@ -525,7 +532,7 @@
         <item row="4" column="3">
          <widget class="QDoubleSpinBox" name="spinBox_PropGainDEC">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="maximum">
            <double>1000.000000000000000</double>
@@ -542,7 +549,7 @@
         <item row="4" column="2">
          <widget class="QDoubleSpinBox" name="spinBox_PropGainRA">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="maximum">
            <double>1000.000000000000000</double>
@@ -651,7 +658,7 @@
         <item row="5" column="2">
          <widget class="QDoubleSpinBox" name="spinBox_IntGainRA">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="maximum">
            <double>1000.000000000000000</double>
@@ -736,7 +743,7 @@
         <item row="5" column="3">
          <widget class="QDoubleSpinBox" name="spinBox_IntGainDEC">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="maximum">
            <double>1000.000000000000000</double>
@@ -844,6 +851,7 @@
   <tabstop>comboBox_QualityControl</tabstop>
   <tabstop>doubleSpinBox_QualityThreshold1</tabstop>
   <tabstop>doubleSpinBox_QualityThreshold2</tabstop>
+  <tabstop>checkBox_normalizeGain</tabstop>
   <tabstop>checkBox_SwapDec</tabstop>
   <tabstop>checkBox_SaveLog</tabstop>
   <tabstop>lineEdit_DriftFileName</tabstop>

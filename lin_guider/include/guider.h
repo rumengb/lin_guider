@@ -68,6 +68,7 @@ protected slots:
 	void onSquareSizeChanged( int index );
 	void onThresholdChanged( int i );
 	void onSwapDEC( int state );
+	void onNormalizeGain( int state );
 	void onSaveLog( int state );
 	void onFileNameChanged();
 	void onQualityControlChanged( int index );

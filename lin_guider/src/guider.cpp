@@ -81,6 +81,7 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	connect( ui.doubleSpinBox_QualityThreshold1, SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
 	connect( ui.doubleSpinBox_QualityThreshold2, SIGNAL(editingFinished()), this, SLOT(onInputParamChanged()) );
 	connect( ui.checkBox_SwapDec, 		SIGNAL(stateChanged(int)), this, SLOT(onSwapDEC(int)) );
+	connect( ui.checkBox_normalizeGain, SIGNAL(stateChanged(int)), this, SLOT(onNormalizeGain(int)) );
 	connect( ui.checkBox_SaveLog, 		SIGNAL(stateChanged(int)), this, SLOT(onSaveLog(int)) );
 	connect( ui.lineEdit_DriftFileName,	SIGNAL(editingFinished()), this, SLOT(onFileNameChanged()) );
 	connect( ui.spinBox_GuideRate, 		SIGNAL(valueChanged(double)), this, SLOT(onInfoRateChanged(double)) );
@@ -223,9 +224,8 @@ void guider::fill_interface( void )
 	//ui.checkBox_SwapDec->setChecked( swap_dec );
 	ui.lineEdit_DriftFileName->setVisible( ui.checkBox_SaveLog->isChecked() );
 
-
-	ui.l_RecommendedGain->setText( tr("P:") + QString().setNum(cgmath::precalc_proportional_gain(in_params->guiding_rate), 'f', 2 ) );
-
+	ui.l_RecommendedGain->setText( tr("P:") + QString().setNum(in_params->guiding_normal_coef, 'f', 2 ) );
+	ui.checkBox_normalizeGain->setChecked( in_params->normalize_gain );
 
 	ui.spinBox_GuideRate->setValue( in_params->guiding_rate );
 
@@ -335,6 +335,43 @@ void guider::onSwapDEC( int state )
 	log_i( "DEC control bits swapped" );
 }
 
+void guider::onNormalizeGain( int state )
+{
+	cproc_in_params *in_params;
+
+	if( !m_math ) return;
+
+	in_params = m_math->get_in_params();
+
+	// for some reson state == 2 if cheked, need to cast to bool to compare!
+	if(( in_params->normalize_gain == (bool)state ) || (in_params->guiding_normal_coef < 0.001)) return;
+
+	in_params->normalize_gain = state;
+
+	if( state ) {
+		in_params->proportional_gain[RA] = in_params->proportional_gain[RA] / in_params->guiding_normal_coef;
+		in_params->proportional_gain[DEC] = in_params->proportional_gain[DEC] / in_params->guiding_normal_coef;
+		in_params->integral_gain[RA] = in_params->integral_gain[RA] / in_params->guiding_normal_coef;
+		in_params->integral_gain[DEC] = in_params->integral_gain[DEC] / in_params->guiding_normal_coef;
+		in_params->derivative_gain[RA] = in_params->derivative_gain[RA] / in_params->guiding_normal_coef;
+		in_params->derivative_gain[DEC] = in_params->derivative_gain[DEC] / in_params->guiding_normal_coef;
+	} else {
+		in_params->proportional_gain[RA] = in_params->proportional_gain[RA] * in_params->guiding_normal_coef;
+		in_params->proportional_gain[DEC] = in_params->proportional_gain[DEC] * in_params->guiding_normal_coef;
+		in_params->integral_gain[RA] = in_params->integral_gain[RA] * in_params->guiding_normal_coef;
+		in_params->integral_gain[DEC] = in_params->integral_gain[DEC] * in_params->guiding_normal_coef;
+		in_params->derivative_gain[RA] = in_params->derivative_gain[RA] * in_params->guiding_normal_coef;
+		in_params->derivative_gain[DEC] = in_params->derivative_gain[DEC] * in_params->guiding_normal_coef;
+	}
+
+	ui.spinBox_PropGainRA->setValue(in_params->proportional_gain[RA]);
+	ui.spinBox_PropGainDEC->setValue(in_params->proportional_gain[DEC]);
+	ui.spinBox_IntGainRA->setValue(in_params->integral_gain[RA]);
+	ui.spinBox_IntGainDEC->setValue(in_params->integral_gain[DEC]);
+	ui.spinBox_DerGainRA->setValue(in_params->derivative_gain[RA]);
+	ui.spinBox_DerGainDEC->setValue(in_params->derivative_gain[DEC]);
+	m_math->set_in_params(in_params);
+}
 
 void guider::onSaveLog( int state )
 {
@@ -370,8 +407,9 @@ void guider::onInfoRateChanged( double val )
 	cproc_in_params *in_params = m_math->get_in_params();
 
 	in_params->guiding_rate = val;
+	in_params->guiding_normal_coef = m_math->precalc_proportional_gain(in_params->guiding_rate);
 
-	ui.l_RecommendedGain->setText( tr("P:") + QString().setNum(m_math->precalc_proportional_gain(in_params->guiding_rate), 'f', 2 ) );
+	ui.l_RecommendedGain->setText( tr("P:") + QString().setNum(in_params->guiding_normal_coef, 'f', 2 ) );
 }
 
 

@@ -145,6 +145,8 @@ bool params::load( void )
 		m_math_in_params.quality_threshold2 = settings.value( "quality_threshold2", 15 ).toDouble(&ok);
 		m_math_in_params.stability_limit_factor = settings.value( "stability_limit_factor", STABILITY_LIMIT_FACTOR ).toDouble(&ok);
 		m_math_in_params.guiding_rate = settings.value( "guiding_rate" ).toDouble(&ok);
+		m_math_in_params.guiding_normal_coef = cgmath::precalc_proportional_gain(m_math_in_params.guiding_rate);
+		m_math_in_params.normalize_gain = settings.value( "normalize_gain" ).toBool();
 		m_math_in_params.enabled_dir[RA] = settings.value( "enabled_RA", true ).toBool();
 		m_math_in_params.enabled_dir[DEC] = settings.value( "enabled_DEC", true ).toBool();
 		m_math_in_params.enabled_dir_sign[RA][SGN_POS] = settings.value( "enabled_RA+", true ).toBool();
@@ -300,6 +302,7 @@ bool params::save( void )
 		settings.setValue( "quality_threshold2", m_math_in_params.quality_threshold2 );
 		settings.setValue( "stability_limit_factor", m_math_in_params.stability_limit_factor );
 		settings.setValue( "guiding_rate", m_math_in_params.guiding_rate );
+		settings.setValue( "normalize_gain", m_math_in_params.normalize_gain );
 		settings.setValue( "enabled_RA", m_math_in_params.enabled_dir[RA] );
 		settings.setValue( "enabled_DEC", m_math_in_params.enabled_dir[DEC] );
 		settings.setValue( "enabled_RA+", m_math_in_params.enabled_dir_sign[RA][SGN_POS] );

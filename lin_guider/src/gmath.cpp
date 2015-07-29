@@ -277,6 +277,8 @@ void cgmath::set_in_params( const cproc_in_params *v )
 	//in_params.threshold_alg_idx     = v->threshold_alg_idx;
 	set_square_algorithm_index( v->threshold_alg_idx );
 	in_params.guiding_rate 			         	= v->guiding_rate;
+	in_params.guiding_normal_coef		     	= cgmath::precalc_proportional_gain(v->guiding_rate);
+	in_params.normalize_gain		         	= v->normalize_gain;
 	in_params.enabled_dir[RA] 		         	= v->enabled_dir[RA];
 	in_params.enabled_dir[DEC]		         	= v->enabled_dir[DEC];
 	in_params.enabled_dir_sign[RA][SGN_POS]	 	= v->enabled_dir_sign[RA][SGN_POS];
@@ -1053,8 +1055,13 @@ void cgmath::process_axes( void  )
 		//if( k == RA )
 		//	log_i( "PROP = %f INT = %f", out_params.delta[k], drift_integral[k] );
 
-		out_params.pulse_length[k] = fabs(out_params.delta[k]*in_params.proportional_gain[k] + drift_integral[k]*in_params.integral_gain[k]);
- 		out_params.pulse_length[k] = out_params.pulse_length[k] <= in_params.max_pulse_length[k] ? out_params.pulse_length[k] : in_params.max_pulse_length[k];
+		// if the gains are normalized the guiding_normal_coef should be applied
+		if( in_params.normalize_gain )
+			out_params.pulse_length[k] = fabs((out_params.delta[k]*in_params.proportional_gain[k] + drift_integral[k]*in_params.integral_gain[k])*in_params.guiding_normal_coef );
+		else
+			out_params.pulse_length[k] = fabs(out_params.delta[k]*in_params.proportional_gain[k] + drift_integral[k]*in_params.integral_gain[k]);
+
+		out_params.pulse_length[k] = out_params.pulse_length[k] <= in_params.max_pulse_length[k] ? out_params.pulse_length[k] : in_params.max_pulse_length[k];
 
  		// calc direction
  		if( !in_params.enabled_dir[k] )
@@ -1508,6 +1515,8 @@ void cproc_in_params::reset( void )
 {
 	threshold_alg_idx = SMART_THRESHOLD;
 	guiding_rate = 0.5;
+	normalize_gain = false;
+	guiding_normal_coef = cgmath::precalc_proportional_gain( guiding_rate );
 	average = true;
 
 	for( int k = RA;k <= DEC;k++ )
@@ -1516,7 +1525,7 @@ void cproc_in_params::reset( void )
 		enabled_dir_sign[k][SGN_POS] = true;
 		enabled_dir_sign[k][SGN_NEG] = true;
 		accum_frame_cnt[k] 	         = 1;
-		proportional_gain[k]         = cgmath::precalc_proportional_gain( guiding_rate );
+		proportional_gain[k]         = guiding_normal_coef;
 		integral_gain[k] 	         = 0;
 		derivative_gain[k] 	         = 0;
 		max_pulse_length[k]          = 5000;

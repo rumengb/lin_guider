@@ -138,6 +138,8 @@ public:
 
 	int       threshold_alg_idx;
 	double    guiding_rate;
+	double    guiding_normal_coef;
+	bool      normalize_gain;
 	bool      enabled_dir[CHANNEL_CNT];
 	bool      enabled_dir_sign[CHANNEL_CNT][CHANNEL_CNT];
 	bool      average;

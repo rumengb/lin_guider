@@ -114,6 +114,7 @@ void settings::fill_interface( void )
 
 	// HFD
 	ui.checkBox_HFD_on->setChecked( m_common_params.hfd_on );
+
 }
 
 
