@@ -50,6 +50,8 @@ class AtikCamera {
 		virtual bool initiateWarmUp() = 0;
 		virtual bool getFilterWheelStatus(unsigned *filterCount, bool *moving, unsigned *current, unsigned *target) = 0;
 		virtual bool setFilter(unsigned index) = 0;
+    virtual bool setPreviewMode(bool useMode) = 0;
+    virtual bool set8BitMode(bool useMode) = 0;
 		virtual bool startExposure(bool amp) = 0;
 		virtual bool abortExposure() = 0;
 		virtual bool readCCD(unsigned startX, unsigned startY, unsigned sizeX, unsigned sizeY, unsigned binX, unsigned binY) = 0;
