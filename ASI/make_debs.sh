@@ -6,7 +6,7 @@ if [ "$USER" != "root" ]; then
 fi
 
 PACKAGE="libasicamera"
-VERSION="0.1.0723"
+VERSION="0.1.0731"
 
 # arch i386
 ARCH="i386"
@@ -23,6 +23,7 @@ cp -a lib/x86/* $NAME/usr/lib
 install -d $NAME/usr/include
 install -m 644 include/* $NAME/usr/include
 
+chown -R root:root $NAME
 dpkg -b $NAME $NAME.deb
 rm -r $NAME
 
@@ -41,6 +42,7 @@ cp -a lib/x64/* $NAME/usr/lib
 install -d $NAME/usr/include
 install -m 644 include/* $NAME/usr/include
 
+chown -R root:root $NAME
 dpkg -b $NAME $NAME.deb
 rm -r $NAME
 
@@ -59,6 +61,7 @@ cp -a lib/armv6/* $NAME/usr/lib
 install -d $NAME/usr/include
 install -m 644 include/* $NAME/usr/include
 
+chown -R root:root $NAME
 dpkg -b $NAME $NAME.deb
 rm -r $NAME
 
