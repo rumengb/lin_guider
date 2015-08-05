@@ -56,6 +56,7 @@
 #define USB_REQ_LENGTH_L            6
 #define USB_REQ_LENGTH_H            7
 #define USB_REQ_DATA                8
+
 #define USB_REQ_DIR(r)              ((r)&(1<<7))
 #define USB_REQ_DATAOUT             0x00
 #define USB_REQ_DATAIN              0x80
@@ -109,8 +110,10 @@
 #define BULK_IN                     0x0082
 #define BULK_OUT                    0x0001
 
-#define BULK_COMMAND_TIMEOUT        1000
-#define BULK_DATA_TIMEOUT           15000
+#define BULK_COMMAND_TIMEOUT        2000
+#define BULK_DATA_TIMEOUT           10000
+
+#define CHUNK_SIZE                  (10*1024*1024)
 
 #if 1
 #define TRACE(c) (c)
@@ -361,7 +364,7 @@ unsigned short sxGetBuildNumber(HANDLE sxHandle) {
   setup_data[USB_REQ_VALUE_H ] = 0;
   setup_data[USB_REQ_INDEX_L ] = 0;
   setup_data[USB_REQ_INDEX_H ] = 0;
-  setup_data[USB_REQ_LENGTH_L] = 4;
+  setup_data[USB_REQ_LENGTH_L] = 2;
   setup_data[USB_REQ_LENGTH_H] = 0;
   int rc = libusb_bulk_transfer(sxHandle, BULK_OUT, setup_data, 8, &transferred, BULK_COMMAND_TIMEOUT);
   DEBUG(log(true, "sxGetBuildNumber: libusb_control_transfer -> %s\n", rc < 0 ? libusb_error_name(rc) : "OK"));
@@ -369,7 +372,7 @@ unsigned short sxGetBuildNumber(HANDLE sxHandle) {
     rc = libusb_bulk_transfer(sxHandle, BULK_IN, setup_data, 2, &transferred, BULK_COMMAND_TIMEOUT);
     DEBUG(log(true, "sxGetBuildNumber: libusb_control_transfer -> %s\n", rc < 0 ? libusb_error_name(rc) : "OK"));
     if (transferred == 2) {
-      int result=setup_data[0] | (setup_data[1] << 8);
+      unsigned long result = ((unsigned long)setup_data[0] | ((unsigned long)setup_data[1] << 8));
       return result;
     }
   }
@@ -619,12 +622,13 @@ int sxReadPixels(HANDLE sxHandle, void *pixels, unsigned long count) {
   unsigned long read=0;
   int rc=0;
   while (read < count && rc >= 0) {
-	DEBUG(log(true, "sxReadPixels: libusb_control_transfer START"));
-    rc = libusb_bulk_transfer(sxHandle, BULK_IN, (unsigned char *)pixels + read, count - read, &transferred, BULK_DATA_TIMEOUT);
+    int size = count - read;
+    if (size > CHUNK_SIZE)
+      size = CHUNK_SIZE;
+    rc = libusb_bulk_transfer(sxHandle, BULK_IN, (unsigned char *)pixels + read, size, &transferred, BULK_DATA_TIMEOUT);
     DEBUG(log(true, "sxReadPixels: libusb_control_transfer -> %s\n", rc < 0 ? libusb_error_name(rc) : "OK"));
     if (transferred >= 0) {
       read+=transferred;
-      usleep(50);
     }
   }
   return rc >= 0;
