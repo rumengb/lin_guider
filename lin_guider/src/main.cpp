@@ -23,9 +23,11 @@
 
 #include <QtGui>
 #include <QApplication>
+#include <stdlib.h>
 
 int main(int argc, char *argv[])
 {
+    setenv("LC_NUMERIC","C",1); /* always use "." for floating point */
     QApplication a(argc, argv);
     lin_guider w;
     w.show();
