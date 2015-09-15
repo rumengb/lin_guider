@@ -176,6 +176,28 @@ int cio_driver_gpio::close_device( void )
 
 void cio_driver_gpio::write_data( unsigned int dByte )
 {
+	bool inverse_ra = false;
+	bool inverse_dec = false;
+	int ra_inc_pos = 0;
+	int ra_dec_pos = 0;
+	int dec_inc_pos = 0;
+	int dec_dec_pos = 0;
+
+	for( int i = 0;i < 8;i++ )
+	{
+		 if( bit_actions[i] == RA_INC_DIR )
+			 ra_inc_pos = i;
+		 if( bit_actions[i] == RA_DEC_DIR )
+			 ra_dec_pos = i;
+		 if( bit_actions[i] == DEC_INC_DIR )
+			 dec_inc_pos = i;
+		 if( bit_actions[i] == DEC_DEC_DIR )
+			 dec_dec_pos = i;
+	}
+
+	inverse_ra = ra_inc_pos > ra_dec_pos;
+	inverse_dec = dec_inc_pos > dec_dec_pos;
+
 	u_char mapped = bit_map_encoder[ (u_char)dByte ];
 
 	for( int i = 0 ; i < 8; ++i )
@@ -189,19 +211,19 @@ void cio_driver_gpio::write_data( unsigned int dByte )
 			switch( bit_actions[i] )
 			{
 			case RA_INC_DIR:
-				out = m_gpio[ GPIO_RAP ];
+				out = m_gpio[ inverse_ra ? GPIO_RAN : GPIO_RAP ];
 				log_i("RA_INC_DIR: %s", (mapped & mask) ? "1" : "0");
 				break;
 			case RA_DEC_DIR:
-				out = m_gpio[ GPIO_RAN ];
+				out = m_gpio[ inverse_ra ? GPIO_RAP : GPIO_RAN ];
 				log_i("RA_DEC_DIR: %s", (mapped & mask) ? "1" : "0");
 				break;
 			case DEC_INC_DIR:
-				out = m_gpio[ GPIO_DECP ];
+				out = m_gpio[ inverse_dec ? GPIO_DECN : GPIO_DECP ];
 				log_i("DEC_INC_DIR: %s", (mapped & mask) ? "1" : "0");
 				break;
 			case DEC_DEC_DIR:
-				out = m_gpio[ GPIO_DECN ];
+				out = m_gpio[ inverse_dec ? GPIO_DECP: GPIO_DECN ];
 				log_i("DEC_DEC_DIR: %s", (mapped & mask) ? "1" : "0");
 				break;
 			default:
