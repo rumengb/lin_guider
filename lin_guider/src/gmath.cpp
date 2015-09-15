@@ -757,7 +757,7 @@ double cgmath::calc_phi( double start_x, double start_y, double end_x, double en
 	delta_x = end_x - start_x;
 	delta_y = -(end_y - start_y);
 
-	if( !Vector(delta_x, delta_y, 0) < len_threshold )
+	if( (!Vector(delta_x, delta_y, 0)) < len_threshold )
 		return -1;
 
 	// 90 or 270 degrees
@@ -1055,12 +1055,7 @@ void cgmath::process_axes( void  )
 		//if( k == RA )
 		//	log_i( "PROP = %f INT = %f", out_params.delta[k], drift_integral[k] );
 
-		// if the gains are normalized the guiding_normal_coef should be applied
-		if( in_params.normalize_gain )
-			out_params.pulse_length[k] = fabs((out_params.delta[k]*in_params.proportional_gain[k] + drift_integral[k]*in_params.integral_gain[k])*in_params.guiding_normal_coef );
-		else
-			out_params.pulse_length[k] = fabs(out_params.delta[k]*in_params.proportional_gain[k] + drift_integral[k]*in_params.integral_gain[k]);
-
+		out_params.pulse_length[k] = fabs(out_params.delta[k]*in_params.proportional_gain[k] + drift_integral[k]*in_params.integral_gain[k]);
 		out_params.pulse_length[k] = out_params.pulse_length[k] <= in_params.max_pulse_length[k] ? out_params.pulse_length[k] : in_params.max_pulse_length[k];
 
  		// calc direction

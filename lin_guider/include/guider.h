@@ -101,6 +101,7 @@ private:
 	int  guiding_stable;
 
 	void fill_interface( void );
+	void update_gains( void );
 	void check_for_events( void );
 
 	lin_guider *pmain_wnd;

@@ -249,14 +249,7 @@ void guider::fill_interface( void )
 	ui.spinBox_AccFramesRA->setValue( (int)in_params->accum_frame_cnt[RA] );
 	ui.spinBox_AccFramesDEC->setValue( (int)in_params->accum_frame_cnt[DEC] );
 
-	ui.spinBox_PropGainRA->setValue( in_params->proportional_gain[RA] );
-	ui.spinBox_PropGainDEC->setValue( in_params->proportional_gain[DEC] );
-
-	ui.spinBox_IntGainRA->setValue( in_params->integral_gain[RA] );
-	ui.spinBox_IntGainDEC->setValue( in_params->integral_gain[DEC] );
-
-	ui.spinBox_DerGainRA->setValue( in_params->derivative_gain[RA] );
-	ui.spinBox_DerGainDEC->setValue( in_params->derivative_gain[DEC] );
+	update_gains();
 
 	ui.spinBox_MaxPulseRA->setValue( in_params->max_pulse_length[RA] );
 	ui.spinBox_MaxPulseDEC->setValue( in_params->max_pulse_length[DEC] );
@@ -275,6 +268,21 @@ void guider::fill_interface( void )
 	ui.l_ErrDEC->setText( QString().setNum(out_params->sigma[DEC]) );
 
 	ui.l_Quality->setText( QString().setNum(out_params->quality, 'f', 1) );
+}
+
+
+void guider::update_gains( void )
+{
+	if( !m_math )
+		return;
+	const cproc_in_params *in_params = m_math->get_in_params();;
+
+	ui.spinBox_PropGainRA->setValue( in_params->normalize_gain ? in_params->proportional_gain[RA] / in_params->guiding_normal_coef : in_params->proportional_gain[RA]);
+	ui.spinBox_PropGainDEC->setValue(in_params->normalize_gain ? in_params->proportional_gain[DEC] / in_params->guiding_normal_coef : in_params->proportional_gain[DEC]);
+	ui.spinBox_IntGainRA->setValue(in_params->normalize_gain ? in_params->integral_gain[RA] / in_params->guiding_normal_coef : in_params->integral_gain[RA]);
+	ui.spinBox_IntGainDEC->setValue(in_params->normalize_gain ? in_params->integral_gain[DEC] / in_params->guiding_normal_coef : in_params->integral_gain[DEC]);
+	ui.spinBox_DerGainRA->setValue(in_params->normalize_gain ? in_params->derivative_gain[RA] / in_params->guiding_normal_coef : in_params->derivative_gain[RA]);
+	ui.spinBox_DerGainDEC->setValue(in_params->normalize_gain ? in_params->derivative_gain[DEC] / in_params->guiding_normal_coef : in_params->derivative_gain[DEC]);
 }
 
 
@@ -343,12 +351,14 @@ void guider::onNormalizeGain( int state )
 
 	in_params = m_math->get_in_params();
 
+	bool is_checked = (state != Qt::Unchecked);
 	// for some reson state == 2 if cheked, need to cast to bool to compare!
-	if(( in_params->normalize_gain == (bool)state ) || (in_params->guiding_normal_coef < 0.001)) return;
+	if(( in_params->normalize_gain == is_checked ) || (in_params->guiding_normal_coef < 0.001)) return;
 
-	in_params->normalize_gain = state;
+	in_params->normalize_gain = is_checked;
 
-	if( state ) {
+	/*
+	if( in_params->normalize_gain ) {
 		in_params->proportional_gain[RA] = in_params->proportional_gain[RA] / in_params->guiding_normal_coef;
 		in_params->proportional_gain[DEC] = in_params->proportional_gain[DEC] / in_params->guiding_normal_coef;
 		in_params->integral_gain[RA] = in_params->integral_gain[RA] / in_params->guiding_normal_coef;
@@ -363,14 +373,10 @@ void guider::onNormalizeGain( int state )
 		in_params->derivative_gain[RA] = in_params->derivative_gain[RA] * in_params->guiding_normal_coef;
 		in_params->derivative_gain[DEC] = in_params->derivative_gain[DEC] * in_params->guiding_normal_coef;
 	}
+	*/
 
-	ui.spinBox_PropGainRA->setValue(in_params->proportional_gain[RA]);
-	ui.spinBox_PropGainDEC->setValue(in_params->proportional_gain[DEC]);
-	ui.spinBox_IntGainRA->setValue(in_params->integral_gain[RA]);
-	ui.spinBox_IntGainDEC->setValue(in_params->integral_gain[DEC]);
-	ui.spinBox_DerGainRA->setValue(in_params->derivative_gain[RA]);
-	ui.spinBox_DerGainDEC->setValue(in_params->derivative_gain[DEC]);
-	m_math->set_in_params(in_params);
+	update_gains();
+	//m_math->set_in_params(in_params);
 }
 
 void guider::onSaveLog( int state )
@@ -410,6 +416,8 @@ void guider::onInfoRateChanged( double val )
 	in_params->guiding_normal_coef = m_math->precalc_proportional_gain(in_params->guiding_rate);
 
 	ui.l_RecommendedGain->setText( tr("P:") + QString().setNum(in_params->guiding_normal_coef, 'f', 2 ) );
+
+	update_gains();
 }
 
 
@@ -517,22 +525,22 @@ void guider::onInputParamChanged()
 	if( (pDSB = dynamic_cast<QDoubleSpinBox *>(obj)) )
 	{
 		if( pDSB == ui.spinBox_PropGainRA )
-			in_params->proportional_gain[RA] = pDSB->value();
+			in_params->proportional_gain[RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_PropGainDEC )
-			in_params->proportional_gain[DEC] = pDSB->value();
+			in_params->proportional_gain[DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_IntGainRA )
-			in_params->integral_gain[RA] = pDSB->value();
+			in_params->integral_gain[RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_IntGainDEC )
-			in_params->integral_gain[DEC] = pDSB->value();
+			in_params->integral_gain[DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_DerGainRA )
-			in_params->derivative_gain[RA] = pDSB->value();
+			in_params->derivative_gain[RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_DerGainDEC )
-			in_params->derivative_gain[DEC] = pDSB->value();
+			in_params->derivative_gain[DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.doubleSpinBox_QualityThreshold1 )
 			in_params->quality_threshold1 = pDSB->value();
