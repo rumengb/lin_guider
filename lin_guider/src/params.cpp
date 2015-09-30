@@ -248,7 +248,7 @@ bool params::load( void )
 
 	// drift view
 	settings.beginGroup("guider_drift_view");
-		m_drift_view_params.drift_graph_xrange = settings.value( "drift_graph_xrange", 300 ).toInt();
+		m_drift_view_params.drift_graph_xrange = settings.value( "drift_graph_xrange", 350 ).toInt();
 		m_drift_view_params.drift_graph_yrange = settings.value( "drift_graph_yrange", 60 ).toInt();
 	settings.endGroup();
 

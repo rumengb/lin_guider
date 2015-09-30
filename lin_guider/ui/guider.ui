@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>480</height>
+    <width>720</width>
+    <height>530</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>640</width>
-    <height>480</height>
+    <width>720</width>
+    <height>530</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -72,14 +72,14 @@
          <widget class="QFrame" name="frame_Graph">
           <property name="minimumSize">
            <size>
-            <width>300</width>
-            <height>300</height>
+            <width>350</width>
+            <height>350</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>300</width>
-            <height>300</height>
+            <width>350</width>
+            <height>350</height>
            </size>
           </property>
           <property name="frameShape">
@@ -377,7 +377,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="3" column="0" colspan="3">
          <widget class="QCheckBox" name="checkBox_normalizeGain">
           <property name="text">
            <string>Normalize gains</string>

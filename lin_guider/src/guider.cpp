@@ -33,8 +33,8 @@
 #include "utils.h"
 
 
-#define DRIFT_GRAPH_WIDTH	300
-#define DRIFT_GRAPH_HEIGHT	300
+#define DRIFT_GRAPH_WIDTH	350
+#define DRIFT_GRAPH_HEIGHT	350
 
 
 guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params ) :
