@@ -55,7 +55,7 @@ int cio_driver_sx::open_device( void ) {
 	int res = open();
 	if (res) return res;
 
-	if(!m_caps.extra_caps & SXCCD_CAPS_GUIDER) {
+	if((!m_caps.extra_caps) & SXCCD_CAPS_GUIDER) {
 		log_e("This Starlight Xpress camera does not have a guider port.");
 		return 1;
 	} else {

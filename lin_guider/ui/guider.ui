@@ -156,28 +156,8 @@
         <item row="1" column="1">
          <widget class="QComboBox" name="comboBox_QualityControl"/>
         </item>
-        <item row="1" column="2" colspan="3">
-         <widget class="QCheckBox" name="checkBox_normalizeGain">
-          <property name="text">
-           <string>Normalize gains</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="4">
          <widget class="QComboBox" name="comboBox_ThresholdAlg"/>
-        </item>
-        <item row="1" column="3">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_QualityThreshold1">
-          <property name="minimum">
-           <double>3.000000000000000</double>
-          </property>
-          <property name="maximum">
-           <double>95.000000000000000</double>
-          </property>
-          <property name="value">
-           <double>50.000000000000000</double>
-          </property>
-         </widget>
         </item>
         <item row="1" column="4">
          <widget class="QDoubleSpinBox" name="doubleSpinBox_QualityThreshold2">
@@ -199,14 +179,27 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1" colspan="2">
+        <item row="1" column="2" colspan="2">
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_QualityThreshold1">
+          <property name="minimum">
+           <double>3.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>95.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>50.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
          <widget class="QCheckBox" name="checkBox_SaveLog">
           <property name="text">
            <string>save drift</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="3" colspan="2">
+        <item row="2" column="2" colspan="3">
          <widget class="QLineEdit" name="lineEdit_DriftFileName">
           <property name="maxLength">
            <number>32</number>
@@ -384,6 +377,13 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="checkBox_normalizeGain">
+          <property name="text">
+           <string>Normalize gains</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -399,31 +399,10 @@
         <property name="spacing">
          <number>4</number>
         </property>
-        <item row="2" column="0" colspan="2">
-         <widget class="QLabel" name="l_15">
+        <item row="14" column="0">
+         <widget class="QLabel" name="l_34">
           <property name="text">
-           <string>Accumulate frames</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0" colspan="2">
-         <widget class="QLabel" name="l_30">
-          <property name="text">
-           <string>Derivative gain</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0" colspan="2">
-         <widget class="QLabel" name="l_17">
-          <property name="text">
-           <string>Integral gain</string>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="3">
-         <widget class="QSpinBox" name="spinBox_MaxPulseDEC">
-          <property name="maximum">
-           <number>9999</number>
+           <string>RMS,&quot;</string>
           </property>
          </widget>
         </item>
@@ -434,7 +413,35 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="3">
+        <item row="2" column="0" colspan="2">
+         <widget class="QLabel" name="l_15">
+          <property name="text">
+           <string>Accumulate frames</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0" colspan="2">
+         <widget class="QLabel" name="l_30">
+          <property name="text">
+           <string>Derivative gain</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="2">
+         <widget class="QLabel" name="l_17">
+          <property name="text">
+           <string>Integral gain</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="3">
+         <widget class="QSpinBox" name="spinBox_MaxPulseDEC">
+          <property name="maximum">
+           <number>9999</number>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="3">
          <widget class="QLabel" name="l_ErrDEC">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -459,7 +466,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="3">
+        <item row="8" column="3">
          <widget class="QDoubleSpinBox" name="spinBox_DerGainDEC">
           <property name="decimals">
            <number>2</number>
@@ -469,14 +476,14 @@
           </property>
          </widget>
         </item>
-        <item row="11" column="0" colspan="2">
+        <item row="13" column="0" colspan="2">
          <widget class="QLabel" name="l_33">
           <property name="text">
            <string>Pulse length, ms</string>
           </property>
          </widget>
         </item>
-        <item row="10" column="3">
+        <item row="12" column="3">
          <widget class="QLabel" name="l_DeltaDEC">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -498,14 +505,14 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="2">
+        <item row="10" column="2">
          <widget class="QSpinBox" name="spinBox_MinPulseRA">
           <property name="maximum">
            <number>9999</number>
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
+        <item row="8" column="2">
          <widget class="QDoubleSpinBox" name="spinBox_DerGainRA">
           <property name="decimals">
            <number>2</number>
@@ -515,7 +522,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="0" colspan="2">
+        <item row="10" column="0" colspan="2">
          <widget class="QLabel" name="l_32">
           <property name="text">
            <string>Minimum pulse</string>
@@ -529,7 +536,7 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="3">
+        <item row="6" column="3">
          <widget class="QDoubleSpinBox" name="spinBox_PropGainDEC">
           <property name="decimals">
            <number>2</number>
@@ -539,14 +546,14 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0" colspan="2">
+        <item row="6" column="0" colspan="2">
          <widget class="QLabel" name="l_16">
           <property name="text">
            <string>Proportional gain</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
+        <item row="6" column="2">
          <widget class="QDoubleSpinBox" name="spinBox_PropGainRA">
           <property name="decimals">
            <number>2</number>
@@ -556,7 +563,7 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="0">
+        <item row="12" column="0">
          <widget class="QLabel" name="l_36">
           <property name="text">
            <string>Delta ,&quot;</string>
@@ -601,7 +608,7 @@
           </layout>
          </widget>
         </item>
-        <item row="13" column="1">
+        <item row="15" column="1">
          <widget class="QLabel" name="l_Quality">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -655,7 +662,7 @@
           </layout>
          </widget>
         </item>
-        <item row="5" column="2">
+        <item row="7" column="2">
          <widget class="QDoubleSpinBox" name="spinBox_IntGainRA">
           <property name="decimals">
            <number>2</number>
@@ -665,14 +672,14 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0" colspan="2">
+        <item row="9" column="0" colspan="2">
          <widget class="QLabel" name="l_31">
           <property name="text">
            <string>Maximum pulse</string>
           </property>
          </widget>
         </item>
-        <item row="12" column="2">
+        <item row="14" column="2">
          <widget class="QLabel" name="l_ErrRA">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -697,21 +704,21 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="2">
+        <item row="9" column="2">
          <widget class="QSpinBox" name="spinBox_MaxPulseRA">
           <property name="maximum">
            <number>9999</number>
           </property>
          </widget>
         </item>
-        <item row="8" column="3">
+        <item row="10" column="3">
          <widget class="QSpinBox" name="spinBox_MinPulseDEC">
           <property name="maximum">
            <number>9999</number>
           </property>
          </widget>
         </item>
-        <item row="11" column="2">
+        <item row="13" column="2">
          <widget class="QLabel" name="l_PulseRA">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -733,14 +740,14 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="3">
+        <item row="15" column="3">
          <widget class="QPushButton" name="pushButton_StartStop">
           <property name="text">
            <string>Start</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="3">
+        <item row="7" column="3">
          <widget class="QDoubleSpinBox" name="spinBox_IntGainDEC">
           <property name="decimals">
            <number>2</number>
@@ -750,14 +757,14 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="2">
+        <item row="15" column="2">
          <widget class="QCheckBox" name="checkBox_AverageFrames">
           <property name="text">
            <string>avg.frm.</string>
           </property>
          </widget>
         </item>
-        <item row="11" column="3">
+        <item row="13" column="3">
          <widget class="QLabel" name="l_PulseDEC">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -779,14 +786,7 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="0">
-         <widget class="QLabel" name="l_34">
-          <property name="text">
-           <string>RMS,&quot;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="2">
+        <item row="12" column="2">
          <widget class="QLabel" name="l_DeltaRA">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
@@ -815,7 +815,7 @@
           </property>
          </widget>
         </item>
-        <item row="9" column="0" colspan="4">
+        <item row="11" column="0" colspan="4">
          <widget class="Line" name="line_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -829,7 +829,7 @@
           </property>
          </widget>
         </item>
-        <item row="13" column="0">
+        <item row="15" column="0">
          <widget class="QLabel" name="l_35">
           <property name="text">
            <string>Quality,%</string>
@@ -851,11 +851,11 @@
   <tabstop>comboBox_QualityControl</tabstop>
   <tabstop>doubleSpinBox_QualityThreshold1</tabstop>
   <tabstop>doubleSpinBox_QualityThreshold2</tabstop>
-  <tabstop>checkBox_normalizeGain</tabstop>
   <tabstop>checkBox_SwapDec</tabstop>
   <tabstop>checkBox_SaveLog</tabstop>
   <tabstop>lineEdit_DriftFileName</tabstop>
   <tabstop>spinBox_GuideRate</tabstop>
+  <tabstop>checkBox_normalizeGain</tabstop>
   <tabstop>groupBox_DirRA</tabstop>
   <tabstop>checkBox_DirRAPlus</tabstop>
   <tabstop>checkBox_DirRAMinus</tabstop>

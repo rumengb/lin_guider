@@ -217,12 +217,10 @@ void guider::fill_interface( void )
 
 	ui.comboBox_QualityControl->setCurrentIndex( m_math->get_q_control_index() );
 	ui.doubleSpinBox_QualityThreshold1->setValue( in_params->quality_threshold1 );
-	ui.doubleSpinBox_QualityThreshold1->setVisible( m_math->get_q_control_index() != Q_CTRL_OFF );
 	ui.doubleSpinBox_QualityThreshold2->setValue( in_params->quality_threshold2 );
-	ui.doubleSpinBox_QualityThreshold2->setVisible( m_math->get_q_control_index() != Q_CTRL_OFF );
 
 	//ui.checkBox_SwapDec->setChecked( swap_dec );
-	ui.lineEdit_DriftFileName->setVisible( ui.checkBox_SaveLog->isChecked() );
+	ui.lineEdit_DriftFileName->setEnabled( ui.checkBox_SaveLog->isChecked() );
 
 	ui.l_RecommendedGain->setText( tr("P:") + QString().setNum(in_params->guiding_normal_coef, 'f', 2 ) );
 	ui.checkBox_normalizeGain->setChecked( in_params->normalize_gain );
@@ -382,7 +380,7 @@ void guider::onNormalizeGain( int state )
 void guider::onSaveLog( int state )
 {
 	save_drift = (state == Qt::Checked);
-	ui.lineEdit_DriftFileName->setVisible( save_drift );
+	ui.lineEdit_DriftFileName->setEnabled( save_drift );
 }
 
 
@@ -398,9 +396,6 @@ void guider::onQualityControlChanged( int index )
 		return;
 
 	m_math->set_q_control_index( index );
-
-	ui.doubleSpinBox_QualityThreshold1->setVisible( m_math->get_q_control_index() != Q_CTRL_OFF );
-	ui.doubleSpinBox_QualityThreshold2->setVisible( m_math->get_q_control_index() != Q_CTRL_OFF );
 }
 
 
