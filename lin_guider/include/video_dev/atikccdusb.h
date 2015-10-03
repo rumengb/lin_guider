@@ -62,6 +62,8 @@ class AtikCamera {
 		virtual bool setGPIODirection(unsigned short mask) = 0;
 		virtual bool getGPIO(unsigned short *mask) = 0;
 		virtual bool setGPIO(unsigned short mask) = 0;
+    virtual bool getGain(int *gain, int* offset) = 0;
+    virtual bool setGain(int gain, int offset) = 0;
 		virtual unsigned delay(double delay) = 0;
     virtual unsigned imageWidth(unsigned width, unsigned binX) = 0;
     virtual unsigned imageHeight(unsigned height, unsigned binY) = 0;
