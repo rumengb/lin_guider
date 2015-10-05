@@ -1,5 +1,6 @@
 2015-08-05 Lin_guider 3.2.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
+	* Guider window UI tweaks
 	* Always use '.' in floating point numbers, regardless of the locale, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Add normalization of gain coefficients, if enabled changing the guide rate will affect
 	  directly the guiding, by Rumen G.Bogdanovski <rumen@skyarchive.org>
