@@ -62,6 +62,7 @@ private:
 
 	// local
 	virtual int enum_controls( void );
+	unsigned int get_pix_fmt( void );
 
 	ctimer exp_timer;
 	long m_expstart;

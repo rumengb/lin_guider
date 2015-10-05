@@ -3,8 +3,9 @@
 	* Always use '.' in floating point numbers, regardless of the locale, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Add normalization of gain coefficients, if enabled changing the guide rate will affect
 	  directly the guiding, by Rumen G.Bogdanovski <rumen@skyarchive.org>
-	* Use latest Atik SDK (0.32), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Use latest Atik SDK (0.34), by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use latest ASI SDK (0.1.0803), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Add colour support for ASI cameras, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Small fix in Starlight Xpress driver, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 
 2015-04-12 Lin_guider 3.1.0 (c)Galaxy Master <galaxy_master@mail.ru>

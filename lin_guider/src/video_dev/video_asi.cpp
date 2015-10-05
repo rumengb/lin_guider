@@ -31,6 +31,7 @@
 #include "timer.h"
 #include "utils.h"
 #include "filters.h"
+#include "bayer.h"
 
 
 // TODO: replace it with ctimer class
@@ -110,12 +111,7 @@ int  cvideo_asi::get_vcaps( void )
 	int i = 0;
 	point_t pt;
 
-	if (m_bpp == 16)
-		device_formats[0].format = V4L2_PIX_FMT_Y16;
-	else if (m_bpp == 8)
-		device_formats[0].format = V4L2_PIX_FMT_GREY;
-	else
-		return 1;
+	device_formats[0].format = get_pix_fmt();
 
 	pt.x = m_cam_info.MaxWidth;
 	pt.y = m_cam_info.MaxHeight;
@@ -202,6 +198,32 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 			log_i( "USB Bandwidth = %d", m_bandwidth);
 		break;
 	}
+	case V4L2_CID_RED_BALANCE:
+	{
+		//log_e( "USB Bandwidth = %d", m_bandwidth);
+		int v = val.values[0];
+		if( v < m_wb_r_caps.MinValue ) v = m_wb_r_caps.MinValue;
+		if( v > m_wb_r_caps.MaxValue-10 ) v = m_wb_r_caps.MaxValue-10;
+		capture_params.ext_params[ control_id ] = v;
+		m_wb_r = v;
+		set_wb_r(m_wb_r);
+		if (DBG_VERBOSITY)
+			log_i( "WB_R = %d", m_wb_r);
+		break;
+	}
+	case V4L2_CID_BLUE_BALANCE:
+	{
+		//log_e( "USB Bandwidth = %d", m_bandwidth);
+		int v = val.values[0];
+		if( v < m_wb_b_caps.MinValue ) v = m_wb_b_caps.MinValue;
+		if( v > m_wb_b_caps.MaxValue-10 ) v = m_wb_b_caps.MaxValue-10;
+		capture_params.ext_params[ control_id ] = v;
+		m_wb_b = v;
+		set_wb_b(m_wb_b);
+		if (DBG_VERBOSITY)
+			log_i( "WB_B = %d", m_wb_b);
+		break;
+	}
 	case V4L2_CID_USER_CLEAR_BUFFS:
 	{
 		int v = val.values[0];
@@ -214,6 +236,18 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		if (DBG_VERBOSITY)
 			log_i( "Clear buffs: %d", v );
 		break;
+	}
+	case V4L2_CID_USER_FORCE_BW:
+	{
+		int v = val.values[0];
+		v = v < 0 ? 0 : v;
+		v = v > 1 ? 1 : v;
+		capture_params.ext_params[ control_id ] = v;
+		m_force_bw = (v == 1);
+		if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
+		else set_camera_image_type(ASI_IMG_RAW8);
+		capture_params.pixel_format = get_pix_fmt();
+		log_i( "Forced BW mode is %s", m_force_bw ? "ON" : "OFF" );
 	}
 	default:
 		return -1;
@@ -254,8 +288,14 @@ int cvideo_asi::init_device( void )
 
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_BANDWIDTH, m_bandwidth ) );
 	m_bandwidth = capture_params.ext_params[ V4L2_CID_USER_BANDWIDTH ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wb_r ) );
+	m_wb_r = capture_params.ext_params[ V4L2_CID_RED_BALANCE ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wb_b ) );
+	m_wb_b = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_CLEAR_BUFFS, m_clear_buffs ) );
 	m_clear_buffs = capture_params.ext_params[ V4L2_CID_USER_CLEAR_BUFFS ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_FORCE_BW, m_force_bw ) );
+	m_force_bw = capture_params.ext_params[ V4L2_CID_USER_FORCE_BW ];
 
 	n_buffers = 1;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
@@ -314,9 +354,13 @@ int cvideo_asi::init_device( void )
 		log_e("ASISetROIFormat() returned %d", result);
 		return EXIT_FAILURE;
 	}
+	if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
+	else set_camera_image_type(ASI_IMG_RAW8);
 	set_camera_exposure(100); // set short exposure as if you start with a long one it is always ~1s (wired)
 	set_camera_gain(capture_params.gain);
 	set_band_width(m_bandwidth);
+	set_wb_r(m_wb_r);
+	set_wb_b(m_wb_b);
 
 	return 0;
 }
@@ -405,18 +449,36 @@ int cvideo_asi::read_frame( void )
 	return 0;
 }
 
+unsigned int cvideo_asi::get_pix_fmt( void ) {
+	if (m_bpp == 16) {
+		return V4L2_PIX_FMT_Y16;
+	} else if (m_bpp == 8) {
+		if (m_cam_info.IsColorCam) {
+			switch (m_cam_info.BayerPattern) {
+			case ASI_BAYER_RG:
+				return PIX_FMT_SRGGB8;
+			case ASI_BAYER_BG:
+				return PIX_FMT_SBGGR8;
+			case ASI_BAYER_GR:
+				return PIX_FMT_SGRBG8;
+			case ASI_BAYER_GB:
+				return PIX_FMT_SGBRG8;
+			default:
+				return V4L2_PIX_FMT_GREY;
+			}
+		} else {
+			return V4L2_PIX_FMT_GREY;
+		}
+	} else return 0;
+}
 
 int cvideo_asi::set_format( void )
 {
 	int i, j;
 	point_t pt = {0, 0};
 
-	if (m_bpp == 16)
-		capture_params.pixel_format = V4L2_PIX_FMT_Y16;
-	else if (m_bpp == 8)
-		capture_params.pixel_format = V4L2_PIX_FMT_GREY;
-	else
-		return 0;
+	device_formats[0].format = get_pix_fmt();
+	capture_params.pixel_format = device_formats[0].format;
 
 	for( i = 0; i < MAX_FMT && device_formats[i].format;i++ ) {
 		if( device_formats[i].format != capture_params.pixel_format )
@@ -490,10 +552,50 @@ int cvideo_asi::enum_controls( void )
 		controls = add_control( -1, &queryctrl, controls, &n, true );
 	}
 
+	if(m_has_wb_r) {
+		// create virtual control (extended ctl)
+		queryctrl.id = V4L2_CID_RED_BALANCE;
+		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "White Balance R" );
+		queryctrl.minimum = m_wb_r_caps.MinValue;
+		queryctrl.maximum = m_wb_r_caps.MaxValue;
+		queryctrl.step = 1;
+		queryctrl.default_value = m_wb_r_caps.DefaultValue;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n, true );
+	}
+
+	if(m_has_wb_b) {
+		// create virtual control (extended ctl)
+		queryctrl.id = V4L2_CID_BLUE_BALANCE;
+		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "White Balance B" );
+		queryctrl.minimum = m_wb_b_caps.MinValue;
+		queryctrl.maximum = m_wb_b_caps.MaxValue;
+		queryctrl.step = 1;
+		queryctrl.default_value = m_wb_b_caps.DefaultValue;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n, true );
+	}
+
 	// create virtual control
 	queryctrl.id = V4L2_CID_USER_CLEAR_BUFFS;
 	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Clear buffers" );
+	queryctrl.minimum = 0;
+	queryctrl.maximum = 1;
+	queryctrl.step = 1;
+	queryctrl.default_value = 0;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
+
+	// create virtual control
+	queryctrl.id = V4L2_CID_USER_FORCE_BW;
+	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Force BW frames" );
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1;
 	queryctrl.step = 1;

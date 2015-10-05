@@ -499,7 +499,7 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		capture_params.ext_params[ control_id ] = v;
 		m_do_debayer = (v == 1);
 		capture_params.pixel_format = get_pix_fmt();
-		log_i( "Debayering is %s", m_do_debayer ? "ON" : "OFFs" );
+		log_i( "Debayering is %s", m_do_debayer ? "ON" : "OFF" );
 	}
 		break;
 	default:
