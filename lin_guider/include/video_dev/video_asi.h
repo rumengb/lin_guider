@@ -64,6 +64,12 @@ private:
 	virtual int enum_controls( void );
 	unsigned int get_pix_fmt( void );
 
+	int m_transfer_bits; // 8 or 16 Bit Transfer Mode Transfer Mode
+	int m_bandwidth;
+	int m_wb_r;
+	int m_wb_b;
+	bool m_force_bw;
+
 	ctimer exp_timer;
 	long m_expstart;
 };

@@ -1671,6 +1671,9 @@ int cvideo_base::bpp( void ) const
 		return 8;
 	case V4L2_PIX_FMT_Y16:
 	case V4L2_PIX_FMT_SGRBG12:
+	case V4L2_PIX_FMT_SGBRG12:
+	case V4L2_PIX_FMT_SRGGB12:
+	case V4L2_PIX_FMT_SBGGR12:
 		return 16;
 	default:
 		log_e("Bpp request for unknown format");

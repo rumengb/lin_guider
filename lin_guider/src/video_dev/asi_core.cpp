@@ -48,11 +48,7 @@ int asi_core::m_width = 0;
 int asi_core::m_height = 0;
 int asi_core::m_binX = 1;
 int asi_core::m_binY = 1;
-int asi_core::m_bandwidth = 0;
-int asi_core::m_wb_r = 0;
-int asi_core::m_wb_b = 0;
-bool asi_core::m_clear_buffs = false;
-bool asi_core::m_force_bw = false;
+bool asi_core::m_clear_buffs = true;
 unsigned char asi_core::m_bpp = 0;
 ASI_IMG_TYPE asi_core::m_img_type = ASI_IMG_END;
 
@@ -148,8 +144,6 @@ int asi_core::open( void )
 				break;
 			}
 		}
-
-		get_camera_image_type();
 	}
 
 	m_ref_count++;

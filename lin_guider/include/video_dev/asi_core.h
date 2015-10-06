@@ -38,6 +38,7 @@
 #define V4L2_CID_USER_BANDWIDTH (V4L2_CID_USER_CLASS + 1)
 #define V4L2_CID_USER_CLEAR_BUFFS (V4L2_CID_USER_CLASS + 2)
 #define V4L2_CID_USER_FORCE_BW (V4L2_CID_USER_CLASS + 3)
+#define V4L2_CID_USER_ASI8BIT (V4L2_CID_USER_CLASS + 4)
 
 /*
  * ZWO ASI camera core class
@@ -54,11 +55,7 @@ protected:
 	static int m_height;
 	static int m_binX;
 	static int m_binY;
-	static int m_bandwidth;
-	static int m_wb_r;
-	static int m_wb_b;
 	static bool m_clear_buffs;
-	static bool m_force_bw;
 	static unsigned char m_bpp;
 	static ASI_IMG_TYPE m_img_type;
 

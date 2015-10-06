@@ -96,7 +96,21 @@ time_fract_t cvideo_asi::set_fps( const time_fract &new_fps )
 
 int cvideo_asi::open_device( void )
 {
-	return open();
+
+	int result = open();
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_ASI8BIT, m_transfer_bits == 8 ? 1 : 0 ) );
+	m_transfer_bits = capture_params.ext_params[ V4L2_CID_USER_ASI8BIT ] == 0 ? 16 : 8;
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_BANDWIDTH, m_bandwidth ) );
+	m_bandwidth = capture_params.ext_params[ V4L2_CID_USER_BANDWIDTH ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wb_r ) );
+	m_wb_r = capture_params.ext_params[ V4L2_CID_RED_BALANCE ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wb_b ) );
+	m_wb_b = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_CLEAR_BUFFS, m_clear_buffs ) );
+	m_clear_buffs = capture_params.ext_params[ V4L2_CID_USER_CLEAR_BUFFS ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_FORCE_BW, m_force_bw ) );
+	m_force_bw = capture_params.ext_params[ V4L2_CID_USER_FORCE_BW ];
+	return result;
 }
 
 
@@ -244,10 +258,21 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		v = v > 1 ? 1 : v;
 		capture_params.ext_params[ control_id ] = v;
 		m_force_bw = (v == 1);
-		if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
-		else set_camera_image_type(ASI_IMG_RAW8);
+		if (m_transfer_bits == 8) {
+			if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
+			else set_camera_image_type(ASI_IMG_RAW8);
+		} else set_camera_image_type(ASI_IMG_RAW16);
 		capture_params.pixel_format = get_pix_fmt();
 		log_i( "Forced BW mode is %s", m_force_bw ? "ON" : "OFF" );
+		break;
+	}
+	case V4L2_CID_USER_ASI8BIT:
+	{
+		capture_params.ext_params[ control_id ] = val.values[0];
+		log_i( "Ctrl 8-bit: %d, (restart is required)", val.values[0] );
+		if( val.values[0] == 0 ) // mode 12-bit
+			log_i( "Note! 12-bit video mode disables guider port." );
+		break;
 	}
 	default:
 		return -1;
@@ -279,23 +304,18 @@ int cvideo_asi::init_device( void )
 	int sizeimage = 0;
 	ASI_ERROR_CODE result;
 
+	set_fps( capture_params.fps );
+
+	if (m_transfer_bits == 8) {
+		if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
+		else set_camera_image_type(ASI_IMG_RAW8);
+	} else set_camera_image_type(ASI_IMG_RAW16);
+	get_camera_image_type();
+
 	// set desired size
 	sizeimage = set_format();
 	if( sizeimage <= 0 )
 		return EXIT_FAILURE;
-
-	set_fps( capture_params.fps );
-
-	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_BANDWIDTH, m_bandwidth ) );
-	m_bandwidth = capture_params.ext_params[ V4L2_CID_USER_BANDWIDTH ];
-	capture_params.ext_params.insert( std::make_pair( V4L2_CID_RED_BALANCE, m_wb_r ) );
-	m_wb_r = capture_params.ext_params[ V4L2_CID_RED_BALANCE ];
-	capture_params.ext_params.insert( std::make_pair( V4L2_CID_BLUE_BALANCE, m_wb_b ) );
-	m_wb_b = capture_params.ext_params[ V4L2_CID_BLUE_BALANCE ];
-	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_CLEAR_BUFFS, m_clear_buffs ) );
-	m_clear_buffs = capture_params.ext_params[ V4L2_CID_USER_CLEAR_BUFFS ];
-	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_FORCE_BW, m_force_bw ) );
-	m_force_bw = capture_params.ext_params[ V4L2_CID_USER_FORCE_BW ];
 
 	n_buffers = 1;
 	buffers = (buffer *)calloc( n_buffers, sizeof(*buffers) );
@@ -354,8 +374,7 @@ int cvideo_asi::init_device( void )
 		log_e("ASISetROIFormat() returned %d", result);
 		return EXIT_FAILURE;
 	}
-	if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
-	else set_camera_image_type(ASI_IMG_RAW8);
+
 	set_camera_exposure(100); // set short exposure as if you start with a long one it is always ~1s (wired)
 	set_camera_gain(capture_params.gain);
 	set_band_width(m_bandwidth);
@@ -451,7 +470,22 @@ int cvideo_asi::read_frame( void )
 
 unsigned int cvideo_asi::get_pix_fmt( void ) {
 	if (m_bpp == 16) {
-		return V4L2_PIX_FMT_Y16;
+		if (m_cam_info.IsColorCam) {
+			switch (m_cam_info.BayerPattern) {
+			case ASI_BAYER_RG:
+				return V4L2_PIX_FMT_SRGGB12;
+			case ASI_BAYER_BG:
+				return V4L2_PIX_FMT_SBGGR12;
+			case ASI_BAYER_GR:
+				return V4L2_PIX_FMT_SGRBG12;
+			case ASI_BAYER_GB:
+				return V4L2_PIX_FMT_SGBRG12;
+			default:
+				return V4L2_PIX_FMT_Y16;
+			}
+		} else {
+			return V4L2_PIX_FMT_Y16;
+		}
 	} else if (m_bpp == 8) {
 		if (m_cam_info.IsColorCam) {
 			switch (m_cam_info.BayerPattern) {
@@ -592,10 +626,24 @@ int cvideo_asi::enum_controls( void )
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n, true );
 
+	if (m_transfer_bits == 8) { // Force SDK to render BW frames (abailable in 8 bits only)
+		// create virtual control
+		queryctrl.id = V4L2_CID_USER_FORCE_BW;
+		queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Force BW frames" );
+		queryctrl.minimum = 0;
+		queryctrl.maximum = 1;
+		queryctrl.step = 1;
+		queryctrl.default_value = 0;
+		queryctrl.flags = 0;
+		// Add control to control list
+		controls = add_control( -1, &queryctrl, controls, &n, true );
+	}
+
 	// create virtual control
-	queryctrl.id = V4L2_CID_USER_FORCE_BW;
+	queryctrl.id = V4L2_CID_USER_ASI8BIT;
 	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
-	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Force BW frames" );
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "8-bit mode" );
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1;
 	queryctrl.step = 1;
