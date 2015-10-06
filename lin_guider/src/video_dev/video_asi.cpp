@@ -33,22 +33,8 @@
 #include "filters.h"
 #include "bayer.h"
 
-
-// TODO: replace it with ctimer class
-/*
-long time_diff(struct timeval *start, struct timeval *end) {
-	long msec;
-
-	msec = (end->tv_sec - start->tv_sec) * 1000;
-	msec += (end->tv_usec - start->tv_usec) / 1000;
-
-	return msec;
-}
-*/
-
 namespace video_drv
 {
-
 
 cvideo_asi::cvideo_asi()
 {
@@ -110,6 +96,7 @@ int cvideo_asi::open_device( void )
 	m_clear_buffs = capture_params.ext_params[ V4L2_CID_USER_CLEAR_BUFFS ];
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_FORCE_BW, m_force_bw ) );
 	m_force_bw = capture_params.ext_params[ V4L2_CID_USER_FORCE_BW ];
+
 	return result;
 }
 
@@ -191,11 +178,10 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		if( v > wp_max ) v = wp_max;
 		int top = wp_max - v;
 		if( top <= 0 ) {
-			log_e( "cvideo_sx::set_control(): invalid exposure" );
+			log_e( "cvideo_asi::set_control(): invalid exposure" );
 			return -1;
 		}
 		init_lut_to8bit( top );
-
 		capture_params.exposure = v;
 		break;
 	}
@@ -375,7 +361,6 @@ int cvideo_asi::init_device( void )
 		return EXIT_FAILURE;
 	}
 
-	set_camera_exposure(100); // set short exposure as if you start with a long one it is always ~1s (wired)
 	set_camera_gain(capture_params.gain);
 	set_band_width(m_bandwidth);
 	set_wb_r(m_wb_r);
@@ -647,7 +632,7 @@ int cvideo_asi::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1;
 	queryctrl.step = 1;
-	queryctrl.default_value = 0;
+	queryctrl.default_value = 1;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n, true );

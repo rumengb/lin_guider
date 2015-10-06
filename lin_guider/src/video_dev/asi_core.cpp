@@ -359,6 +359,7 @@ bool asi_core::close_sdk() {
 bool asi_core::start_exposure() {
 	int rc;
 
+	usleep(100);
 	pthread_mutex_lock( &m_mutex );
 	rc = pASIStartVideoCapture(m_camera);
 	pthread_mutex_unlock( &m_mutex );
@@ -372,16 +373,23 @@ bool asi_core::abort_exposure() {
 	rc = pASIStopVideoCapture(m_camera);
 	pthread_mutex_unlock( &m_mutex );
 	if(rc) return false;
+	usleep(100);
     return true;
 }
 
 bool asi_core::set_camera_exposure(long exp_time) {
 	if (!m_has_expo) return false;
+
+	if( DBG_VERBOSITY )
+		log_i( "Set exposure %d ms", exp_time);
+
 	exp_time *= 1000; //convert to us
 	if((exp_time < m_expo_caps.MinValue) || (exp_time > m_expo_caps.MaxValue)) {
 		log_e("Exposure time %d not supported", exp_time);
 		return false;
 	}
+
+	abort_exposure();
 	pthread_mutex_lock( &m_mutex );
 	int rc = pASISetControlValue(m_camera, m_expo_caps.ControlType, exp_time, ASI_FALSE);
 	pthread_mutex_unlock( &m_mutex );
@@ -389,6 +397,7 @@ bool asi_core::set_camera_exposure(long exp_time) {
 		log_e("ASISetControlValue(expossure): returned error %d", rc);
 		return false;
 	}
+	start_exposure();
     return true;
 }
 
