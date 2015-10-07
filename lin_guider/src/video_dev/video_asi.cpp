@@ -71,7 +71,9 @@ time_fract_t cvideo_asi::set_fps( const time_fract &new_fps )
 
 	capture_params.fps = set_fps;
 	frame_delay = time_fract::to_msecs( capture_params.fps );
+	abort_exposure();
 	set_camera_exposure(frame_delay);
+	start_exposure();
 
 	if( initialized )
 		pthread_mutex_unlock( &cv_mutex );
@@ -97,6 +99,13 @@ int cvideo_asi::open_device( void )
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_FORCE_BW, m_force_bw ) );
 	m_force_bw = capture_params.ext_params[ V4L2_CID_USER_FORCE_BW ];
 
+	if (m_transfer_bits == 8) {
+		if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
+		else set_camera_image_type(ASI_IMG_RAW8);
+	} else set_camera_image_type(ASI_IMG_RAW16);
+	get_camera_image_type();
+
+	capture_params.pixel_format = get_pix_fmt();
 	return result;
 }
 
@@ -291,12 +300,6 @@ int cvideo_asi::init_device( void )
 	ASI_ERROR_CODE result;
 
 	set_fps( capture_params.fps );
-
-	if (m_transfer_bits == 8) {
-		if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
-		else set_camera_image_type(ASI_IMG_RAW8);
-	} else set_camera_image_type(ASI_IMG_RAW16);
-	get_camera_image_type();
 
 	// set desired size
 	sizeimage = set_format();
@@ -563,7 +566,7 @@ int cvideo_asi::enum_controls( void )
 		queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "USB Bandwidth" );
 		queryctrl.minimum = m_bwidth_caps.MinValue;
-		queryctrl.maximum = m_bwidth_caps.MaxValue-10;
+		queryctrl.maximum = m_bwidth_caps.MaxValue-5;
 		queryctrl.step = 1;
 		queryctrl.default_value = 50;//s m_bwidth_caps.DefaultValue;
 		queryctrl.flags = 0;

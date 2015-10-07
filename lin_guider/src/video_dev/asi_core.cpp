@@ -162,8 +162,6 @@ void asi_core::set_camera_image_type(ASI_IMG_TYPE img_type) {
 void asi_core::get_camera_image_type() {
 	int x,y,d;
 	pASIGetROIFormat(m_camera, &x, &y, &d, &m_img_type);
-	//m_img_type = ASI_IMG_RAW8;
-	//pASISetROIFormat(m_camera, x, y, d, m_img_type);
 	switch (m_img_type) {
 	case ASI_IMG_RAW8:
 	case ASI_IMG_Y8:
@@ -359,7 +357,7 @@ bool asi_core::close_sdk() {
 bool asi_core::start_exposure() {
 	int rc;
 
-	usleep(100);
+	usleep(150); // avoid broken frames
 	pthread_mutex_lock( &m_mutex );
 	rc = pASIStartVideoCapture(m_camera);
 	pthread_mutex_unlock( &m_mutex );
@@ -373,7 +371,7 @@ bool asi_core::abort_exposure() {
 	rc = pASIStopVideoCapture(m_camera);
 	pthread_mutex_unlock( &m_mutex );
 	if(rc) return false;
-	usleep(100);
+	usleep(150); // aovid broken frames
     return true;
 }
 
@@ -389,7 +387,6 @@ bool asi_core::set_camera_exposure(long exp_time) {
 		return false;
 	}
 
-	abort_exposure();
 	pthread_mutex_lock( &m_mutex );
 	int rc = pASISetControlValue(m_camera, m_expo_caps.ControlType, exp_time, ASI_FALSE);
 	pthread_mutex_unlock( &m_mutex );
@@ -397,7 +394,7 @@ bool asi_core::set_camera_exposure(long exp_time) {
 		log_e("ASISetControlValue(expossure): returned error %d", rc);
 		return false;
 	}
-	start_exposure();
+
     return true;
 }
 
