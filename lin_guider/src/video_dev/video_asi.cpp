@@ -86,6 +86,16 @@ int cvideo_asi::open_device( void )
 {
 
 	int result = open();
+
+	// Default Values
+	m_transfer_bits = 8;
+	m_bandwidth = m_has_bwidth ? m_bwidth_caps.DefaultValue : 0;
+	m_clear_buffs =1;
+	m_wb_r = m_has_wb_r ? m_wb_r_caps.DefaultValue : 0;
+	m_wb_b = m_has_wb_b ? m_wb_b_caps.DefaultValue : 0;
+	m_force_bw = 0;
+	m_clear_buffs = 1;
+
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_ASI8BIT, m_transfer_bits == 8 ? 1 : 0 ) );
 	m_transfer_bits = capture_params.ext_params[ V4L2_CID_USER_ASI8BIT ] == 0 ? 16 : 8;
 	capture_params.ext_params.insert( std::make_pair( V4L2_CID_USER_BANDWIDTH, m_bandwidth ) );
@@ -135,6 +145,7 @@ int  cvideo_asi::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
 	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
+	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 30 );
 	i++;
 
 	pt.x = m_cam_info.MaxWidth/2;
@@ -149,6 +160,7 @@ int  cvideo_asi::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 6 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 7 ] = time_fract::mk_fps( 1, 10 );
 	device_formats[0].frame_table[ i ].fps_table[ 8 ] = time_fract::mk_fps( 1, 20 );
+	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 30 );
 	i++;
 
 	// add empty tail
@@ -568,7 +580,7 @@ int cvideo_asi::enum_controls( void )
 		queryctrl.minimum = m_bwidth_caps.MinValue;
 		queryctrl.maximum = m_bwidth_caps.MaxValue-5;
 		queryctrl.step = 1;
-		queryctrl.default_value = 50;//s m_bwidth_caps.DefaultValue;
+		queryctrl.default_value = m_bandwidth;
 		queryctrl.flags = 0;
 		// Add control to control list
 		controls = add_control( -1, &queryctrl, controls, &n, true );
@@ -582,7 +594,7 @@ int cvideo_asi::enum_controls( void )
 		queryctrl.minimum = m_wb_r_caps.MinValue;
 		queryctrl.maximum = m_wb_r_caps.MaxValue;
 		queryctrl.step = 1;
-		queryctrl.default_value = m_wb_r_caps.DefaultValue;
+		queryctrl.default_value = m_wb_r;
 		queryctrl.flags = 0;
 		// Add control to control list
 		controls = add_control( -1, &queryctrl, controls, &n, true );
@@ -596,7 +608,7 @@ int cvideo_asi::enum_controls( void )
 		queryctrl.minimum = m_wb_b_caps.MinValue;
 		queryctrl.maximum = m_wb_b_caps.MaxValue;
 		queryctrl.step = 1;
-		queryctrl.default_value = m_wb_b_caps.DefaultValue;
+		queryctrl.default_value = m_wb_b;
 		queryctrl.flags = 0;
 		// Add control to control list
 		controls = add_control( -1, &queryctrl, controls, &n, true );
@@ -609,7 +621,7 @@ int cvideo_asi::enum_controls( void )
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1;
 	queryctrl.step = 1;
-	queryctrl.default_value = 0;
+	queryctrl.default_value = m_clear_buffs;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n, true );
@@ -622,7 +634,7 @@ int cvideo_asi::enum_controls( void )
 		queryctrl.minimum = 0;
 		queryctrl.maximum = 1;
 		queryctrl.step = 1;
-		queryctrl.default_value = 0;
+		queryctrl.default_value = m_force_bw;
 		queryctrl.flags = 0;
 		// Add control to control list
 		controls = add_control( -1, &queryctrl, controls, &n, true );

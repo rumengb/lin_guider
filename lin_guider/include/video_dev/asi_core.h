@@ -115,5 +115,4 @@ private:
 	static int m_ref_count;
 	static pthread_mutex_t m_mutex;
 };
-
 #endif /* ASI_CORE_H_ */
