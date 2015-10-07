@@ -159,7 +159,7 @@ void asi_core::set_camera_image_type(ASI_IMG_TYPE img_type) {
 	pASISetROIFormat(m_camera, x, y, d, m_img_type);
 }
 
-void asi_core::get_camera_image_type() {
+void asi_core::update_camera_image_type() {
 	int x,y,d;
 	pASIGetROIFormat(m_camera, &x, &y, &d, &m_img_type);
 	switch (m_img_type) {

@@ -86,6 +86,7 @@ int cvideo_asi::open_device( void )
 {
 
 	int result = open();
+	if (result) return result;
 
 	// Default Values
 	m_transfer_bits = 8;
@@ -113,10 +114,11 @@ int cvideo_asi::open_device( void )
 		if (m_force_bw) set_camera_image_type(ASI_IMG_Y8);
 		else set_camera_image_type(ASI_IMG_RAW8);
 	} else set_camera_image_type(ASI_IMG_RAW16);
-	get_camera_image_type();
+	update_camera_image_type();
 
 	capture_params.pixel_format = get_pix_fmt();
-	return result;
+
+	return EXIT_SUCCESS;
 }
 
 
