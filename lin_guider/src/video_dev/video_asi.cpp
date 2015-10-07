@@ -280,7 +280,7 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		capture_params.ext_params[ control_id ] = val.values[0];
 		log_i( "Ctrl 8-bit: %d, (restart is required)", val.values[0] );
 		if( val.values[0] == 0 ) // mode 12-bit
-			log_i( "Note! 12-bit video mode disables guider port." );
+			log_i( "NOTE: On some camera models 12-bit video mode disables guider port!" );
 		break;
 	}
 	default:

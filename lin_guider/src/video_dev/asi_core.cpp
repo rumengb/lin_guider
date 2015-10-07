@@ -154,14 +154,26 @@ int asi_core::open( void )
 
 void asi_core::set_camera_image_type(ASI_IMG_TYPE img_type) {
 	int x,y,d;
-	pASIGetROIFormat(m_camera, &x, &y, &d, &m_img_type);
+	int rc = pASIGetROIFormat(m_camera, &x, &y, &d, &m_img_type);
+	if(rc) {
+		log_e("ASIGetROIFormat(): returned error %d", rc);
+		return;
+	}
 	m_img_type = img_type;
-	pASISetROIFormat(m_camera, x, y, d, m_img_type);
+	rc = pASISetROIFormat(m_camera, x, y, d, m_img_type);
+	if(rc) {
+		log_e("ASIGetROIFormat(): returned error %d", rc);
+		return;
+	}
 }
 
 void asi_core::update_camera_image_type() {
 	int x,y,d;
-	pASIGetROIFormat(m_camera, &x, &y, &d, &m_img_type);
+	int rc = pASIGetROIFormat(m_camera, &x, &y, &d, &m_img_type);
+	if(rc) {
+		log_e("ASIGetROIFormat(): returned error %d", rc);
+		return;
+	}
 	switch (m_img_type) {
 	case ASI_IMG_RAW8:
 	case ASI_IMG_Y8:
