@@ -455,7 +455,7 @@ bool asi_core::set_wb_r(unsigned char wb_r) {
 		log_e("ASISetControlValue(WB_R): returned error %d", rc);
 		return false;
 	}
-    return true;
+	return true;
 }
 
 bool asi_core::set_wb_b(unsigned char wb_b) {
@@ -471,7 +471,7 @@ bool asi_core::set_wb_b(unsigned char wb_b) {
 		log_e("ASISetControlValue(WB_B): returned error %d", rc);
 		return false;
 	}
-    return true;
+	return true;
 }
 
 bool asi_core::read_image(char *buf, int buf_size, long exp_time) {

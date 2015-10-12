@@ -155,7 +155,7 @@ bool cgmath::set_video_params( int vid_wd, int vid_ht )
 	video_width  = vid_wd;
 	video_height = vid_ht;
 
-	set_reticle_params( video_width/2, video_height/2, m_common_params.reticle_angle ); // keep orientation
+	set_reticle_params( video_width/2, video_height/2, m_common_params.reticle_angle );
 
 	return true;
 }
