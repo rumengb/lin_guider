@@ -5,6 +5,7 @@
 	* Always use '.' in floating point numbers, regardless of the locale, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Add normalization of gain coefficients, if enabled changing the guide rate will affect
 	  directly the guiding, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Restore reticle angle after restart, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use latest Atik SDK (0.34), by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use latest ASI SDK (0.1.0803), by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Add colour support for ASI cameras, by Rumen G.Bogdanovski <rumen@skyarchive.org>

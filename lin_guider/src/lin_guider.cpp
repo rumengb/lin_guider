@@ -407,6 +407,8 @@ void lin_guider::closeEvent( QCloseEvent *event )
 
 	// get the actual square_index before saving
 	m_common_params.square_index = m_math->get_square_index();
+	double reticle_x,reticle_y;
+	m_math->get_reticle_params( &reticle_x, &reticle_y, &m_common_params.reticle_angle );
 
 	// save params
 	param_block->set_capture_params( m_capture_params );

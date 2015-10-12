@@ -217,8 +217,8 @@ bool params::load( void )
 	// calibration params
 	settings.beginGroup("calibration");
 		m_calibration_params.two_axis = settings.value( "two_axis", false ).toBool();
-    	m_calibration_params.auto_mode = settings.value( "auto_mode", false ).toBool();
-	    m_calibration_params.dift_time = settings.value( "dift_time", 25 ).toInt(&ok);
+		m_calibration_params.auto_mode = settings.value( "auto_mode", false ).toBool();
+		m_calibration_params.dift_time = settings.value( "dift_time", 25 ).toInt(&ok);
 		m_calibration_params.frame_count = settings.value( "frame_count", 10 ).toInt(&ok);
 	settings.endGroup();
 
@@ -244,6 +244,7 @@ bool params::load( void )
 		DBG_VERBOSITY = settings.value( "dbg_verbosity", false ).toBool();
 		m_common_params.hfd_on = settings.value( "hfd_on", false ).toBool();
 		m_common_params.square_index = settings.value( "square_index", DEFAULT_SQR ).toInt();
+		m_common_params.reticle_angle = settings.value( "reticle_angle", 0 ).toDouble(&ok);
 	settings.endGroup();
 
 	// drift view
@@ -399,6 +400,7 @@ bool params::save( void )
 		settings.setValue( "dbg_verbosity", DBG_VERBOSITY );
 		settings.setValue( "hfd_on", m_common_params.hfd_on );
 		settings.setValue( "square_index", m_common_params.square_index );
+		settings.setValue( "reticle_angle", m_common_params.reticle_angle );
 	settings.endGroup();
 
 	// drift view

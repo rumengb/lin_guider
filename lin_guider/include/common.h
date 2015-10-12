@@ -115,7 +115,8 @@ public:
 		dithering_rest_tout( 3 ),
 
 		hfd_on( false ),
-		square_index( DEFAULT_SQR )
+		square_index( DEFAULT_SQR ),
+		reticle_angle(0)
 	{
 	}
 
@@ -130,6 +131,7 @@ public:
 
 	bool hfd_on;
 	int square_index;
+	double reticle_angle;
 };
 
 #endif /* COMMON_H_ */
