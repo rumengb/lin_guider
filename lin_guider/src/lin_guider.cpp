@@ -93,7 +93,7 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionAbout, 		SIGNAL(triggered()), this, SLOT(onShowAbout()) );
 	connect( ui.action_Toggle_Calibration_Guider, SIGNAL(triggered()), this, SLOT(onToggleCalibrationGuider()) );
 
-	param_block = new params( this );
+	param_block = new params();
 
 	param_block->load();
 
@@ -309,6 +309,17 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_timer.setSingleShot( true );
 	connect( &m_timer, SIGNAL( timeout() ), this, SLOT( onCmdTimer() ) );
 
+	// setup geometry
+	{
+		const std::pair< QByteArray, QByteArray >& wnd_gs = param_block->get_wnd_geometry_state( "main_wnd" );
+		this->restoreGeometry( wnd_gs.first );
+		this->restoreState( wnd_gs.second );
+	}
+	{
+		const std::pair< QByteArray, QByteArray >& wnd_gs = param_block->get_wnd_geometry_state( "guider_wnd" );
+		guider_wnd->restoreGeometry( wnd_gs.first );
+	}
+
 	log_i("Started successfully");
 }
 
@@ -407,8 +418,7 @@ void lin_guider::closeEvent( QCloseEvent *event )
 
 	// get the actual square_index before saving
 	m_common_params.square_index = m_math->get_square_index();
-	double reticle_x,reticle_y;
-	m_math->get_reticle_params( &reticle_x, &reticle_y, &m_common_params.reticle_angle );
+	m_math->get_reticle_params( NULL, NULL, &m_common_params.reticle_angle );
 
 	// save params
 	param_block->set_capture_params( m_capture_params );
@@ -424,6 +434,16 @@ void lin_guider::closeEvent( QCloseEvent *event )
 	param_block->set_net_params( m_net_params );
 	param_block->set_common_params( m_common_params );
 	param_block->set_drift_view_params( m_drift_view_params );
+
+	{
+		std::pair< QByteArray, QByteArray > wnd_gs = std::make_pair( this->saveGeometry(), this->saveState() );
+		param_block->set_wnd_geometry_state( "main_wnd", wnd_gs );
+	}
+	{
+		std::pair< QByteArray, QByteArray > wnd_gs = std::make_pair( guider_wnd->saveGeometry(), QByteArray() );
+		param_block->set_wnd_geometry_state( "guider_wnd", wnd_gs );
+	}
+
 	param_block->save();
 }
 

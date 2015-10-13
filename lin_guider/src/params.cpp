@@ -33,7 +33,7 @@
 
 
 
-params::params( QMainWindow *main_wnd )
+params::params()
 {
 	save_device_cfg = true;	// true if device was successuly initialized
 
@@ -91,8 +91,8 @@ params::params( QMainWindow *main_wnd )
 	// common params are initialized by ctor()
 
 	// drift view params are initialized by ctor()
-	assert( main_wnd );
-	m_main_wnd = main_wnd;
+
+	m_wnd_geometry_state.clear();
 }
 
 
@@ -198,8 +198,16 @@ bool params::load( void )
 	settings.beginGroup("ui");
 		m_ui_params.half_refresh_rate = settings.value( "half_refresh_rate" ).toBool();
 		m_ui_params.show_helper_TB = settings.value( "show_helper_TB", false ).toBool();
-		m_main_wnd->restoreGeometry( settings.value("main_wnd_geometry").toByteArray() );
-		m_main_wnd->restoreState( settings.value("main_wnd_state").toByteArray() );
+		{
+			QByteArray wnd_geometry = settings.value("main_wnd_geometry").toByteArray();
+			QByteArray wnd_state = settings.value("main_wnd_state").toByteArray();
+			set_wnd_geometry_state( "main_wnd", std::make_pair( wnd_geometry, wnd_state ) );
+		}
+		{
+			QByteArray wnd_geometry = settings.value("guider_wnd_geometry").toByteArray();
+			QByteArray wnd_state = settings.value("guider_wnd_state").toByteArray();
+			set_wnd_geometry_state( "guider_wnd", std::make_pair( wnd_geometry, wnd_state ) );
+		}
 	settings.endGroup();
 
 	// guider params
@@ -249,7 +257,7 @@ bool params::load( void )
 
 	// drift view
 	settings.beginGroup("guider_drift_view");
-		m_drift_view_params.drift_graph_xrange = settings.value( "drift_graph_xrange", 350 ).toInt();
+		m_drift_view_params.drift_graph_xrange = settings.value( "drift_graph_xrange", 300 ).toInt();
 		m_drift_view_params.drift_graph_yrange = settings.value( "drift_graph_yrange", 60 ).toInt();
 	settings.endGroup();
 
@@ -356,8 +364,22 @@ bool params::save( void )
 	settings.beginGroup( "ui" );
 		settings.setValue( "half_refresh_rate", m_ui_params.half_refresh_rate );
 		settings.setValue( "show_helper_TB", m_ui_params.show_helper_TB );
-		settings.setValue("main_wnd_geometry", m_main_wnd->saveGeometry() );
-		settings.setValue("main_wnd_state", m_main_wnd->saveState() );
+		{
+			std::map< std::string, std::pair< QByteArray, QByteArray > >::const_iterator it = m_wnd_geometry_state.find( "main_wnd" );
+			if( it != m_wnd_geometry_state.end() )
+			{
+				settings.setValue("main_wnd_geometry", it->second.first );
+				settings.setValue("main_wnd_state", it->second.second );
+			}
+		}
+		{
+			std::map< std::string, std::pair< QByteArray, QByteArray > >::const_iterator it = m_wnd_geometry_state.find( "guider_wnd" );
+			if( it != m_wnd_geometry_state.end() )
+			{
+				settings.setValue("guider_wnd_geometry", it->second.first );
+				settings.setValue("guider_wnd_state", it->second.second );
+			}
+		}
 	settings.endGroup();
 
 	// guider params

@@ -24,7 +24,9 @@
 
 #include <string.h>
 
-
+#include <string>
+#include <map>
+#include <utility>
 
 #include "lin_guider.h"
 #include "common.h"
@@ -37,12 +39,10 @@
 #include "guider.h"
 
 
-class QMainWindow;
-
 class params
 {
 public:
-	params( QMainWindow *main_wnd );
+	params();
 	virtual ~params();
 
 	bool load( void );
@@ -94,6 +94,22 @@ public:
 	guider::drift_view_params_s get_drift_view_params( void ) { return m_drift_view_params; };
 	void set_drift_view_params( const guider::drift_view_params_s &v ) { m_drift_view_params = v; }
 
+	const std::pair< QByteArray, QByteArray >& get_wnd_geometry_state( const std::string &name ) const
+	{
+		static std::pair< QByteArray, QByteArray > empty_stub;
+		std::map< std::string, std::pair< QByteArray, QByteArray > >::const_iterator it = m_wnd_geometry_state.find( name );
+		if( it != m_wnd_geometry_state.end() )
+			return it->second;
+		return empty_stub;
+	}
+	void set_wnd_geometry_state( const std::string &name, const std::pair< QByteArray, QByteArray > &geometry_state )
+	{
+		std::map< std::string, std::pair< QByteArray, QByteArray > >::iterator it = m_wnd_geometry_state.find( name );
+		if( it != m_wnd_geometry_state.end() )
+			m_wnd_geometry_state.erase( it );
+		m_wnd_geometry_state.insert( std::make_pair( name, geometry_state ) );
+	}
+
 private:
 	// video
 	guiderparams_t m_guider_params;
@@ -123,7 +139,8 @@ private:
 	char m_dev_name_video[64];
 	char m_dev_name_io[64];
 
-	QMainWindow *m_main_wnd;
+	// name->(geom, state)
+	std::map< std::string, std::pair< QByteArray, QByteArray > > m_wnd_geometry_state;
 };
 
 

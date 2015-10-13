@@ -33,8 +33,8 @@
 #include "utils.h"
 
 
-#define DRIFT_GRAPH_WIDTH	350
-#define DRIFT_GRAPH_HEIGHT	350
+#define DRIFT_GRAPH_WIDTH	300
+#define DRIFT_GRAPH_HEIGHT	300
 
 
 guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params ) :
@@ -56,6 +56,8 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	int i;
 
 	ui.setupUi(this);
+
+	this->adjustSize();
 
 	ui.comboBox_SquareSize->clear();
 	for( i = 0;guide_squares[i].size != -1;i++ )

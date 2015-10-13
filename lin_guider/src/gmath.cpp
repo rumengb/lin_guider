@@ -235,10 +235,12 @@ bool cgmath::set_reticle_params( double x, double y, double ang )
 
 bool cgmath::get_reticle_params( double *x, double *y, double *ang ) const
 {
-	*x = reticle_pos.x;
-	*y = reticle_pos.y;
-
-	*ang = reticle_angle;
+	if( x )
+		*x = reticle_pos.x;
+	if( y )
+		*y = reticle_pos.y;
+	if( ang )
+		*ang = reticle_angle;
 
 	return true;
 }
