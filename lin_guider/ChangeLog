@@ -1,6 +1,6 @@
 2015-08-05 Lin_guider 3.2.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
-    * Fixed DEC swapping in GPIO driver
+	* Fixed DEC swapping in GPIO driver
 	* Guider window UI tweaks
 	* Add support for all Bayer patterns, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Always use '.' in floating point numbers, regardless of the locale, by Rumen G.Bogdanovski <rumen@skyarchive.org>

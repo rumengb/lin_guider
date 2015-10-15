@@ -41,9 +41,10 @@ cscroll_graph::cscroll_graph( QWidget *own, int client_width, int client_height 
 	vis_range_x = client_rect_wd; // horizontal range in ticks
 	vis_range_y = 100;	// whole visible vertical range in arcsecs!
 
-	grid_N = 6;
+	gridx_N = 7;
+	gridy_N = 6;
 
-	data_cnt = 10*grid_N*10;
+	data_cnt = 10*gridx_N*10;
 	data.line[ RA_LINE ] = new double[ data_cnt ];
 	data.line[ DEC_LINE ] = new double[ data_cnt ];
 	reset_data();
@@ -83,11 +84,11 @@ void cscroll_graph::init_render_vars( void )
 	half_buffer_size_ht = client_rect_ht / 2;
 
 
-	grid_view_step_x = (double)client_rect_wd / (double)grid_N;
-	grid_view_step_y = (double)client_rect_ht / (double)grid_N;
+	grid_view_step_x = (double)client_rect_wd / (double)gridx_N;
+	grid_view_step_y = (double)client_rect_ht / (double)gridy_N;
 
-	grid_step_x = (double)vis_range_x / (double)grid_N;
-	grid_step_y = (double)vis_range_y / (double)grid_N;
+	grid_step_x = (double)vis_range_x / (double)gridx_N;
+	grid_step_y = (double)vis_range_y / (double)gridy_N;
 
 	half_vis_range_x = vis_range_x / 2;
 	half_vis_range_y = vis_range_y / 2;
@@ -97,7 +98,7 @@ void cscroll_graph::init_render_vars( void )
 
 void cscroll_graph::set_visible_ranges( int rx, int ry )
 {
-     if( rx >= 10*grid_N && rx < (double)data_cnt )
+     if( rx >= 10*gridx_N && rx < (double)data_cnt )
      {
          if( vis_range_x != rx )
              need_refresh = true;
@@ -105,11 +106,11 @@ void cscroll_graph::set_visible_ranges( int rx, int ry )
      }
      else
      {
-         u_msg("set_visible_ranges: rx must be >= %d and < %d", 10*grid_N, data_cnt);
+         u_msg("set_visible_ranges: rx must be >= %d and < %d", 10*gridx_N, data_cnt);
          return;
      }
 
-     if( ry >= 5*grid_N )
+     if( ry >= 5*gridy_N )
      {
          if( vis_range_x != ry )
         	 need_refresh = true;
@@ -117,7 +118,7 @@ void cscroll_graph::set_visible_ranges( int rx, int ry )
      }
      else
      {
-         u_msg("set_visible_ranges: ry must be >= %d and < %d", 5*grid_N, data_cnt);
+         u_msg("set_visible_ranges: ry must be >= %d and < %d", 5*gridy_N, data_cnt);
          return;
      }
 
@@ -132,9 +133,15 @@ void cscroll_graph::get_visible_ranges( int *rx, int *ry ) const
 }
 
 
-int cscroll_graph::get_grid_N( void ) const
+int cscroll_graph::get_gridx_N( void ) const
 {
- return grid_N;
+	return gridx_N;
+}
+
+
+int cscroll_graph::get_gridy_N( void ) const
+{
+	return gridy_N;
 }
 
 
@@ -145,7 +152,7 @@ void cscroll_graph::reset_view( void )
 
 	init_render_vars();
 
-    need_refresh = true;
+	need_refresh = true;
 }
 
 
@@ -352,14 +359,14 @@ void cscroll_graph::draw_grid( double kx, double )
 	grid_column = data_idx / (int)grid_step_x * (int)grid_step_x;
 	sx = client_rect_wd - (double)(data_idx % (int)grid_step_x)*kx;
 
-	for( i = 0;i < grid_N;i++ )
+	for( i = 0;i < gridx_N;i++ )
 	{
 		x = sx - (double)i*grid_view_step_x;
 		y = (double)i*grid_view_step_y;
 
 		canvas.drawLine( x, 0, x, client_rect_ht );
 
-		if( i == grid_N/2 )
+		if( i == gridy_N/2 )
 		{
 			pen.setColor( WHITE_COLOR );
 			canvas.setPen( pen );
@@ -374,7 +381,8 @@ void cscroll_graph::draw_grid( double kx, double )
 	// draw all digits
 	pen.setColor( GRID_FONT_COLOR );
 	canvas.setPen( pen );
-	for( i = 0;i < grid_N;i++ )
+	int grid_max = (gridx_N > gridy_N) ? gridx_N : gridy_N;
+	for( i = 0;i < grid_max;i++ )
 	{
 		x = sx - (double)i*grid_view_step_x;
 		y = (double)i*grid_view_step_y;

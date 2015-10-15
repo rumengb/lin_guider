@@ -33,7 +33,7 @@
 #include "utils.h"
 
 
-#define DRIFT_GRAPH_WIDTH	300
+#define DRIFT_GRAPH_WIDTH	350
 #define DRIFT_GRAPH_HEIGHT	300
 
 
@@ -211,8 +211,8 @@ void guider::fill_interface( void )
 	out_params  = m_math->get_out_params();
 
 	m_drift_graph->get_visible_ranges( &rx, &ry );
-	ui.spinBox_XScale->setValue( rx / m_drift_graph->get_grid_N() );
-	ui.spinBox_YScale->setValue( ry / m_drift_graph->get_grid_N() );
+	ui.spinBox_XScale->setValue( rx / m_drift_graph->get_gridx_N() );
+	ui.spinBox_YScale->setValue( ry / m_drift_graph->get_gridy_N() );
 
 	ui.comboBox_SquareSize->setCurrentIndex( m_math->get_square_index() );
 	ui.comboBox_ThresholdAlg->setCurrentIndex( m_math->get_square_algorithm_index() );
@@ -289,7 +289,7 @@ void guider::update_gains( void )
 void guider::onXscaleChanged( int i )
 {
 	int rx, ry;
-    int x_range = i*m_drift_graph->get_grid_N();
+	int x_range = i*m_drift_graph->get_gridx_N();
 
 	m_drift_graph->get_visible_ranges( &rx, &ry );
 	m_drift_graph->set_visible_ranges( x_range, ry );
@@ -307,7 +307,7 @@ void guider::onXscaleChanged( int i )
 void guider::onYscaleChanged( int i )
 {
 	int rx, ry;
-	int y_range =i*m_drift_graph->get_grid_N();
+	int y_range =i*m_drift_graph->get_gridy_N();
 
 	m_drift_graph->get_visible_ranges( &rx, &ry );
 	m_drift_graph->set_visible_ranges( rx, y_range );

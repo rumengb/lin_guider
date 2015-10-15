@@ -49,7 +49,8 @@ public:
 	bool add_point( double ra, double dec );
 	void set_visible_ranges( int rx, int ry );
 	void get_visible_ranges( int *rx, int *ry ) const;
-	int  get_grid_N( void ) const;
+	int  get_gridx_N( void ) const;
+	int  get_gridy_N( void ) const;
 	void reset_view( void );
 	void reset_data( void );
 	void on_paint( void );
@@ -73,7 +74,8 @@ private:
 	delta_data_t data;
 	int data_cnt;
 	int	data_idx;
-	int grid_N;
+	int gridx_N;
+	int gridy_N;
 	
 	// grid vars...
 	double grid_step_x, grid_step_y, grid_view_step_x, grid_view_step_y;
