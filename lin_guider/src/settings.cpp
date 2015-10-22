@@ -33,15 +33,30 @@
 settings::settings( lin_guider *parent,
 		net_params_t *net_params,
 		common_params *comm_params,
-		struct uiparams_s * ui_params ) :
+		struct uiparams_s * ui_params,
+		guider::drift_view_params_s *dv_params ) :
 	QDialog(parent),
     m_pnet_params( net_params ),
     m_pcommon_params( comm_params ),
-    m_ui_params( ui_params )
+    m_ui_params( ui_params ),
+    m_drift_view_params( dv_params )
 {
 	ui.setupUi(this);
 
 	setWindowTitle( tr("Settings") );
+
+	// fill drift graph combos
+	ui.comboBox_DriftGraph_nx->clear();
+	ui.comboBox_DriftGraph_ny->clear();
+	for( int i = 0;i <= 10;i++ )
+	{
+		if( i > 1 )
+		{
+			ui.comboBox_DriftGraph_nx->addItem( QString().setNum(i), i );
+			if( !(i & 1) )
+				ui.comboBox_DriftGraph_ny->addItem( QString().setNum(i), i );
+		}
+	}
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
@@ -114,6 +129,24 @@ void settings::fill_interface( void )
 
 	// HFD
 	ui.checkBox_HFD_on->setChecked( m_common_params.hfd_on );
+
+	// drift graph
+	for( int i = 0;i < ui.comboBox_DriftGraph_nx->count();i++ )
+	{
+		if( ui.comboBox_DriftGraph_nx->itemData( i ).toInt() == m_drift_view_params->cell_nx )
+		{
+			ui.comboBox_DriftGraph_nx->setCurrentIndex( i );
+			break;
+		}
+	}
+	for( int i = 0;i < ui.comboBox_DriftGraph_ny->count();i++ )
+	{
+		if( ui.comboBox_DriftGraph_ny->itemData( i ).toInt() == m_drift_view_params->cell_ny )
+		{
+			ui.comboBox_DriftGraph_ny->setCurrentIndex( i );
+			break;
+		}
+	}
 
 }
 
@@ -202,6 +235,11 @@ void settings::onOkButtonClick()
 
 	// final
 	*m_pcommon_params = m_common_params;
+
+	if( ui.comboBox_DriftGraph_nx->currentIndex() != -1 )
+		m_drift_view_params->cell_nx = ui.comboBox_DriftGraph_nx->itemData( ui.comboBox_DriftGraph_nx->currentIndex() ).toInt();
+	if( ui.comboBox_DriftGraph_ny->currentIndex() != -1 )
+		m_drift_view_params->cell_ny = ui.comboBox_DriftGraph_ny->itemData( ui.comboBox_DriftGraph_ny->currentIndex() ).toInt();
 
 	close();
 }

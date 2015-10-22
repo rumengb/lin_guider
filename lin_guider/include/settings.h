@@ -27,6 +27,7 @@
 #include "ui_settings.h"
 #include "server.h"
 #include "common.h"
+#include "guider.h"
 
 
 class lin_guider;
@@ -40,7 +41,8 @@ public:
     settings( lin_guider *parent,
     		net_params_t *net_params,
     		common_params * comm_params,
-    		struct uiparams_s * ui_params );
+    		struct uiparams_s * ui_params,
+    		guider::drift_view_params_s *dv_params );
     virtual ~settings();
 
 protected slots:
@@ -62,6 +64,8 @@ private:
     net_params_t *m_pnet_params;
     common_params * const m_pcommon_params;
     struct uiparams_s *m_ui_params;
+    guider::drift_view_params_s *m_drift_view_params;
+
 private:
     Ui::settingsClass ui;
 };

@@ -33,10 +33,6 @@
 #include "utils.h"
 
 
-#define DRIFT_GRAPH_WIDTH	350
-#define DRIFT_GRAPH_HEIGHT	300
-
-
 guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params ) :
 	QDialog( parent ),
 	m_math( NULL ),
@@ -114,7 +110,14 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	m_drift_out->setAttribute( Qt::WA_NoSystemBackground, true );
 	ui.frame_Graph->setAttribute( Qt::WA_NoSystemBackground, true );
 
-	m_drift_graph = new cscroll_graph( this, DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT );
+	int cell_nx = m_drift_view_params->cell_nx < 2 ? 2 : m_drift_view_params->cell_nx;
+	cell_nx = cell_nx <= 10 ? cell_nx : 10;
+	int cell_ny = m_drift_view_params->cell_ny < 2 ? 2 : m_drift_view_params->cell_ny;
+	cell_ny = cell_ny <= 10 ? cell_ny : 10;
+	int DRIFT_GRAPH_WIDTH = cell_nx * cell_size;
+	int DRIFT_GRAPH_HEIGHT = cell_ny * cell_size;
+
+	m_drift_graph = new cscroll_graph( this, DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
 	m_drift_graph->set_visible_ranges( m_drift_view_params->drift_graph_xrange > 0 && m_drift_view_params->drift_graph_xrange <= DRIFT_GRAPH_WIDTH ? m_drift_view_params->drift_graph_xrange : DRIFT_GRAPH_WIDTH,
 									   //DRIFT_GRAPH_WIDTH,
 									   m_drift_view_params->drift_graph_yrange > 0 ? m_drift_view_params->drift_graph_yrange : 60 );
@@ -289,7 +292,7 @@ void guider::update_gains( void )
 void guider::onXscaleChanged( int i )
 {
 	int rx, ry;
-	int x_range = i*m_drift_graph->get_gridx_N();
+    int x_range = i*m_drift_graph->get_gridx_N();
 
 	m_drift_graph->get_visible_ranges( &rx, &ry );
 	m_drift_graph->set_visible_ranges( x_range, ry );

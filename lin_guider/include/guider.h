@@ -48,11 +48,16 @@ public:
     {
     	drift_view_params_s() :
     		drift_graph_xrange( -1 ),
-    		drift_graph_yrange( -1 )
+    		drift_graph_yrange( -1 ),
+    		cell_nx( 0 ),
+    		cell_ny( 0 )
     	{}
     	int drift_graph_xrange;
     	int drift_graph_yrange;
+    	int cell_nx;
+    	int cell_ny;
     };
+    static const int cell_size = 50;
 
     guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params );
     ~guider();

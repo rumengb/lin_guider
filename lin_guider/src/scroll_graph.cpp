@@ -29,7 +29,7 @@
 
 
 
-cscroll_graph::cscroll_graph( QWidget *own, int client_width, int client_height )
+cscroll_graph::cscroll_graph( QWidget *own, int client_width, int client_height, int cell_nx, int cell_ny )
 {
 	owner = own;
 
@@ -41,8 +41,8 @@ cscroll_graph::cscroll_graph( QWidget *own, int client_width, int client_height 
 	vis_range_x = client_rect_wd; // horizontal range in ticks
 	vis_range_y = 100;	// whole visible vertical range in arcsecs!
 
-	gridx_N = 7;
-	gridy_N = 6;
+	gridx_N = cell_nx;
+	gridy_N = cell_ny & (~1);
 
 	data_cnt = 10*gridx_N*10;
 	data.line[ RA_LINE ] = new double[ data_cnt ];
@@ -98,29 +98,18 @@ void cscroll_graph::init_render_vars( void )
 
 void cscroll_graph::set_visible_ranges( int rx, int ry )
 {
-     if( rx >= 10*gridx_N && rx < (double)data_cnt )
-     {
-         if( vis_range_x != rx )
-             need_refresh = true;
-         vis_range_x = rx;
-     }
-     else
-     {
-         u_msg("set_visible_ranges: rx must be >= %d and < %d", 10*gridx_N, data_cnt);
-         return;
-     }
+	if( rx < 10*gridx_N ) rx = 10*gridx_N;
+    if( rx > data_cnt ) rx = data_cnt;
 
-     if( ry >= 5*gridy_N )
-     {
-         if( vis_range_x != ry )
-        	 need_refresh = true;
-         vis_range_y = ry;
-     }
-     else
-     {
-         u_msg("set_visible_ranges: ry must be >= %d and < %d", 5*gridy_N, data_cnt);
-         return;
-     }
+    if( vis_range_x != rx )
+    	need_refresh = true;
+    vis_range_x = rx;
+
+     if( ry < 5*gridy_N ) ry = 5*gridy_N;
+
+     if( vis_range_x != ry )
+    	 need_refresh = true;
+     vis_range_y = ry;
 
      init_render_vars();
 }
@@ -362,10 +351,11 @@ void cscroll_graph::draw_grid( double kx, double )
 	for( i = 0;i < gridx_N;i++ )
 	{
 		x = sx - (double)i*grid_view_step_x;
-		y = (double)i*grid_view_step_y;
-
 		canvas.drawLine( x, 0, x, client_rect_ht );
-
+	}
+	for( i = 0;i < gridy_N;i++ )
+	{
+		y = (double)i*grid_view_step_y;
 		if( i == gridy_N/2 )
 		{
 			pen.setColor( WHITE_COLOR );

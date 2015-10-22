@@ -42,7 +42,7 @@ typedef struct
 class cscroll_graph
 {
 public:
-	cscroll_graph( QWidget *own, int client_width, int client_height );
+	cscroll_graph( QWidget *own, int client_width, int client_height, int cell_nx, int cell_ny );
 	virtual ~cscroll_graph();
 	
 	QImage *get_buffer( void ) const;

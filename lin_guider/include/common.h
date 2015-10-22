@@ -132,6 +132,7 @@ public:
 	bool hfd_on;
 	int square_index;
 	double reticle_angle;
+
 };
 
 #endif /* COMMON_H_ */

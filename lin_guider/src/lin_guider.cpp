@@ -242,7 +242,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	recorder_wnd->set_video_params( m_v_buf, m_capture_params.width, m_capture_params.height );
 
 	// settings dialog
-	settings_wnd = new settings( this, &m_net_params, &m_common_params, &m_ui_params );
+	settings_wnd = new settings( this, &m_net_params, &m_common_params, &m_ui_params, &m_drift_view_params );
 
 	// about dialog
 	about_wnd = new about( this );
