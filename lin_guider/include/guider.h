@@ -44,28 +44,28 @@ class guider : public QDialog
     Q_OBJECT
 
 public:
-    struct drift_view_params_s
-    {
-    	drift_view_params_s() :
-    		drift_graph_xrange( -1 ),
-    		drift_graph_yrange( -1 ),
-    		cell_nx( 0 ),
-    		cell_ny( 0 )
-    	{}
-    	int drift_graph_xrange;
-    	int drift_graph_yrange;
-    	int cell_nx;
-    	int cell_ny;
-    };
-    static const int cell_size = 50;
+	struct drift_view_params_s
+	{
+		drift_view_params_s() :
+			drift_graph_xrange( -1 ),
+			drift_graph_yrange( -1 ),
+			cell_nx( 0 ),
+			cell_ny( 0 )
+		{}
+		int drift_graph_xrange;
+		int drift_graph_yrange;
+		int cell_nx;
+		int cell_ny;
+	};
+	static const int cell_size = 50;
 
-    guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params );
-    ~guider();
+	guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params );
+	~guider();
 
-    void guide( void );
-    void set_half_refresh_rate( bool is_half );
-    bool is_guiding( void ) const;
-    void set_math( cgmath *math );
+	void guide( void );
+	void set_half_refresh_rate( bool is_half );
+	bool is_guiding( void ) const;
+	void set_math( cgmath *math );
 
 protected slots:
 	void onXscaleChanged( int i );

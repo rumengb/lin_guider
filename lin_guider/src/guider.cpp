@@ -171,7 +171,7 @@ void guider::closeEvent( QCloseEvent * )
 }
 
 
-void guider::hideEvent ( QHideEvent * event )
+void guider::hideEvent( QHideEvent * event )
 {
 	if( event->spontaneous() )
 		return;
@@ -292,7 +292,7 @@ void guider::update_gains( void )
 void guider::onXscaleChanged( int i )
 {
 	int rx, ry;
-    int x_range = i*m_drift_graph->get_gridx_N();
+	int x_range = i*m_drift_graph->get_gridx_N();
 
 	m_drift_graph->get_visible_ranges( &rx, &ry );
 	m_drift_graph->set_visible_ranges( x_range, ry );

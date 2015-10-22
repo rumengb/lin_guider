@@ -99,19 +99,19 @@ void cscroll_graph::init_render_vars( void )
 void cscroll_graph::set_visible_ranges( int rx, int ry )
 {
 	if( rx < 10*gridx_N ) rx = 10*gridx_N;
-    if( rx > data_cnt ) rx = data_cnt;
+	if( rx > data_cnt ) rx = data_cnt;
 
-    if( vis_range_x != rx )
-    	need_refresh = true;
-    vis_range_x = rx;
+	if( vis_range_x != rx )
+		need_refresh = true;
+	vis_range_x = rx;
 
-     if( ry < 5*gridy_N ) ry = 5*gridy_N;
+	if( ry < 5*gridy_N ) ry = 5*gridy_N;
 
-     if( vis_range_x != ry )
-    	 need_refresh = true;
-     vis_range_y = ry;
+	if( vis_range_x != ry )
+		need_refresh = true;
+	vis_range_y = ry;
 
-     init_render_vars();
+	init_render_vars();
 }
 
 
@@ -194,7 +194,7 @@ void cscroll_graph::refresh( void )
  int px, py;
 
 	if( !need_refresh )
-	    return;
+		return;
 
 	font_ht_k = canvas.fontMetrics().ascent();
 
