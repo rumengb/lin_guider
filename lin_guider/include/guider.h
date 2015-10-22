@@ -49,8 +49,8 @@ public:
 		drift_view_params_s() :
 			drift_graph_xrange( -1 ),
 			drift_graph_yrange( -1 ),
-			cell_nx( 0 ),
-			cell_ny( 0 )
+			cell_nx( 6 ),
+			cell_ny( 6 )
 		{}
 		int drift_graph_xrange;
 		int drift_graph_yrange;
