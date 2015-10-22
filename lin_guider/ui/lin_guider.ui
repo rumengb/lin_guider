@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>360</width>
-    <height>260</height>
+    <width>645</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -42,8 +42,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>360</width>
-     <height>23</height>
+     <width>645</width>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
