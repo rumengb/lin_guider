@@ -2,6 +2,7 @@
 
 	* Fixed DEC swapping in GPIO driver
 	* Guider window UI tweaks
+	* Add adjust window to fit image button
 	* Add support for all Bayer patterns, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Always use '.' in floating point numbers, regardless of the locale, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Add normalization of gain coefficients, if enabled changing the guide rate will affect
