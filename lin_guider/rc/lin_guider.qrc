@@ -1,13 +1,14 @@
 <RCC>
-    <qresource prefix="/new/prefix1">
-        <file>calibr2guider.png</file>
-        <file>settings.png</file>
-        <file>about.png</file>
-        <file>calibration.png</file>
-        <file>driver.png</file>
-        <file>guiding.png</file>
-        <file>record.png</file>
-        <file>video.png</file>
-        <file>lin_guider.png</file>
-    </qresource>
+  <qresource prefix="/new/prefix1">
+    <file>adjust2fit.png</file>
+    <file>calibr2guider.png</file>
+    <file>settings.png</file>
+    <file>about.png</file>
+    <file>calibration.png</file>
+    <file>driver.png</file>
+    <file>guiding.png</file>
+    <file>record.png</file>
+    <file>video.png</file>
+    <file>lin_guider.png</file>
+  </qresource>
 </RCC>

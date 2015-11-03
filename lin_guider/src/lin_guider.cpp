@@ -92,6 +92,7 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionSettings, 	SIGNAL(triggered()), this, SLOT(onShowSettings()) );
 	connect( ui.actionAbout, 		SIGNAL(triggered()), this, SLOT(onShowAbout()) );
 	connect( ui.action_Toggle_Calibration_Guider, SIGNAL(triggered()), this, SLOT(onToggleCalibrationGuider()) );
+	connect( ui.actionAdjust2fitCamera, SIGNAL(triggered()), this, SLOT(onAdjust2fitCamera()) );
 
 	param_block = new params();
 
@@ -547,6 +548,15 @@ void lin_guider::onToggleCalibrationGuider()
 		guider_wnd->close();
 		reticle_wnd->show();
 	}
+}
+
+
+void lin_guider::onAdjust2fitCamera()
+{
+	QRect fg = ui.videoFrame->frameGeometry();
+	QSize f = frameSize() - size();
+	QPoint lt = centralWidget()->mapToParent( QPoint(0, 0) );
+	resize( fg.width() + lt.x() + f.width() + 4, fg.height() + lt.y() + f.height() + 4 /*+ ui.statusbar->height()*/ );
 }
 
 

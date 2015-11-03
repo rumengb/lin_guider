@@ -98,6 +98,7 @@ protected slots:
 
 	// Helper toolbar
 	void onToggleCalibrationGuider();
+	void onAdjust2fitCamera();
 
 	//
 	void onGetVideo(const void *, int);

@@ -26,16 +26,7 @@
    <string>settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>4</number>
-   </property>
-   <property name="topMargin">
-    <number>4</number>
-   </property>
-   <property name="rightMargin">
-    <number>4</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>4</number>
    </property>
    <property name="spacing">
@@ -94,7 +85,7 @@
       <item row="0" column="3">
        <widget class="QLineEdit" name="lineEdit_Port">
         <property name="inputMask">
-         <string>00000</string>
+         <string>00000; </string>
         </property>
        </widget>
       </item>
@@ -211,7 +202,7 @@
       <item row="4" column="4">
        <widget class="QLineEdit" name="lineEdit_TCPPort">
         <property name="inputMask">
-         <string>00000</string>
+         <string>00000; </string>
         </property>
        </widget>
       </item>
@@ -360,8 +351,18 @@
   <tabstop>checkBox_GuidingStability</tabstop>
   <tabstop>checkBox_ImageQuality</tabstop>
   <tabstop>checkBox_DriftData</tabstop>
+  <tabstop>lineEdit_lsocket</tabstop>
+  <tabstop>checkBox_useTCP</tabstop>
+  <tabstop>lineEdit_TCPPort</tabstop>
   <tabstop>spinBox_DitherRange</tabstop>
   <tabstop>spinBox_DitherRestTout</tabstop>
+  <tabstop>comboBox_DriftGraph_nx</tabstop>
+  <tabstop>comboBox_DriftGraph_ny</tabstop>
+  <tabstop>checkBox_HFD_on</tabstop>
+  <tabstop>checkBox_ShowHelperTB</tabstop>
+  <tabstop>checkBox_DBGVerbosity</tabstop>
+  <tabstop>pushButton_OK</tabstop>
+  <tabstop>pushButton_Cancel</tabstop>
  </tabstops>
  <resources/>
  <connections>

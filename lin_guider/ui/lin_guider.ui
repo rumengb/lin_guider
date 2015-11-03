@@ -43,7 +43,7 @@
      <x>0</x>
      <y>0</y>
      <width>645</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -122,6 +122,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="action_Toggle_Calibration_Guider"/>
+   <addaction name="actionAdjust2fitCamera"/>
   </widget>
   <action name="actionSetupDriver">
    <property name="icon">
@@ -255,6 +256,18 @@
    </property>
    <property name="text">
     <string>&amp;Toggle Calibration&lt;-&gt;Guider</string>
+   </property>
+  </action>
+  <action name="actionAdjust2fitCamera">
+   <property name="icon">
+    <iconset resource="../rc/lin_guider.qrc">
+     <normaloff>:/new/prefix1/adjust2fit.png</normaloff>:/new/prefix1/adjust2fit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ad&amp;just to fit</string>
+   </property>
+   <property name="toolTip">
+    <string>Adjust to fit camera view</string>
    </property>
   </action>
  </widget>
