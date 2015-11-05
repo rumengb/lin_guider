@@ -555,9 +555,10 @@ void lin_guider::onAdjust2fitCamera()
 {
 	QRect fg = ui.videoFrame->frameGeometry();
 	int sb_width = ui.videoFrame->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+	(void)sb_width;
 	QSize f = frameSize() - size();
 	QPoint lt = centralWidget()->mapToParent( QPoint(0, 0) );
-	resize( fg.width() + lt.x() + f.width() - sb_width, fg.height() + lt.y() + f.height() - sb_width /*+ ui.statusbar->height()*/ );
+	resize( fg.width() + lt.x() + f.width() + 4/*- sb_width*/, fg.height() + lt.y() + f.height() + 4 /*- sb_width*/ /*+ ui.statusbar->height()*/ );
 }
 
 
