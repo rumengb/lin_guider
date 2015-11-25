@@ -1,3 +1,10 @@
+2015-11-25 Lin_guider 3.2.1 (c)Galaxy Master <galaxy_master@mail.ru>
+
+	* Use latest Atik SDK (0.41), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Use latest ASI SDK (0.2.1026), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Fix gain control overflow in ASI driver, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Add save_frame in lg_tool.pl
+
 2015-11-03 Lin_guider 3.2.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
 	* Fixed DEC swapping in GPIO driver
