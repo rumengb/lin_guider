@@ -78,7 +78,7 @@ protected:
 	bool start_exposure();
 	bool abort_exposure();
 	bool set_camera_exposure(long exp_time);
-	bool set_camera_gain(unsigned char gain);
+	bool set_camera_gain(unsigned int gain);
 	void set_camera_image_type(ASI_IMG_TYPE img_type);
 	void update_camera_image_type();
 	bool set_band_width(unsigned char bwidth);

@@ -410,7 +410,7 @@ bool asi_core::set_camera_exposure(long exp_time) {
     return true;
 }
 
-bool asi_core::set_camera_gain(unsigned char gain) {
+bool asi_core::set_camera_gain(unsigned int gain) {
 	if (!m_has_gain) return false;
 	if((gain < m_gain_caps.MinValue) || (gain > m_gain_caps.MaxValue)) {
 		log_e("Gain %d not supported", gain);
