@@ -8,7 +8,9 @@ OBJECTS_DIR = $$DSTDIR/.obj
 MOC_DIR = $$DSTDIR/.moc
 UI_DIR = $$DSTDIR/.ui
 RCC_DIR = $$DSTDIR/.rcc
-HEADERS += include/io_dev/io_nexstar.h \
+HEADERS += include/target_graph.h \
+    include/math/gmath_test.h \
+    include/io_dev/io_nexstar.h \
     include/io_dev/io_qhy5ii.h \
     include/video_dev/qhy5ii_core.h \
     include/video_dev/video_qhy5ii.h \
@@ -65,7 +67,9 @@ HEADERS += include/io_dev/io_nexstar.h \
     include/utils.h \
     include/io_driver.h \
     include/lin_guider.h
-SOURCES += src/io_dev/io_nexstar.cpp \
+SOURCES += src/target_graph.cpp \
+    src/math/gmath_test.cpp \
+    src/io_dev/io_nexstar.cpp \
     src/io_dev/io_qhy5ii.cpp \
     src/io_dev/io_atik.cpp \
     src/io_dev/io_sx.cpp \
@@ -132,6 +136,7 @@ RESOURCES += rc/lin_guider.qrc
 INCLUDEPATH += include/ \
     include/io_dev/ \
     include/video_dev/ \
+    include/math/ \
     ./
 LIBS += -lusb-1.0 \
     -ldl \
