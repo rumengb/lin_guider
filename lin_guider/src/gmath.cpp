@@ -161,7 +161,7 @@ bool cgmath::set_video_params( int vid_wd, int vid_ht )
 }
 
 
-double *cgmath::get_data_buffer( int *width, int *height, int *length, int *size )
+double *cgmath::get_data_buffer( int *width, int *height, int *length, int *size ) const
 {
 	if( width )
 		*width = video_width;
@@ -819,6 +819,9 @@ void cgmath::start( void )
 
 	// restore position
 	reticle_pos = reticle_org;
+
+	// call some external code on start
+	on_start();
 }
 
 
@@ -828,6 +831,9 @@ void cgmath::stop( void )
 
 	// restore position
 	reticle_pos = reticle_org;
+
+	// call some external code on stop
+	on_stop();
 }
 
 
@@ -843,7 +849,7 @@ bool cgmath::is_suspended( void ) const
 }
 
 
-Vector cgmath::find_star_local_pos( void )
+Vector cgmath::find_star_local_pos( void ) const
 {
 	int i, j;
 	double resx, resy, mass, threshold, pval;

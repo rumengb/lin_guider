@@ -29,30 +29,28 @@
 
 
 
-cscroll_graph::cscroll_graph( QWidget *own, int client_width, int client_height, int cell_nx, int cell_ny )
+cscroll_graph::cscroll_graph( int client_width, int client_height, int cell_nx, int cell_ny )
 {
-	owner = own;
+	m_client_rect_wd = client_width;
+	m_client_rect_ht = client_height;
 
-	client_rect_wd = client_width;
-	client_rect_ht = client_height;
+	m_buffer = new QImage( m_client_rect_wd, m_client_rect_ht, QImage::Format_RGB32 );
 
-	buffer = new QImage( client_rect_wd, client_rect_ht, QImage::Format_RGB32 );
+	m_vis_range_x = m_client_rect_wd; // horizontal range in ticks
+	m_vis_range_y = 100;	// whole visible vertical range in arcsecs!
 
-	vis_range_x = client_rect_wd; // horizontal range in ticks
-	vis_range_y = 100;	// whole visible vertical range in arcsecs!
+	m_gridx_N = cell_nx;
+	m_gridy_N = cell_ny & (~1);
 
-	gridx_N = cell_nx;
-	gridy_N = cell_ny & (~1);
-
-	data_cnt = 10*gridx_N*10;
-	data.line[ RA_LINE ] = new double[ data_cnt ];
-	data.line[ DEC_LINE ] = new double[ data_cnt ];
+	m_data_cnt = 10*m_gridx_N*10;
+	m_data.line[ RA_LINE ] = new double[ m_data_cnt ];
+	m_data.line[ DEC_LINE ] = new double[ m_data_cnt ];
 	reset_data();
 
 	//graphics...
-	pen.setStyle( Qt::SolidLine );
-	pen.setWidth(1);
-	brush.setStyle(Qt::SolidPattern);
+	m_pen.setStyle( Qt::SolidLine );
+	m_pen.setWidth(1);
+	m_brush.setStyle(Qt::SolidPattern);
 
 	RA_COLOR 		= QColor( DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2] );
 	DEC_COLOR 		= QColor( DEF_DEC_COLOR[0], DEF_DEC_COLOR[1], DEF_DEC_COLOR[2] );
@@ -60,56 +58,56 @@ cscroll_graph::cscroll_graph( QWidget *own, int client_width, int client_height,
 	BKGD_COLOR 		= QColor( DEF_BKGD_COLOR[0], DEF_BKGD_COLOR[1], DEF_BKGD_COLOR[2] );
 	WHITE_COLOR 	= QColor( DEF_WHITE_COLOR[0], DEF_WHITE_COLOR[1], DEF_WHITE_COLOR[2] );
 	GRID_FONT_COLOR	= QColor( DEF_GRID_FONT_COLOR[0], DEF_GRID_FONT_COLOR[1], DEF_GRID_FONT_COLOR[2] );
-	brush.setColor( BKGD_COLOR );
+	m_brush.setColor( BKGD_COLOR );
 
 	// init...
 	init_render_vars();
 
-	need_refresh = true;
+	m_need_refresh = true;
 
-
+	m_canvas.begin( get_buffer() );
+	m_font_ht_k = m_canvas.fontMetrics().ascent();
+	m_canvas.end();
 }
 
 cscroll_graph::~cscroll_graph()
 {
-	delete buffer;
-	delete [] data.line[ RA_LINE ];
-	delete [] data.line[ DEC_LINE ];
+	delete m_buffer;
+	delete [] m_data.line[ RA_LINE ];
+	delete [] m_data.line[ DEC_LINE ];
 }
 
 
 void cscroll_graph::init_render_vars( void )
 {
-	half_buffer_size_wd = client_rect_wd / 2;
-	half_buffer_size_ht = client_rect_ht / 2;
+	m_half_buffer_size_wd = m_client_rect_wd / 2;
+	m_half_buffer_size_ht = m_client_rect_ht / 2;
 
+	m_grid_view_step_x = (double)m_client_rect_wd / (double)m_gridx_N;
+	m_grid_view_step_y = (double)m_client_rect_ht / (double)m_gridy_N;
 
-	grid_view_step_x = (double)client_rect_wd / (double)gridx_N;
-	grid_view_step_y = (double)client_rect_ht / (double)gridy_N;
+	m_grid_step_x = (double)m_vis_range_x / (double)m_gridx_N;
+	m_grid_step_y = (double)m_vis_range_y / (double)m_gridy_N;
 
-	grid_step_x = (double)vis_range_x / (double)gridx_N;
-	grid_step_y = (double)vis_range_y / (double)gridy_N;
-
-	half_vis_range_x = vis_range_x / 2;
-	half_vis_range_y = vis_range_y / 2;
-
+	m_half_vis_range_x = m_vis_range_x / 2;
+	m_half_vis_range_y = m_vis_range_y / 2;
 }
 
 
 void cscroll_graph::set_visible_ranges( int rx, int ry )
 {
-	if( rx < 10*gridx_N ) rx = 10*gridx_N;
-	if( rx > data_cnt ) rx = data_cnt;
+	if( rx < 10*m_gridx_N ) rx = 10*m_gridx_N;
+	if( rx > m_data_cnt ) rx = m_data_cnt;
 
-	if( vis_range_x != rx )
-		need_refresh = true;
-	vis_range_x = rx;
+	if( m_vis_range_x != rx )
+		m_need_refresh = true;
+	m_vis_range_x = rx;
 
-	if( ry < 5*gridy_N ) ry = 5*gridy_N;
+	if( ry < 5*m_gridy_N ) ry = 5*m_gridy_N;
 
-	if( vis_range_x != ry )
-		need_refresh = true;
-	vis_range_y = ry;
+	if( m_vis_range_x != ry )
+		m_need_refresh = true;
+	m_vis_range_y = ry;
 
 	init_render_vars();
 }
@@ -117,63 +115,53 @@ void cscroll_graph::set_visible_ranges( int rx, int ry )
 
 void cscroll_graph::get_visible_ranges( int *rx, int *ry ) const
 {
-	*rx = vis_range_x;
-	*ry = vis_range_y;
+	*rx = m_vis_range_x;
+	*ry = m_vis_range_y;
 }
 
 
 int cscroll_graph::get_gridx_N( void ) const
 {
-	return gridx_N;
+	return m_gridx_N;
 }
 
 
 int cscroll_graph::get_gridy_N( void ) const
 {
-	return gridy_N;
-}
-
-
-void cscroll_graph::reset_view( void )
-{
-
-	set_visible_ranges( client_rect_wd, 100 );
-
-	init_render_vars();
-
-	need_refresh = true;
+	return m_gridy_N;
 }
 
 
 void cscroll_graph::reset_data( void )
 {
-	memset( data.line[RA_LINE], 0, sizeof(double)*data_cnt );
-	memset( data.line[DEC_LINE], 0, sizeof(double)*data_cnt );
-	data_idx = 0;
+	memset( m_data.line[RA_LINE], 0, sizeof(double)*m_data_cnt );
+	memset( m_data.line[DEC_LINE], 0, sizeof(double)*m_data_cnt );
+	m_data_idx = 0;
+	m_need_refresh = true;
 }
 
 
 
 QImage *cscroll_graph::get_buffer( void ) const
 {
- return buffer;
+	return m_buffer;
 }
 
 
 void cscroll_graph::get_screen_size( int *sx, int *sy ) const
 {
-	*sx = client_rect_wd;
-	*sy = client_rect_ht;
+	*sx = m_client_rect_wd;
+	*sy = m_client_rect_ht;
 }
 
 
 void cscroll_graph::on_paint( void )
 {
-	canvas.begin( buffer );
+	m_canvas.begin( get_buffer() );
 
 	refresh();
 
-	canvas.end();
+	m_canvas.end();
 }
 
 
@@ -184,79 +172,77 @@ void cscroll_graph::on_paint( void )
 **************/
 void cscroll_graph::refresh( void )
 {
- int i, j, k;
- double kx, ky, step;
- double *data_ptr;
- int start_idx;
- int /*band1_wd,*/ band1_start, band1_end;
- int band2_wd, band2_start, band2_end;
- int x, y;
- int px, py;
+	int i, j, k;
+	double kx, ky, step;
+	double *data_ptr;
+	int start_idx;
+	int /*band1_wd,*/ band1_start, band1_end;
+	int band2_wd, band2_start, band2_end;
+	int x, y;
+	int px, py;
 
-	if( !need_refresh )
+	if( !m_need_refresh )
 		return;
 
-	font_ht_k = canvas.fontMetrics().ascent();
-
 	// fill background
-	canvas.fillRect( 0, 0, client_rect_wd, client_rect_ht, brush);
+	m_canvas.fillRect( 0, 0, m_client_rect_wd, m_client_rect_ht, m_brush );
 
-	start_idx = (data_idx + data_cnt - vis_range_x) % data_cnt;
+	start_idx = (m_data_idx + m_data_cnt - m_vis_range_x) % m_data_cnt;
 	// split visible region in 2 ranges
-	if( data_idx > start_idx ) // only 1 band
+	if( m_data_idx > start_idx ) // only 1 band
 	{
-		//band1_wd 	= data_idx - start_idx; // = vis_range_x
+		//band1_wd 	= m_data_idx - start_idx; // = m_vis_range_x
 		band1_start = start_idx-1;
-		band1_end	= data_idx-1; // -1;
+		band1_end	= m_data_idx-1; // -1;
 		band2_start = band2_end = band2_wd = 0;
 	}
 	else // 2 bands
 	{
-		//band1_wd 	= data_idx;
+		//band1_wd 	= m_data_idx;
 		band1_start = 0;
-		band1_end 	= data_idx-1; //-1;
+		band1_end 	= m_data_idx-1; //-1;
 
-		band2_wd 	= data_cnt - start_idx;
+		band2_wd 	= m_data_cnt - start_idx;
 		band2_start = start_idx;
-		band2_end	= data_cnt-1;
+		band2_end	= m_data_cnt-1;
 	}
 
 	// Rasterizing coefficients
-	kx = (double)client_rect_wd / vis_range_x;
-	ky = (double)client_rect_ht / vis_range_y;
+	kx = (double)m_client_rect_wd / m_vis_range_x;
+	ky = (double)m_client_rect_ht / m_vis_range_y;
 
 	draw_grid( kx, ky );
 
 	// analyse kx and select optimal algorithm
-	if( client_rect_wd <= vis_range_x )
+	if( m_client_rect_wd <= m_vis_range_x )
 	{
 		step = 1.0 / kx;
 
 		for( k = 0;k < 2;k++ )
 		{
-			data_ptr = data.line[k];
+			data_ptr = m_data.line[k];
 
 			if( k == RA_LINE )
-				pen.setColor( RA_COLOR );
+				m_pen.setColor( RA_COLOR );
 			else
-				pen.setColor( DEC_COLOR );
+				m_pen.setColor( DEC_COLOR );
 
-			canvas.setPen( pen );
+			m_canvas.setPen( m_pen );
 
 			// process band 1
-			px = client_rect_wd;
+			px = m_client_rect_wd;
 			int p_idx = band1_end;
-			if( p_idx < 0 )p_idx += data_cnt;
-			py = half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
+			if( p_idx < 0 )p_idx += m_data_cnt;
+			py = m_half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
 
-			x = client_rect_wd;
+			x = m_client_rect_wd;
 
 			for( i = band1_end, j = 0;i > band1_start; )
 			{
-				y = half_buffer_size_ht - (int)(data_ptr[i] * ky);
+				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
 				x--;
 
-				canvas.drawLine( px, py, x, y );
+				m_canvas.drawLine( px, py, x, y );
 
 				px = x;
 				py = y;
@@ -269,10 +255,10 @@ void cscroll_graph::refresh( void )
 			// process band 2
 			for( i = band2_end, j = 0;i > band2_start; )
 			{
-				y = half_buffer_size_ht - (int)(data_ptr[i] * ky);
+				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
 				x--;
 
-				canvas.drawLine( px, py, x, y );
+				m_canvas.drawLine( px, py, x, y );
 
 				px = x;
 				py = y;
@@ -289,29 +275,29 @@ void cscroll_graph::refresh( void )
 
 		for( k = 0;k < 2;k++ )
 		{
-			data_ptr = data.line[k];
+			data_ptr = m_data.line[k];
 
 			if( k == RA_LINE )
-				pen.setColor( RA_COLOR );
+				m_pen.setColor( RA_COLOR );
 			else
-				pen.setColor( DEC_COLOR );
+				m_pen.setColor( DEC_COLOR );
 
-			canvas.setPen( pen );
+			m_canvas.setPen( m_pen );
 
 			// process band 1
-			px = client_rect_wd;
+			px = m_client_rect_wd;
 			int p_idx = band1_end-1;
-			if( p_idx < 0 )p_idx += data_cnt;
-			py = half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
+			if( p_idx < 0 )p_idx += m_data_cnt;
+			py = m_half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
 
-			x = client_rect_wd;
+			x = m_client_rect_wd;
 
 			for( i = band1_end, j = 0;i > band1_start;i--, j++ )
 			{
-				y = half_buffer_size_ht - (int)(data_ptr[i] * ky);
-				x = client_rect_wd - (int)((double)j*step) - 1;
+				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
+				x = m_client_rect_wd - (int)((double)j*step) - 1;
 
-				canvas.drawLine( px, py, x, y );
+				m_canvas.drawLine( px, py, x, y );
 
 				px = x;
 				py = y;
@@ -320,10 +306,10 @@ void cscroll_graph::refresh( void )
 			// process band 2
 			for( i = band2_end;i > band2_start;i--, j++ )
 			{
-				y = half_buffer_size_ht - (int)(data_ptr[i] * ky);
-				x = client_rect_wd - (int)((double)j*step) - 1;
+				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
+				x = m_client_rect_wd - (int)((double)j*step) - 1;
 
-				canvas.drawLine( px, py, x, y );
+				m_canvas.drawLine( px, py, x, y );
 
 				px = x;
 				py = y;
@@ -332,76 +318,74 @@ void cscroll_graph::refresh( void )
 		}
 	}
 
-	need_refresh = false;
+	m_need_refresh = false;
 }
 
 
 void cscroll_graph::draw_grid( double kx, double )
 {
- int i, x, sx, y;
- int grid_column, val;
- QString str;
+	int i, x, sx, y;
+	int grid_column, val;
+	QString str;
 
-	pen.setColor( GRID_COLOR );
-	canvas.setPen( pen );
+	m_pen.setColor( GRID_COLOR );
+	m_canvas.setPen( m_pen );
 
-	grid_column = data_idx / (int)grid_step_x * (int)grid_step_x;
-	sx = client_rect_wd - (double)(data_idx % (int)grid_step_x)*kx;
+	grid_column = m_data_idx / (int)m_grid_step_x * (int)m_grid_step_x;
+	sx = m_client_rect_wd - (double)(m_data_idx % (int)m_grid_step_x)*kx;
 
-	for( i = 0;i < gridx_N;i++ )
+	for( i = 0;i < m_gridx_N;i++ )
 	{
-		x = sx - (double)i*grid_view_step_x;
-		canvas.drawLine( x, 0, x, client_rect_ht );
+		x = sx - (double)i*m_grid_view_step_x;
+		m_canvas.drawLine( x, 0, x, m_client_rect_ht );
 	}
-	for( i = 0;i < gridy_N;i++ )
+	for( i = 0;i < m_gridy_N;i++ )
 	{
-		y = (double)i*grid_view_step_y;
-		if( i == gridy_N/2 )
+		y = (double)i*m_grid_view_step_y;
+		if( i == m_gridy_N/2 )
 		{
-			pen.setColor( WHITE_COLOR );
-			canvas.setPen( pen );
-			canvas.drawLine( 0, y, client_rect_wd, y );
-			pen.setColor( GRID_COLOR );
-			canvas.setPen( pen );
+			m_pen.setColor( WHITE_COLOR );
+			m_canvas.setPen( m_pen );
+			m_canvas.drawLine( 0, y, m_client_rect_wd, y );
+			m_pen.setColor( GRID_COLOR );
+			m_canvas.setPen( m_pen );
 		}
 		else
-			canvas.drawLine( 0, y, client_rect_wd, y );
+			m_canvas.drawLine( 0, y, m_client_rect_wd, y );
 	}
 
 	// draw all digits
-	pen.setColor( GRID_FONT_COLOR );
-	canvas.setPen( pen );
-	int grid_max = (gridx_N > gridy_N) ? gridx_N : gridy_N;
+	m_pen.setColor( GRID_FONT_COLOR );
+	m_canvas.setPen( m_pen );
+	int grid_max = (m_gridx_N > m_gridy_N) ? m_gridx_N : m_gridy_N;
 	for( i = 0;i < grid_max;i++ )
 	{
-		x = sx - (double)i*grid_view_step_x;
-		y = (double)i*grid_view_step_y;
+		x = sx - (double)i*m_grid_view_step_x;
+		y = (double)i*m_grid_view_step_y;
 
-		if( (val = grid_column - i*(int)grid_step_x) >= 0 )
+		//if( (val = grid_column - i*(int)m_grid_step_x) >= 0 )
+		val = grid_column - i*(int)m_grid_step_x;
+		if( val < 0 ) val += m_data_cnt;
 		{
 			str.setNum( val );
-			canvas.drawText( x, half_buffer_size_ht + font_ht_k, str );
+			m_canvas.drawText( x, m_half_buffer_size_ht + m_font_ht_k, str );
 		}
-		str.setNum( (int)(half_vis_range_y - grid_step_y*i) );
-		canvas.drawText( 2, y + font_ht_k, str );
+		str.setNum( (int)(m_half_vis_range_y - m_grid_step_y*i) );
+		m_canvas.drawText( 2, y + m_font_ht_k, str );
 	}
-
 }
 
 
-
-bool cscroll_graph::add_point( double ra, double dec )
+void cscroll_graph::add_point( double ra, double dec )
 {
-	data.line[ RA_LINE ][ data_idx ]  = ra;
-	data.line[ DEC_LINE ][ data_idx ] = dec;
+	m_data.line[ RA_LINE ][ m_data_idx ]  = ra;
+	m_data.line[ DEC_LINE ][ m_data_idx ] = dec;
 
-	data_idx++;
+	m_data_idx++;
 
-	if( data_idx == data_cnt )
-		data_idx = 0;
+	if( m_data_idx == m_data_cnt )
+		m_data_idx = 0;
 
-	need_refresh = true;
-
- return true;
+	m_need_refresh = true;
 }
 
