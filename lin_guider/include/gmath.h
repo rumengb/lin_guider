@@ -193,7 +193,7 @@ public:
 	
 	// functions
 	bool set_video_params( int vid_wd, int vid_ht );
-	double *get_data_buffer( int *width, int *height, int *length, int *size );
+	double *get_data_buffer( int *width, int *height, int *length, int *size ) const;
 	bool set_guider_params( double ccd_pix_wd, double ccd_pix_ht, double guider_aperture, double guider_focal );
 	bool set_reticle_params( double x, double y, double ang );
 	bool get_reticle_params( double *x, double *y, double *ang ) const;
@@ -250,6 +250,14 @@ public:
 	void clear_speed_info( void );
 	void get_speed_info( double *ra_v, double *dec_v ) const;
 
+protected:
+	/*! This method should return position of star as vector(x, y, 0) relative to left top corner of buffer.
+        Note! Reticle posistion is a center of guiding
+	*/
+	virtual Vector find_star_local_pos( void ) const;
+	virtual void on_start( void ) {}
+	virtual void on_stop( void ) {}
+
 private:
 	struct hfd_item_s
 	{
@@ -278,7 +286,7 @@ private:
 
 	// sys...
 	uint32_t ticks;		// global channel ticker
-	double *pdata;		// pointer to data buffer
+	mutable double *pdata;		// pointer to data buffer
 	int video_width, video_height;	// video frame dimensions
 	double ccd_pixel_width, ccd_pixel_height, aperture, focal;
 	Matrix	ROT_Z;
@@ -321,8 +329,8 @@ private:
 	{
 		q_stat_len = 5
 	};
-	double q_star_max;
-	double q_bkgd;
+	mutable double q_star_max;
+	mutable double q_bkgd;
 	double q_stat[q_stat_len]; //
 	int    q_control_idx;
 
@@ -337,7 +345,6 @@ private:
 	void do_ticks( void );
 	Vector point2arcsec( const Vector &p ) const;
 	Vector arcsec2point( const Vector &asec ) const;
-	Vector find_star_local_pos( void );
 	void process_axes( void );
 	void calc_square_err( void );
 	void calc_quality( void );

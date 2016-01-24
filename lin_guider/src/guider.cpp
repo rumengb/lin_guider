@@ -25,10 +25,12 @@
 #include <assert.h>
 
 #include "guider.h"
-#include "scroll_graph.h"
 #include "lin_guider.h"
 #include "gmath.h"
 #include "server.h"
+
+#include "scroll_graph.h"
+#include "target_graph.h"
 
 #include "utils.h"
 
@@ -117,7 +119,8 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	int DRIFT_GRAPH_WIDTH = cell_nx * cell_size;
 	int DRIFT_GRAPH_HEIGHT = cell_ny * cell_size;
 
-	m_drift_graph = new cscroll_graph( this, DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+	//m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+	m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
 	m_drift_graph->set_visible_ranges( m_drift_view_params->drift_graph_xrange > 0 && m_drift_view_params->drift_graph_xrange <= DRIFT_GRAPH_WIDTH ? m_drift_view_params->drift_graph_xrange : DRIFT_GRAPH_WIDTH,
 									   //DRIFT_GRAPH_WIDTH,
 									   m_drift_view_params->drift_graph_yrange > 0 ? m_drift_view_params->drift_graph_yrange : 60 );
@@ -655,7 +658,7 @@ void guider::guide( void )
 	if( m_common_params.udp_send_drift_data )
 		server::send_bcast_msg( BCM_DRIFT_DATA, "%.2lf %.2lf", drift_x, drift_y );
 
-	// determine mescelaneous events
+	// determine miscellaneous events
 	check_for_events();
 
 	// skip half frames
