@@ -682,12 +682,19 @@ void lin_guider::onRemoteCmd( void )
 	}
 		break;
 	case server::SAVE_FRAME:
+	case server::SAVE_FRAME_DECORATED:
 	{
 		u_make_safe_str( (const char*)data, data_sz, sizeof(data_str), data_str, &data_str_len );
 		if( data_str_len )
 		{
 			const char *home_dir = getenv( "HOME" );
 			const char *fname = data_str;
+			if (hdr->cmd == server::SAVE_FRAME_DECORATED) {
+				QPainter painter;
+				painter.begin( m_video_buffer );
+				draw_overlays( painter );
+				painter.end();
+			}
 			bool res = m_video_buffer->save( QString( home_dir ) + "/" + QString( fname ) + ".bmp", "BMP" );
 			if( res )
 				answer_sz = snprintf( answer, answer_sz_max, "SAVED:%s/%s.bmp", home_dir, fname );

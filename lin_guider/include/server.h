@@ -221,7 +221,8 @@ public:
 		SAVE_FRAME,
 		DITHER,
 		DITHER_NO_WAIT_XY,
-		GET_DISTANCE
+		GET_DISTANCE,
+		SAVE_FRAME_DECORATED
 	};
 	enum sizes
 	{
