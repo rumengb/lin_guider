@@ -108,6 +108,7 @@ server::server( const net_params_t &nparams ) :
 	m_cmd_names.insert( std::make_pair( server::DITHER, "DITHER" ) );
 	m_cmd_names.insert( std::make_pair( server::DITHER_NO_WAIT_XY, "DITHER_NO_WAIT_XY" ) );
 	m_cmd_names.insert( std::make_pair( server::GET_DISTANCE, "GET_DISTANCE" ) );
+	m_cmd_names.insert( std::make_pair( server::SAVE_FRAME_DECORATED, "SAVE_FRAME_DECORATED" ) );
 }
 
 
