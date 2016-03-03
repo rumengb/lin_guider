@@ -694,13 +694,17 @@ void lin_guider::onRemoteCmd( void )
 		{
 			const char *home_dir = getenv( "HOME" );
 			const char *fname = data_str;
+			bool res = true;
 			if (hdr->cmd == server::SAVE_FRAME_DECORATED) {
+				QImage video_buf = m_video_buffer->copy();
 				QPainter painter;
-				painter.begin( m_video_buffer );
+				painter.begin( &video_buf );
 				draw_overlays( painter );
 				painter.end();
+				res = video_buf.save( QString( home_dir ) + "/" + QString( fname ) + ".bmp", "BMP" );
+			} else {
+				res = m_video_buffer->save( QString( home_dir ) + "/" + QString( fname ) + ".bmp", "BMP" );
 			}
-			bool res = m_video_buffer->save( QString( home_dir ) + "/" + QString( fname ) + ".bmp", "BMP" );
 			if( res )
 				answer_sz = snprintf( answer, answer_sz_max, "SAVED:%s/%s.bmp", home_dir, fname );
 			else
