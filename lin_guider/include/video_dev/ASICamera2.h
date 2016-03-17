@@ -115,10 +115,8 @@ typedef struct _ASI_CAMERA_INFO
 	ASI_BOOL IsUSB3Host;
 	ASI_BOOL IsUSB3Camera;
 	float ElecPerADU;
-	int OffsetLGain;
-	int OffsetHGain;
 
-	char Unused[16];
+	char Unused[24];
 } ASI_CAMERA_INFO;
 
 typedef enum ASI_CONTROL_TYPE{ //Control type//
@@ -680,6 +678,21 @@ ASI_ERROR_INVALID_ID  :no camera connected or index value out of boundary
 ***************************************************************************/
 ASICAMERA_API  ASI_ERROR_CODE ASISetID(int iCameraID, ASI_ID ID);
 
+/***************************************************************************
+Descriptions£º
+get pre-setting parameter
+Paras£º		
+int CameraID: this is get from the camera property use the API ASIGetCameraProperty
+Offset_HighestDR: offset at highest dynamic range, 
+Offset_UnityGain: offset at unity gain
+int *Gain_LowestRN, *Offset_LowestRN: gain and offset at lowest read noise
+
+return:
+ASI_SUCCESS : Operation is successful
+ASI_ERROR_CAMERA_CLOSED : camera didn't open
+ASI_ERROR_INVALID_ID  :no camera connected or index value out of boundary
+***************************************************************************/
+ASICAMERA_API ASI_ERROR_CODE ASIGetGainOffset(int iCameraID, int *Offset_HighestDR, int *Offset_UnityGain, int *Gain_LowestRN, int *Offset_LowestRN);
 
 
 #ifdef __cplusplus

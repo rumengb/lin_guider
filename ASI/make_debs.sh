@@ -6,7 +6,7 @@ if [ "$USER" != "root" ]; then
 fi
 
 PACKAGE="libasicamera"
-VERSION="0.3.0201"
+VERSION="0.3.0316"
 
 # arch i386
 ARCH="i386"
@@ -64,7 +64,5 @@ install -m 644 include/* $NAME/usr/include
 chown -R root:root $NAME
 dpkg -b $NAME $NAME.deb
 rm -r $NAME
-
-
 
 
