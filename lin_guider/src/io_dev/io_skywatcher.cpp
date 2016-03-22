@@ -32,7 +32,7 @@ namespace io_drv {
 
 //----------------------------------------
 //
-// Derived.... skuwatcher
+// Derived.... skywatcher
 //
 //----------------------------------------
 cio_driver_skywatcher::cio_driver_skywatcher( bool stub ) :
@@ -106,7 +106,7 @@ cio_driver_skywatcher::~cio_driver_skywatcher() {
 	const char *dl_error = NULL;
 
 	if (DBG_VERBOSITY) log_i("%s", __FUNCTION__);
-	
+
 	stop();
 
 	if (m_nexstar_handle) return;
@@ -186,7 +186,7 @@ void cio_driver_skywatcher::write_data( unsigned int dByte ) {
 	u_char mask;
 
 	if (!m_nexstar_handle) return;
-	
+
 	// If mount is not initialized do nothing
 	if (m_dev < 0) return;
 
@@ -201,14 +201,14 @@ void cio_driver_skywatcher::write_data( unsigned int dByte ) {
 	int dec_dec_pos = 0;
 
 	for( int i = 0;i < 8;i++ ) {
-		 if( bit_actions[i] == RA_INC_DIR )
-			 ra_inc_pos = i;
-		 if( bit_actions[i] == RA_DEC_DIR )
-		 	 ra_dec_pos = i;
-		 if( bit_actions[i] == DEC_INC_DIR )
-		 	 dec_inc_pos = i;
-		 if( bit_actions[i] == DEC_DEC_DIR )
-		 	 dec_dec_pos = i;
+		if( bit_actions[i] == RA_INC_DIR )
+			ra_inc_pos = i;
+		if( bit_actions[i] == RA_DEC_DIR )
+			ra_dec_pos = i;
+		if( bit_actions[i] == DEC_INC_DIR )
+			dec_inc_pos = i;
+		if( bit_actions[i] == DEC_DEC_DIR )
+			dec_dec_pos = i;
 	}
 
 	mapped = bit_map_encoder[ (u_char)dByte ];
