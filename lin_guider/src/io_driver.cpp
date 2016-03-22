@@ -114,7 +114,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										4,
 										"Celestron / NexStar compat.",
 										"External library libnexstar is required. http://sourceforge.net/projects/libnexstar/",
-										"<html><head/><body><p>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required.</p></body></html>"
+										"<html><head/><body><p>The guiding rate of the driver is 0.5 sidereal rate.<br><br>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required.</p></body></html>"
 									},
 									{
 										DT_ATIK,
@@ -151,7 +151,7 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 										4,
 										"Sky-Watcher / Orion",
 										"External library libnexstar (version >= 0.15) is required. http://sourceforge.net/projects/libnexstar/",
-										"<html><head/><body><p>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required (version >= 0.15).</p></body></html>"
+										"<html><head/><body><p>The guiding rate of the driver is 0.5 sidereal rate.<br><br>External library <a href=\"http://sourceforge.net/projects/libnexstar/\"><span style=\"text-decoration: underline; color:#0000ff;\">libnexstar</span></a> is required (version >= 0.15).</p></body></html>"
 									},
 								};
 
