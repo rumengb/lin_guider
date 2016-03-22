@@ -75,6 +75,7 @@ enum device_type
 	DT_ATIK,
 	DT_SX,
 	DT_ASI,
+	DT_SKYWATCHER,
 	DT_MAX,
 	DEVICE_CNT = DT_MAX-1
 };

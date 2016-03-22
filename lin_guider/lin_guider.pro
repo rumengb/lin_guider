@@ -9,6 +9,7 @@ MOC_DIR = $$DSTDIR/.moc
 UI_DIR = $$DSTDIR/.ui
 RCC_DIR = $$DSTDIR/.rcc
 HEADERS += include/io_dev/io_nexstar.h \
+    include/io_dev/io_skywatcher.h \
     include/io_dev/io_qhy5ii.h \
     include/video_dev/qhy5ii_core.h \
     include/video_dev/video_qhy5ii.h \
@@ -66,6 +67,7 @@ HEADERS += include/io_dev/io_nexstar.h \
     include/io_driver.h \
     include/lin_guider.h
 SOURCES += src/io_dev/io_nexstar.cpp \
+    src/io_dev/io_skywatcher.cpp \
     src/io_dev/io_qhy5ii.cpp \
     src/io_dev/io_atik.cpp \
     src/io_dev/io_sx.cpp \
