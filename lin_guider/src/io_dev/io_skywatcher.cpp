@@ -130,19 +130,23 @@ int cio_driver_skywatcher::open_device( void ) {
 		return 1;
 	}
 
-	char version, revision;
-	int fw_version = tc_get_version(m_dev, &version, &revision);
+	char release, revision;
+	int fw_version = tc_get_version(m_dev, &release, &revision);
 	if (fw_version < 0) {
 		log_e("tc_get_version(): failed to open %s (errno=%d)",  dev_name, errno);
 		return 1;
 	}
 
 	if (guess_mount_vendor(m_dev) != VNDR_SKYWATCHER) {
-		if (fw_version >= VER_4_37_8) {
+		/* In order to work both MIN_RELEASE and MIN_REVISION should not
+		   be greater than the reported ones as "release" is the HC hardware
+		   version and both 3 & 4 are supported. */
+		if ((release >= MIN_RELEASE) && (revision >= MIN_REVISION)) {
 			log_e("The connected mount is not Sky-Watcher.");
 		} else {
-			log_e("The conected mount does not look like Sky-Watcher.");
-			log_e("If it is Sky-Watcher, the SynScan HC firmware version must be >= 4.37.08");
+			char min_release = (MIN_RELEASE > release) ? MIN_RELEASE : release;
+			log_e("The conected mount does not look like Sky-Watcher or Orion.");
+			log_e("If it is, the SynScan firmware must be at least v.%d.%d in order to work.", min_release, MIN_REVISION);
 		}
 		return 1;
 	}
@@ -157,7 +161,7 @@ int cio_driver_skywatcher::open_device( void ) {
 		char mount_name[30];
 		get_model_name(mount_id, mount_name, 30);
 		log_i("Mount: Sky-Watcher %s (id=%d)", mount_name, mount_id);
-		log_i("SynScan firmware version: %d.%02d", version, revision);
+		log_i("SynScan firmware version: %d.%02d", release, revision);
 	}
 
 	set_bit_map_template( device_bit_map_template[DT_SKYWATCHER-1] );

@@ -26,7 +26,8 @@
 #include "io_driver.h"
 
 /* Minimal SkyWatcher protocol version */
-#define VER_4_37_8 0x42508
+#define MIN_RELEASE   3  /* HC version 3 or 4 */
+#define MIN_REVISION 38  /* slew commands in HC firmware revision before 38 are broken (3.38 and 4.38 are ok) */
 
 #define VNDR_CELESTRON  0x1
 #define VNDR_SKYWATCHER 0x2
