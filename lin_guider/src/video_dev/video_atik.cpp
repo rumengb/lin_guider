@@ -187,9 +187,8 @@ int  cvideo_atik::get_vcaps( void )
 
 unsigned int cvideo_atik::get_pix_fmt( void )
 {
-	log_i("XXXX\n");
 	if(!m_do_debayer) return V4L2_PIX_FMT_Y16;
-	log_i("TTT\n");
+
 	const atik_core::caps_s& caps = get_caps();
 	switch (caps.color_type) {
 	case COLOUR_RGGB:
