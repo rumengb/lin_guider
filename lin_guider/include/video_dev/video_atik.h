@@ -30,6 +30,8 @@
 #include "timer.h"
 #include <atik_core.h>
 
+#define V4L2_CID_USER_DODEBAYER (V4L2_CID_USER_CLASS + 1)
+
 namespace video_drv
 {
 
@@ -59,12 +61,14 @@ private:
 	virtual int stop_capturing( void );		// stop stream
 	virtual int read_frame( void );			// read frame
 	virtual int set_format( void );
+	unsigned int get_pix_fmt( void );
 
 	// local
 	virtual int enum_controls( void );
 
 	ctimer exp_timer;
 	long m_expstart;
+	bool m_do_debayer;
 };
 
 }

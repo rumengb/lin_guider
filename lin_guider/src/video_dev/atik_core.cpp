@@ -123,7 +123,11 @@ int atik_core::open( void )
 											&m_caps.max_bin_X,
 											&m_caps.max_bin_Y,
 											NULL,
-											&m_caps.cooler);
+											&m_caps.cooler,
+											&m_caps.color_type,
+											&m_caps.offsetX,
+											&m_caps.offsetY
+											);
 			if (!success) {
 				log_e("Can not get capabilities.");
 				m_camera->close();

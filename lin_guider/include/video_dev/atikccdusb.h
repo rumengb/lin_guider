@@ -19,6 +19,7 @@
 #define GUIDE_CLEAR_NS         (0x0F & ~(GUIDE_NORTH | GUIDE_SOUTH))
 
 extern bool AtikDebug;
+extern int AtikHostBulkTimeout;
 
 enum CAMERA_TYPE {
   ORIGINAL_HSC = 1, IC24, QUICKER, IIDC, SONY_SCI
@@ -36,6 +37,10 @@ enum PARAM_TYPE {
   QUICKER_START_EXPOSURE_DELAY = 1, QUICKER_READ_CCD_DELAY, MAX_PACKET_SIZE
 };
 
+enum COLOUR_TYPE {
+  COLOUR_NONE = 1, COLOUR_RGGB
+};
+
 class AtikCamera {
   public:
     static int list(AtikCamera **cameras, int max);
@@ -43,7 +48,7 @@ class AtikCamera {
     virtual bool open() = 0;
     virtual void close() = 0;
     virtual bool setParam(PARAM_TYPE code, long value) = 0;
-    virtual bool getCapabilities(const char **name, CAMERA_TYPE *type, bool *hasShutter, bool* hasGuidePort, bool* has8BitMode, bool* hasFilterWheel, unsigned *lineCount, unsigned* pixelCountX, unsigned* pixelCountY, double* pixelSizeX, double* pixelSizeY, unsigned* maxBinX, unsigned* maxBinY, unsigned *tempSensorCount, COOLER_TYPE* cooler) = 0;
+    virtual bool getCapabilities(const char **name, CAMERA_TYPE *type, bool *hasShutter, bool* hasGuidePort, bool* has8BitMode, bool* hasFilterWheel, unsigned *lineCount, unsigned* pixelCountX, unsigned* pixelCountY, double* pixelSizeX, double* pixelSizeY, unsigned* maxBinX, unsigned* maxBinY, unsigned *tempSensorCount, COOLER_TYPE* cooler, COLOUR_TYPE* colour, int *offsetX, int *offsetY) = 0;
     virtual bool getTemperatureSensorStatus(unsigned sensor, float *currentTemp) = 0;
     virtual bool getCoolingStatus(COOLING_STATE *state, float* targetTemp, float *power) = 0;
     virtual bool setCooling(float targetTemp) = 0;

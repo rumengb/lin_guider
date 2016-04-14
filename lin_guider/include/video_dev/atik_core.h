@@ -58,7 +58,10 @@ public:
 			pixel_size_Y( 0 ),
 			max_bin_X( 0 ),
 			max_bin_Y( 0 ),
-			cooler( COOLER_NONE )
+			cooler( COOLER_NONE ),
+			color_type( COLOUR_NONE ),
+			offsetX (0),
+			offsetY (0)
 		{}
 		const char* name;
 		CAMERA_TYPE type;
@@ -68,6 +71,9 @@ public:
 		double pixel_size_X, pixel_size_Y;
 		unsigned max_bin_X, max_bin_Y;
 		COOLER_TYPE cooler;
+		COLOUR_TYPE color_type;
+		int offsetX;
+		int offsetY;
 	};
 	atik_core() {}
 	virtual ~atik_core() {}
