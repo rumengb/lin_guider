@@ -59,8 +59,8 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 													DT_NULL,
 													false,
 													"Null (default)",
-													NULL,
-													NULL
+													"Simulated camera",
+													"<html><head/><body><p>Simulated camera.</p></body></html>"
 												},
 												{
 													DT_WEBCAM,
@@ -73,29 +73,29 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 													DT_DSI2PRO,
 													false,
 													"DSI 2 Pro",
-													NULL,
-													NULL
+													"Camera firmware is required",
+													"<html><head/><body><p>Camera <a href=\"https://sourceforge.net/projects/cccd/files/firmware/\"><span style=\"text-decoration: underline; color:#0000ff;\">firmware</span></a> is required.</p></body></html>"
 												},
 												{
 													DT_QHY5,
 													false,
 													"QHY 5",
-													NULL,
-													NULL
+													"Camera firmware is required",
+													"<html><head/><body><p>Camera <a href=\"https://sourceforge.net/projects/cccd/files/firmware/\"><span style=\"text-decoration: underline; color:#0000ff;\">firmware</span></a> is required.</p></body></html>"
 												},
 												{
 													DT_QHY6,
 													false,
 													"QHY 6",
-													NULL,
-													NULL
+													"Camera firmware is required",
+													"<html><head/><body><p>Camera <a href=\"https://sourceforge.net/projects/cccd/files/firmware/\"><span style=\"text-decoration: underline; color:#0000ff;\">firmware</span></a> is required.</p></body></html>"
 												},
 												{
 													DT_QHY5II,
 													false,
 													"QHY 5II / 5LII",
-													NULL,
-													NULL
+													"Camera firmware is required",
+													"<html><head/><body><p>Camera <a href=\"https://sourceforge.net/projects/cccd/files/firmware/\"><span style=\"text-decoration: underline; color:#0000ff;\">firmware</span></a> is required.</p></body></html>"
 												},
 												{
 													DT_ATIK,
@@ -108,8 +108,8 @@ device_desc_t device_desc_list[DEVICE_CNT] = {
 													DT_SX,
 													false,
 													"Starlight Xpress",
-													NULL,
-													NULL
+													"To use SX camera without root, firmware bundle is required",
+													"<html><head/><body><p>To use SX camera without root, <a href=\"https://sourceforge.net/projects/cccd/files/firmware/\"><span style=\"text-decoration: underline; color:#0000ff;\">firmware</span></a> bundle is required.</p></body></html>"
 												},
 												{
 													DT_ASI,
