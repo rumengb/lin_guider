@@ -491,7 +491,7 @@ int cvideo_atik::enum_controls( void )
 	if (caps.color_type != COLOUR_NONE) {
 		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Debayer RGB pattern" );
 	} else {
-		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "The camera is colour" );
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Camera is colour" );
 	}
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1;

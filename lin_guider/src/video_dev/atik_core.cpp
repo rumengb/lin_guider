@@ -158,7 +158,12 @@ int atik_core::open( void )
 			return 2;
 		}
 
-		log_i("Using camera: %s", m_camera->getName());
+		if (m_caps.color_type == COLOUR_NONE) {
+			log_i("Using camera: %s (Mono)", m_camera->getName());
+			log_i("Note: Some older colour cameras report mono. If so, use \"Video Settings\" to force colour mode.");
+		} else {
+			log_i("Using camera: %s (Colour)", m_camera->getName());
+		}
 
 		if (m_caps.type == QUICKER) {
 			success = m_camera->setParam(QUICKER_START_EXPOSURE_DELAY, 1000);
