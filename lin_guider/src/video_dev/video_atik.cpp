@@ -483,10 +483,11 @@ int cvideo_atik::enum_controls( void )
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
 
-	
 	// create virtual control (extended ctl)
 	queryctrl.id = V4L2_CID_USER_DODEBAYER;
 	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
+	// Older colour Atiks do not report themseves as colour, however the pattern is RGGB
+	// that is why enforce debayering is available even if the camera reports MONO
 	if (caps.color_type != COLOUR_NONE) {
 		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Debayer RGB pattern" );
 	} else {
