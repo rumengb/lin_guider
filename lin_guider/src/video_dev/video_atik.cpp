@@ -468,7 +468,6 @@ int cvideo_atik::enum_controls( void )
 {
 	int n = 0;
 	struct v4l2_queryctrl queryctrl;
-	const atik_core::caps_s& caps = get_caps();
 
 	memset( &queryctrl, 0, sizeof(v4l2_queryctrl) );
 	// create virtual control
@@ -488,11 +487,7 @@ int cvideo_atik::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
 	// Older colour Atiks do not report themseves as colour, however the pattern is RGGB
 	// that is why enforce debayering is available even if the camera reports MONO
-	if (caps.color_type != COLOUR_NONE) {
-		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Debayer RGB pattern" );
-	} else {
-		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Camera is colour" );
-	}
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Debayer RGB pattern" );
 	queryctrl.minimum = 0;
 	queryctrl.maximum = 1;
 	queryctrl.step = 1;
