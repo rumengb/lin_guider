@@ -46,6 +46,7 @@ unsigned int atik_core::m_binY = 1;
 int atik_core::open( void )
 {
 	bool success = false;
+	struct AtikCapabilities caps;
 
 	pthread_mutex_lock( &m_mutex );
 
@@ -111,23 +112,7 @@ int atik_core::open( void )
 				continue;
 			}
 
-			success = m_camera->getCapabilities(&m_caps.name,
-											&m_caps.type,
-											&m_caps.has_shutter,
-											&m_caps.has_guide_port,
-											NULL, NULL, NULL,
-											&m_caps.pixel_count_X,
-											&m_caps.pixel_count_Y,
-											&m_caps.pixel_size_X,
-											&m_caps.pixel_size_Y,
-											&m_caps.max_bin_X,
-											&m_caps.max_bin_Y,
-											NULL,
-											&m_caps.cooler,
-											&m_caps.color_type,
-											&m_caps.offsetX,
-											&m_caps.offsetY
-											);
+			success = m_camera->getCapabilities(&m_caps.name, &m_caps.type, &caps);
 			if (!success) {
 				log_e("Can not get capabilities.");
 				m_camera->close();
@@ -135,6 +120,18 @@ int atik_core::open( void )
 				index++;
 				continue;
 			}
+
+			m_caps.has_shutter = caps.hasShutter;
+			m_caps.has_guide_port = caps.hasGuidePort;
+			m_caps.pixel_count_X = caps.pixelCountX;
+			m_caps.pixel_count_Y = caps.pixelCountY;
+			m_caps.pixel_size_X = caps.pixelSizeX;
+			m_caps.pixel_size_Y = caps.pixelSizeY;
+			m_caps.max_bin_X = caps.maxBinX;
+			m_caps.max_bin_Y = caps.maxBinY;
+			m_caps.color_type = caps.colour;
+			m_caps.offsetX = caps.offsetX;
+			m_caps.offsetY = caps.offsetY;
 
 			if ((m_caps.has_guide_port) || (index == camera_count-1)) {
 				found = true;
