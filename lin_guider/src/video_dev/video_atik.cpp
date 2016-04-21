@@ -51,8 +51,10 @@ namespace video_drv
 
 cvideo_atik::cvideo_atik() :
 	m_expstart( 0 ),
-	m_do_debayer( true )
+	m_do_debayer( false )
 {
+	const atik_core::caps_s& caps = get_caps();
+	if (caps.color_type == COLOUR_RGGB) m_do_debayer = true;
 	device_type = DT_ATIK;
 }
 
@@ -193,21 +195,15 @@ unsigned int cvideo_atik::get_pix_fmt( void )
 	if(!m_do_debayer) return V4L2_PIX_FMT_Y16;
 
 	const atik_core::caps_s& caps = get_caps();
-	switch (caps.color_type) {
-	case COLOUR_RGGB:
-		if((caps.offsetX == 0) && (caps.offsetY == 0))
-			return V4L2_PIX_FMT_SRGGB12;
-		else if((caps.offsetX == 1) && (caps.offsetY == 0))
-			return V4L2_PIX_FMT_SGRBG12;
-		else if((caps.offsetX == 0) && (caps.offsetY == 1))
-			return V4L2_PIX_FMT_SGBRG12;
-		else if((caps.offsetX == 1) && (caps.offsetY == 1))
-			return V4L2_PIX_FMT_SBGGR12;
-	case COLOUR_NONE:
-		return V4L2_PIX_FMT_Y16;
-	default:
-		return 0;
-	}
+	if((caps.offsetX == 0) && (caps.offsetY == 0))
+		return V4L2_PIX_FMT_SRGGB12;
+	else if((caps.offsetX == 1) && (caps.offsetY == 0))
+		return V4L2_PIX_FMT_SGRBG12;
+	else if((caps.offsetX == 0) && (caps.offsetY == 1))
+		return V4L2_PIX_FMT_SGBRG12;
+	else if((caps.offsetX == 1) && (caps.offsetY == 1))
+		return V4L2_PIX_FMT_SBGGR12;
+	return 0;
 }
 
 int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
@@ -487,19 +483,22 @@ int cvideo_atik::enum_controls( void )
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );
 
+	
+	// create virtual control (extended ctl)
+	queryctrl.id = V4L2_CID_USER_DODEBAYER;
+	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
 	if (caps.color_type != COLOUR_NONE) {
-		// create virtual control (extended ctl)
-		queryctrl.id = V4L2_CID_USER_DODEBAYER;
-		queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
 		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Debayer RGB pattern" );
-		queryctrl.minimum = 0;
-		queryctrl.maximum = 1;
-		queryctrl.step = 1;
-		queryctrl.default_value = m_do_debayer;
-		queryctrl.flags = 0;
-		// Add control to control list
-		controls = add_control( -1, &queryctrl, controls, &n, true );
+	} else {
+		snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "The camera is colour" );
 	}
+	queryctrl.minimum = 0;
+	queryctrl.maximum = 1;
+	queryctrl.step = 1;
+	queryctrl.default_value = m_do_debayer;
+	queryctrl.flags = 0;
+	// Add control to control list
+	controls = add_control( -1, &queryctrl, controls, &n, true );
 
 	num_controls = n;
 
