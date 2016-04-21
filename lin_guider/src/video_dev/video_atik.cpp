@@ -132,6 +132,7 @@ int  cvideo_atik::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
 	i++;
 
 	if (caps.max_bin_X >= 2 && caps.max_bin_Y >= 2) {
@@ -150,6 +151,7 @@ int  cvideo_atik::get_vcaps( void )
 		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
 		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
 		device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
+		device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
 		i++;
 	}
 
@@ -170,6 +172,7 @@ int  cvideo_atik::get_vcaps( void )
 		device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
 		device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
 		device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
+		device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
 		i++;
 	}
 

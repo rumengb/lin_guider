@@ -131,6 +131,7 @@ int  cvideo_sx::get_vcaps( void )
 	device_formats[0].frame_table[ i ].fps_table[ 9 ] = time_fract::mk_fps( 1, 3 );
 	device_formats[0].frame_table[ i ].fps_table[ 10 ] = time_fract::mk_fps( 1, 5 );
 	device_formats[0].frame_table[ i ].fps_table[ 11 ] = time_fract::mk_fps( 1, 10 );
+	device_formats[0].frame_table[ i ].fps_table[ 12 ] = time_fract::mk_fps( 1, 20 );
 	i++;
 
 	pt.x = m_caps.width/2;
