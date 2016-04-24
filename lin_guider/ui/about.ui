@@ -192,7 +192,7 @@ p, li { white-space: pre-wrap; }
       <attribute name="title">
        <string>Credits</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_5">
+      <layout class="QGridLayout" name="gridLayout_7">
        <item row="0" column="0">
         <widget class="QScrollArea" name="scrollArea_Credits">
          <property name="frameShape">

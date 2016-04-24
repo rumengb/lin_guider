@@ -30,8 +30,6 @@
 #include "timer.h"
 #include <atik_core.h>
 
-#define V4L2_CID_USER_DODEBAYER (V4L2_CID_USER_CLASS + 1)
-
 namespace video_drv
 {
 
