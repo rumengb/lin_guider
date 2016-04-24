@@ -98,8 +98,8 @@ time_fract_t cvideo_atik::set_fps( const time_fract &new_fps )
 
 int cvideo_atik::open_device( void )
 {
-	capture_params.ext_params.insert( std::make_pair( ATIK_CID_USER_DODEBAYER, m_do_debayer ) );
-	m_do_debayer = capture_params.ext_params[ ATIK_CID_USER_DODEBAYER ];
+	capture_params.ext_params.insert( std::make_pair( V4L2_CID_ATIK_DODEBAYER, m_do_debayer ) );
+	m_do_debayer = capture_params.ext_params[ V4L2_CID_ATIK_DODEBAYER ];
 	return open();
 }
 
@@ -223,7 +223,7 @@ int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 		capture_params.exposure = v;
 		break;
 	}
-	case ATIK_CID_USER_DODEBAYER:
+	case V4L2_CID_ATIK_DODEBAYER:
 	{
 		int v = val.values[0];
 		v = v < 0 ? 0 : v;
@@ -231,6 +231,7 @@ int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 		capture_params.ext_params[ control_id ] = v;
 		m_do_debayer = (v == 1);
 		capture_params.pixel_format = get_pix_fmt();
+		get_vcaps();
 		log_i( "Debayering is %s", m_do_debayer ? "ON" : "OFF" );
 		break;
 	}
@@ -485,7 +486,7 @@ int cvideo_atik::enum_controls( void )
 	// create virtual control (extended ctl)
 	// Older colour Atiks do not report themseves as colour, however the pattern is RGGB
 	// that is why enforce debayering is available even if the camera reports MONO
-	queryctrl.id = ATIK_CID_USER_DODEBAYER;
+	queryctrl.id = V4L2_CID_ATIK_DODEBAYER;
 	queryctrl.type = V4L2_CTRL_TYPE_BOOLEAN;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "Debayer RGB pattern" );
 	queryctrl.minimum = 0;

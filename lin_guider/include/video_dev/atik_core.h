@@ -32,7 +32,7 @@
 #include "utils.h"
 #include "atikccdusb.h"
 
-#define ATIK_CID_USER_DODEBAYER (V4L2_CID_USER_CLASS + 1)
+#define V4L2_CID_ATIK_DODEBAYER (V4L2_CID_USER_CLASS + 1)
 
 #define CAM_MAX 5
 
