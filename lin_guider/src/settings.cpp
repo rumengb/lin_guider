@@ -48,6 +48,7 @@ settings::settings( lin_guider *parent,
 	// fill drift graph combos
 	ui.comboBox_DriftGraph_nx->clear();
 	ui.comboBox_DriftGraph_ny->clear();
+	ui.comboBox_GraphType->clear();
 	for( int i = 0;i <= 10;i++ )
 	{
 		if( i > 1 )
@@ -57,6 +58,9 @@ settings::settings( lin_guider *parent,
 				ui.comboBox_DriftGraph_ny->addItem( QString().setNum(i), i );
 		}
 	}
+
+	ui.comboBox_GraphType->addItem( QString("Scroll"), GRAPH_SCROLL );
+	ui.comboBox_GraphType->addItem( QString("Target"), GRAPH_TARGET );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
@@ -131,6 +135,8 @@ void settings::fill_interface( void )
 	ui.checkBox_HFD_on->setChecked( m_common_params.hfd_on );
 
 	// drift graph
+	ui.comboBox_GraphType->setCurrentIndex( m_drift_view_params->graph_type );
+
 	for( int i = 0;i < ui.comboBox_DriftGraph_nx->count();i++ )
 	{
 		if( ui.comboBox_DriftGraph_nx->itemData( i ).toInt() == m_drift_view_params->cell_nx )
@@ -147,7 +153,6 @@ void settings::fill_interface( void )
 			break;
 		}
 	}
-
 }
 
 
@@ -236,6 +241,8 @@ void settings::onOkButtonClick()
 	// final
 	*m_pcommon_params = m_common_params;
 
+	if( ui.comboBox_GraphType->currentIndex() != -1 )
+		m_drift_view_params->graph_type = (graph_type_t)ui.comboBox_GraphType->currentIndex();
 	if( ui.comboBox_DriftGraph_nx->currentIndex() != -1 )
 		m_drift_view_params->cell_nx = ui.comboBox_DriftGraph_nx->itemData( ui.comboBox_DriftGraph_nx->currentIndex() ).toInt();
 	if( ui.comboBox_DriftGraph_ny->currentIndex() != -1 )

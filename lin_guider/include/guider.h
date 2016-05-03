@@ -29,8 +29,15 @@
 #include "ui_guider.h"
 #include "scroll_graph.h"
 #include "gmath.h"
+#include "guider.h"
 #include "fio.h"
 
+typedef enum
+{
+        GRAPH_SCROLL = 0,
+        GRAPH_TARGET,
+        GRPAH_MAX
+} graph_type_t;
 
 class lin_guider;
 namespace io_drv
@@ -47,11 +54,13 @@ public:
 	struct drift_view_params_s
 	{
 		drift_view_params_s() :
+			graph_type (GRAPH_SCROLL),
 			drift_graph_xrange( -1 ),
 			drift_graph_yrange( -1 ),
 			cell_nx( 6 ),
 			cell_ny( 6 )
 		{}
+		graph_type_t graph_type;
 		int drift_graph_xrange;
 		int drift_graph_yrange;
 		int cell_nx;

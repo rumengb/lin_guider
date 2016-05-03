@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>654</width>
-    <height>337</height>
+    <width>590</width>
+    <height>350</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,7 +26,16 @@
    <string>settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="topMargin">
+    <number>4</number>
+   </property>
+   <property name="rightMargin">
+    <number>4</number>
+   </property>
+   <property name="bottomMargin">
     <number>4</number>
    </property>
    <property name="spacing">
@@ -85,7 +94,7 @@
       <item row="0" column="3">
        <widget class="QLineEdit" name="lineEdit_Port">
         <property name="inputMask">
-         <string>00000; </string>
+         <string>00000</string>
         </property>
        </widget>
       </item>
@@ -202,7 +211,7 @@
       <item row="4" column="4">
        <widget class="QLineEdit" name="lineEdit_TCPPort">
         <property name="inputMask">
-         <string>00000; </string>
+         <string>00000</string>
         </property>
        </widget>
       </item>
@@ -231,15 +240,26 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="7" column="3">
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Drift graph X cells</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Drift graph Y cells</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="4">
        <widget class="QCheckBox" name="checkBox_DBGVerbosity">
         <property name="text">
          <string>debug verbosity</string>
         </property>
        </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QComboBox" name="comboBox_DriftGraph_nx"/>
       </item>
       <item row="5" column="0">
        <widget class="QSpinBox" name="spinBox_DitherRange">
@@ -254,7 +274,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="1" column="2">
        <widget class="QLabel" name="label_2">
         <property name="text">
          <string>Dithering timeout, sec</string>
@@ -268,7 +288,7 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="5" column="2">
        <widget class="QSpinBox" name="spinBox_DitherRestTout">
         <property name="maximum">
          <number>10</number>
@@ -278,7 +298,7 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="0">
+      <item row="13" column="0">
        <spacer name="verticalSpacer_3">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -291,14 +311,7 @@
         </property>
        </spacer>
       </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Drift graph X cells</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="2">
+      <item row="5" column="3">
        <spacer name="horizontalSpacer_2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -314,29 +327,35 @@
         </property>
        </spacer>
       </item>
-      <item row="6" column="1">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Drift graph Y cells</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
-       <widget class="QComboBox" name="comboBox_DriftGraph_ny"/>
-      </item>
-      <item row="6" column="3">
+      <item row="7" column="4">
        <widget class="QCheckBox" name="checkBox_ShowHelperTB">
         <property name="text">
          <string>show Helper toolbar</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="3">
+      <item row="5" column="4">
        <widget class="QCheckBox" name="checkBox_HFD_on">
         <property name="text">
          <string>calculate HFD</string>
         </property>
        </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QComboBox" name="comboBox_DriftGraph_nx"/>
+      </item>
+      <item row="14" column="2">
+       <widget class="QComboBox" name="comboBox_DriftGraph_ny"/>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_graph">
+        <property name="text">
+         <string>Graph type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QComboBox" name="comboBox_GraphType"/>
       </item>
      </layout>
     </widget>
@@ -356,8 +375,6 @@
   <tabstop>lineEdit_TCPPort</tabstop>
   <tabstop>spinBox_DitherRange</tabstop>
   <tabstop>spinBox_DitherRestTout</tabstop>
-  <tabstop>comboBox_DriftGraph_nx</tabstop>
-  <tabstop>comboBox_DriftGraph_ny</tabstop>
   <tabstop>checkBox_HFD_on</tabstop>
   <tabstop>checkBox_ShowHelperTB</tabstop>
   <tabstop>checkBox_DBGVerbosity</tabstop>

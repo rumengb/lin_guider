@@ -119,8 +119,14 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	int DRIFT_GRAPH_WIDTH = cell_nx * cell_size;
 	int DRIFT_GRAPH_HEIGHT = cell_ny * cell_size;
 
-	//m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
-	m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+	switch  (m_drift_view_params->graph_type) {
+	case GRAPH_SCROLL:
+		m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+		break;
+	case GRAPH_TARGET:
+		m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+		break;
+	}
 	m_drift_graph->set_visible_ranges( m_drift_view_params->drift_graph_xrange > 0 && m_drift_view_params->drift_graph_xrange <= DRIFT_GRAPH_WIDTH ? m_drift_view_params->drift_graph_xrange : DRIFT_GRAPH_WIDTH,
 									   //DRIFT_GRAPH_WIDTH,
 									   m_drift_view_params->drift_graph_yrange > 0 ? m_drift_view_params->drift_graph_yrange : 60 );
