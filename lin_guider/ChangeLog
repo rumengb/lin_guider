@@ -1,3 +1,7 @@
+2016-MM-DD Lin_guider 4.0.0 (c)Galaxy Master <galaxy_master@mail.ru>
+
+	* Added target drift graph, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+
 2016-04-25 Lin_guider 3.3.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
 	* Add pulse driver for SkyWatcher/Orion mounts (HC firmware at least 3.38.08 or 4.38.08 is required), by Rumen G.Bogdanovski <rumen@skyarchive.org>
