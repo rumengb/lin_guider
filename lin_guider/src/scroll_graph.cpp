@@ -363,9 +363,7 @@ void cscroll_graph::draw_grid( double kx, double )
 		x = sx - (double)i*m_grid_view_step_x;
 		y = (double)i*m_grid_view_step_y;
 
-		//if( (val = grid_column - i*(int)m_grid_step_x) >= 0 )
-		val = grid_column - i*(int)m_grid_step_x;
-		if( val < 0 ) val += m_data_cnt;
+		if( (val = grid_column - i*(int)m_grid_step_x) >= 0 )
 		{
 			str.setNum( val );
 			m_canvas.drawText( x, m_half_buffer_size_ht + m_font_ht_k, str );

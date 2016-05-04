@@ -60,7 +60,8 @@ settings::settings( lin_guider *parent,
 	}
 
 	ui.comboBox_GraphType->addItem( QString("Scroll"), GRAPH_SCROLL );
-	ui.comboBox_GraphType->addItem( QString("Target"), GRAPH_TARGET );
+	ui.comboBox_GraphType->addItem( QString("Target (points)"), GRAPH_TARGET_POINTS );
+	ui.comboBox_GraphType->addItem( QString("Target (lines)"), GRAPH_TARGET_LINES );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );

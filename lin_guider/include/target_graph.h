@@ -29,10 +29,11 @@
 class target_graph : public cscroll_graph
 {
 public:
-	target_graph( int client_width, int client_height, int cell_nx, int cell_ny );
+	target_graph( int client_width, int client_height, int cell_nx, int cell_ny, bool use_lines );
 	virtual ~target_graph();
 
 protected:
+	bool m_use_lines;
 	virtual void refresh( void );
 	virtual void draw_grid( void );
 	virtual void init_render_vars( void );

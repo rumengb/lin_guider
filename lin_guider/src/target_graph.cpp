@@ -30,10 +30,10 @@
 #include "utils.h"
 
 
-target_graph::target_graph( int client_width, int client_height, int cell_nx, int cell_ny ) :
+target_graph::target_graph( int client_width, int client_height, int cell_nx, int cell_ny, bool use_lines ) :
 	cscroll_graph( client_width, client_height, cell_nx, cell_ny )
 {
-
+	m_use_lines = use_lines;
 }
 
 
@@ -42,8 +42,7 @@ target_graph::~target_graph()
 
 }
 
-
-void target_graph::refresh( void )
+void target_graph::refresh(void)
 {
 	double k;
 	int px, py, x, y, i;
@@ -58,15 +57,31 @@ void target_graph::refresh( void )
 	// Rasterizing coefficients
 	k = (double)m_client_rect_ht / m_vis_range_y;
 
-	draw_grid( );
+	draw_grid();
 
 	// Draw points
 	m_pen.setColor( RA_COLOR );
 	m_canvas.setPen( m_pen );
-	for( i = 0; i < m_data_idx; i++ ) {
-		x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i] * k);
-		y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i] * k);
-		m_canvas.drawEllipse(QPointF(x, y), 1, 1);
+	if (m_use_lines) {
+		if (m_data_idx > 0) {
+			x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][0] * k);
+			y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][0] * k);
+			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
+		}
+		for( i = 1; i < m_data_idx; i++ ) {
+			px = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i] * k);
+			py = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i] * k);
+			x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i-1] * k);
+			y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i-1] * k);
+			m_canvas.drawLine( px, py, x, y );
+			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
+		}
+	} else {
+		for( i = 0; i < m_data_idx; i++ ) {
+			x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i] * k);
+			y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i] * k);
+			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
+		}
 	}
 	if (m_data_idx > 1) {
 		// Draw the last movement
@@ -79,6 +94,7 @@ void target_graph::refresh( void )
 		m_canvas.drawLine( px, py, x, y );
 		m_canvas.drawEllipse(QPointF(x, y), 5, 5);
 	}
+	m_need_refresh = false;
 }
 
 
@@ -97,11 +113,11 @@ void target_graph::draw_grid( void )
 		y = (double)i*m_grid_view_step_y;
 		if( i == m_gridy_N/2 )
 		{
-			m_pen.setColor( WHITE_COLOR );
+			m_pen.setColor( GRID_COLOR );
 			m_canvas.setPen( m_pen );
 			m_canvas.drawLine( 0, y, m_client_rect_wd, y );
 			m_canvas.drawLine( x, 0, x , m_client_rect_ht );
-			m_pen.setColor( GRID_COLOR );
+			//m_pen.setColor( GRID_COLOR );
 			m_canvas.setPen( m_pen );
 			m_canvas.drawEllipse(QPointF(m_half_buffer_size_wd, m_half_buffer_size_ht),
 			                    (double)i*m_grid_view_step_x, (double)i*m_grid_view_step_y);

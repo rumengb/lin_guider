@@ -112,30 +112,7 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	m_drift_out->setAttribute( Qt::WA_NoSystemBackground, true );
 	ui.frame_Graph->setAttribute( Qt::WA_NoSystemBackground, true );
 
-	int cell_nx = m_drift_view_params->cell_nx < 2 ? 2 : m_drift_view_params->cell_nx;
-	cell_nx = cell_nx <= 10 ? cell_nx : 10;
-	int cell_ny = m_drift_view_params->cell_ny < 2 ? 2 : m_drift_view_params->cell_ny;
-	cell_ny = cell_ny <= 10 ? cell_ny : 10;
-	int DRIFT_GRAPH_WIDTH = cell_nx * cell_size;
-	int DRIFT_GRAPH_HEIGHT = cell_ny * cell_size;
-
-	switch  (m_drift_view_params->graph_type) {
-	case GRAPH_SCROLL:
-		m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
-		break;
-	case GRAPH_TARGET:
-		m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
-		break;
-	}
-	m_drift_graph->set_visible_ranges( m_drift_view_params->drift_graph_xrange > 0 && m_drift_view_params->drift_graph_xrange <= DRIFT_GRAPH_WIDTH ? m_drift_view_params->drift_graph_xrange : DRIFT_GRAPH_WIDTH,
-									   //DRIFT_GRAPH_WIDTH,
-									   m_drift_view_params->drift_graph_yrange > 0 ? m_drift_view_params->drift_graph_yrange : 60 );
-
-	m_drift_out->set_source( m_drift_graph->get_buffer(), NULL );
-	m_drift_graph->on_paint();
-
-	ui.frame_Graph->setMaximumSize( DRIFT_GRAPH_WIDTH + 2*ui.frame_Graph->frameWidth(), DRIFT_GRAPH_HEIGHT + 2*ui.frame_Graph->frameWidth() );
-	ui.frame_Graph->setMinimumSize( ui.frame_Graph->maximumSize() );
+	initializeGraph();
 
 	// not UI vars
 	is_started = false;
@@ -158,11 +135,50 @@ guider::~guider()
 	delete m_logger;
 }
 
+void guider::initializeGraph() {
+	int cell_nx = m_drift_view_params->cell_nx < 2 ? 2 : m_drift_view_params->cell_nx;
+	cell_nx = cell_nx <= 10 ? cell_nx : 10;
+	int cell_ny = m_drift_view_params->cell_ny < 2 ? 2 : m_drift_view_params->cell_ny;
+	cell_ny = cell_ny <= 10 ? cell_ny : 10;
+	int DRIFT_GRAPH_WIDTH = cell_nx * cell_size;
+	int DRIFT_GRAPH_HEIGHT = cell_ny * cell_size;
+
+	switch  (m_drift_view_params->graph_type) {
+	case GRAPH_SCROLL:
+		m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+		break;
+	case GRAPH_TARGET_POINTS:
+		m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny, false );
+		break;
+	case GRAPH_TARGET_LINES:
+		m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny, true );
+		break;
+	default:
+		m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+	}
+
+	m_drift_graph->set_visible_ranges( m_drift_view_params->drift_graph_xrange > 0 && m_drift_view_params->drift_graph_xrange <= DRIFT_GRAPH_WIDTH ? m_drift_view_params->drift_graph_xrange : DRIFT_GRAPH_WIDTH,
+									   //DRIFT_GRAPH_WIDTH,
+									   m_drift_view_params->drift_graph_yrange > 0 ? m_drift_view_params->drift_graph_yrange : 60 );
+
+	m_drift_out->set_source( m_drift_graph->get_buffer(), NULL );
+	m_drift_graph->on_paint();
+
+	ui.frame_Graph->setMaximumSize( DRIFT_GRAPH_WIDTH + 2*ui.frame_Graph->frameWidth(), DRIFT_GRAPH_HEIGHT + 2*ui.frame_Graph->frameWidth() );
+	ui.frame_Graph->setMinimumSize( ui.frame_Graph->maximumSize() );
+
+	m_prev_graph_type = m_drift_view_params->graph_type;
+}
 
 void guider::showEvent ( QShowEvent * event )
 {
 	if( event->spontaneous() )
 		return;
+
+	if (m_prev_graph_type != m_drift_view_params->graph_type) {
+		delete m_drift_graph;
+		initializeGraph();
+	}
 
 	pmain_wnd->lock_toolbar( true );
 
