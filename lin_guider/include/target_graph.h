@@ -23,10 +23,10 @@
 #ifndef TARGET_GRAPH_H_
 #define TARGET_GRAPH_H_
 
-#include "scroll_graph.h"
+#include "drift_graph.h"
 
 
-class target_graph : public cscroll_graph
+class target_graph : public cdrift_graph
 {
 public:
 	target_graph( int client_width, int client_height, int cell_nx, int cell_ny, bool use_lines );

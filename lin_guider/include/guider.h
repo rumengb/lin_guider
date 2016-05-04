@@ -27,7 +27,7 @@
 
 #include "common.h"
 #include "ui_guider.h"
-#include "scroll_graph.h"
+#include "drift_graph.h"
 #include "gmath.h"
 #include "guider.h"
 #include "fio.h"
@@ -109,7 +109,7 @@ private:
 	cgmath *m_math;
 
 	custom_drawer *m_drift_out;
-	cscroll_graph *m_drift_graph;
+	cdrift_graph *m_drift_graph;
 	fio	*m_logger;
 	bool is_started;
 	bool half_refresh_rate;

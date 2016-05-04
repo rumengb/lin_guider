@@ -8,7 +8,8 @@ OBJECTS_DIR = $$DSTDIR/.obj
 MOC_DIR = $$DSTDIR/.moc
 UI_DIR = $$DSTDIR/.ui
 RCC_DIR = $$DSTDIR/.rcc
-HEADERS += include/target_graph.h \
+HEADERS += include/drift_graph.h \
+    include/target_graph.h \
     include/math/gmath_test.h \
     include/io_dev/io_nexstar.h \
     include/io_dev/io_skywatcher.h \
@@ -68,7 +69,8 @@ HEADERS += include/target_graph.h \
     include/utils.h \
     include/io_driver.h \
     include/lin_guider.h
-SOURCES += src/target_graph.cpp \
+SOURCES += src/drift_graph.cpp \
+    src/target_graph.cpp \
     src/math/gmath_test.cpp \
     src/io_dev/io_nexstar.cpp \
     src/io_dev/io_skywatcher.cpp \

@@ -28,7 +28,6 @@
 #include "lin_guider.h"
 #include "gmath.h"
 #include "server.h"
-
 #include "scroll_graph.h"
 #include "target_graph.h"
 
@@ -135,6 +134,7 @@ guider::~guider()
 	delete m_logger;
 }
 
+
 void guider::initializeGraph() {
 	int cell_nx = m_drift_view_params->cell_nx < 2 ? 2 : m_drift_view_params->cell_nx;
 	cell_nx = cell_nx <= 10 ? cell_nx : 10;
@@ -145,7 +145,7 @@ void guider::initializeGraph() {
 
 	switch  (m_drift_view_params->graph_type) {
 	case GRAPH_SCROLL:
-		m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+		m_drift_graph = new scroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
 		break;
 	case GRAPH_TARGET_POINTS:
 		m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny, false );
@@ -154,7 +154,7 @@ void guider::initializeGraph() {
 		m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny, true );
 		break;
 	default:
-		m_drift_graph = new cscroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
+		m_drift_graph = new scroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
 	}
 
 	m_drift_graph->set_visible_ranges( m_drift_view_params->drift_graph_xrange > 0 && m_drift_view_params->drift_graph_xrange <= DRIFT_GRAPH_WIDTH ? m_drift_view_params->drift_graph_xrange : DRIFT_GRAPH_WIDTH,
@@ -169,6 +169,7 @@ void guider::initializeGraph() {
 
 	m_prev_graph_type = m_drift_view_params->graph_type;
 }
+
 
 void guider::showEvent ( QShowEvent * event )
 {

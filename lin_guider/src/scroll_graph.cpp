@@ -1,8 +1,8 @@
 /*
  * scroll_graph.cpp
  *
- *      Author: gm
- *
+ *  Created on: 04 May 2016.
+ *  Authors: Rumen G.Bogdanovski, Andrew Stepanenko
  *
  * This file is part of Lin_guider.
  *
@@ -20,157 +20,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
+
 #include <QtGui>
 #include <QWidget>
 
+#include "drift_graph.h"
 #include "scroll_graph.h"
 #include "utils.h"
-#include "maindef.h"
 
 
-
-cscroll_graph::cscroll_graph( int client_width, int client_height, int cell_nx, int cell_ny )
+scroll_graph::scroll_graph( int client_width, int client_height, int cell_nx, int cell_ny) :
+	cdrift_graph( client_width, client_height, cell_nx, cell_ny )
 {
-	m_client_rect_wd = client_width;
-	m_client_rect_ht = client_height;
 
-	m_buffer = new QImage( m_client_rect_wd, m_client_rect_ht, QImage::Format_RGB32 );
-
-	m_vis_range_x = m_client_rect_wd; // horizontal range in ticks
-	m_vis_range_y = 100;	// whole visible vertical range in arcsecs!
-
-	m_gridx_N = cell_nx;
-	m_gridy_N = cell_ny & (~1);
-
-	m_data_cnt = 10*m_gridx_N*10;
-	m_data.line[ RA_LINE ] = new double[ m_data_cnt ];
-	m_data.line[ DEC_LINE ] = new double[ m_data_cnt ];
-	reset_data();
-
-	//graphics...
-	m_pen.setStyle( Qt::SolidLine );
-	m_pen.setWidth(1);
-	m_brush.setStyle(Qt::SolidPattern);
-
-	RA_COLOR 		= QColor( DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2] );
-	DEC_COLOR 		= QColor( DEF_DEC_COLOR[0], DEF_DEC_COLOR[1], DEF_DEC_COLOR[2] );
-	GRID_COLOR 		= QColor( DEF_GRID_COLOR[0], DEF_GRID_COLOR[1], DEF_GRID_COLOR[2] );
-	BKGD_COLOR 		= QColor( DEF_BKGD_COLOR[0], DEF_BKGD_COLOR[1], DEF_BKGD_COLOR[2] );
-	WHITE_COLOR 	= QColor( DEF_WHITE_COLOR[0], DEF_WHITE_COLOR[1], DEF_WHITE_COLOR[2] );
-	GRID_FONT_COLOR	= QColor( DEF_GRID_FONT_COLOR[0], DEF_GRID_FONT_COLOR[1], DEF_GRID_FONT_COLOR[2] );
-	m_brush.setColor( BKGD_COLOR );
-
-	// init...
-	init_render_vars();
-
-	m_need_refresh = true;
-
-	m_canvas.begin( get_buffer() );
-	m_font_ht_k = m_canvas.fontMetrics().ascent();
-	m_canvas.end();
-}
-
-cscroll_graph::~cscroll_graph()
-{
-	delete m_buffer;
-	delete [] m_data.line[ RA_LINE ];
-	delete [] m_data.line[ DEC_LINE ];
 }
 
 
-void cscroll_graph::init_render_vars( void )
+scroll_graph::~scroll_graph()
 {
-	m_half_buffer_size_wd = m_client_rect_wd / 2;
-	m_half_buffer_size_ht = m_client_rect_ht / 2;
 
-	m_grid_view_step_x = (double)m_client_rect_wd / (double)m_gridx_N;
-	m_grid_view_step_y = (double)m_client_rect_ht / (double)m_gridy_N;
-
-	m_grid_step_x = (double)m_vis_range_x / (double)m_gridx_N;
-	m_grid_step_y = (double)m_vis_range_y / (double)m_gridy_N;
-
-	m_half_vis_range_x = m_vis_range_x / 2;
-	m_half_vis_range_y = m_vis_range_y / 2;
 }
 
 
-void cscroll_graph::set_visible_ranges( int rx, int ry )
-{
-	if( rx < 10*m_gridx_N ) rx = 10*m_gridx_N;
-	if( rx > m_data_cnt ) rx = m_data_cnt;
-
-	if( m_vis_range_x != rx )
-		m_need_refresh = true;
-	m_vis_range_x = rx;
-
-	if( ry < 5*m_gridy_N ) ry = 5*m_gridy_N;
-
-	if( m_vis_range_x != ry )
-		m_need_refresh = true;
-	m_vis_range_y = ry;
-
-	init_render_vars();
-}
-
-
-void cscroll_graph::get_visible_ranges( int *rx, int *ry ) const
-{
-	*rx = m_vis_range_x;
-	*ry = m_vis_range_y;
-}
-
-
-int cscroll_graph::get_gridx_N( void ) const
-{
-	return m_gridx_N;
-}
-
-
-int cscroll_graph::get_gridy_N( void ) const
-{
-	return m_gridy_N;
-}
-
-
-void cscroll_graph::reset_data( void )
-{
-	memset( m_data.line[RA_LINE], 0, sizeof(double)*m_data_cnt );
-	memset( m_data.line[DEC_LINE], 0, sizeof(double)*m_data_cnt );
-	m_data_idx = 0;
-	m_need_refresh = true;
-}
-
-
-
-QImage *cscroll_graph::get_buffer( void ) const
-{
-	return m_buffer;
-}
-
-
-void cscroll_graph::get_screen_size( int *sx, int *sy ) const
-{
-	*sx = m_client_rect_wd;
-	*sy = m_client_rect_ht;
-}
-
-
-void cscroll_graph::on_paint( void )
-{
-	m_canvas.begin( get_buffer() );
-
-	refresh();
-
-	m_canvas.end();
-}
-
-
-/*************
-*
-* Main Drawing function
-*
-**************/
-void cscroll_graph::refresh( void )
+void scroll_graph::refresh( void )
 {
 	int i, j, k;
 	double kx, ky, step;
@@ -322,7 +195,7 @@ void cscroll_graph::refresh( void )
 }
 
 
-void cscroll_graph::draw_grid( double kx, double )
+void scroll_graph::draw_grid( double kx, double )
 {
 	int i, x, sx, y;
 	int grid_column, val;
@@ -374,16 +247,7 @@ void cscroll_graph::draw_grid( double kx, double )
 }
 
 
-void cscroll_graph::add_point( double ra, double dec )
+void scroll_graph::init_render_vars( void )
 {
-	m_data.line[ RA_LINE ][ m_data_idx ]  = ra;
-	m_data.line[ DEC_LINE ][ m_data_idx ] = dec;
-
-	m_data_idx++;
-
-	if( m_data_idx == m_data_cnt )
-		m_data_idx = 0;
-
-	m_need_refresh = true;
+	cdrift_graph::init_render_vars();
 }
-

@@ -25,13 +25,13 @@
 #include <QtGui>
 #include <QWidget>
 
-#include "scroll_graph.h"
+#include "drift_graph.h"
 #include "target_graph.h"
 #include "utils.h"
 
 
 target_graph::target_graph( int client_width, int client_height, int cell_nx, int cell_ny, bool use_lines ) :
-	cscroll_graph( client_width, client_height, cell_nx, cell_ny )
+	cdrift_graph( client_width, client_height, cell_nx, cell_ny )
 {
 	m_use_lines = use_lines;
 }
@@ -144,6 +144,6 @@ void target_graph::draw_grid( void )
 
 void target_graph::init_render_vars( void )
 {
-	cscroll_graph::init_render_vars();
+	cdrift_graph::init_render_vars();
 }
 
