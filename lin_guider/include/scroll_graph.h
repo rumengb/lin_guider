@@ -33,7 +33,6 @@ public:
 	virtual ~scroll_graph();
 
 protected:
-	bool m_use_lines;
 	virtual void refresh( void );
 	virtual void draw_grid( double kx, double );
 	virtual void init_render_vars( void );
