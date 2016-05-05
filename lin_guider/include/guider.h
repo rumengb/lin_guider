@@ -73,7 +73,7 @@ public:
 	guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params );
 	~guider();
 
-	void initializeGraph( void );
+	void initialize_graph( void );
 	void guide( void );
 	void set_half_refresh_rate( bool is_half );
 	bool is_guiding( void ) const;

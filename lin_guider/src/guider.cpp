@@ -111,7 +111,7 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	m_drift_out->setAttribute( Qt::WA_NoSystemBackground, true );
 	ui.frame_Graph->setAttribute( Qt::WA_NoSystemBackground, true );
 
-	initializeGraph();
+	initialize_graph();
 
 	// not UI vars
 	is_started = false;
@@ -135,7 +135,13 @@ guider::~guider()
 }
 
 
-void guider::initializeGraph() {
+void guider::initialize_graph()
+{
+	if( m_drift_graph ) {
+		delete m_drift_graph;
+		m_drift_graph = NULL;
+	}
+
 	int cell_nx = m_drift_view_params->cell_nx < 2 ? 2 : m_drift_view_params->cell_nx;
 	cell_nx = cell_nx <= 10 ? cell_nx : 10;
 	int cell_ny = m_drift_view_params->cell_ny < 2 ? 2 : m_drift_view_params->cell_ny;
@@ -144,9 +150,6 @@ void guider::initializeGraph() {
 	int DRIFT_GRAPH_HEIGHT = cell_ny * cell_size;
 
 	switch  (m_drift_view_params->graph_type) {
-	case GRAPH_SCROLL:
-		m_drift_graph = new scroll_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny );
-		break;
 	case GRAPH_TARGET_POINTS:
 		m_drift_graph = new target_graph( DRIFT_GRAPH_WIDTH, DRIFT_GRAPH_HEIGHT, cell_nx, cell_ny, false );
 		break;
@@ -177,8 +180,7 @@ void guider::showEvent ( QShowEvent * event )
 		return;
 
 	if (m_prev_graph_type != m_drift_view_params->graph_type) {
-		delete m_drift_graph;
-		initializeGraph();
+		initialize_graph();
 	}
 
 	pmain_wnd->lock_toolbar( true );

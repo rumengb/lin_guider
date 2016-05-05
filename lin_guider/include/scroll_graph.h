@@ -23,7 +23,7 @@
 #ifndef SCROLL_GRAPH_H_
 #define SCROLL_GRAPH_H_
 
-#include "scroll_graph.h"
+#include "drift_graph.h"
 
 
 class scroll_graph : public cdrift_graph
