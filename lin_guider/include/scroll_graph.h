@@ -35,7 +35,6 @@ public:
 protected:
 	virtual void refresh( void );
 	virtual void draw_grid( double kx, double );
-	virtual void init_render_vars( void );
 };
 
 #endif /* SCROLL_GRAPH_H_ */

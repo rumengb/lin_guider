@@ -245,9 +245,3 @@ void scroll_graph::draw_grid( double kx, double )
 		m_canvas.drawText( 2, y + m_font_ht_k, str );
 	}
 }
-
-
-void scroll_graph::init_render_vars( void )
-{
-	cdrift_graph::init_render_vars();
-}

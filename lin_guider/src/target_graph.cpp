@@ -140,10 +140,3 @@ void target_graph::draw_grid( void )
 		m_canvas.drawText( x, y + m_font_ht_k, str );
 	}
 }
-
-
-void target_graph::init_render_vars( void )
-{
-	cdrift_graph::init_render_vars();
-}
-

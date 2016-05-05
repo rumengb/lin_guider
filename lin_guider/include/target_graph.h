@@ -36,7 +36,6 @@ protected:
 	bool m_use_lines;
 	virtual void refresh( void );
 	virtual void draw_grid( void );
-	virtual void init_render_vars( void );
 };
 
 #endif /* TARGET_GRAPH_H_ */
