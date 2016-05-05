@@ -84,7 +84,7 @@ void scroll_graph::refresh( void )
 	kx = (double)m_client_rect_wd / m_vis_range_x;
 	ky = (double)m_client_rect_ht / m_vis_range_y;
 
-	draw_grid( kx, ky );
+	draw_grid( kx );
 
 	// analyse kx and select optimal algorithm
 	if( m_client_rect_wd <= m_vis_range_x )
@@ -195,7 +195,7 @@ void scroll_graph::refresh( void )
 }
 
 
-void scroll_graph::draw_grid( double kx, double )
+void scroll_graph::draw_grid( double kx )
 {
 	int i, x, sx, y;
 	int grid_column, val;
