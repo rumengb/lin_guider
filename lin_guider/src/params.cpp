@@ -257,7 +257,7 @@ bool params::load( void )
 
 	// drift view
 	settings.beginGroup("guider_drift_view");
-		m_drift_view_params.graph_type = (graph_type_t)settings.value( "graph_type", GRAPH_SCROLL ).toInt();
+		m_drift_view_params.graph_type = (guider::graph_type_t)settings.value( "graph_type", guider::GRAPH_SCROLL ).toInt();
 		m_drift_view_params.drift_graph_xrange = settings.value( "drift_graph_xrange", 300 ).toInt();
 		m_drift_view_params.drift_graph_yrange = settings.value( "drift_graph_yrange", 60 ).toInt();
 		m_drift_view_params.cell_nx = settings.value( "cell_nx", 6 ).toInt();

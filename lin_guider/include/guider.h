@@ -32,14 +32,6 @@
 #include "guider.h"
 #include "fio.h"
 
-typedef enum
-{
-        GRAPH_SCROLL = 0,
-        GRAPH_TARGET_POINTS,
-        GRAPH_TARGET_LINES,
-        GRPAH_MAX
-} graph_type_t;
-
 class lin_guider;
 namespace io_drv
 {
@@ -52,6 +44,13 @@ class guider : public QDialog
     Q_OBJECT
 
 public:
+	typedef enum {
+        GRAPH_SCROLL = 0,
+        GRAPH_TARGET_POINTS,
+        GRAPH_TARGET_LINES,
+        GRPAH_MAX
+	} graph_type_t;
+
 	struct drift_view_params_s
 	{
 		drift_view_params_s() :

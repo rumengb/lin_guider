@@ -59,9 +59,9 @@ settings::settings( lin_guider *parent,
 		}
 	}
 
-	ui.comboBox_GraphType->addItem( QString("Scroll"), GRAPH_SCROLL );
-	ui.comboBox_GraphType->addItem( QString("Target (points)"), GRAPH_TARGET_POINTS );
-	ui.comboBox_GraphType->addItem( QString("Target (lines)"), GRAPH_TARGET_LINES );
+	ui.comboBox_GraphType->addItem( QString("Scroll"), guider::GRAPH_SCROLL );
+	ui.comboBox_GraphType->addItem( QString("Target (points)"), guider::GRAPH_TARGET_POINTS );
+	ui.comboBox_GraphType->addItem( QString("Target (lines)"), guider::GRAPH_TARGET_LINES );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
@@ -243,7 +243,7 @@ void settings::onOkButtonClick()
 	*m_pcommon_params = m_common_params;
 
 	if( ui.comboBox_GraphType->currentIndex() != -1 )
-		m_drift_view_params->graph_type = (graph_type_t)ui.comboBox_GraphType->currentIndex();
+		m_drift_view_params->graph_type = (guider::graph_type_t)ui.comboBox_GraphType->currentIndex();
 	if( ui.comboBox_DriftGraph_nx->currentIndex() != -1 )
 		m_drift_view_params->cell_nx = ui.comboBox_DriftGraph_nx->itemData( ui.comboBox_DriftGraph_nx->currentIndex() ).toInt();
 	if( ui.comboBox_DriftGraph_ny->currentIndex() != -1 )
