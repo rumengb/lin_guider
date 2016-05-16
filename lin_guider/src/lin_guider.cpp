@@ -40,6 +40,7 @@
 #include "io_atik.h"
 #include "io_sx.h"
 #include "io_asi.h"
+#include "io_skywatcher.h"
 
 #include "video.h"
 #include "video_pwc.h"
@@ -52,7 +53,6 @@
 #include "video_atik.h"
 #include "video_sx.h"
 #include "video_asi.h"
-#include "io_skywatcher.h"
 
 #include "gmath.h"
 #include "gmath_test.h"
