@@ -127,8 +127,8 @@ Vector cgmath_test::find_star_local_pos( void ) const
 	get_reticle_params( &r_x, &r_y, NULL );
 
 	double x, y;
-	x = r_x + rand()%10 - 5;
-	y = r_y + rand()%10 - 5;
+	x = r_x +5+ rand()%10 - 5;
+	y = r_y +5+ rand()%10 - 5;
 	if( x < 0 ) x = 0;
 	if( x > (double)wd-1 ) x = wd-1;
 	if( y < 0 ) y = 0;

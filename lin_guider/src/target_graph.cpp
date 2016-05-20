@@ -42,9 +42,10 @@ target_graph::~target_graph()
 
 }
 
+
 void target_graph::refresh(void)
 {
-	double k;
+	double k, data_ra, data_dec;
 	int px, py, x, y, i;
 
 	if( !m_need_refresh )
@@ -62,35 +63,44 @@ void target_graph::refresh(void)
 	// Draw points
 	m_pen.setColor( RA_COLOR );
 	m_canvas.setPen( m_pen );
+	int count_max = (m_data_len <= m_data_count) ? m_data_len : m_data_idx;
+	//log_i("%d %d %d", m_data_idx, m_data_count, count_max);
+
 	if (m_use_lines) {
-		if (m_data_idx > 0) {
-			x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][0] * k);
-			y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][0] * k);
+		if (count_max > 0) {
+			get_point(0, &data_ra, &data_dec);
+			x = m_half_buffer_size_wd - (int)(data_ra * k);
+			y = m_half_buffer_size_ht - (int)(data_dec * k);
 			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
 		}
-		for( i = 1; i < m_data_idx; i++ ) {
-			px = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i] * k);
-			py = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i] * k);
-			x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i-1] * k);
-			y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i-1] * k);
+		for( i = 1; i < count_max; i++ ) {
+			get_point(i, &data_ra, &data_dec);
+			px = m_half_buffer_size_wd - (int)(data_ra * k);
+			py = m_half_buffer_size_ht - (int)(data_dec * k);
+			get_point(i-1, &data_ra, &data_dec);
+			x = m_half_buffer_size_wd - (int)(data_ra * k);
+			y = m_half_buffer_size_ht - (int)(data_dec * k);
 			m_canvas.drawLine( px, py, x, y );
 			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
 		}
 	} else {
-		for( i = 0; i < m_data_idx; i++ ) {
-			x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i] * k);
-			y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i] * k);
+		for( i = 0; i < count_max; i++ ) {
+			get_point(i, &data_ra, &data_dec);
+			x = m_half_buffer_size_wd - (int)(data_ra * k);
+			y = m_half_buffer_size_ht - (int)(data_dec * k);
 			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
 		}
 	}
-	if (m_data_idx > 1) {
+	if (count_max > 1) {
 		// Draw the last movement
 		m_pen.setColor( DEC_COLOR );
 		m_canvas.setPen( m_pen );
-		px = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i-2] * k);
-		py = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i-2] * k);
-		x = m_half_buffer_size_wd - (int)(m_data.line[RA_LINE][i-1] * k);
-		y = m_half_buffer_size_ht - (int)(m_data.line[DEC_LINE][i-1] * k);
+		get_point(i-2, &data_ra, &data_dec);
+		px = m_half_buffer_size_wd - (int)(data_ra * k);
+		py = m_half_buffer_size_ht - (int)(data_dec * k);
+		get_point(i-1, &data_ra, &data_dec);
+		x = m_half_buffer_size_wd - (int)(data_ra * k);
+		y = m_half_buffer_size_ht - (int)(data_dec * k);
 		m_canvas.drawLine( px, py, x, y );
 		m_canvas.drawEllipse(QPointF(x, y), 5, 5);
 	}
@@ -117,7 +127,6 @@ void target_graph::draw_grid( void )
 			m_canvas.setPen( m_pen );
 			m_canvas.drawLine( 0, y, m_client_rect_wd, y );
 			m_canvas.drawLine( x, 0, x , m_client_rect_ht );
-			//m_pen.setColor( GRID_COLOR );
 			m_canvas.setPen( m_pen );
 			m_canvas.drawEllipse(QPointF(m_half_buffer_size_wd, m_half_buffer_size_ht),
 			                    (double)i*m_grid_view_step_x, (double)i*m_grid_view_step_y);

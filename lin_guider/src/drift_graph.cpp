@@ -42,9 +42,10 @@ cdrift_graph::cdrift_graph( int client_width, int client_height, int cell_nx, in
 	m_gridx_N = cell_nx;
 	m_gridy_N = cell_ny & (~1);
 
-	m_data_cnt = 10*m_gridx_N*10;
-	m_data.line[ RA_LINE ] = new double[ m_data_cnt ];
-	m_data.line[ DEC_LINE ] = new double[ m_data_cnt ];
+	m_data_len = 10*m_gridx_N*10;
+	//m_data_len =10;
+	m_data.line[ RA_LINE ] = new double[ m_data_len ];
+	m_data.line[ DEC_LINE ] = new double[ m_data_len ];
 	reset_data();
 
 	//graphics...
@@ -97,7 +98,7 @@ void cdrift_graph::init_render_vars( void )
 void cdrift_graph::set_visible_ranges( int rx, int ry )
 {
 	if( rx < 10*m_gridx_N ) rx = 10*m_gridx_N;
-	if( rx > m_data_cnt ) rx = m_data_cnt;
+	if( rx > m_data_len ) rx = m_data_len;
 
 	if( m_vis_range_x != rx )
 		m_need_refresh = true;
@@ -134,9 +135,10 @@ int cdrift_graph::get_gridy_N( void ) const
 
 void cdrift_graph::reset_data( void )
 {
-	memset( m_data.line[RA_LINE], 0, sizeof(double)*m_data_cnt );
-	memset( m_data.line[DEC_LINE], 0, sizeof(double)*m_data_cnt );
+	memset( m_data.line[RA_LINE], 0, sizeof(double)*m_data_len );
+	memset( m_data.line[DEC_LINE], 0, sizeof(double)*m_data_len );
 	m_data_idx = 0;
+	m_data_count = 0;
 	m_need_refresh = true;
 }
 
@@ -171,10 +173,31 @@ void cdrift_graph::add_point( double ra, double dec )
 	m_data.line[ DEC_LINE ][ m_data_idx ] = dec;
 
 	m_data_idx++;
+	m_data_count++;
 
-	if( m_data_idx == m_data_cnt )
+	if( m_data_idx == m_data_len )
 		m_data_idx = 0;
 
 	m_need_refresh = true;
 }
 
+
+void cdrift_graph::get_point(int index, double *data_ra, double *data_dec) {
+	index = index % m_data_len;
+	if (m_data_count > m_data_len) {
+		int offset = index + m_data_idx;
+
+		if(offset < m_data_len) {
+			*data_ra = m_data.line[RA_LINE][offset];
+			*data_dec = m_data.line[DEC_LINE][offset];
+			return;
+		} else {
+			*data_ra = m_data.line[RA_LINE][offset - m_data_len];
+			*data_dec = m_data.line[DEC_LINE][offset - m_data_len];
+			return;
+		}
+	}
+
+	*data_ra = m_data.line[RA_LINE][index];
+	*data_dec = m_data.line[DEC_LINE][index];
+}

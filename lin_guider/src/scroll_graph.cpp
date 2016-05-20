@@ -60,24 +60,24 @@ void scroll_graph::refresh( void )
 	// fill background
 	m_canvas.fillRect( 0, 0, m_client_rect_wd, m_client_rect_ht, m_brush );
 
-	start_idx = (m_data_idx + m_data_cnt - m_vis_range_x) % m_data_cnt;
+	start_idx = (m_data_idx + m_data_len - m_vis_range_x) % m_data_len;
 	// split visible region in 2 ranges
 	if( m_data_idx > start_idx ) // only 1 band
 	{
 		//band1_wd 	= m_data_idx - start_idx; // = m_vis_range_x
-		band1_start = start_idx-1;
-		band1_end	= m_data_idx-1; // -1;
+		band1_start = start_idx;
+		band1_end	= m_data_idx - 1;
 		band2_start = band2_end = band2_wd = 0;
 	}
 	else // 2 bands
 	{
 		//band1_wd 	= m_data_idx;
 		band1_start = 0;
-		band1_end 	= m_data_idx-1; //-1;
+		band1_end 	= m_data_idx - 1;
 
-		band2_wd 	= m_data_cnt - start_idx;
+		band2_wd 	= m_data_len - start_idx + 1;
 		band2_start = start_idx;
-		band2_end	= m_data_cnt-1;
+		band2_end	= m_data_len - 1;
 	}
 
 	// Rasterizing coefficients
@@ -105,7 +105,7 @@ void scroll_graph::refresh( void )
 			// process band 1
 			px = m_client_rect_wd;
 			int p_idx = band1_end;
-			if( p_idx < 0 )p_idx += m_data_cnt;
+			if( p_idx < 0 )p_idx += m_data_len;
 			py = m_half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
 
 			x = m_client_rect_wd;
@@ -160,7 +160,7 @@ void scroll_graph::refresh( void )
 			// process band 1
 			px = m_client_rect_wd;
 			int p_idx = band1_end-1;
-			if( p_idx < 0 )p_idx += m_data_cnt;
+			if( p_idx < 0 )p_idx += m_data_len;
 			py = m_half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
 
 			x = m_client_rect_wd;
@@ -204,7 +204,7 @@ void scroll_graph::draw_grid( double kx )
 	m_pen.setColor( GRID_COLOR );
 	m_canvas.setPen( m_pen );
 
-	grid_column = m_data_idx / (int)m_grid_step_x * (int)m_grid_step_x;
+	grid_column = m_data_count / (int)m_grid_step_x * (int)m_grid_step_x;
 	sx = m_client_rect_wd - (double)(m_data_idx % (int)m_grid_step_x)*kx;
 
 	for( i = 0;i < m_gridx_N;i++ )

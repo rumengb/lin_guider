@@ -37,6 +37,7 @@ public:
 	
 	QImage *get_buffer( void ) const;
 	void add_point( double ra, double dec );
+	void get_point(int index, double *data_ra, double *data_dec);
 	void set_visible_ranges( int rx, int ry );
 	void get_visible_ranges( int *rx, int *ry ) const;
 	int  get_gridx_N( void ) const;
@@ -67,8 +68,9 @@ protected:
 	
 	// data
 	delta_data_t m_data;
-	int m_data_cnt;
+	int m_data_len;
 	int	m_data_idx;
+	int m_data_count;
 	int m_gridx_N;
 	int m_gridy_N;
 	
