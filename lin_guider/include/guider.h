@@ -46,10 +46,10 @@ class guider : public QDialog
 public:
 	typedef enum
 	{
-		GRAPH_SCROLL = 0,
-		GRAPH_TARGET_POINTS,
-		GRAPH_TARGET_LINES,
-		GRPAH_MAX
+        GRAPH_SCROLL = 0,
+        GRAPH_TARGET_POINTS,
+        GRAPH_TARGET_LINES,
+        GRPAH_MAX
 	} graph_type_t;
 
 	struct drift_view_params_s

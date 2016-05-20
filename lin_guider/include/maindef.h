@@ -40,6 +40,7 @@ extern const u_char DEF_GRID_COLOR[];
 extern const u_char DEF_WHITE_COLOR[];
 extern const u_char DEF_GRID_FONT_COLOR[];
 extern const u_char DEF_RET_ORG_COLOR[];
+extern const u_char DEF_OSF_COLOR[];
 
 extern const u_char DEF_SQR_OVL_COLOR[];
 

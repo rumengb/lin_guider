@@ -49,6 +49,8 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_DriftGraph_nx->clear();
 	ui.comboBox_DriftGraph_ny->clear();
 	ui.comboBox_GraphType->clear();
+	ui.comboBox_OSFSizeX->clear();
+	ui.comboBox_OSFSizeY->clear();
 	for( int i = 0;i <= 10;i++ )
 	{
 		if( i > 1 )
@@ -62,6 +64,13 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_GraphType->addItem( QString("Scroll"), guider::GRAPH_SCROLL );
 	ui.comboBox_GraphType->addItem( QString("Target (points)"), guider::GRAPH_TARGET_POINTS );
 	ui.comboBox_GraphType->addItem( QString("Target (lines)"), guider::GRAPH_TARGET_LINES );
+
+	ui.comboBox_OSFSizeX->addItem( QString("Full"), 1.0 );
+	ui.comboBox_OSFSizeX->addItem( QString("1/2"), 0.5 );
+	ui.comboBox_OSFSizeX->addItem( QString("1/4"), 0.25 );
+	ui.comboBox_OSFSizeY->addItem( QString("Full"), 1.0 );
+	ui.comboBox_OSFSizeY->addItem( QString("1/2"), 0.5 );
+	ui.comboBox_OSFSizeY->addItem( QString("1/4"), 0.25 );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
@@ -154,6 +163,9 @@ void settings::fill_interface( void )
 			break;
 		}
 	}
+
+	ui.comboBox_OSFSizeX->setCurrentIndex( ui.comboBox_OSFSizeX->findData( m_common_params.osf_size_kx ) );
+	ui.comboBox_OSFSizeY->setCurrentIndex( ui.comboBox_OSFSizeY->findData( m_common_params.osf_size_ky ) );
 }
 
 
@@ -239,15 +251,39 @@ void settings::onOkButtonClick()
 
 	m_common_params.hfd_on = ui.checkBox_HFD_on->isChecked();
 
+	if( ui.comboBox_GraphType->currentIndex() == -1 )
+	{
+		QMessageBox::warning( this, tr("Error"), tr("Graph type - not selected"), QMessageBox::Ok );
+		return;
+	}
+	m_drift_view_params->graph_type = (guider::graph_type_t)ui.comboBox_GraphType->currentIndex();
+	if( ui.comboBox_DriftGraph_nx->currentIndex() == -1 )
+	{
+		QMessageBox::warning( this, tr("Error"), tr("X cells - not selected"), QMessageBox::Ok );
+		return;
+	}
+	m_drift_view_params->cell_nx = ui.comboBox_DriftGraph_nx->itemData( ui.comboBox_DriftGraph_nx->currentIndex() ).toInt();
+	if( ui.comboBox_DriftGraph_ny->currentIndex() == -1 )
+	{
+		QMessageBox::warning( this, tr("Error"), tr("Y cells - not selected"), QMessageBox::Ok );
+		return;
+	}
+	m_drift_view_params->cell_ny = ui.comboBox_DriftGraph_ny->itemData( ui.comboBox_DriftGraph_ny->currentIndex() ).toInt();
+	if( ui.comboBox_OSFSizeX->currentIndex() == -1 )
+	{
+		QMessageBox::warning( this, tr("Error"), tr("Subframe X - not selected"), QMessageBox::Ok );
+		return;
+	}
+	m_common_params.osf_size_kx = ui.comboBox_OSFSizeX->itemData( ui.comboBox_OSFSizeX->currentIndex() ).toDouble();
+	if( ui.comboBox_OSFSizeY->currentIndex() == -1 )
+	{
+		QMessageBox::warning( this, tr("Error"), tr("Subframe Y - not selected"), QMessageBox::Ok );
+		return;
+	}
+	m_common_params.osf_size_ky = ui.comboBox_OSFSizeY->itemData( ui.comboBox_OSFSizeY->currentIndex() ).toDouble();
+
 	// final
 	*m_pcommon_params = m_common_params;
-
-	if( ui.comboBox_GraphType->currentIndex() != -1 )
-		m_drift_view_params->graph_type = (guider::graph_type_t)ui.comboBox_GraphType->currentIndex();
-	if( ui.comboBox_DriftGraph_nx->currentIndex() != -1 )
-		m_drift_view_params->cell_nx = ui.comboBox_DriftGraph_nx->itemData( ui.comboBox_DriftGraph_nx->currentIndex() ).toInt();
-	if( ui.comboBox_DriftGraph_ny->currentIndex() != -1 )
-		m_drift_view_params->cell_ny = ui.comboBox_DriftGraph_ny->itemData( ui.comboBox_DriftGraph_ny->currentIndex() ).toInt();
 
 	close();
 }

@@ -68,8 +68,8 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	for( i = 0;q_control_mtd[i].idx != -1;i++ )
 		ui.comboBox_QualityControl->addItem( QString( q_control_mtd[i].name ) );
 
-	ui.spinBox_AccFramesRA->setMaximum( MAX_ACCUM_CNT );
-	ui.spinBox_AccFramesDEC->setMaximum( MAX_ACCUM_CNT );
+	ui.spinBox_AccFramesRA->setMaximum( cgmath::MAX_ACCUM_CNT );
+	ui.spinBox_AccFramesDEC->setMaximum( cgmath::MAX_ACCUM_CNT );
 
 	// connect ui
 	connect( ui.spinBox_XScale, 		SIGNAL(valueChanged(int)), this, SLOT(onXscaleChanged(int)) );
@@ -137,7 +137,8 @@ guider::~guider()
 
 void guider::initialize_graph()
 {
-	if( m_drift_graph ) {
+	if( m_drift_graph )
+	{
 		delete m_drift_graph;
 		m_drift_graph = NULL;
 	}
@@ -179,9 +180,8 @@ void guider::showEvent ( QShowEvent * event )
 	if( event->spontaneous() )
 		return;
 
-	if (m_prev_graph_type != m_drift_view_params->graph_type) {
+	if( m_prev_graph_type != m_drift_view_params->graph_type )
 		initialize_graph();
-	}
 
 	pmain_wnd->lock_toolbar( true );
 
@@ -267,36 +267,36 @@ void guider::fill_interface( void )
 	str = QString().setNum(info_params.fov_wd, 'f', 1) + "x" + QString().setNum(info_params.fov_ht, 'f', 1);
 	ui.l_FOV->setText( str );
 
-	ui.groupBox_DirRA->setChecked( in_params->enabled_dir[RA] );
-	ui.checkBox_DirRAPlus->setChecked( in_params->enabled_dir_sign[RA][SGN_POS] );
-	ui.checkBox_DirRAMinus->setChecked( in_params->enabled_dir_sign[RA][SGN_NEG] );
+	ui.groupBox_DirRA->setChecked( in_params->enabled_dir[cgmath::RA] );
+	ui.checkBox_DirRAPlus->setChecked( in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_POS] );
+	ui.checkBox_DirRAMinus->setChecked( in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_NEG] );
 
-	ui.groupBox_DirDEC->setChecked( in_params->enabled_dir[DEC] );
-	ui.checkBox_DirDECPlus->setChecked( in_params->enabled_dir_sign[DEC][SGN_POS] );
-	ui.checkBox_DirDECMinus->setChecked( in_params->enabled_dir_sign[DEC][SGN_NEG] );
+	ui.groupBox_DirDEC->setChecked( in_params->enabled_dir[cgmath::DEC] );
+	ui.checkBox_DirDECPlus->setChecked( in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_POS] );
+	ui.checkBox_DirDECMinus->setChecked( in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_NEG] );
 
 	ui.checkBox_AverageFrames->setChecked( in_params->average );
 
-	ui.spinBox_AccFramesRA->setValue( (int)in_params->accum_frame_cnt[RA] );
-	ui.spinBox_AccFramesDEC->setValue( (int)in_params->accum_frame_cnt[DEC] );
+	ui.spinBox_AccFramesRA->setValue( (int)in_params->accum_frame_cnt[cgmath::RA] );
+	ui.spinBox_AccFramesDEC->setValue( (int)in_params->accum_frame_cnt[cgmath::DEC] );
 
 	update_gains();
 
-	ui.spinBox_MaxPulseRA->setValue( in_params->max_pulse_length[RA] );
-	ui.spinBox_MaxPulseDEC->setValue( in_params->max_pulse_length[DEC] );
+	ui.spinBox_MaxPulseRA->setValue( in_params->max_pulse_length[cgmath::RA] );
+	ui.spinBox_MaxPulseDEC->setValue( in_params->max_pulse_length[cgmath::DEC] );
 
-	ui.spinBox_MinPulseRA->setValue( in_params->min_pulse_length[RA] );
-	ui.spinBox_MinPulseDEC->setValue( in_params->min_pulse_length[DEC] );
+	ui.spinBox_MinPulseRA->setValue( in_params->min_pulse_length[cgmath::RA] );
+	ui.spinBox_MinPulseDEC->setValue( in_params->min_pulse_length[cgmath::DEC] );
 
 
-	ui.l_DeltaRA->setText(QString().setNum(out_params->delta[RA], 'f', 2) );
-	ui.l_DeltaDEC->setText(QString().setNum(out_params->delta[DEC], 'f', 2) );
+	ui.l_DeltaRA->setText(QString().setNum(out_params->delta[cgmath::RA], 'f', 2) );
+	ui.l_DeltaDEC->setText(QString().setNum(out_params->delta[cgmath::DEC], 'f', 2) );
 
-	ui.l_PulseRA->setText(QString().setNum(out_params->pulse_length[RA]) );
-	ui.l_PulseDEC->setText(QString().setNum(out_params->pulse_length[DEC]) );
+	ui.l_PulseRA->setText(QString().setNum(out_params->pulse_length[cgmath::RA]) );
+	ui.l_PulseDEC->setText(QString().setNum(out_params->pulse_length[cgmath::DEC]) );
 
-	ui.l_ErrRA->setText( QString().setNum(out_params->sigma[RA]) );
-	ui.l_ErrDEC->setText( QString().setNum(out_params->sigma[DEC]) );
+	ui.l_ErrRA->setText( QString().setNum(out_params->sigma[cgmath::RA]) );
+	ui.l_ErrDEC->setText( QString().setNum(out_params->sigma[cgmath::DEC]) );
 
 	ui.l_Quality->setText( QString().setNum(out_params->quality, 'f', 1) );
 }
@@ -308,12 +308,12 @@ void guider::update_gains( void )
 		return;
 	const cproc_in_params *in_params = m_math->get_in_params();;
 
-	ui.spinBox_PropGainRA->setValue( in_params->normalize_gain ? in_params->proportional_gain[RA] / in_params->guiding_normal_coef : in_params->proportional_gain[RA]);
-	ui.spinBox_PropGainDEC->setValue(in_params->normalize_gain ? in_params->proportional_gain[DEC] / in_params->guiding_normal_coef : in_params->proportional_gain[DEC]);
-	ui.spinBox_IntGainRA->setValue(in_params->normalize_gain ? in_params->integral_gain[RA] / in_params->guiding_normal_coef : in_params->integral_gain[RA]);
-	ui.spinBox_IntGainDEC->setValue(in_params->normalize_gain ? in_params->integral_gain[DEC] / in_params->guiding_normal_coef : in_params->integral_gain[DEC]);
-	ui.spinBox_DerGainRA->setValue(in_params->normalize_gain ? in_params->derivative_gain[RA] / in_params->guiding_normal_coef : in_params->derivative_gain[RA]);
-	ui.spinBox_DerGainDEC->setValue(in_params->normalize_gain ? in_params->derivative_gain[DEC] / in_params->guiding_normal_coef : in_params->derivative_gain[DEC]);
+	ui.spinBox_PropGainRA->setValue( in_params->normalize_gain ? in_params->proportional_gain[cgmath::RA] / in_params->guiding_normal_coef : in_params->proportional_gain[cgmath::RA]);
+	ui.spinBox_PropGainDEC->setValue(in_params->normalize_gain ? in_params->proportional_gain[cgmath::DEC] / in_params->guiding_normal_coef : in_params->proportional_gain[cgmath::DEC]);
+	ui.spinBox_IntGainRA->setValue(in_params->normalize_gain ? in_params->integral_gain[cgmath::RA] / in_params->guiding_normal_coef : in_params->integral_gain[cgmath::RA]);
+	ui.spinBox_IntGainDEC->setValue(in_params->normalize_gain ? in_params->integral_gain[cgmath::DEC] / in_params->guiding_normal_coef : in_params->integral_gain[cgmath::DEC]);
+	ui.spinBox_DerGainRA->setValue(in_params->normalize_gain ? in_params->derivative_gain[cgmath::RA] / in_params->guiding_normal_coef : in_params->derivative_gain[cgmath::RA]);
+	ui.spinBox_DerGainDEC->setValue(in_params->normalize_gain ? in_params->derivative_gain[cgmath::DEC] / in_params->guiding_normal_coef : in_params->derivative_gain[cgmath::DEC]);
 }
 
 
@@ -455,7 +455,7 @@ void guider::onEnableDirRA( bool on )
 		return;
 
 	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir[RA] = on;
+	in_params->enabled_dir[cgmath::RA] = on;
 	m_math->calc_dir_checker();
 }
 
@@ -466,7 +466,7 @@ void guider::onEnableDirDEC( bool on )
 		return;
 
 	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir[DEC] = on;
+	in_params->enabled_dir[cgmath::DEC] = on;
 	m_math->calc_dir_checker();
 }
 
@@ -477,7 +477,7 @@ void guider::onEnableDirRAPlus( int state )
 		return;
 
 	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[RA][SGN_POS] = (state == Qt::Checked);
+	in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_POS] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -488,7 +488,7 @@ void guider::onEnableDirRAMinus( int state )
 		return;
 
 	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[RA][SGN_NEG] = (state == Qt::Checked);
+	in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_NEG] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -499,7 +499,7 @@ void guider::onEnableDirDECPlus( int state )
 		return;
 
 	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[DEC][SGN_POS] = (state == Qt::Checked);
+	in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_POS] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -510,7 +510,7 @@ void guider::onEnableDirDECMinus( int state )
 		return;
 
 	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[DEC][SGN_NEG] = (state == Qt::Checked);
+	in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_NEG] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -532,43 +532,43 @@ void guider::onInputParamChanged()
 	if( (pSB = dynamic_cast<QSpinBox *>(obj)) )
 	{
 		if( pSB == ui.spinBox_AccFramesRA )
-			in_params->accum_frame_cnt[RA] = pSB->value();
+			in_params->accum_frame_cnt[cgmath::RA] = pSB->value();
 		else
 		if( pSB == ui.spinBox_AccFramesDEC )
-			in_params->accum_frame_cnt[DEC] = pSB->value();
+			in_params->accum_frame_cnt[cgmath::DEC] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MaxPulseRA )
-			in_params->max_pulse_length[RA] = pSB->value();
+			in_params->max_pulse_length[cgmath::RA] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MaxPulseDEC )
-			in_params->max_pulse_length[DEC] = pSB->value();
+			in_params->max_pulse_length[cgmath::DEC] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MinPulseRA )
-			in_params->min_pulse_length[RA] = pSB->value();
+			in_params->min_pulse_length[cgmath::RA] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MinPulseDEC )
-			in_params->min_pulse_length[DEC] = pSB->value();
+			in_params->min_pulse_length[cgmath::DEC] = pSB->value();
 	}
 	else
 	if( (pDSB = dynamic_cast<QDoubleSpinBox *>(obj)) )
 	{
 		if( pDSB == ui.spinBox_PropGainRA )
-			in_params->proportional_gain[RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->proportional_gain[cgmath::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_PropGainDEC )
-			in_params->proportional_gain[DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->proportional_gain[cgmath::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_IntGainRA )
-			in_params->integral_gain[RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->integral_gain[cgmath::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_IntGainDEC )
-			in_params->integral_gain[DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->integral_gain[cgmath::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_DerGainRA )
-			in_params->derivative_gain[RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->derivative_gain[cgmath::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_DerGainDEC )
-			in_params->derivative_gain[DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->derivative_gain[cgmath::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.doubleSpinBox_QualityThreshold1 )
 			in_params->quality_threshold1 = pDSB->value();
@@ -652,7 +652,7 @@ void guider::guide( void )
 
 	// do pulse
 	out = m_math->get_out_params();
-	m_driver->do_pulse( out->pulse_dir[RA], out->pulse_length[RA], out->pulse_dir[DEC], out->pulse_length[DEC] );
+	m_driver->do_pulse( out->pulse_dir[cgmath::RA], out->pulse_length[cgmath::RA], out->pulse_dir[cgmath::DEC], out->pulse_length[cgmath::DEC] );
 
 	m_math->get_star_drift( &drift_x, &drift_y );
 
@@ -663,14 +663,14 @@ void guider::guide( void )
 	if( tick & 1 )
 	{
 		// draw some params in window
-		ui.l_DeltaRA->setText(str.setNum(out->delta[RA], 'f', 2) );
-		ui.l_DeltaDEC->setText(str.setNum(out->delta[DEC], 'f', 2) );
+		ui.l_DeltaRA->setText(str.setNum(out->delta[cgmath::RA], 'f', 2) );
+		ui.l_DeltaDEC->setText(str.setNum(out->delta[cgmath::DEC], 'f', 2) );
 
-		ui.l_PulseRA->setText(str.setNum(out->pulse_length[RA]) );
-		ui.l_PulseDEC->setText(str.setNum(out->pulse_length[DEC]) );
+		ui.l_PulseRA->setText(str.setNum(out->pulse_length[cgmath::RA]) );
+		ui.l_PulseDEC->setText(str.setNum(out->pulse_length[cgmath::DEC]) );
 
-		ui.l_ErrRA->setText( str.setNum(out->sigma[RA], 'f', 2) );
-		ui.l_ErrDEC->setText( str.setNum(out->sigma[DEC], 'f', 2) );
+		ui.l_ErrRA->setText( str.setNum(out->sigma[cgmath::RA], 'f', 2) );
+		ui.l_ErrDEC->setText( str.setNum(out->sigma[cgmath::DEC], 'f', 2) );
 
 		ui.l_Quality->setText( str.setNum(out->quality, 'f', 1) );
 	}

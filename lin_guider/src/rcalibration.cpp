@@ -47,7 +47,7 @@ rcalibration::rcalibration(lin_guider *parent)
 	pmath = NULL;
 
 	is_started = false;
-	axis = RA;
+	axis = cgmath::RA;
 	auto_drift_time = 25;
 	
 	start_x1 = start_y1 = 0;
@@ -362,21 +362,21 @@ void rcalibration::calibrate_reticle_manual( void )
 		pmath->clear_speed_info();
 		pmath->get_star_screen_pos( &start_x1, &start_y1 );
 		
-		axis = RA;
+		axis = cgmath::RA;
 		is_started = true;
 	}
 	else	// get end point and calc orientation
 	{
 		if( ui.checkBox_TwoAxis->checkState() == Qt::Checked )
 		{
-			if( axis == RA )
+			if( axis == cgmath::RA )
 			{
 				pmath->get_star_screen_pos( &end_x1, &end_y1 );
 				
 				start_x2 = end_x1;
 				start_y2 = end_y1;
 				
-				axis = DEC;
+				axis = cgmath::DEC;
 				
 				ui.pushButton_StartCalibration->setText( tr("Stop DEC") );
 				ui.l_RStatus->setText( tr("State: DEC drifting...") );	
@@ -496,7 +496,7 @@ void rcalibration::calibrate_reticle_by_ra( void )
 
 	ui.l_RStatus->setText( tr("State: running...") );
 
-	double phi = pmath->calc_phi( start_x1, start_y1, end_x1, end_y1 );
+	double phi = cgmath::calc_phi( start_x1, start_y1, end_x1, end_y1 );
 	Matrix ROT_Z = RotateZ( -M_PI*phi/180.0 ); // derotates...
 
 	// wait until returning
@@ -624,7 +624,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 
 		ui.l_RStatus->setText( tr("State: RA running back...") );
 
-		double phi = pmath->calc_phi( start_x1, start_y1, end_x1, end_y1 );
+		double phi = cgmath::calc_phi( start_x1, start_y1, end_x1, end_y1 );
 		Matrix ROT_Z = RotateZ( -M_PI*phi/180.0 ); // derotates...
 
 		// wait until returning
@@ -705,7 +705,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 
 		ui.l_RStatus->setText( tr("State: DEC running back...") );
 
-		double phi = pmath->calc_phi( start_x2, start_y2, end_x2, end_y2 );
+		double phi = cgmath::calc_phi( start_x2, start_y2, end_x2, end_y2 );
 		Matrix ROT_Z = RotateZ( -M_PI*phi/180.0 ); // derotates...
 
 		// wait until returning
@@ -782,7 +782,7 @@ bool rcalibration::check_start_position( void ) const
 	double cur_x, cur_y;
 	pmath->get_star_screen_pos( &cur_x, &cur_y );
 
-	return pmath->is_valid_pos( cur_x, cur_y, FIND_STAR_CLIP_EDGE );
+	return pmath->is_valid_pos( cur_x, cur_y, cgmath::FIND_STAR_CLIP_EDGE );
 }
 
 

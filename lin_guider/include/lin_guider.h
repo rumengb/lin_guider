@@ -73,7 +73,6 @@ friend class setup_driver;
 friend class guider;
 friend class rcalibration;
 friend class mrecorder;
-//friend class server;
 friend class drawer_delegate;
 
 public:
@@ -127,7 +126,7 @@ private:
 	custom_drawer *m_video_out; 	// Drawing widget
 	u_char *m_v_buf;
 	QImage  *m_video_buffer;
-	QColor SQR_OVL_COLOR, RA_COLOR, DEC_COLOR, RET_ORG_COLOR;
+	QColor SQR_OVL_COLOR, RA_COLOR, DEC_COLOR, RET_ORG_COLOR, OSF_COLOR;
 
 	video_drv::captureparams_t m_capture_params;
 	guiderparams_t  m_guider_params;
@@ -153,7 +152,7 @@ private:
 	void set_ui_params( void );
 	bool restart_server( void );
 
-	drag_object_t d_objs[2];
+	drag_object_t m_drag_objs[ ovr_params_t::OVR_DRAGGABLE_CNT ];
 	drawer_delegate *m_drawer_delegate;
 
 	conn_t *m_long_task_conn;

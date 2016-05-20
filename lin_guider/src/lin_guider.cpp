@@ -279,33 +279,33 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	scrollLayout->addWidget( scrollArea );
 
 	//math...
-	m_math = new cgmath( m_common_params );
-	//m_math = new cgmath_test( m_common_params );
+	//m_math = new cgmath( m_common_params );
+	m_math = new cgmath_test( m_common_params );
 
 	m_math->set_video_params( m_capture_params.width, m_capture_params.height );
 	m_math->set_guider_params( m_guider_params.ccd_pixel_width, m_guider_params.ccd_pixel_height, m_guider_params.aperture, m_guider_params.focal );
 	m_math->set_in_params( param_block->get_math_in_params() );
 
-
 	// attach math to all modules
 	guider_wnd->set_math( m_math );
 	reticle_wnd->set_math( m_math );
-
 
 	// apply all permanent params
 	m_video_name_label->setText( tr("Video:") + QString(m_video->get_name()) );
 	m_io_name_label->setText( tr("IO:") + QString(m_driver->get_name()) );
 
-	set_visible_overlays( ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE, true );
+	set_visible_overlays( m_math->get_default_overlay_set(), true );
 
-	memset( d_objs, 0, sizeof(d_objs) );
-	d_objs[0].type = ovr_params_t::OVR_RETICLE;
-	d_objs[1].type = ovr_params_t::OVR_SQUARE;
+	memset( m_drag_objs, 0, sizeof(m_drag_objs) );
+	m_drag_objs[0].type = ovr_params_t::OVR_RETICLE;
+	m_drag_objs[1].type = ovr_params_t::OVR_SQUARE;
+	m_drag_objs[2].type = ovr_params_t::OVR_OSF;
 
 	SQR_OVL_COLOR  = QColor( DEF_SQR_OVL_COLOR[0], DEF_SQR_OVL_COLOR[1], DEF_SQR_OVL_COLOR[2]) ;
 	RA_COLOR	   = QColor( DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2] );
 	DEC_COLOR	   = QColor( DEF_DEC_COLOR[0], DEF_DEC_COLOR[1], DEF_DEC_COLOR[2] );
 	RET_ORG_COLOR  = QColor( DEF_RET_ORG_COLOR[0], DEF_RET_ORG_COLOR[1], DEF_RET_ORG_COLOR[2] );
+	OSF_COLOR	   = QColor( DEF_OSF_COLOR[0], DEF_OSF_COLOR[1], DEF_OSF_COLOR[2] );
 
 	update_sb_video_info();
 	update_sb_io_info();
@@ -503,6 +503,8 @@ void lin_guider::onShowSettings()
 		if( !restart_server() )
 			m_net_params = old_net_params;
 	}
+	// check for a change of math
+	m_math->resize_osf( m_common_params.osf_size_kx, m_common_params.osf_size_ky );
 
 }
 
@@ -783,12 +785,11 @@ void lin_guider::onRemoteCmd( void )
 	case server::GET_DISTANCE:
 	{
 		double dx, dy;
-		int res = m_math->get_distance(&dx, &dy);
-		if (res < 0) {
+		int res = m_math->get_distance( &dx, &dy );
+		if( res < 0 )
 			answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
-		} else {
-			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dx,dy);
-		}
+		else
+			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dx,dy );
 	}
 	break;
 	default:
@@ -839,29 +840,47 @@ bool lin_guider::activate_drag_object( int x, int y )
 {
  	ovr_params_t *povr = m_math->prepare_overlays();
 
- 	for( int i = 0;i < 2;i++ )
+ 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
  	{
- 		if( d_objs[i].type == ovr_params_t::OVR_SQUARE ) // square
+ 		if( m_drag_objs[i].type == ovr_params_t::OVR_SQUARE ) // square
  		{
- 			if( !(povr->visible & ovr_params_t::OVR_SQUARE) )
+ 			if( !(povr->visible & ovr_params_t::OVR_SQUARE) ||
+ 				(povr->locked & ovr_params_t::OVR_SQUARE) )
  				continue;
  			if( x > povr->square_pos.x && x < povr->square_pos.x+povr->square_size )
  				if( y > povr->square_pos.y && y < povr->square_pos.y+povr->square_size )
  				{
- 					d_objs[i].active = true;
+ 					m_drag_objs[i].active = true;
  					m_math->suspend( true );
  					return true;
  				}
  		}
  		else
-		if( d_objs[i].type == ovr_params_t::OVR_RETICLE ) // square
+		if( m_drag_objs[i].type == ovr_params_t::OVR_RETICLE ) // reticle
 		{
-			if( !(povr->visible & ovr_params_t::OVR_RETICLE) || !reticle_wnd->isVisible() )
+			if( !(povr->visible & ovr_params_t::OVR_RETICLE) ||
+				(povr->locked & ovr_params_t::OVR_RETICLE) ||
+				!reticle_wnd->isVisible() )
 				continue;
 			if( x > povr->reticle_pos.x - 4 && x < povr->reticle_pos.x + 4 )
 				if( y > povr->reticle_pos.y - 4 && y < povr->reticle_pos.y + 4 )
 				{
-					d_objs[i].active = true;
+					m_drag_objs[i].active = true;
+					return true;
+				}
+		}
+		else
+		if( m_drag_objs[i].type == ovr_params_t::OVR_OSF ) // optional subframe
+		{
+			if( !(povr->visible & ovr_params_t::OVR_OSF) ||
+				(povr->locked & ovr_params_t::OVR_OSF) ||
+				guider_wnd->isVisible() )
+				continue;
+			if( x > povr->osf_pos.x && x < povr->osf_pos.x+povr->osf_size.x )
+				if( y > povr->osf_pos.y && y < povr->osf_pos.y+povr->osf_size.y )
+				{
+					m_drag_objs[i].active = true;
+					m_math->suspend( true );
 					return true;
 				}
 		}
@@ -873,13 +892,13 @@ bool lin_guider::activate_drag_object( int x, int y )
 
 bool lin_guider::deactivate_drag_object( int x, int y )
 {
-	for( int i = 0;i < 2;i++ )
-	 	if( d_objs[i].active )
+	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
+	 	if( m_drag_objs[i].active )
 	 	{
-	 		if( d_objs[i].type == ovr_params_t::OVR_RETICLE )
+	 		if( m_drag_objs[i].type == ovr_params_t::OVR_RETICLE )
 	 			reticle_wnd->update_reticle_pos( (double)x, (double)y );
 
-	 		d_objs[i].active = false;
+	 		m_drag_objs[i].active = false;
 	 		m_math->suspend( false );
 	 		return true;
 	 	}
@@ -893,22 +912,29 @@ void lin_guider::move_drag_object( int x, int y )
 	bool upd = false;
 	ovr_params_t *povr = m_math->prepare_overlays();
 
-	for( int i = 0;i < 2;i++ )
+	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
 	{
-		if( d_objs[i].active )  // lets move object
+		if( m_drag_objs[i].active )  // lets move object
 		{
-			if( d_objs[i].type == ovr_params_t::OVR_SQUARE )
+			if( m_drag_objs[i].type == ovr_params_t::OVR_SQUARE )
 			{
 				m_math->move_square( (double)(x - povr->square_size/2), (double)(y - povr->square_size/2) );
 				upd = true;
 				break;
 			}
 			else
-			if( d_objs[i].type == ovr_params_t::OVR_RETICLE )
+			if( m_drag_objs[i].type == ovr_params_t::OVR_RETICLE )
 			{
 				double rx, ry, rang;
 				m_math->get_reticle_params( &rx, &ry, &rang );
 				m_math->set_reticle_params( (double)x, (double)y, rang );
+				upd = true;
+				break;
+			}
+			else
+			if( m_drag_objs[i].type == ovr_params_t::OVR_OSF )
+			{
+				m_math->move_osf( (double)(x - povr->osf_size.x/2), (double)(y - povr->osf_size.y/2) );
 				upd = true;
 				break;
 			}
@@ -923,6 +949,11 @@ void lin_guider::draw_overlays( QPainter &painter )
 {
 	ovr_params_t *povr = m_math->prepare_overlays();
 
+	if( povr->visible & ovr_params_t::OVR_OSF )
+	{
+		painter.setPen( OSF_COLOR );
+		painter.drawRect( povr->osf_pos.x, povr->osf_pos.y, povr->osf_size.x, povr->osf_size.y );
+	}
 	if( povr->visible & ovr_params_t::OVR_RETICLE_ORG )
 	{
 		painter.setPen( RET_ORG_COLOR );

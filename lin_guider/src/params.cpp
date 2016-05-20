@@ -143,29 +143,29 @@ bool params::load( void )
 		m_math_in_params.q_control_idx = settings.value( "q_control_idx", 0 ).toInt();
 		m_math_in_params.quality_threshold1 = settings.value( "quality_threshold1", 50 ).toDouble(&ok);
 		m_math_in_params.quality_threshold2 = settings.value( "quality_threshold2", 15 ).toDouble(&ok);
-		m_math_in_params.stability_limit_factor = settings.value( "stability_limit_factor", STABILITY_LIMIT_FACTOR ).toDouble(&ok);
+		m_math_in_params.stability_limit_factor = settings.value( "stability_limit_factor", cgmath::STABILITY_LIMIT_FACTOR ).toDouble(&ok);
 		m_math_in_params.guiding_rate = settings.value( "guiding_rate" ).toDouble(&ok);
 		m_math_in_params.guiding_normal_coef = cgmath::precalc_proportional_gain(m_math_in_params.guiding_rate);
 		m_math_in_params.normalize_gain = settings.value( "normalize_gain" ).toBool();
-		m_math_in_params.enabled_dir[RA] = settings.value( "enabled_RA", true ).toBool();
-		m_math_in_params.enabled_dir[DEC] = settings.value( "enabled_DEC", true ).toBool();
-		m_math_in_params.enabled_dir_sign[RA][SGN_POS] = settings.value( "enabled_RA+", true ).toBool();
-		m_math_in_params.enabled_dir_sign[RA][SGN_NEG] = settings.value( "enabled_RA-", true ).toBool();
-		m_math_in_params.enabled_dir_sign[DEC][SGN_POS] = settings.value( "enabled_DEC+", true ).toBool();
-		m_math_in_params.enabled_dir_sign[DEC][SGN_NEG] = settings.value( "enabled_DEC-", true ).toBool();
+		m_math_in_params.enabled_dir[cgmath::RA] = settings.value( "enabled_RA", true ).toBool();
+		m_math_in_params.enabled_dir[cgmath::DEC] = settings.value( "enabled_DEC", true ).toBool();
+		m_math_in_params.enabled_dir_sign[cgmath::RA][cgmath::SGN_POS] = settings.value( "enabled_RA+", true ).toBool();
+		m_math_in_params.enabled_dir_sign[cgmath::RA][cgmath::SGN_NEG] = settings.value( "enabled_RA-", true ).toBool();
+		m_math_in_params.enabled_dir_sign[cgmath::DEC][cgmath::SGN_POS] = settings.value( "enabled_DEC+", true ).toBool();
+		m_math_in_params.enabled_dir_sign[cgmath::DEC][cgmath::SGN_NEG] = settings.value( "enabled_DEC-", true ).toBool();
 		m_math_in_params.average = settings.value( "average", true ).toBool();
-		m_math_in_params.accum_frame_cnt[RA] = settings.value( "accum_frame_cnt_RA", 1 ).toInt(&ok);
-		m_math_in_params.accum_frame_cnt[DEC] = settings.value( "accum_frame_cnt_DEC", 1 ).toInt(&ok);
-		m_math_in_params.proportional_gain[RA] = settings.value( "proportional_gain_RA" ).toDouble(&ok);
-		m_math_in_params.proportional_gain[DEC] = settings.value( "proportional_gain_DEC" ).toDouble(&ok);
-		m_math_in_params.integral_gain[RA] = settings.value( "integral_gain_RA" ).toDouble(&ok);
-		m_math_in_params.integral_gain[DEC] = settings.value( "integral_gain_DEC" ).toDouble(&ok);
-		m_math_in_params.derivative_gain[RA] = settings.value( "derivative_gain_RA" ).toDouble(&ok);
-		m_math_in_params.derivative_gain[DEC] = settings.value( "derivative_gain_DEC" ).toDouble(&ok);
-		m_math_in_params.max_pulse_length[RA] = settings.value( "max_pulse_length_RA" ).toInt(&ok);
-		m_math_in_params.max_pulse_length[DEC] = settings.value( "max_pulse_length_DEC" ).toInt(&ok);
-		m_math_in_params.min_pulse_length[RA] = settings.value( "min_pulse_length_RA" ).toInt(&ok);
-		m_math_in_params.min_pulse_length[DEC] = settings.value( "min_pulse_length_DEC" ).toInt(&ok);
+		m_math_in_params.accum_frame_cnt[cgmath::RA] = settings.value( "accum_frame_cnt_RA", 1 ).toInt(&ok);
+		m_math_in_params.accum_frame_cnt[cgmath::DEC] = settings.value( "accum_frame_cnt_DEC", 1 ).toInt(&ok);
+		m_math_in_params.proportional_gain[cgmath::RA] = settings.value( "proportional_gain_RA" ).toDouble(&ok);
+		m_math_in_params.proportional_gain[cgmath::DEC] = settings.value( "proportional_gain_DEC" ).toDouble(&ok);
+		m_math_in_params.integral_gain[cgmath::RA] = settings.value( "integral_gain_RA" ).toDouble(&ok);
+		m_math_in_params.integral_gain[cgmath::DEC] = settings.value( "integral_gain_DEC" ).toDouble(&ok);
+		m_math_in_params.derivative_gain[cgmath::RA] = settings.value( "derivative_gain_RA" ).toDouble(&ok);
+		m_math_in_params.derivative_gain[cgmath::DEC] = settings.value( "derivative_gain_DEC" ).toDouble(&ok);
+		m_math_in_params.max_pulse_length[cgmath::RA] = settings.value( "max_pulse_length_RA" ).toInt(&ok);
+		m_math_in_params.max_pulse_length[cgmath::DEC] = settings.value( "max_pulse_length_DEC" ).toInt(&ok);
+		m_math_in_params.min_pulse_length[cgmath::RA] = settings.value( "min_pulse_length_RA" ).toInt(&ok);
+		m_math_in_params.min_pulse_length[cgmath::DEC] = settings.value( "min_pulse_length_DEC" ).toInt(&ok);
 	settings.endGroup();
 
 	// capture params
@@ -251,8 +251,10 @@ bool params::load( void )
 		m_common_params.dithering_rest_tout = settings.value( "dithering_rest_tout", 3 ).toInt();
 		DBG_VERBOSITY = settings.value( "dbg_verbosity", false ).toBool();
 		m_common_params.hfd_on = settings.value( "hfd_on", false ).toBool();
-		m_common_params.square_index = settings.value( "square_index", DEFAULT_SQR ).toInt();
+		m_common_params.square_index = settings.value( "square_index", cgmath::DEFAULT_SQR ).toInt();
 		m_common_params.reticle_angle = settings.value( "reticle_angle", 0 ).toDouble(&ok);
+		m_common_params.osf_size_kx = settings.value( "osf_size_kx", 1 ).toDouble(&ok);
+		m_common_params.osf_size_ky = settings.value( "osf_size_ky", 1 ).toDouble(&ok);
 	settings.endGroup();
 
 	// drift view
@@ -315,25 +317,25 @@ bool params::save( void )
 		settings.setValue( "stability_limit_factor", m_math_in_params.stability_limit_factor );
 		settings.setValue( "guiding_rate", m_math_in_params.guiding_rate );
 		settings.setValue( "normalize_gain", m_math_in_params.normalize_gain );
-		settings.setValue( "enabled_RA", m_math_in_params.enabled_dir[RA] );
-		settings.setValue( "enabled_DEC", m_math_in_params.enabled_dir[DEC] );
-		settings.setValue( "enabled_RA+", m_math_in_params.enabled_dir_sign[RA][SGN_POS] );
-		settings.setValue( "enabled_RA-", m_math_in_params.enabled_dir_sign[RA][SGN_NEG] );
-		settings.setValue( "enabled_DEC+", m_math_in_params.enabled_dir_sign[DEC][SGN_POS] );
-		settings.setValue( "enabled_DEC-", m_math_in_params.enabled_dir_sign[DEC][SGN_NEG] );
+		settings.setValue( "enabled_RA", m_math_in_params.enabled_dir[cgmath::RA] );
+		settings.setValue( "enabled_DEC", m_math_in_params.enabled_dir[cgmath::DEC] );
+		settings.setValue( "enabled_RA+", m_math_in_params.enabled_dir_sign[cgmath::RA][cgmath::SGN_POS] );
+		settings.setValue( "enabled_RA-", m_math_in_params.enabled_dir_sign[cgmath::RA][cgmath::SGN_NEG] );
+		settings.setValue( "enabled_DEC+", m_math_in_params.enabled_dir_sign[cgmath::DEC][cgmath::SGN_POS] );
+		settings.setValue( "enabled_DEC-", m_math_in_params.enabled_dir_sign[cgmath::DEC][cgmath::SGN_NEG] );
 		settings.setValue( "average", m_math_in_params.average );
-		settings.setValue( "accum_frame_cnt_RA", (unsigned)m_math_in_params.accum_frame_cnt[RA] );
-		settings.setValue( "accum_frame_cnt_DEC", (unsigned)m_math_in_params.accum_frame_cnt[DEC] );
-		settings.setValue( "proportional_gain_RA", m_math_in_params.proportional_gain[RA] );
-		settings.setValue( "proportional_gain_DEC", m_math_in_params.proportional_gain[DEC] );
-		settings.setValue( "integral_gain_RA", m_math_in_params.integral_gain[RA] );
-		settings.setValue( "integral_gain_DEC", m_math_in_params.integral_gain[DEC] );
-		settings.setValue( "derivative_gain_RA", m_math_in_params.derivative_gain[RA] );
-		settings.setValue( "derivative_gain_DEC", m_math_in_params.derivative_gain[DEC] );
-		settings.setValue( "max_pulse_length_RA", m_math_in_params.max_pulse_length[RA] );
-		settings.setValue( "max_pulse_length_DEC", m_math_in_params.max_pulse_length[DEC] );
-		settings.setValue( "min_pulse_length_RA", m_math_in_params.min_pulse_length[RA] );
-		settings.setValue( "min_pulse_length_DEC", m_math_in_params.min_pulse_length[DEC] );
+		settings.setValue( "accum_frame_cnt_RA", (unsigned)m_math_in_params.accum_frame_cnt[cgmath::RA] );
+		settings.setValue( "accum_frame_cnt_DEC", (unsigned)m_math_in_params.accum_frame_cnt[cgmath::DEC] );
+		settings.setValue( "proportional_gain_RA", m_math_in_params.proportional_gain[cgmath::RA] );
+		settings.setValue( "proportional_gain_DEC", m_math_in_params.proportional_gain[cgmath::DEC] );
+		settings.setValue( "integral_gain_RA", m_math_in_params.integral_gain[cgmath::RA] );
+		settings.setValue( "integral_gain_DEC", m_math_in_params.integral_gain[cgmath::DEC] );
+		settings.setValue( "derivative_gain_RA", m_math_in_params.derivative_gain[cgmath::RA] );
+		settings.setValue( "derivative_gain_DEC", m_math_in_params.derivative_gain[cgmath::DEC] );
+		settings.setValue( "max_pulse_length_RA", m_math_in_params.max_pulse_length[cgmath::RA] );
+		settings.setValue( "max_pulse_length_DEC", m_math_in_params.max_pulse_length[cgmath::DEC] );
+		settings.setValue( "min_pulse_length_RA", m_math_in_params.min_pulse_length[cgmath::RA] );
+		settings.setValue( "min_pulse_length_DEC", m_math_in_params.min_pulse_length[cgmath::DEC] );
 	settings.endGroup();
 
 	// capture params
@@ -426,6 +428,8 @@ bool params::save( void )
 		settings.setValue( "hfd_on", m_common_params.hfd_on );
 		settings.setValue( "square_index", m_common_params.square_index );
 		settings.setValue( "reticle_angle", m_common_params.reticle_angle );
+		settings.setValue( "osf_size_kx", m_common_params.osf_size_kx );
+		settings.setValue( "osf_size_ky", m_common_params.osf_size_ky );
 	settings.endGroup();
 
 	// drift view

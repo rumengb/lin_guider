@@ -115,8 +115,11 @@ public:
 		dithering_rest_tout( 3 ),
 
 		hfd_on( false ),
-		square_index( DEFAULT_SQR ),
-		reticle_angle(0)
+		square_index( cgmath::DEFAULT_SQR ),
+		reticle_angle( 0 ),
+
+		osf_size_kx( 1.0 ),
+		osf_size_ky( 1.0 )
 	{
 	}
 
@@ -132,6 +135,9 @@ public:
 	bool hfd_on;
 	int square_index;
 	double reticle_angle;
+
+	double osf_size_kx;
+	double osf_size_ky;
 
 };
 

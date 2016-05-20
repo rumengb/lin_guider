@@ -67,59 +67,59 @@ cgmath::cgmath( const common_params &comm_params ) :
 	m_common_params( comm_params )
 {
 	// sys...
-	ticks = 0;
-	pdata = NULL;
-	video_width  = -1;
-	video_height = -1;
-	ccd_pixel_width  = 0;
-	ccd_pixel_height = 0;
-	focal = 1;
-	ROT_Z = Matrix(0);
-	preview_mode = true;
-	suspended	 = false;
+	m_ticks = 0;
+	m_pdata = NULL;
+	m_video_width  = -1;
+	m_video_height = -1;
+	m_ccd_pixel_width  = 0;
+	m_ccd_pixel_height = 0;
+	m_focal = 1;
+	m_ROT_Z = Matrix(0);
+	m_preview_mode = true;
+	m_suspended	 = false;
 
 	// square variables
-	square_idx = fix_square_index( m_common_params.square_index );
-	square_alg_idx	= SMART_THRESHOLD;
-	square_size		= guide_squares[square_idx].size;
-	square_square 	= guide_squares[square_idx].square;
-	square_pos 	 = Vector(0);
+	m_square_idx     = fix_square_index( m_common_params.square_index );
+	m_square_alg_idx = SMART_THRESHOLD;
+	m_square_size	 = guide_squares[m_square_idx].size;
+	m_square_square  = guide_squares[m_square_idx].square;
+	m_square_pos 	 = Vector(0);
 
 	// sky coord. system vars.
-	star_pos 	 	= Vector(0);
-	scr_star_pos	= Vector(0);
-	reticle_pos 	= Vector(0);
-	reticle_org     = Vector(0);
-	reticle_orts[0] = Vector(0);
-	reticle_orts[1] = Vector(0);
-	reticle_angle	= 0;
+	m_star_pos 	 	  = Vector(0);
+	m_scr_star_pos	  = Vector(0);
+	m_reticle_pos 	  = Vector(0);
+	m_reticle_org     = Vector(0);
+	m_reticle_orts[0] = Vector(0);
+	m_reticle_orts[1] = Vector(0);
+	m_reticle_angle	  = 0;
 
 	// overlays
-	memset( &overlays, 0, sizeof(overlays) );
+	memset( &m_overlays, 0, sizeof(m_overlays) );
 
 	// processing
-	in_params.reset();
-	out_params.reset();
-	channel_ticks[RA] = channel_ticks[DEC] = 0;
-	accum_ticks[RA] = accum_ticks[DEC] = 0;
-	drift[RA]  = new double[MAX_ACCUM_CNT];
-	drift[DEC] = new double[MAX_ACCUM_CNT];
-	memset( drift[RA], 0, sizeof(double)*MAX_ACCUM_CNT );
-	memset( drift[DEC], 0, sizeof(double)*MAX_ACCUM_CNT );
-	drift_integral[RA] = drift_integral[DEC] = 0;
+	m_in_params.reset();
+	m_out_params.reset();
+	m_channel_ticks[RA] = m_channel_ticks[DEC] = 0;
+	m_accum_ticks[RA]   = m_accum_ticks[DEC]   = 0;
+	m_drift[RA]  = new double[MAX_ACCUM_CNT];
+	m_drift[DEC] = new double[MAX_ACCUM_CNT];
+	memset( m_drift[RA], 0, sizeof(double)*MAX_ACCUM_CNT );
+	memset( m_drift[DEC], 0, sizeof(double)*MAX_ACCUM_CNT );
+	m_drift_integral[RA] = m_drift_integral[DEC] = 0;
 
 	calc_dir_checker();
 
 	// statistics
-	do_statistics = true;
-	sum = sqr_sum = 0;
-	delta_prev = sigma_prev = sigma = 0;
+	m_do_statistics = true;
+	m_sum = m_sqr_sum = 0;
+	m_delta_prev = m_sigma_prev = m_sigma = 0;
 
 	// quality estimation
-	q_star_max = 0;
-	q_bkgd = 0;
-	memset( q_stat, 0, sizeof(double)*q_stat_len );
-	q_control_idx = Q_CTRL_OFF;
+	m_q_star_max = 0;
+	m_q_bkgd = 0;
+	memset( m_q_stat, 0, sizeof(double)*q_stat_len );
+	m_q_control_idx = Q_CTRL_OFF;
 
 	// info
 	m_ra_drift_v  = 0;
@@ -133,10 +133,10 @@ cgmath::cgmath( const common_params &comm_params ) :
 
 cgmath::~cgmath()
 {
-	delete [] drift[RA];
-	delete [] drift[DEC];
+	delete [] m_drift[RA];
+	delete [] m_drift[DEC];
 
-	delete [] pdata;
+	delete [] m_pdata;
 
 	hfd_destroy();
 }
@@ -147,15 +147,15 @@ bool cgmath::set_video_params( int vid_wd, int vid_ht )
 	if( vid_wd <= 0 || vid_ht <= 0 )
 		return false;
 
-	if( pdata )
-		delete [] pdata;
-	pdata = new double[ vid_wd*vid_ht ];
-	memset( pdata, 0, vid_wd*vid_ht*sizeof(double) );
+	if( m_pdata )
+		delete [] m_pdata;
+	m_pdata = new double[ vid_wd*vid_ht ];
+	memset( m_pdata, 0, vid_wd*vid_ht*sizeof(double) );
 
-	video_width  = vid_wd;
-	video_height = vid_ht;
+	m_video_width  = vid_wd;
+	m_video_height = vid_ht;
 
-	set_reticle_params( video_width/2, video_height/2, m_common_params.reticle_angle );
+	set_reticle_params( m_video_width/2, m_video_height/2, m_common_params.reticle_angle );
 
 	return true;
 }
@@ -164,15 +164,15 @@ bool cgmath::set_video_params( int vid_wd, int vid_ht )
 double *cgmath::get_data_buffer( int *width, int *height, int *length, int *size ) const
 {
 	if( width )
-		*width = video_width;
+		*width = m_video_width;
 	if( height )
-		*height = video_height;
+		*height = m_video_height;
 	if( length )
-		*length = video_width * video_height;
+		*length = m_video_width * m_video_height;
 	if( size )
-		*size = video_width * video_height * sizeof(double);
+		*size = m_video_width * m_video_height * sizeof(double);
 
-	return pdata;
+	return m_pdata;
 }
 
 
@@ -185,10 +185,10 @@ bool cgmath::set_guider_params( double ccd_pix_wd, double ccd_pix_ht, double gui
 	if( guider_focal <= 0 )
 		guider_focal = 1;
 
-	ccd_pixel_width		= ccd_pix_wd / 1000.0; // from mkm to mm
-	ccd_pixel_height	= ccd_pix_ht / 1000.0; // from mkm to mm
-	aperture			= guider_aperture;
-	focal 				= guider_focal;
+	m_ccd_pixel_width  = ccd_pix_wd / 1000.0; // from mkm to mm
+	m_ccd_pixel_height = ccd_pix_ht / 1000.0; // from mkm to mm
+	m_aperture		   = guider_aperture;
+	m_focal 		   = guider_focal;
 
 	return true;
 }
@@ -201,33 +201,33 @@ bool cgmath::set_reticle_params( double x, double y, double ang )
  		x = 0;
  	if( y < 0 )
  		y = 0;
- 	if( x >= (double)video_width-1 )
- 		x = (double)video_width-1;
- 	if( y >= (double)video_height-1 )
- 		y = (double)video_height-1;
+ 	if( x >= (double)m_video_width-1 )
+ 		x = (double)m_video_width-1;
+ 	if( y >= (double)m_video_height-1 )
+ 		y = (double)m_video_height-1;
 
-	reticle_pos = reticle_org = Vector( x, y, 0 );
+	m_reticle_pos = m_reticle_org = Vector( x, y, 0 );
 
 	if( ang >= 0 )
-		reticle_angle = ang;
+		m_reticle_angle = ang;
 
-	ROT_Z = RotateZ( -M_PI*reticle_angle/180.0 ); // NOTE!!! sing '-' derotates star coordinate system
+	m_ROT_Z = RotateZ( -M_PI*m_reticle_angle/180.0 ); // NOTE!!! sing '-' derotates star coordinate system
 
-	reticle_orts[0] = Vector(1, 0, 0) * 100;
-	reticle_orts[1] = Vector(0, 1, 0) * 100;
+	m_reticle_orts[0] = Vector(1, 0, 0) * 100;
+	m_reticle_orts[1] = Vector(0, 1, 0) * 100;
 
-	reticle_orts[0] = reticle_orts[0] * ROT_Z;
-	reticle_orts[1] = reticle_orts[1] * ROT_Z;
+	m_reticle_orts[0] = m_reticle_orts[0] * m_ROT_Z;
+	m_reticle_orts[1] = m_reticle_orts[1] * m_ROT_Z;
 
 	// lets position static overlay
-	overlays.reticle_axis_ra.x = reticle_orts[0].x;
-	overlays.reticle_axis_ra.y = reticle_orts[0].y;
+	m_overlays.reticle_axis_ra.x = m_reticle_orts[0].x;
+	m_overlays.reticle_axis_ra.y = m_reticle_orts[0].y;
 
-	overlays.reticle_axis_dec.x = -reticle_orts[1].x;
-	overlays.reticle_axis_dec.y = -reticle_orts[1].y;	// invert y-axis
+	m_overlays.reticle_axis_dec.x = -m_reticle_orts[1].x;
+	m_overlays.reticle_axis_dec.y = -m_reticle_orts[1].y;	// invert y-axis
 
-	overlays.reticle_pos.x = overlays.reticle_org.x = reticle_pos.x;
-	overlays.reticle_pos.y = overlays.reticle_org.y = reticle_pos.y;
+	m_overlays.reticle_pos.x = m_overlays.reticle_org.x = m_reticle_pos.x;
+	m_overlays.reticle_pos.y = m_overlays.reticle_org.y = m_reticle_pos.y;
 
  	return true;
 }
@@ -236,11 +236,11 @@ bool cgmath::set_reticle_params( double x, double y, double ang )
 bool cgmath::get_reticle_params( double *x, double *y, double *ang ) const
 {
 	if( x )
-		*x = reticle_pos.x;
+		*x = m_reticle_pos.x;
 	if( y )
-		*y = reticle_pos.y;
+		*y = m_reticle_pos.y;
 	if( ang )
-		*ang = reticle_angle;
+		*ang = m_reticle_angle;
 
 	return true;
 }
@@ -257,20 +257,20 @@ int  cgmath::fix_square_index( int square_index ) const
 
 int  cgmath::get_square_index( void ) const
 {
-	return square_idx;
+	return m_square_idx;
 }
 
 
 int  cgmath::get_square_algorithm_index( void ) const
 {
-	return square_alg_idx;
+	return m_square_alg_idx;
 }
 
 
 
 cproc_in_params * cgmath::get_in_params( void )
 {
-	return &in_params;
+	return &m_in_params;
 }
 
 
@@ -278,64 +278,64 @@ void cgmath::set_in_params( const cproc_in_params *v )
 {
 	//in_params.threshold_alg_idx     = v->threshold_alg_idx;
 	set_square_algorithm_index( v->threshold_alg_idx );
-	in_params.guiding_rate 			         	= v->guiding_rate;
-	in_params.guiding_normal_coef		     	= cgmath::precalc_proportional_gain(v->guiding_rate);
-	in_params.normalize_gain		         	= v->normalize_gain;
-	in_params.enabled_dir[RA] 		         	= v->enabled_dir[RA];
-	in_params.enabled_dir[DEC]		         	= v->enabled_dir[DEC];
-	in_params.enabled_dir_sign[RA][SGN_POS]	 	= v->enabled_dir_sign[RA][SGN_POS];
-	in_params.enabled_dir_sign[RA][SGN_NEG]	 	= v->enabled_dir_sign[RA][SGN_NEG];
-	in_params.enabled_dir_sign[DEC][SGN_POS] 	= v->enabled_dir_sign[DEC][SGN_POS];
-	in_params.enabled_dir_sign[DEC][SGN_NEG]	= v->enabled_dir_sign[DEC][SGN_NEG];
+	m_in_params.guiding_rate 			         	= v->guiding_rate;
+	m_in_params.guiding_normal_coef		       = cgmath::precalc_proportional_gain(v->guiding_rate);
+	m_in_params.normalize_gain		           = v->normalize_gain;
+	m_in_params.enabled_dir[RA] 		       = v->enabled_dir[RA];
+	m_in_params.enabled_dir[DEC]		       = v->enabled_dir[DEC];
+	m_in_params.enabled_dir_sign[RA][SGN_POS]  = v->enabled_dir_sign[RA][SGN_POS];
+	m_in_params.enabled_dir_sign[RA][SGN_NEG]  = v->enabled_dir_sign[RA][SGN_NEG];
+	m_in_params.enabled_dir_sign[DEC][SGN_POS] = v->enabled_dir_sign[DEC][SGN_POS];
+	m_in_params.enabled_dir_sign[DEC][SGN_NEG] = v->enabled_dir_sign[DEC][SGN_NEG];
 	calc_dir_checker();
-	in_params.average 							= v->average;
-	in_params.accum_frame_cnt[RA] 				= v->accum_frame_cnt[RA];
-	in_params.accum_frame_cnt[DEC] 				= v->accum_frame_cnt[DEC];
-	in_params.proportional_gain[RA]  			= v->proportional_gain[RA];
-	in_params.proportional_gain[DEC] 			= v->proportional_gain[DEC];
-	in_params.integral_gain[RA] 				= v->integral_gain[RA];
-	in_params.integral_gain[DEC] 				= v->integral_gain[DEC];
-	in_params.derivative_gain[RA] 				= v->derivative_gain[RA];
-	in_params.derivative_gain[DEC] 				= v->derivative_gain[DEC];
-	in_params.max_pulse_length[RA] 				= v->max_pulse_length[RA];
-	in_params.max_pulse_length[DEC] 			= v->max_pulse_length[DEC];
-	in_params.min_pulse_length[RA]				= v->min_pulse_length[RA];
-	in_params.min_pulse_length[DEC]				= v->min_pulse_length[DEC];
+	m_in_params.average 				       = v->average;
+	m_in_params.accum_frame_cnt[RA] 		   = v->accum_frame_cnt[RA];
+	m_in_params.accum_frame_cnt[DEC] 		   = v->accum_frame_cnt[DEC];
+	m_in_params.proportional_gain[RA]  		   = v->proportional_gain[RA];
+	m_in_params.proportional_gain[DEC] 		   = v->proportional_gain[DEC];
+	m_in_params.integral_gain[RA] 			   = v->integral_gain[RA];
+	m_in_params.integral_gain[DEC] 			   = v->integral_gain[DEC];
+	m_in_params.derivative_gain[RA] 		   = v->derivative_gain[RA];
+	m_in_params.derivative_gain[DEC] 		   = v->derivative_gain[DEC];
+	m_in_params.max_pulse_length[RA] 		   = v->max_pulse_length[RA];
+	m_in_params.max_pulse_length[DEC] 		   = v->max_pulse_length[DEC];
+	m_in_params.min_pulse_length[RA]		   = v->min_pulse_length[RA];
+	m_in_params.min_pulse_length[DEC]		   = v->min_pulse_length[DEC];
 	set_q_control_index( v->q_control_idx );
-	in_params.quality_threshold1    = v->quality_threshold1;
-	in_params.quality_threshold2    = v->quality_threshold2;
-	in_params.stability_limit_factor = v->stability_limit_factor;
+	m_in_params.quality_threshold1             = v->quality_threshold1;
+	m_in_params.quality_threshold2             = v->quality_threshold2;
+	m_in_params.stability_limit_factor         = v->stability_limit_factor;
 	// need to check ranges (range values are Sigmas, so may be hardcoded)
-	if( in_params.stability_limit_factor < 1.0 ) in_params.stability_limit_factor = 1.0;
-	if( in_params.stability_limit_factor > 3.0 ) in_params.stability_limit_factor = 3.0;
+	if( m_in_params.stability_limit_factor < 1.0 ) m_in_params.stability_limit_factor = 1.0;
+	if( m_in_params.stability_limit_factor > 3.0 ) m_in_params.stability_limit_factor = 3.0;
 }
 
 
 void cgmath::calc_dir_checker( void )
 {
-	dir_checker[ io_drv::NO_DIR ] = io_drv::NO_DIR;
+	m_dir_checker[ io_drv::NO_DIR ] = io_drv::NO_DIR;
 
-	if( in_params.enabled_dir[RA] )
+	if( m_in_params.enabled_dir[RA] )
 	{
-		dir_checker[ io_drv::RA_INC_DIR ] = in_params.enabled_dir_sign[RA][SGN_POS] ? io_drv::RA_INC_DIR : io_drv::NO_DIR;
-		dir_checker[ io_drv::RA_DEC_DIR ] = in_params.enabled_dir_sign[RA][SGN_NEG] ? io_drv::RA_DEC_DIR : io_drv::NO_DIR;
+		m_dir_checker[ io_drv::RA_INC_DIR ] = m_in_params.enabled_dir_sign[RA][SGN_POS] ? io_drv::RA_INC_DIR : io_drv::NO_DIR;
+		m_dir_checker[ io_drv::RA_DEC_DIR ] = m_in_params.enabled_dir_sign[RA][SGN_NEG] ? io_drv::RA_DEC_DIR : io_drv::NO_DIR;
 	}
 	else
-		dir_checker[ io_drv::RA_INC_DIR ] = dir_checker[ io_drv::RA_DEC_DIR ] = io_drv::NO_DIR;
+		m_dir_checker[ io_drv::RA_INC_DIR ] = m_dir_checker[ io_drv::RA_DEC_DIR ] = io_drv::NO_DIR;
 
-	if( in_params.enabled_dir[DEC] )
+	if( m_in_params.enabled_dir[DEC] )
 	{
-		dir_checker[ io_drv::DEC_INC_DIR ] = in_params.enabled_dir_sign[DEC][SGN_POS] ? io_drv::DEC_INC_DIR : io_drv::NO_DIR;
-		dir_checker[ io_drv::DEC_DEC_DIR ] = in_params.enabled_dir_sign[DEC][SGN_NEG] ? io_drv::DEC_DEC_DIR : io_drv::NO_DIR;
+		m_dir_checker[ io_drv::DEC_INC_DIR ] = m_in_params.enabled_dir_sign[DEC][SGN_POS] ? io_drv::DEC_INC_DIR : io_drv::NO_DIR;
+		m_dir_checker[ io_drv::DEC_DEC_DIR ] = m_in_params.enabled_dir_sign[DEC][SGN_NEG] ? io_drv::DEC_DEC_DIR : io_drv::NO_DIR;
 	}
 	else
-		dir_checker[ io_drv::DEC_INC_DIR ] = dir_checker[ io_drv::DEC_DEC_DIR ] = io_drv::NO_DIR;
+		m_dir_checker[ io_drv::DEC_INC_DIR ] = m_dir_checker[ io_drv::DEC_DEC_DIR ] = io_drv::NO_DIR;
 }
 
 
 const cproc_out_params * cgmath::get_out_params( void ) const
 {
-	return &out_params;
+	return &m_out_params;
 }
 
 
@@ -344,10 +344,10 @@ info_params_t cgmath::get_info_params( void ) const
 	info_params_t ret;
 	Vector p;
 
- 	ret.aperture	= aperture;
- 	ret.focal		= focal;
- 	ret.focal_ratio	= focal / aperture;
- 	p = Vector(video_width, video_height, 0);
+ 	ret.aperture	= m_aperture;
+ 	ret.focal		= m_focal;
+ 	ret.focal_ratio	= m_focal / m_aperture;
+ 	p = Vector(m_video_width, m_video_height, 0);
  	p = point2arcsec( p );
  	p /= 60;	// convert to minutes
  	ret.fov_wd	= p.x;
@@ -359,37 +359,37 @@ info_params_t cgmath::get_info_params( void ) const
 
 uint32_t cgmath::get_ticks( void ) const
 {
-	return ticks;
+	return m_ticks;
 }
 
 
 void cgmath::get_star_drift( double *dx, double *dy ) const
 {
-	*dx = star_pos.x;
-	*dy = star_pos.y;
+	*dx = m_star_pos.x;
+	*dy = m_star_pos.y;
 }
 
 
 void cgmath::get_star_screen_pos( double *dx, double *dy ) const
 {
-	*dx = scr_star_pos.x;
-	*dy = scr_star_pos.y;
+	*dx = m_scr_star_pos.x;
+	*dy = m_scr_star_pos.y;
 }
 
 
 bool cgmath::reset( void )
 {
-	square_idx 		= fix_square_index( m_common_params.square_index );
-	square_alg_idx	= AUTO_THRESHOLD;
-	square_size		= guide_squares[square_idx].size;
-	square_square 	= guide_squares[square_idx].square;
-	square_pos 	 	= Vector(0);
+	m_square_idx 		= fix_square_index( m_common_params.square_index );
+	m_square_alg_idx	= AUTO_THRESHOLD;
+	m_square_size		= guide_squares[m_square_idx].size;
+	m_square_square 	= guide_squares[m_square_idx].square;
+	m_square_pos 	 	= Vector(0);
 
 	// sky coord. system vars.
-	star_pos 	 	= Vector(0);
-	scr_star_pos	= Vector(0);
+	m_star_pos 	   = Vector(0);
+	m_scr_star_pos = Vector(0);
 
-	set_reticle_params( video_width/2, video_height/2, 0.0 );
+	set_reticle_params( m_video_width/2, m_video_height/2, 0.0 );
 
 	return true;
 }
@@ -397,18 +397,18 @@ bool cgmath::reset( void )
 
 void cgmath::move_square( double newx, double newy )
 {
-	square_pos.x = newx;
-	square_pos.y = newy;
+	m_square_pos.x = newx;
+	m_square_pos.y = newy;
 
 	// check frame ranges
-	if( square_pos.x < 0 )
-		square_pos.x = 0;
-	if( square_pos.y < 0 )
-		square_pos.y = 0;
-	if( square_pos.x+(double)square_size > (double)video_width )
-		square_pos.x = (double)(video_width - square_size);
-	if( square_pos.y+(double)square_size > (double)video_height )
-		square_pos.y = (double)(video_height - square_size);
+	if( m_square_pos.x < 0 )
+		m_square_pos.x = 0;
+	if( m_square_pos.y < 0 )
+		m_square_pos.y = 0;
+	if( m_square_pos.x+(double)m_square_size > (double)m_video_width )
+		m_square_pos.x = (double)(m_video_width - m_square_size);
+	if( m_square_pos.y+(double)m_square_size > (double)m_video_height )
+		m_square_pos.y = (double)(m_video_height - m_square_size);
 }
 
 
@@ -416,20 +416,20 @@ void cgmath::resize_square( int size_idx )
 {
 	size_idx = fix_square_index( size_idx );
 
-	int old_hsz = square_size / 2;
+	int old_hsz = m_square_size / 2;
 
-	square_size = guide_squares[size_idx].size;
-	square_square = guide_squares[size_idx].square;
-	square_idx = size_idx;
+	m_square_size   = guide_squares[size_idx].size;
+	m_square_square = guide_squares[size_idx].square;
+	m_square_idx    = size_idx;
 
 	// check position
-	move_square( square_pos.x + double(old_hsz - square_size/2), square_pos.y + double(old_hsz - square_size/2) );
+	move_square( m_square_pos.x + double(old_hsz - m_square_size/2), m_square_pos.y + double(old_hsz - m_square_size/2) );
 }
 
 
 int cgmath::dither( void )
 {
-	if( preview_mode )
+	if( m_preview_mode )
 	{
 		log_i( "cgmath::dither(): Guiding is not started" );
 		return GUIDING_NOT_STARTED;
@@ -440,23 +440,23 @@ int cgmath::dither( void )
 		return NO_SPEED_INFO;
 	}
 
-	double newx = reticle_pos.x, newy = reticle_pos.y;
+	double newx = m_reticle_pos.x, newy = m_reticle_pos.y;
 
 	if( m_ra_drift_v )
 		do
 		{
-			newx = reticle_org.x + (double)(rand()%m_common_params.dithering_range) - (double)m_common_params.dithering_range / 2.0;
-		}while( newx == reticle_pos.x );
+			newx = m_reticle_org.x + (double)(rand()%m_common_params.dithering_range) - (double)m_common_params.dithering_range / 2.0;
+		}while( newx == m_reticle_pos.x );
 	if( m_dec_drift_v )
 		do
 		{
-			newy = reticle_org.y + (double)(rand()%m_common_params.dithering_range) - (double)m_common_params.dithering_range / 2.0;
-		}while( newy == reticle_pos.y );
+			newy = m_reticle_org.y + (double)(rand()%m_common_params.dithering_range) - (double)m_common_params.dithering_range / 2.0;
+		}while( newy == m_reticle_pos.y );
 
-	Vector delta( fabs(newx - reticle_pos.x), fabs(newy - reticle_pos.y), 0 );
+	Vector delta( fabs(newx - m_reticle_pos.x), fabs(newy - m_reticle_pos.y), 0 );
 
-	reticle_pos.x = newx;
-	reticle_pos.y = newy;
+	m_reticle_pos.x = newx;
+	m_reticle_pos.y = newy;
 
 	double min_v = (m_ra_drift_v && m_dec_drift_v) ? std::min( m_ra_drift_v, m_dec_drift_v ) :
 			(m_ra_drift_v ? m_ra_drift_v : m_dec_drift_v);
@@ -480,28 +480,29 @@ int cgmath::dither( void )
 }
 
 
-int cgmath::dither_no_wait_xy(double rx, double ry)
+int cgmath::dither_no_wait_xy( double rx, double ry )
 {
-	if( preview_mode ) {
+	if( m_preview_mode )
+	{
 		log_i( "cgmath::dither_no_wait_xy(): Guiding is not started" );
 		return GUIDING_NOT_STARTED;
 	}
 
-	double newx = reticle_pos.x, newy = reticle_pos.y;
+	double newx = m_reticle_pos.x, newy = m_reticle_pos.y;
 	// we shall avoid division by zero and infinite loops
 	if( (int)rx < 2 ) rx = 2;
 	if( (int)ry < 2 ) ry = 2;
 
 	do {
-		newx = reticle_org.x + (double)(rand()%(int)rx) - (double)rx / 2.0;
-	} while( newx == reticle_pos.x );
+		newx = m_reticle_org.x + (double)(rand()%(int)rx) - (double)rx / 2.0;
+	} while( newx == m_reticle_pos.x );
 
 	do {
-		newy = reticle_org.y + (double)(rand()%(int)ry) - (double)ry / 2.0;
-	} while( newy == reticle_pos.y );
+		newy = m_reticle_org.y + (double)(rand()%(int)ry) - (double)ry / 2.0;
+	} while( newy == m_reticle_pos.y );
 
-	reticle_pos.x = newx;
-	reticle_pos.y = newy;
+	m_reticle_pos.x = newx;
+	m_reticle_pos.y = newy;
 
 	return 0;
 }
@@ -522,16 +523,19 @@ const char *cgmath::get_dither_errstring( int err_code ) const
 }
 
 
-int cgmath::get_distance(double *dx, double *dy) const
+int cgmath::get_distance( double *dx, double *dy ) const
 {
-	if( preview_mode ) {
+	if( m_preview_mode )
+	{
 		log_i( "cgmath::get_distance(): Guiding is not started" );
 		return GUIDING_NOT_STARTED;
 	}
 
-	Vector drift_px = arcsec2point(star_pos);
-	*dx = fabs(drift_px.x);
-	*dy = fabs(drift_px.y);
+	Vector drift_px = arcsec2point( m_star_pos );
+	if( dx )
+		*dx = fabs(drift_px.x);
+	if( dy )
+		*dy = fabs(drift_px.y);
 
 	return 0;
 }
@@ -541,15 +545,15 @@ void cgmath::set_square_algorithm_index( int alg_idx )
 	if( alg_idx < 0 || alg_idx >= (int)(sizeof(guide_square_alg)/sizeof(square_alg_t))-1 )
 		return;
 
-	square_alg_idx = alg_idx;
+	m_square_alg_idx = alg_idx;
 
-	in_params.threshold_alg_idx = square_alg_idx;
+	m_in_params.threshold_alg_idx = m_square_alg_idx;
 }
 
 
 int  cgmath::get_q_control_index( void ) const
 {
-	return q_control_idx;
+	return m_q_control_idx;
 }
 
 
@@ -558,24 +562,30 @@ void cgmath::set_q_control_index( int idx )
 	if( idx < 0 || idx >= (int)(sizeof(q_control_mtd)/sizeof(q_control_t))-1 )
 		return;
 
-	q_control_idx = idx;
+	m_q_control_idx = idx;
 
-	in_params.q_control_idx = q_control_idx;
+	m_in_params.q_control_idx = m_q_control_idx;
 }
 
 
 ovr_params_t *cgmath::prepare_overlays( void )
 {
 	// square
-	overlays.square_size  = square_size;
-	overlays.square_pos.x = (int)square_pos.x;
-	overlays.square_pos.y = (int)square_pos.y;
+	m_overlays.square_size  = m_square_size;
+	m_overlays.square_pos.x = (int)m_square_pos.x;
+	m_overlays.square_pos.y = (int)m_square_pos.y;
 
 	// reticle
-	overlays.reticle_pos.x = reticle_pos.x;
-	overlays.reticle_pos.y = reticle_pos.y;
+	m_overlays.reticle_pos.x = m_reticle_pos.x;
+	m_overlays.reticle_pos.y = m_reticle_pos.y;
 
-	return &overlays;
+	return &m_overlays;
+}
+
+
+int cgmath::get_default_overlay_set( void ) const
+{
+	return ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE;
 }
 
 
@@ -584,8 +594,8 @@ Vector cgmath::point2arcsec( const Vector &p ) const
 	Vector arcs;
 
  	// arcs = 3600*180/pi * (pix*ccd_pix_sz) / focal_len
- 	arcs.x = 206264.8062470963552 * p.x * ccd_pixel_width / focal;
- 	arcs.y = 206264.8062470963552 * p.y * ccd_pixel_height / focal;
+ 	arcs.x = 206264.8062470963552 * p.x * m_ccd_pixel_width / m_focal;
+ 	arcs.y = 206264.8062470963552 * p.y * m_ccd_pixel_height / m_focal;
 
  	return arcs;
 }
@@ -595,8 +605,8 @@ Vector cgmath::arcsec2point( const Vector &asec ) const
 {
 	Vector px;
 
-	px.x = focal * asec.x / (206264.8062470963552 * ccd_pixel_width);
-	px.y = focal * asec.y / (206264.8062470963552 * ccd_pixel_height);
+	px.x = m_focal * asec.x / (206264.8062470963552 * m_ccd_pixel_width);
+	px.y = m_focal * asec.y / (206264.8062470963552 * m_ccd_pixel_height);
 
 	return px;
 }
@@ -751,7 +761,7 @@ bool cgmath::calc_and_set_reticle2( double start_ra_x, double start_ra_y,
 }
 
 
-double cgmath::calc_phi( double start_x, double start_y, double end_x, double end_y, double len_threshold ) const
+double cgmath::calc_phi( double start_x, double start_y, double end_x, double end_y, double len_threshold )
 {
 	double delta_x, delta_y;
 	double phi;
@@ -779,46 +789,46 @@ double cgmath::calc_phi( double start_x, double start_y, double end_x, double en
 
 void cgmath::do_ticks( void )
 {
-	ticks++;
+	m_ticks++;
 
-	channel_ticks[RA]++;
-	channel_ticks[DEC]++;
-	if( channel_ticks[RA] >= MAX_ACCUM_CNT )
-		channel_ticks[RA] = 0;
-	if( channel_ticks[DEC] >= MAX_ACCUM_CNT )
-		channel_ticks[DEC] = 0;	
+	m_channel_ticks[RA]++;
+	m_channel_ticks[DEC]++;
+	if( m_channel_ticks[RA] >= MAX_ACCUM_CNT )
+		m_channel_ticks[RA] = 0;
+	if( m_channel_ticks[DEC] >= MAX_ACCUM_CNT )
+		m_channel_ticks[DEC] = 0;
 	
-	accum_ticks[RA]++;
-	accum_ticks[DEC]++;
-	if( accum_ticks[RA] >= in_params.accum_frame_cnt[RA] )
-		accum_ticks[RA] = 0;
-	if( accum_ticks[DEC] >= in_params.accum_frame_cnt[DEC] )
-		accum_ticks[DEC] = 0;
+	m_accum_ticks[RA]++;
+	m_accum_ticks[DEC]++;
+	if( m_accum_ticks[RA] >= m_in_params.accum_frame_cnt[RA] )
+		m_accum_ticks[RA] = 0;
+	if( m_accum_ticks[DEC] >= m_in_params.accum_frame_cnt[DEC] )
+		m_accum_ticks[DEC] = 0;
 }
 
 
 //-------------------- Processing ---------------------------
 void cgmath::start( void )
 {
-	ticks = 0;
-	channel_ticks[RA] = channel_ticks[DEC] = 0;
-	accum_ticks[RA] = accum_ticks[DEC] = 0;
-	drift_integral[RA] = drift_integral[DEC] = 0;
-	out_params.reset();
+	m_ticks = 0;
+	m_channel_ticks[RA]  = m_channel_ticks[DEC] = 0;
+	m_accum_ticks[RA]    = m_accum_ticks[DEC] = 0;
+	m_drift_integral[RA] = m_drift_integral[DEC] = 0;
+	m_out_params.reset();
 
-	memset( drift[RA], 0, sizeof(double)*MAX_ACCUM_CNT );
-    memset( drift[DEC], 0, sizeof(double)*MAX_ACCUM_CNT );
+	memset( m_drift[RA], 0, sizeof(double)*MAX_ACCUM_CNT );
+    memset( m_drift[DEC], 0, sizeof(double)*MAX_ACCUM_CNT );
 
 	// cleanup stat vars.
-	sum = sqr_sum = 0;
-	delta_prev = sigma_prev = sigma = 0;
+    m_sum = m_sqr_sum = 0;
+    m_delta_prev = m_sigma_prev = m_sigma = 0;
 
-	memset( q_stat, 0, sizeof(double)*q_stat_len );
+	memset( m_q_stat, 0, sizeof(double)*q_stat_len );
 
-	preview_mode = false;
+	m_preview_mode = false;
 
 	// restore position
-	reticle_pos = reticle_org;
+	m_reticle_pos = m_reticle_org;
 
 	// call some external code on start
 	on_start();
@@ -827,10 +837,10 @@ void cgmath::start( void )
 
 void cgmath::stop( void )
 {
-	preview_mode = true;
+	m_preview_mode = true;
 
 	// restore position
-	reticle_pos = reticle_org;
+	m_reticle_pos = m_reticle_org;
 
 	// call some external code on stop
 	on_stop();
@@ -839,13 +849,13 @@ void cgmath::stop( void )
 
 void cgmath::suspend( bool mode )
 {
-	suspended = mode;
+	m_suspended = mode;
 }
 
 
 bool cgmath::is_suspended( void ) const
 {
-	return suspended;
+	return m_suspended;
 }
 
 
@@ -857,19 +867,19 @@ Vector cgmath::find_star_local_pos( void ) const
 	double *pptr;
 	Vector ret;
 
- 	psrc = porigin = pdata + (int)square_pos.y*video_width + (int)square_pos.x;
+ 	psrc = porigin = m_pdata + (int)m_square_pos.y*m_video_width + (int)m_square_pos.x;
 
 	resx = resy = 0;
 	threshold = mass = 0;
 
 	// several threshold adaptive smart agorithms
-	switch( square_alg_idx )
+	switch( m_square_alg_idx )
 	{
 	// Alexander's Stepanenko smart threshold algorithm
 	case SMART_THRESHOLD:
 	{
-		point_t bbox_lt = { (int)square_pos.x-SMART_FRAME_WIDTH, (int)square_pos.y-SMART_FRAME_WIDTH };
-		point_t bbox_rb = { (int)square_pos.x+square_size+SMART_FRAME_WIDTH, (int)square_pos.y+square_size+SMART_FRAME_WIDTH };
+		point_t bbox_lt = { (int)m_square_pos.x-SMART_FRAME_WIDTH, (int)m_square_pos.y-SMART_FRAME_WIDTH };
+		point_t bbox_rb = { (int)m_square_pos.x+m_square_size+SMART_FRAME_WIDTH, (int)m_square_pos.y+m_square_size+SMART_FRAME_WIDTH };
 		int offset = 0;
 
 		// clip frame
@@ -877,91 +887,91 @@ Vector cgmath::find_star_local_pos( void ) const
 			bbox_lt.x = 0;
 		if( bbox_lt.y < 0 )
 			bbox_lt.y = 0;
-		if( bbox_rb.x > video_width )
-			bbox_rb.x = video_width;
-		if( bbox_rb.y > video_height )
-			bbox_rb.y = video_height;
+		if( bbox_rb.x > m_video_width )
+			bbox_rb.x = m_video_width;
+		if( bbox_rb.y > m_video_height )
+			bbox_rb.y = m_video_height;
 
 		// calc top bar
 		int box_wd = bbox_rb.x - bbox_lt.x;
-		int box_ht = (int)square_pos.y - bbox_lt.y;
+		int box_ht = (int)m_square_pos.y - bbox_lt.y;
 		int pix_cnt = 0;
 		if( box_wd > 0 && box_ht > 0 )
 		{
 			pix_cnt += box_wd * box_ht;
-			for( j = bbox_lt.y;j < (int)square_pos.y;j++ )
+			for( j = bbox_lt.y;j < (int)m_square_pos.y;j++ )
 			{
-				offset = j*video_width;
+				offset = j*m_video_width;
 				for( i = bbox_lt.x;i < bbox_rb.x;i++ )
 				{
-					pptr = pdata + offset + i;
+					pptr = m_pdata + offset + i;
 					threshold += *pptr;
 				}
 			}
 		}
 		// calc left bar
-		box_wd = (int)square_pos.x - bbox_lt.x;
-		box_ht = square_size;
+		box_wd = (int)m_square_pos.x - bbox_lt.x;
+		box_ht = m_square_size;
 		if( box_wd > 0 && box_ht > 0 )
 		{
 			pix_cnt += box_wd * box_ht;
-			for( j = (int)square_pos.y;j < (int)square_pos.y+box_ht;j++ )
+			for( j = (int)m_square_pos.y;j < (int)m_square_pos.y+box_ht;j++ )
 			{
-				offset = j*video_width;
-				for( i = bbox_lt.x;i < (int)square_pos.x;i++ )
+				offset = j*m_video_width;
+				for( i = bbox_lt.x;i < (int)m_square_pos.x;i++ )
 				{
-					pptr = pdata + offset + i;
+					pptr = m_pdata + offset + i;
 					threshold += *pptr;
 				}
 			}
 		}
 		// calc right bar
-		box_wd = bbox_rb.x - (int)square_pos.x - square_size;
-		box_ht = square_size;
+		box_wd = bbox_rb.x - (int)m_square_pos.x - m_square_size;
+		box_ht = m_square_size;
 		if( box_wd > 0 && box_ht > 0 )
 		{
 			pix_cnt += box_wd * box_ht;
-			for( j = (int)square_pos.y;j < (int)square_pos.y+box_ht;j++ )
+			for( j = (int)m_square_pos.y;j < (int)m_square_pos.y+box_ht;j++ )
 			{
-				offset = j*video_width;
-				for( i = (int)square_pos.x+square_size;i < bbox_rb.x;i++ )
+				offset = j*m_video_width;
+				for( i = (int)m_square_pos.x+m_square_size;i < bbox_rb.x;i++ )
 				{
-					pptr = pdata + offset + i;
+					pptr = m_pdata + offset + i;
 					threshold += *pptr;
 				}
 			}
 		}
 		// calc bottom bar
 		box_wd = bbox_rb.x - bbox_lt.x;
-		box_ht = bbox_rb.y - (int)square_pos.y - square_size;
+		box_ht = bbox_rb.y - (int)m_square_pos.y - m_square_size;
 		if( box_wd > 0 && box_ht > 0 )
 		{
 			pix_cnt += box_wd * box_ht;
-			for( j = (int)square_pos.y+square_size;j < bbox_rb.y;j++ )
+			for( j = (int)m_square_pos.y+m_square_size;j < bbox_rb.y;j++ )
 			{
-				offset = j*video_width;
+				offset = j*m_video_width;
 				for( i = bbox_lt.x;i < bbox_rb.x;i++ )
 				{
-					pptr = pdata + offset + i;
+					pptr = m_pdata + offset + i;
 					threshold += *pptr;
 				}
 			}
 		}
 		// find maximum
 		double max_val = 0;
-		for( j = 0;j < square_size;j++ )
+		for( j = 0;j < m_square_size;j++ )
 		{
-			for( i = 0;i < square_size;i++ )
+			for( i = 0;i < m_square_size;i++ )
 			{
 				pptr = psrc+i;
 				if( *pptr > max_val )
 					max_val = *pptr;
 			}
-			psrc += video_width;
+			psrc += m_video_width;
 		}
 		threshold /= (double)pix_cnt;
 
-		q_bkgd = threshold;
+		m_q_bkgd = threshold;
 
 		// cut by 10% higher then average threshold
 		if( max_val > threshold )
@@ -973,32 +983,32 @@ Vector cgmath::find_star_local_pos( void ) const
 	// simple adaptive threshold
 	case AUTO_THRESHOLD:
 	{
-		for( j = 0;j < square_size;j++ )
+		for( j = 0;j < m_square_size;j++ )
 		{
-			for( i = 0;i < square_size;i++ )
+			for( i = 0;i < m_square_size;i++ )
 			{
 				pptr = psrc+i;
 				threshold += *pptr;
 			}
-			psrc += video_width;
+			psrc += m_video_width;
 		}
-		threshold /= square_square;
+		threshold /= m_square_square;
 
-		q_bkgd = threshold;
+		m_q_bkgd = threshold;
 
 		break;
 	}
 	// no threshold subtracion
 	default:
 	{
-		q_bkgd = 1.0;
+		m_q_bkgd = 1.0;
 	}
 	}
 
 	psrc = porigin;
-	for( j = 0;j < square_size;j++ )
+	for( j = 0;j < m_square_size;j++ )
 	{
-		for( i = 0;i < square_size;i++ )
+		for( i = 0;i < m_square_size;i++ )
 		{
 			pptr = psrc+i;
 			pval = *pptr - threshold;
@@ -1009,7 +1019,7 @@ Vector cgmath::find_star_local_pos( void ) const
 
 			mass += pval;
 		}
-		psrc += video_width;
+		psrc += m_video_width;
 	}
 
 	if( mass == 0 )mass = 1;
@@ -1017,9 +1027,9 @@ Vector cgmath::find_star_local_pos( void ) const
 	resx /= mass;
 	resy /= mass;
 
-	ret = square_pos + Vector( resx, resy, 0 );
+	ret = m_square_pos + Vector( resx, resy, 0 );
 
-	q_star_max = *(pdata + (int)ret.y*video_width + (int)ret.x);
+	m_q_star_max = *(m_pdata + (int)ret.y*m_video_width + (int)ret.x);
 
  return ret;
 }
@@ -1034,19 +1044,19 @@ void cgmath::process_axes( void  )
  	for( int k = RA;k <= DEC;k++ )
  	{
  		// zero all out commands
- 		out_params.pulse_dir[k] = io_drv::NO_DIR;
+ 		m_out_params.pulse_dir[k] = io_drv::NO_DIR;
 
- 		if( accum_ticks[k] < in_params.accum_frame_cnt[k]-1 )
+ 		if( m_accum_ticks[k] < m_in_params.accum_frame_cnt[k]-1 )
  			continue;
 
  		t_delta = 0;
-		drift_integral[k] = 0;
+ 		m_drift_integral[k] = 0;
 
- 		cnt = in_params.accum_frame_cnt[ k ];
+ 		cnt = m_in_params.accum_frame_cnt[ k ];
 	
- 		for( int i = 0, idx = channel_ticks[k];i < cnt;i++ )
+ 		for( int i = 0, idx = m_channel_ticks[k];i < cnt;i++ )
  		{
- 			t_delta += drift[k][idx];
+ 			t_delta += m_drift[k][idx];
  		
 			if( idx > 0 )
 				--idx;
@@ -1055,37 +1065,37 @@ void cgmath::process_axes( void  )
 		}
 		
 		for( int i = 0;i < MAX_ACCUM_CNT;i++ )
- 			drift_integral[k] += drift[k][i];
+			m_drift_integral[k] += m_drift[k][i];
 		
-		out_params.delta[k] = t_delta / (double)cnt;
-		drift_integral[k] /= (double)MAX_ACCUM_CNT;
+		m_out_params.delta[k] = t_delta / (double)cnt;
+		m_drift_integral[k] /= (double)MAX_ACCUM_CNT;
  	
 		//if( k == RA )
 		//	log_i( "PROP = %f INT = %f", out_params.delta[k], drift_integral[k] );
 
-		out_params.pulse_length[k] = fabs(out_params.delta[k]*in_params.proportional_gain[k] + drift_integral[k]*in_params.integral_gain[k]);
-		out_params.pulse_length[k] = out_params.pulse_length[k] <= in_params.max_pulse_length[k] ? out_params.pulse_length[k] : in_params.max_pulse_length[k];
+		m_out_params.pulse_length[k] = fabs(m_out_params.delta[k]*m_in_params.proportional_gain[k] + m_drift_integral[k]*m_in_params.integral_gain[k]);
+		m_out_params.pulse_length[k] = m_out_params.pulse_length[k] <= m_in_params.max_pulse_length[k] ? m_out_params.pulse_length[k] : m_in_params.max_pulse_length[k];
 
  		// calc direction
- 		if( !in_params.enabled_dir[k] )
+ 		if( !m_in_params.enabled_dir[k] )
  		{
- 			out_params.pulse_dir[k] = io_drv::NO_DIR;
+ 			m_out_params.pulse_dir[k] = io_drv::NO_DIR;
  			continue;
  		}
 
- 		if( out_params.pulse_length[k] >= in_params.min_pulse_length[k] )
+ 		if( m_out_params.pulse_length[k] >= m_in_params.min_pulse_length[k] )
  		{
  			io_drv::guide_dir dir = io_drv::NO_DIR;
  			if( k == RA )
- 				dir = out_params.delta[k] > 0 ? io_drv::RA_DEC_DIR : io_drv::RA_INC_DIR;   // RA. right dir - decreases RA
+ 				dir = m_out_params.delta[k] > 0 ? io_drv::RA_DEC_DIR : io_drv::RA_INC_DIR;   // RA. right dir - decreases RA
  			else
- 				dir = out_params.delta[k] > 0 ? io_drv::DEC_INC_DIR : io_drv::DEC_DEC_DIR; // DEC.
+ 				dir = m_out_params.delta[k] > 0 ? io_drv::DEC_INC_DIR : io_drv::DEC_DEC_DIR; // DEC.
 
- 			out_params.pulse_dir[k] = dir_checker[ dir ];
+ 			m_out_params.pulse_dir[k] = m_dir_checker[ dir ];
  			//log_i("CK_DIR: %d", out_params.pulse_dir[k]);
  		}
  		else
- 			out_params.pulse_dir[k] = io_drv::NO_DIR;
+ 			m_out_params.pulse_dir[k] = io_drv::NO_DIR;
  	}
 }
 
@@ -1093,37 +1103,37 @@ void cgmath::process_axes( void  )
 void cgmath::do_processing( void )
 {
  	// do nothing if suspended
- 	if( suspended )
+ 	if( m_suspended )
  		return;
 
 	// find guiding star location in
- 	scr_star_pos = star_pos = find_star_local_pos();
+ 	m_scr_star_pos = m_star_pos = find_star_local_pos();
 
 	// move square overlay
- 	move_square( round(star_pos.x) - (double)square_size/2, round(star_pos.y) - (double)square_size/2 );
+ 	move_square( round(m_star_pos.x) - (double)m_square_size/2, round(m_star_pos.y) - (double)m_square_size/2 );
 
  	if( m_common_params.hfd_on )
  		hfd_calc();
 
-	if( preview_mode )
+	if( m_preview_mode )
 		return;
 
 	// translate star coords into sky coord. system
 
 	// convert from pixels into arcsecs
-	Vector arc_star_pos    = point2arcsec( star_pos );
-	Vector arc_reticle_pos = point2arcsec( reticle_pos );
+	Vector arc_star_pos    = point2arcsec( m_star_pos );
+	Vector arc_reticle_pos = point2arcsec( m_reticle_pos );
 
 	// translate into sky coords.
-	star_pos = arc_star_pos - arc_reticle_pos;
-	star_pos.y = -star_pos.y; // invert y-axis as y picture axis is inverted
+	m_star_pos = arc_star_pos - arc_reticle_pos;
+	m_star_pos.y = -m_star_pos.y; // invert y-axis as y picture axis is inverted
 
-	star_pos = star_pos * ROT_Z;
+	m_star_pos = m_star_pos * m_ROT_Z;
 
 	// both coords are ready for math processing
 	//put coord to drift list
-	drift[RA][channel_ticks[RA]]   = star_pos.x;
-	drift[DEC][channel_ticks[DEC]] = star_pos.y;
+	m_drift[RA][m_channel_ticks[RA]]   = m_star_pos.x;
+	m_drift[DEC][m_channel_ticks[DEC]] = m_star_pos.y;
 
 	// make decision by axes
 	process_axes();
@@ -1141,57 +1151,57 @@ void cgmath::do_processing( void )
 
 void cgmath::calc_square_err( void )
 {
-	if( !do_statistics )
+	if( !m_do_statistics )
 		return;
 
 	// through MAX_ACCUM_CNT values
-	if( ticks == 0 )
+	if( m_ticks == 0 )
 		return;
 
 	for( int k = RA;k <= DEC;k++ )
 	{
 		double sqr_avg = 0;
 		for( int i = 0;i < MAX_ACCUM_CNT;i++ )
-			sqr_avg += drift[k][i] * drift[k][i];
+			sqr_avg += m_drift[k][i] * m_drift[k][i];
 
-		out_params.sigma[k] = sqrt( sqr_avg / (double)MAX_ACCUM_CNT );
+		m_out_params.sigma[k] = sqrt( sqr_avg / (double)MAX_ACCUM_CNT );
 	}
 }
 
 
 void cgmath::calc_quality( void )
 {
-	uint32_t q_tick = ticks % q_stat_len;
+	uint32_t q_tick = m_ticks % q_stat_len;
 
-	if( q_star_max <= 0 )
-		q_star_max = 1;
+	if( m_q_star_max <= 0 )
+		m_q_star_max = 1;
 
-	if( q_bkgd > q_star_max )
-		q_star_max = q_bkgd+1;
+	if( m_q_bkgd > m_q_star_max )
+		m_q_star_max = m_q_bkgd+1;
 
-	double cur_quality = 1 - q_bkgd / q_star_max;
+	double cur_quality = 1 - m_q_bkgd / m_q_star_max;
 
-	q_stat[ q_tick ] = cur_quality;
+	m_q_stat[ q_tick ] = cur_quality;
 
 	int cnt = 0;
 	double q_avg = 0;
 	for( int i = 0;i < q_stat_len;i++ )
 	{
-		if( q_stat[i] > 0 )
+		if( m_q_stat[i] > 0 )
 		{
-			q_avg += q_stat[i];
+			q_avg += m_q_stat[i];
 			cnt++;
 		}
 	}
 	// not enough data
 	if( cnt < q_stat_len )
 	{
-		out_params.quality = -1;
+		m_out_params.quality = -1;
 		return;
 	}
 	q_avg /= (double)cnt;
 
-	out_params.quality = q_avg * 100.0;
+	m_out_params.quality = q_avg * 100.0;
 }
 
 
@@ -1256,7 +1266,7 @@ void cgmath::hfd_calc( void )
 {
 	if( !m_hfd_sqr_info )
 		return;
-	struct hfd_sqr_s *hfd_sqr = &m_hfd_sqr_info[ square_idx ];
+	struct hfd_sqr_s *hfd_sqr = &m_hfd_sqr_info[ m_square_idx ];
 	struct hfd_item_s *hfd_sqr_data = hfd_sqr->data;
 	assert( hfd_sqr_data );
 
@@ -1267,10 +1277,10 @@ void cgmath::hfd_calc( void )
 	double bkgd    = 0;
 	double lum_max = 0;
 
-	psrc = pdata + (int)square_pos.y*video_width + (int)square_pos.x;
-	for( int j = 0, idx = 0;j < square_size;j++ )
+	psrc = m_pdata + (int)m_square_pos.y * m_video_width + (int)m_square_pos.x;
+	for( int j = 0, idx = 0;j < m_square_size;j++ )
 	{
-		for( int i = 0;i < square_size;i++, idx++ )
+		for( int i = 0;i < m_square_size;i++, idx++ )
 		{
 			pptr = psrc+i;
 			double val = *pptr;
@@ -1284,7 +1294,7 @@ void cgmath::hfd_calc( void )
 			else
 				bkgd += val;
 		}
-		psrc += video_width;
+		psrc += m_video_width;
 	}
 	bkgd /= (double)hfd_sqr->bkgd_cnt;
 
@@ -1294,33 +1304,33 @@ void cgmath::hfd_calc( void )
 		denominator = 1;
 	double H = 2 * fabs( numerator / denominator );
 
-	if( H <= (double)square_size )
+	if( H <= (double)m_square_size )
 	{
 		Vector arc_h = point2arcsec( Vector(H, 0, 0) );
-		out_params.hfd_h = arc_h.x;
+		m_out_params.hfd_h = arc_h.x;
 	}
 	else
-		out_params.hfd_h = -1;
-	out_params.hfd_lum_max = lum_max;
+		m_out_params.hfd_h = -1;
+	m_out_params.hfd_lum_max = lum_max;
 }
 
 
 //=========================== utility methods ==================================
 int cgmath::calc_quality_rate( void ) const
 {
-	double notify_threshold   = in_params.quality_threshold1;
-	double critical_threshold = in_params.quality_threshold2;
+	double notify_threshold   = m_in_params.quality_threshold1;
+	double critical_threshold = m_in_params.quality_threshold2;
 
-	if( out_params.quality == -1 )
+	if( m_out_params.quality == -1 )
 		return -1;
 
 	if( notify_threshold < critical_threshold )
 		std::swap( notify_threshold, critical_threshold );
 
-	if( out_params.quality > notify_threshold )
+	if( m_out_params.quality > notify_threshold )
 		return QUALITY_OK;
 	else
-	if( out_params.quality > critical_threshold )
+	if( m_out_params.quality > critical_threshold )
 		return QUALITY_NOTIFY;
 
 	return QUALITY_CRITICAL;
@@ -1330,18 +1340,18 @@ int cgmath::calc_quality_rate( void ) const
 bool cgmath::find_stars( std::vector< std::pair<Vector, double> > *stars ) const
 {
 #define USE_MEDIAN
-	int  buf_len = video_width*video_height;
+	int  buf_len = m_video_width * m_video_height;
 	double *buf = new double[ buf_len ];
 	int star_size = 10;
-	int clip_edge = video_height >= FIND_STAR_CLIP_EDGE*4 ? FIND_STAR_CLIP_EDGE : (video_height / 4);
-	int clip_width = video_width - clip_edge;
-	int clip_height = video_height - clip_edge;
-	double  lmax = 1;
+	int clip_edge   = m_video_height >= FIND_STAR_CLIP_EDGE*4 ? FIND_STAR_CLIP_EDGE : (m_video_height / 4);
+	int clip_width  = m_video_width - clip_edge;
+	int clip_height = m_video_height - clip_edge;
+	double lmax = 1;
 
 #ifdef USE_MEDIAN
-	filters::medianfilter( pdata, buf, video_width, video_height );
+	filters::medianfilter( m_pdata, buf, m_video_width, m_video_height );
 #else
-	memcpy( buf, pdata, buf_len*sizeof(double) );
+	memcpy( buf, m_pdata, buf_len*sizeof(double) );
 #endif
 
 	double threshold = 0;
@@ -1361,16 +1371,16 @@ bool cgmath::find_stars( std::vector< std::pair<Vector, double> > *stars ) const
 		{
 			for( int i = clip_edge;i < clip_width;i++ )
 			{
-				int off = j*video_width+i;
+				int off = j*m_video_width+i;
 				if( buf[off] > threshold && lmax < buf[off] )
 				{
 					lmax = buf[off];
 					p.x = (double)i;
 					p.y = (double)j;
 					p.z = 0;
-					p.z = !(p - Vector( video_width/2, video_height/2, 0 ));
-					if( p.z / std::min(video_width, video_height)/2 > 0.5 )
-						p.z = p.z / std::min(video_width, video_height)/2;
+					p.z = !(p - Vector( m_video_width/2, m_video_height/2, 0 ));
+					if( p.z / std::min(m_video_width, m_video_height)/2 > 0.5 )
+						p.z = p.z / std::min(m_video_width, m_video_height)/2;
 					else
 						p.z = 0.5;
 				}
@@ -1385,10 +1395,10 @@ bool cgmath::find_stars( std::vector< std::pair<Vector, double> > *stars ) const
 			{
 				for( int i = -star_size;i < star_size;i++ )
 				{
-					if( (int)p.first.x+i < 0 || (int)p.first.x+i >= video_width ||
-						(int)p.first.y+j < 0 || (int)p.first.y+i >= video_height )
+					if( (int)p.first.x+i < 0 || (int)p.first.x+i >= m_video_width ||
+						(int)p.first.y+j < 0 || (int)p.first.y+i >= m_video_height )
 						continue;
-					int off = ((int)p.first.y+j)*video_width + (int)p.first.x+i;
+					int off = ((int)p.first.y+j)*m_video_width + (int)p.first.x+i;
 					if( buf[ off ] > p.second )
 						p.second = buf[ off ];
 					buf[ off ] = 0;
@@ -1427,9 +1437,9 @@ bool cgmath::check_drift_dec( void ) const
 	}
 
 	// get aligned data
-	for( int i = 0, idx = channel_ticks[DEC];i < MAX_ACCUM_CNT;i++ )
+	for( int i = 0, idx = m_channel_ticks[DEC];i < MAX_ACCUM_CNT;i++ )
 	{
-		drift_data[i] = fabs( drift[DEC][idx] );
+		drift_data[i] = fabs( m_drift[DEC][idx] );
 
 		if( idx < MAX_ACCUM_CNT )
 			++idx;
@@ -1460,19 +1470,19 @@ bool cgmath::check_drift_dec( void ) const
 
 int cgmath::calc_stability_rate( void ) const
 {
- 	 if( ticks < MAX_ACCUM_CNT )
+ 	 if( m_ticks < MAX_ACCUM_CNT )
  		 return -1;
 
  	double limits[2] = {0};
  	for( int k = RA;k <= DEC;k++ )
  	{
- 		limits[k] = in_params.stability_limit_factor * fabs(in_params.min_pulse_length[k]) / (in_params.proportional_gain[k] > 0 ? in_params.proportional_gain[k] : 1);
+ 		limits[k] = m_in_params.stability_limit_factor * fabs(m_in_params.min_pulse_length[k]) / (m_in_params.proportional_gain[k] > 0 ? m_in_params.proportional_gain[k] : 1);
  	}
 
- 	if( out_params.sigma[RA] >= limits[RA] || out_params.sigma[DEC] >= limits[DEC] )
+ 	if( m_out_params.sigma[RA] >= limits[RA] || m_out_params.sigma[DEC] >= limits[DEC] )
  	{
  		if( DBG_VERBOSITY )
- 			log_i( "Guiding unstable: lim[RA] = %lf, lim[DEC] = %lf SLF = %lf", limits[RA], limits[DEC], in_params.stability_limit_factor );
+ 			log_i( "Guiding unstable: lim[RA] = %lf, lim[DEC] = %lf SLF = %lf", limits[RA], limits[DEC], m_in_params.stability_limit_factor );
  		return STABILITY_BAD;
  	}
 
@@ -1483,9 +1493,9 @@ int cgmath::calc_stability_rate( void ) const
 bool cgmath::is_valid_pos( double x, double y, double edge_width ) const
 {
 	if( x <= edge_width ||
-		x >= video_width - edge_width ||
+		x >= m_video_width - edge_width ||
 		y < edge_width ||
-		y >= video_height - edge_width )
+		y >= m_video_height - edge_width )
 		return false;
 
 	return true;
@@ -1522,11 +1532,11 @@ void cproc_in_params::reset( void )
 	guiding_normal_coef = cgmath::precalc_proportional_gain( guiding_rate );
 	average = true;
 
-	for( int k = RA;k <= DEC;k++ )
+	for( int k = cgmath::RA;k <= cgmath::DEC;k++ )
 	{
 		enabled_dir[k] 				 = true;
-		enabled_dir_sign[k][SGN_POS] = true;
-		enabled_dir_sign[k][SGN_NEG] = true;
+		enabled_dir_sign[k][cgmath::SGN_POS] = true;
+		enabled_dir_sign[k][cgmath::SGN_NEG] = true;
 		accum_frame_cnt[k] 	         = 1;
 		proportional_gain[k]         = guiding_normal_coef;
 		integral_gain[k] 	         = 0;
@@ -1538,7 +1548,7 @@ void cproc_in_params::reset( void )
 	q_control_idx = Q_CTRL_OFF;
 	quality_threshold1 = 50; // notification threshold in %
 	quality_threshold2 = 15; // critical threshold in %
-	stability_limit_factor = STABILITY_LIMIT_FACTOR;
+	stability_limit_factor = cgmath::STABILITY_LIMIT_FACTOR;
 }
 
 
@@ -1550,7 +1560,7 @@ cproc_out_params::cproc_out_params()
 
 void cproc_out_params::reset( void )
 {
-	for( int k = RA;k <= DEC;k++ )
+	for( int k = cgmath::RA;k <= cgmath::DEC;k++ )
 	{
 		delta[k] 		= 0;
 		pulse_dir[k] 	= io_drv::NO_DIR;

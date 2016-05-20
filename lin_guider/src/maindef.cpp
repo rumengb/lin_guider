@@ -30,6 +30,7 @@ const u_char DEF_GRID_COLOR[3]		= {128, 128, 128};
 const u_char DEF_WHITE_COLOR[3]		= {255, 255, 255};
 const u_char DEF_GRID_FONT_COLOR[3]	= {0, 255, 128};
 const u_char DEF_RET_ORG_COLOR[3]   = {255, 0, 0};
+const u_char DEF_OSF_COLOR[3]       = {255, 0, 255};
 
 const u_char DEF_SQR_OVL_COLOR[3]	= {0, 255, 0};
 

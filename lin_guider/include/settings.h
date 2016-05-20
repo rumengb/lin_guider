@@ -45,6 +45,7 @@ public:
 			guider::drift_view_params_s *dv_params );
 	virtual ~settings();
 
+
 protected slots:
 
 	void onOkButtonClick();
