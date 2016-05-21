@@ -142,7 +142,7 @@ void scroll_graph::draw_grid( double kx )
 			str.setNum( val );
 			m_canvas.drawText( x, m_half_buffer_size_ht + m_font_ht_k, str );
 		}
-		str.setNum( (int)(m_half_vis_range_y - m_grid_step_y*i) );
+		str.sprintf( "%d\"", (int)(m_half_vis_range_y - m_grid_step_y*i) );
 		m_canvas.drawText( 2, y + m_font_ht_k, str );
 	}
 }

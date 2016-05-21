@@ -73,7 +73,6 @@ void target_graph::refresh(void)
 			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
 		}
 		for( i = 1; i < count_max; i++ ) {
-			log_i("%f %f",data_ra, data_dec);
 			get_point(i, &data_ra, &data_dec);
 			px = m_half_buffer_size_wd + (int)(data_ra * k);
 			py = m_half_buffer_size_ht - (int)(data_dec * k);
@@ -141,11 +140,11 @@ void target_graph::draw_grid( void )
 	// draw digits
 	m_pen.setColor( GRID_FONT_COLOR );
 	m_canvas.setPen( m_pen );
-	x = m_client_rect_wd / 2 + 5;
+	x = m_client_rect_wd / 2 + 2;
 	for( i = 0; i < m_gridy_N; i++ )
 	{
 		y = (double)i * m_grid_view_step_y;
-		str.setNum( (int)(m_half_vis_range_y - m_grid_step_y*i) );
+		str.sprintf("%d\"", (int)(m_half_vis_range_y - m_grid_step_y*i) );
 		m_canvas.drawText( x, y + m_font_ht_k, str );
 	}
 }
