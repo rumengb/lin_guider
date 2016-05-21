@@ -45,152 +45,53 @@ scroll_graph::~scroll_graph()
 
 void scroll_graph::refresh( void )
 {
-	int i, j, k;
-	double kx, ky, step;
-	double *data_ptr;
-	int start_idx;
-	int /*band1_wd,*/ band1_start, band1_end;
-	int band2_wd, band2_start, band2_end;
-	int x, y;
-	int px, py;
+	int i, min_x, max_x;
+	double kx, ky;
+	double data_ra, data_dec;
+
+	int x, y_ra, y_dec;
+	int py_ra, py_dec;
+	double px;
 
 	if( !m_need_refresh )
 		return;
-
-	// fill background
-	m_canvas.fillRect( 0, 0, m_client_rect_wd, m_client_rect_ht, m_brush );
-
-	start_idx = (m_data_idx + m_data_len - m_vis_range_x) % m_data_len;
-	// split visible region in 2 ranges
-	if( m_data_idx > start_idx ) // only 1 band
-	{
-		//band1_wd 	= m_data_idx - start_idx; // = m_vis_range_x
-		band1_start = start_idx;
-		band1_end	= m_data_idx - 1;
-		band2_start = band2_end = band2_wd = 0;
-	}
-	else // 2 bands
-	{
-		//band1_wd 	= m_data_idx;
-		band1_start = 0;
-		band1_end 	= m_data_idx - 1;
-
-		band2_wd 	= m_data_len - start_idx + 1;
-		band2_start = start_idx;
-		band2_end	= m_data_len - 1;
-	}
 
 	// Rasterizing coefficients
 	kx = (double)m_client_rect_wd / m_vis_range_x;
 	ky = (double)m_client_rect_ht / m_vis_range_y;
 
+	max_x = (m_data_count > m_data_len) ? m_data_len : m_data_count;
+	min_x = (max_x > m_vis_range_x) ? (max_x - m_vis_range_x) : 0;
+
+	get_point(max_x, &data_ra, &data_dec);
+	px = (double)m_client_rect_wd;
+	py_ra = m_half_buffer_size_wd - (int)(data_ra * ky);
+	py_dec = m_half_buffer_size_ht - (int)(data_dec * ky);
+
+	// fill background
+	m_canvas.fillRect( 0, 0, m_client_rect_wd, m_client_rect_ht, m_brush );
 	draw_grid( kx );
 
-	// analyse kx and select optimal algorithm
-	if( m_client_rect_wd <= m_vis_range_x )
-	{
-		step = 1.0 / kx;
+	// Draw Graphs
+	for(i = max_x-1; i >= min_x; i--) {
+		get_point(i, &data_ra, &data_dec);
 
-		for( k = 0;k < 2;k++ )
-		{
-			data_ptr = m_data.line[k];
+		y_ra = m_half_buffer_size_wd - (int)(data_ra * ky);
+		y_dec = m_half_buffer_size_ht - (int)(data_dec * ky);
+		x = (int)(px - kx);
 
-			if( k == RA_LINE )
-				m_pen.setColor( RA_COLOR );
-			else
-				m_pen.setColor( DEC_COLOR );
+		m_pen.setColor( RA_COLOR );
+		m_canvas.setPen( m_pen );
+		m_canvas.drawLine( px, py_ra, x, y_ra );
 
-			m_canvas.setPen( m_pen );
+		m_pen.setColor( DEC_COLOR );
+		m_canvas.setPen( m_pen );
+		m_canvas.drawLine( (int)px, py_dec, x, y_dec );
 
-			// process band 1
-			px = m_client_rect_wd;
-			int p_idx = band1_end;
-			if( p_idx < 0 )p_idx += m_data_len;
-			py = m_half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
-
-			x = m_client_rect_wd;
-
-			for( i = band1_end, j = 0;i > band1_start; )
-			{
-				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
-				x--;
-
-				m_canvas.drawLine( px, py, x, y );
-
-				px = x;
-				py = y;
-
-				//------------------------------------------
-				j++;
-				i = band1_end - (int)((double)j*step);
-			}
-
-			// process band 2
-			for( i = band2_end, j = 0;i > band2_start; )
-			{
-				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
-				x--;
-
-				m_canvas.drawLine( px, py, x, y );
-
-				px = x;
-				py = y;
-
-				//------------------------------------------
-				j++;
-				i = band2_end - (int)((double)j*step);
-			}
-		}
+		px -= kx;
+		py_ra = y_ra;
+		py_dec = y_dec;
 	}
-	else
-	{
-		step = kx;
-
-		for( k = 0;k < 2;k++ )
-		{
-			data_ptr = m_data.line[k];
-
-			if( k == RA_LINE )
-				m_pen.setColor( RA_COLOR );
-			else
-				m_pen.setColor( DEC_COLOR );
-
-			m_canvas.setPen( m_pen );
-
-			// process band 1
-			px = m_client_rect_wd;
-			int p_idx = band1_end-1;
-			if( p_idx < 0 )p_idx += m_data_len;
-			py = m_half_buffer_size_ht - (int)(data_ptr[p_idx] * ky);
-
-			x = m_client_rect_wd;
-
-			for( i = band1_end, j = 0;i > band1_start;i--, j++ )
-			{
-				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
-				x = m_client_rect_wd - (int)((double)j*step) - 1;
-
-				m_canvas.drawLine( px, py, x, y );
-
-				px = x;
-				py = y;
-			}
-
-			// process band 2
-			for( i = band2_end;i > band2_start;i--, j++ )
-			{
-				y = m_half_buffer_size_ht - (int)(data_ptr[i] * ky);
-				x = m_client_rect_wd - (int)((double)j*step) - 1;
-
-				m_canvas.drawLine( px, py, x, y );
-
-				px = x;
-				py = y;
-			}
-
-		}
-	}
-
 	m_need_refresh = false;
 }
 

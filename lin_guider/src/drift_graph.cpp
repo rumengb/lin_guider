@@ -182,11 +182,14 @@ void cdrift_graph::add_point( double ra, double dec )
 }
 
 
-void cdrift_graph::get_point(int index, double *data_ra, double *data_dec) {
-	index = index % m_data_len;
+void cdrift_graph::get_point(unsigned int index, double *data_ra, double *data_dec)
+{
+	//prevent overindexing
+	if (index >= (unsigned)m_data_len)
+		index = m_data_len-1;
+
 	if (m_data_count > m_data_len) {
 		int offset = index + m_data_idx;
-
 		if(offset < m_data_len) {
 			*data_ra = m_data.line[RA_LINE][offset];
 			*data_dec = m_data.line[DEC_LINE][offset];

@@ -64,7 +64,6 @@ void target_graph::refresh(void)
 	m_pen.setColor( RA_COLOR );
 	m_canvas.setPen( m_pen );
 	int count_max = (m_data_len <= m_data_count) ? m_data_len : m_data_idx;
-	//log_i("%d %d %d", m_data_idx, m_data_count, count_max);
 
 	if (m_use_lines) {
 		if (count_max > 0) {
