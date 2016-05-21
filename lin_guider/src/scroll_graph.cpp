@@ -76,7 +76,7 @@ void scroll_graph::refresh( void )
 	for(i = max_x-1; i >= min_x; i--) {
 		get_point(i, &data_ra, &data_dec);
 
-		y_ra = m_half_buffer_size_wd - (int)(data_ra * ky);
+		y_ra = m_half_buffer_size_ht - (int)(data_ra * ky);
 		y_dec = m_half_buffer_size_ht - (int)(data_dec * ky);
 		x = (int)(px - kx);
 

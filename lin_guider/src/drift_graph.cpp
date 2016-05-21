@@ -42,7 +42,7 @@ cdrift_graph::cdrift_graph( int client_width, int client_height, int cell_nx, in
 	m_gridx_N = cell_nx;
 	m_gridy_N = cell_ny & (~1);
 
-	m_data_len = 10*m_gridx_N*10;
+	m_data_len = 100*m_gridx_N;
 	//m_data_len =10;
 	m_data.line[ RA_LINE ] = new double[ m_data_len ];
 	m_data.line[ DEC_LINE ] = new double[ m_data_len ];
@@ -141,7 +141,6 @@ void cdrift_graph::reset_data( void )
 	m_data_count = 0;
 	m_need_refresh = true;
 }
-
 
 
 QImage *cdrift_graph::get_buffer( void ) const

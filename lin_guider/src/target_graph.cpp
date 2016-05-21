@@ -68,16 +68,17 @@ void target_graph::refresh(void)
 	if (m_use_lines) {
 		if (count_max > 0) {
 			get_point(0, &data_ra, &data_dec);
-			x = m_half_buffer_size_wd - (int)(data_ra * k);
+			x = m_half_buffer_size_wd + (int)(data_ra * k);
 			y = m_half_buffer_size_ht - (int)(data_dec * k);
 			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
 		}
 		for( i = 1; i < count_max; i++ ) {
+			log_i("%f %f",data_ra, data_dec);
 			get_point(i, &data_ra, &data_dec);
-			px = m_half_buffer_size_wd - (int)(data_ra * k);
+			px = m_half_buffer_size_wd + (int)(data_ra * k);
 			py = m_half_buffer_size_ht - (int)(data_dec * k);
 			get_point(i-1, &data_ra, &data_dec);
-			x = m_half_buffer_size_wd - (int)(data_ra * k);
+			x = m_half_buffer_size_wd + (int)(data_ra * k);
 			y = m_half_buffer_size_ht - (int)(data_dec * k);
 			m_canvas.drawLine( px, py, x, y );
 			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
@@ -85,7 +86,7 @@ void target_graph::refresh(void)
 	} else {
 		for( i = 0; i < count_max; i++ ) {
 			get_point(i, &data_ra, &data_dec);
-			x = m_half_buffer_size_wd - (int)(data_ra * k);
+			x = m_half_buffer_size_wd + (int)(data_ra * k);
 			y = m_half_buffer_size_ht - (int)(data_dec * k);
 			m_canvas.drawEllipse(QPointF(x, y), 1, 1);
 		}
@@ -95,10 +96,10 @@ void target_graph::refresh(void)
 		m_pen.setColor( DEC_COLOR );
 		m_canvas.setPen( m_pen );
 		get_point(i-2, &data_ra, &data_dec);
-		px = m_half_buffer_size_wd - (int)(data_ra * k);
+		px = m_half_buffer_size_wd + (int)(data_ra * k);
 		py = m_half_buffer_size_ht - (int)(data_dec * k);
 		get_point(i-1, &data_ra, &data_dec);
-		x = m_half_buffer_size_wd - (int)(data_ra * k);
+		x = m_half_buffer_size_wd + (int)(data_ra * k);
 		y = m_half_buffer_size_ht - (int)(data_dec * k);
 		m_canvas.drawLine( px, py, x, y );
 		m_canvas.drawEllipse(QPointF(x, y), 5, 5);
