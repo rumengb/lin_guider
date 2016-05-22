@@ -11,6 +11,7 @@
 #include "vect.h"
 #include "utils.h"
 #include "gmath_test.h"
+#include <donuts_guide.h>
 
 
 cgmath_test::cgmath_test( const common_params &comm_params ) :
@@ -50,7 +51,7 @@ ovr_params_t *cgmath_test::prepare_overlays( void )
 	ovr->osf_size.x = m_osf_vis_size.x;
 	ovr->osf_size.y = m_osf_vis_size.y;
 
-	ovr->locked |= ovr_params_t::OVR_SQUARE;
+	ovr->locked |= ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE;
 
 	return ovr;
 }
@@ -62,14 +63,21 @@ int cgmath_test::get_default_overlay_set( void ) const
 	// I turned on OVR_SQUARE to make shift visible
 	// It doesn't look like a cross yet.
 	// it will be later
-	return ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
+	//return ovr_params_t::OVR_SQUARE |
+	return ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
 }
 
 
 void cgmath_test::move_osf( double newx, double newy )
 {
 	int video_width, video_height;
-	get_data_buffer( &video_width, &video_height, NULL, NULL );
+	frame_digest dg_ref;
+	double *buf;
+	double r_x, r_y, ang;
+
+	buf = get_data_buffer( &video_width, &video_height, NULL, NULL );
+	dg_new_frame_digest(buf, video_width, video_height, &dg_ref);
+	dg_delete_frame_digest(&dg_ref);
 
 	m_osf_pos.x = newx;
 	m_osf_pos.y = newy;
@@ -83,6 +91,9 @@ void cgmath_test::move_osf( double newx, double newy )
 		m_osf_pos.x = (double)(video_width - m_osf_vis_size.x);
 	if( m_osf_pos.y+(double)m_osf_vis_size.y > (double)video_height )
 		m_osf_pos.y = (double)(video_height - m_osf_vis_size.y);
+
+	get_reticle_params( NULL, NULL, &ang );
+	set_reticle_params(m_osf_pos.x + m_osf_vis_size.x/2 , m_osf_pos.y + m_osf_vis_size.y/2,ang);
 }
 
 
@@ -125,6 +136,8 @@ Vector cgmath_test::find_star_local_pos( void ) const
 	const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
 	double r_x, r_y;
 	get_reticle_params( &r_x, &r_y, NULL );
+
+	log_i("%s(): %d %d",__FUNCTION__,wd, ht);
 
 	double x, y;
 	x = r_x +5+ rand()%10 - 5;
