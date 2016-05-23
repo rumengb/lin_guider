@@ -8,6 +8,7 @@
 #define GMATH_TEST_H_
 
 #include "gmath.h"
+#include <donuts_guide.h>
 
 
 class common_params;
@@ -34,6 +35,8 @@ private:
 	Vector m_osf_pos;
 	Vector m_osf_size;
 	point_t m_osf_vis_size;
+	bool m_guiding;
+	frame_digest m_dg_ref;
 };
 
 #endif /* GMATH_TEST_H_ */

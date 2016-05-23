@@ -20,6 +20,7 @@ cgmath_test::cgmath_test( const common_params &comm_params ) :
 	m_osf_size( Vector(1, 1, 0) ),
 	m_osf_vis_size( (point_t){1, 1} )
 {
+	m_guiding = false;
 }
 
 
@@ -63,21 +64,15 @@ int cgmath_test::get_default_overlay_set( void ) const
 	// I turned on OVR_SQUARE to make shift visible
 	// It doesn't look like a cross yet.
 	// it will be later
-	//return ovr_params_t::OVR_SQUARE |
-	return ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
+	return ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
 }
 
 
 void cgmath_test::move_osf( double newx, double newy )
 {
 	int video_width, video_height;
-	frame_digest dg_ref;
-	double *buf;
-	double r_x, r_y, ang;
-
-	buf = get_data_buffer( &video_width, &video_height, NULL, NULL );
-	dg_new_frame_digest(buf, video_width, video_height, &dg_ref);
-	dg_delete_frame_digest(&dg_ref);
+	double ang;
+	double *buf = get_data_buffer( &video_width, &video_height, NULL, NULL );
 
 	m_osf_pos.x = newx;
 	m_osf_pos.y = newy;
@@ -132,32 +127,58 @@ void cgmath_test::get_osf_params( double *x, double *y, double *kx, double *ky )
 
 Vector cgmath_test::find_star_local_pos( void ) const
 {
-	int wd, ht;
-	const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
+	int wd, ht, res;
 	double r_x, r_y;
+	frame_digest dg_new;
+	corrections d_corr;
+	const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
+
 	get_reticle_params( &r_x, &r_y, NULL );
+
+	res = dg_new_frame_digest(data, wd, ht, &dg_new);
+	if (res < 0) {
+		log_e("dg_new_frame_digest(): failed");
+		return Vector( r_x, r_y, 0 );
+	}
+
+	res = dg_calculate_corrections(&m_dg_ref, &dg_new, &d_corr);
+	if (res < 0) {
+		log_e("dg_calculate_corrections(): failed");
+		dg_delete_frame_digest(&dg_new);
+		return Vector( r_x, r_y, 0 );
+	}
+
+	dg_delete_frame_digest(&dg_new);
+	if (res < 0) {
+		log_e("dg_delete_frame_digest(): failed");
+		return Vector( r_x, r_y, 0 );
+	}
 
 	log_i("%s(): %d %d",__FUNCTION__,wd, ht);
 
-	double x, y;
-	x = r_x +5+ rand()%10 - 5;
-	y = r_y +5+ rand()%10 - 5;
-	if( x < 0 ) x = 0;
-	if( x > (double)wd-1 ) x = wd-1;
-	if( y < 0 ) y = 0;
-	if( y > (double)ht-1 ) y = ht-1;
+	log_i("corr = %f %f", r_x + d_corr.x, r_y + d_corr.y);
 
-	return Vector( x, y, 0 );
+	return Vector( r_x + d_corr.x, r_y + d_corr.y, 0 );
 }
 
 
 void cgmath_test::on_start( void )
 {
+	int wd, ht;
+	if (!m_guiding) {
+		const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
+		dg_new_frame_digest(data, wd, ht, &m_dg_ref);
+		m_guiding = true;
+	}
 	log_i( "cgmath_test::%s", __FUNCTION__ );
 }
 
 
 void cgmath_test::on_stop( void )
 {
+	if (m_guiding) {
+		dg_delete_frame_digest(&m_dg_ref);
+		m_guiding = false;
+	}
 	log_i( "cgmath_test::%s", __FUNCTION__ );
 }
