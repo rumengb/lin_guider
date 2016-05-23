@@ -134,6 +134,7 @@ Vector cgmath_test::find_star_local_pos( void ) const
 	const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
 
 	get_reticle_params( &r_x, &r_y, NULL );
+	if (!m_guiding) return Vector( r_x, r_y, 0 );
 
 	res = dg_new_frame_digest(data, wd, ht, &dg_new);
 	if (res < 0) {
