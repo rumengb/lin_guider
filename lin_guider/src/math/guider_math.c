@@ -117,6 +117,8 @@ double find_distance(const int n, const double (*c)[2]) {
 	const int n2 = n / 2;
 	int max=0;
 	int prev, next;
+	double max_subp;
+
 	for(i = 0; i < n; i++) {
 		max = (c[i][0] > c[max][0]) ? i : max;
 	}
@@ -134,7 +136,10 @@ double find_distance(const int n, const double (*c)[2]) {
 	}
 
 	/* find subpixel offset of the maximum position using quadratic interpolation */
-	double max_subp = (c[next][RE] - c[prev][RE]) / (2 * (2 * c[max][RE] - c[next][RE] - c[prev][RE]));
+	if ((c[max][RE] - c[next][RE] - c[prev][RE]) != 0)
+		max_subp = (c[next][RE] - c[prev][RE]) / (2 * (2 * c[max][RE] - c[next][RE] - c[prev][RE]));
+	else
+		max_subp = 0;
 
 #ifdef DEBUG
 	printf("max_subp = %5.2f max: %d -> %5.2f %5.2f %5.2f\n", max_subp, max, c[prev][0], c[max][0], c[next][0]);

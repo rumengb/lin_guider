@@ -150,6 +150,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	sf.height = m_osf_vis_size.y;
 
 	res = dg_new_subframe_digest(data, wd, ht, &sf, &dg_new);
+	//res = dg_new_frame_digest(data, wd, ht, &dg_new);
 	if (res < 0) {
 		log_e("dg_new_frame_digest(): failed");
 		return Vector( r_x, r_y, 0 );
@@ -190,6 +191,7 @@ void cgmath_donuts::on_start( void )
 
 		const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
 		dg_new_subframe_digest(data, wd, ht, &sf, &m_dg_ref);
+		//dg_new_frame_digest(data, wd, ht, &m_dg_ref);
 		m_guiding = true;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );
