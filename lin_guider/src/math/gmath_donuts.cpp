@@ -54,6 +54,11 @@ ovr_params_t *cgmath_donuts::prepare_overlays( void )
 
 	ovr->locked |= ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE;
 
+	if (m_guiding)
+		ovr->visible = ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
+	else
+		ovr->visible =  ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
+
 	return ovr;
 }
 
@@ -64,6 +69,7 @@ int cgmath_donuts::get_default_overlay_set( void ) const
 	// I turned on OVR_SQUARE to make shift visible
 	// It doesn't look like a cross yet.
 	// it will be later
+
 	return ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
 }
 
@@ -131,12 +137,19 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	double r_x, r_y;
 	frame_digest dg_new;
 	corrections d_corr;
+	subframe sf;
 	const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
 
 	get_reticle_params( &r_x, &r_y, NULL );
 	if (!m_guiding) return Vector( r_x, r_y, 0 );
 
-	res = dg_new_frame_digest(data, wd, ht, &dg_new);
+	/* set subframe params */
+	sf.x_offset = m_osf_pos.x;
+	sf.y_offset =  m_osf_pos.y;
+	sf.width = m_osf_vis_size.x;
+	sf.height = m_osf_vis_size.y;
+
+	res = dg_new_subframe_digest(data, wd, ht, &sf, &dg_new);
 	if (res < 0) {
 		log_e("dg_new_frame_digest(): failed");
 		return Vector( r_x, r_y, 0 );
@@ -159,7 +172,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 
 	log_i("corr = %f %f", r_x + d_corr.x, r_y + d_corr.y);
 
-	return Vector( r_x + d_corr.x, r_y + d_corr.y, 0 );
+	return Vector( r_x - d_corr.x, r_y - d_corr.y, 0 );
 }
 
 
@@ -167,8 +180,16 @@ void cgmath_donuts::on_start( void )
 {
 	int wd, ht;
 	if (!m_guiding) {
+		subframe sf;
+
+		/* set subframe params */
+		sf.x_offset = m_osf_pos.x;
+		sf.y_offset =  m_osf_pos.y;
+		sf.width = m_osf_vis_size.x;
+		sf.height = m_osf_vis_size.y;
+
 		const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
-		dg_new_frame_digest(data, wd, ht, &m_dg_ref);
+		dg_new_subframe_digest(data, wd, ht, &sf, &m_dg_ref);
 		m_guiding = true;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );

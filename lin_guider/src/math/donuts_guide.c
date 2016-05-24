@@ -7,8 +7,8 @@
 #include <guider_math.h>
 #include <donuts_guide.h>
 
-int dg_new_frame_digest(const double *fdata, const int width, const int height, frame_digest *fdigest) {
-	int i, ci, li, max;
+int dg_new_frame_digest(const double *fdata, const unsigned int width, const unsigned int height, frame_digest *fdigest) {
+	unsigned int i, ci, li, max;
 	double avg, total;
 	double (*col_x)[2];
 	double (*col_y)[2];
@@ -67,6 +67,97 @@ int dg_new_frame_digest(const double *fdata, const int width, const int height, 
 	/* remove background Y */
 	avg = total / height;
 	for(i=0; i < height; i++) {
+		col_y[i][RE] = (col_y[i][RE] > avg) ? col_y[i][RE] - avg : 0;
+	}
+
+
+#ifdef DEBUG
+	printf("donuts col_x:");
+	for(i=0; i < fdigest->width; i++) {
+		printf(" %5.2f",col_x[i][RE]);
+	}
+	printf("\n");
+
+	printf("donuts col_y:");
+	for(i=0; i < fdigest->height; i++) {
+		printf(" %5.2f",col_y[i][RE]);
+	}
+	printf("\n");
+#endif
+
+	fft(fdigest->width, col_x, fdigest->fft_x);
+	fft(fdigest->height, col_y, fdigest->fft_y);
+	fdigest->algorithm = donuts;
+
+	free(col_x);
+	free(col_y);
+	return 0;
+}
+
+
+int dg_new_subframe_digest(const double *fdata, const unsigned int width, const unsigned int height, subframe *sf, frame_digest *fdigest) {
+	unsigned int i, ci, li, max, index;
+	double avg, total;
+	double (*col_x)[2];
+	double (*col_y)[2];
+
+	if ((width < 3) || (height < 3)) return -1;
+	if ((fdata == NULL) || (fdigest == NULL) || (sf == NULL)) return -1;
+	if ((sf->x_offset + sf->width) > width) return -1;
+	if ((sf->y_offset + sf->height) > height) return -1;
+
+	/* initialize digests so that dg_delete_frame_digest() does not fail */
+	fdigest->fft_x = NULL;
+	fdigest->fft_y = NULL;
+
+	fdigest->width = next_power_2(sf->width);
+	fdigest->height = next_power_2(sf->height);
+	fdigest->fft_x = malloc(2 * fdigest->width * sizeof(double));
+	fdigest->fft_y = malloc(2 * fdigest->height * sizeof(double));
+	if ((fdigest->fft_x == NULL) || (fdigest->fft_y == NULL)) {
+		dg_delete_frame_digest(fdigest);
+		return -1;
+	}
+
+	col_x = calloc(2 * fdigest->width * sizeof(double), 1);
+	if (col_x == NULL) {
+		dg_delete_frame_digest(fdigest);
+		return -1;
+	}
+
+	col_y = calloc(2 * fdigest->height * sizeof(double), 1);
+	if (col_y == NULL) {
+		dg_delete_frame_digest(fdigest);
+		free(col_x);
+		return -1;
+	}
+
+	/* collapse the subframe in X and Y directions */
+	ci = 0;
+	li = 0;
+	total = 0;
+	max = sf->width * sf->height;
+	for(i=0; i < max; i++) {
+		index = width * (sf->y_offset + li) + sf->x_offset + ci;
+		col_x[ci][RE] += fdata[index];
+		col_y[li][RE] += fdata[index];
+		total += fdata[index];
+		ci++;
+		if (ci == sf->width) {
+			ci = 0;
+			li++;
+		}
+	}
+
+	/* remove background X */
+	avg = total / sf->width;
+	for(i=0; i < sf->width; i++) {
+		col_x[i][RE] = (col_x[i][RE] > avg) ? col_x[i][RE] - avg : 0;
+	}
+
+	/* remove background Y */
+	avg = total / sf->height;
+	for(i=0; i < sf->height; i++) {
 		col_y[i][RE] = (col_y[i][RE] > avg) ? col_y[i][RE] - avg : 0;
 	}
 

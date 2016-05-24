@@ -14,8 +14,8 @@ typedef enum {
 
 typedef struct {
 	guide_algorithm algorithm;
-	int width;
-	int height;
+	unsigned int width;
+	unsigned int height;
 	union {
 		double (*fft_x)[2];
 		double centroid_x;
@@ -30,6 +30,13 @@ typedef struct {
 	double x;
 	double y;
 } corrections;
+
+typedef struct {
+	unsigned int x_offset;
+	unsigned int y_offset;
+	unsigned int width;
+	unsigned int height;
+} subframe;
 
 #ifdef __cplusplus
 extern "C" {
