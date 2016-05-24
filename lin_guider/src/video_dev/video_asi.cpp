@@ -196,7 +196,7 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		break;
 	}
 	case V4L2_CID_EXPOSURE: {
-		long wp_max = 255;
+		long wp_max = 256;
 		if(m_bpp == 16) wp_max = 65535;
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
