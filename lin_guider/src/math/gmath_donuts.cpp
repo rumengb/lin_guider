@@ -1,7 +1,7 @@
 /*
- * cgmath_test.cpp
+ * cgmath_donuts.cpp
  *
- *      Author: gm
+ *      Author: Andrew Stepanenko, Rumen Bogdanovski
  */
 
 #include <stdlib.h>
@@ -10,11 +10,11 @@
 #include "common.h"
 #include "vect.h"
 #include "utils.h"
-#include "gmath_test.h"
-#include <donuts_guide.h>
+#include "gmath_donuts.h"
+#include "donuts_guide.h"
 
 
-cgmath_test::cgmath_test( const common_params &comm_params ) :
+cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
 	cgmath( comm_params ),
 	m_osf_pos( Vector(20, 10, 0) ),
 	m_osf_size( Vector(1, 1, 0) ),
@@ -25,12 +25,12 @@ cgmath_test::cgmath_test( const common_params &comm_params ) :
 
 
 
-cgmath_test::~cgmath_test()
+cgmath_donuts::~cgmath_donuts()
 {
 }
 
 
-bool cgmath_test::set_video_params( int vid_wd, int vid_ht )
+bool cgmath_donuts::set_video_params( int vid_wd, int vid_ht )
 {
 	// NOTE! Base implementation must be called first!
 	bool res = cgmath::set_video_params( vid_wd, vid_ht );
@@ -42,7 +42,7 @@ bool cgmath_test::set_video_params( int vid_wd, int vid_ht )
 }
 
 
-ovr_params_t *cgmath_test::prepare_overlays( void )
+ovr_params_t *cgmath_donuts::prepare_overlays( void )
 {
 	ovr_params_t *ovr = cgmath::prepare_overlays();
 
@@ -58,7 +58,7 @@ ovr_params_t *cgmath_test::prepare_overlays( void )
 }
 
 
-int cgmath_test::get_default_overlay_set( void ) const
+int cgmath_donuts::get_default_overlay_set( void ) const
 {
 	// NOTE!
 	// I turned on OVR_SQUARE to make shift visible
@@ -68,7 +68,7 @@ int cgmath_test::get_default_overlay_set( void ) const
 }
 
 
-void cgmath_test::move_osf( double newx, double newy )
+void cgmath_donuts::move_osf( double newx, double newy )
 {
 	int video_width, video_height;
 	double ang;
@@ -92,7 +92,7 @@ void cgmath_test::move_osf( double newx, double newy )
 }
 
 
-void cgmath_test::resize_osf( double kx, double ky )
+void cgmath_donuts::resize_osf( double kx, double ky )
 {
 	int video_width, video_height;
 	get_data_buffer( &video_width, &video_height, NULL, NULL );
@@ -112,7 +112,7 @@ void cgmath_test::resize_osf( double kx, double ky )
 }
 
 
-void cgmath_test::get_osf_params( double *x, double *y, double *kx, double *ky ) const
+void cgmath_donuts::get_osf_params( double *x, double *y, double *kx, double *ky ) const
 {
 	if( x )
 		*x = m_osf_pos.x;
@@ -125,7 +125,7 @@ void cgmath_test::get_osf_params( double *x, double *y, double *kx, double *ky )
 }
 
 
-Vector cgmath_test::find_star_local_pos( void ) const
+Vector cgmath_donuts::find_star_local_pos( void ) const
 {
 	int wd, ht, res;
 	double r_x, r_y;
@@ -163,7 +163,7 @@ Vector cgmath_test::find_star_local_pos( void ) const
 }
 
 
-void cgmath_test::on_start( void )
+void cgmath_donuts::on_start( void )
 {
 	int wd, ht;
 	if (!m_guiding) {
@@ -171,15 +171,15 @@ void cgmath_test::on_start( void )
 		dg_new_frame_digest(data, wd, ht, &m_dg_ref);
 		m_guiding = true;
 	}
-	log_i( "cgmath_test::%s", __FUNCTION__ );
+	log_i( "cgmath_donuts::%s", __FUNCTION__ );
 }
 
 
-void cgmath_test::on_stop( void )
+void cgmath_donuts::on_stop( void )
 {
 	if (m_guiding) {
 		dg_delete_frame_digest(&m_dg_ref);
 		m_guiding = false;
 	}
-	log_i( "cgmath_test::%s", __FUNCTION__ );
+	log_i( "cgmath_donuts::%s", __FUNCTION__ );
 }

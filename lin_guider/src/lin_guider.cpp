@@ -55,7 +55,7 @@
 #include "video_asi.h"
 
 #include "gmath.h"
-#include "gmath_test.h"
+#include "gmath_donuts.h"
 
 
 lin_guider::lin_guider(QWidget *parent)
@@ -280,7 +280,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	//math...
 	//m_math = new cgmath( m_common_params );
-	m_math = new cgmath_test( m_common_params );
+	m_math = new cgmath_donuts( m_common_params );
 
 	m_math->set_video_params( m_capture_params.width, m_capture_params.height );
 	m_math->set_guider_params( m_guider_params.ccd_pixel_width, m_guider_params.ccd_pixel_height, m_guider_params.aperture, m_guider_params.focal );

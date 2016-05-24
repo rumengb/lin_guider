@@ -1,23 +1,23 @@
 /*
- * cgmath_test.h
+ * cgmath_donuts.h
  *
- *      Author: gm
+ *      Author:  Author: Andrew Stepanenko, Rumen Bogdanovski
  */
 
-#ifndef GMATH_TEST_H_
-#define GMATH_TEST_H_
+#ifndef GMATH_DONUTS_H_
+#define GMATH_DONUTS_H_
 
 #include "gmath.h"
-#include <donuts_guide.h>
+#include "donuts_guide.h"
 
 
 class common_params;
 
-class cgmath_test : public cgmath
+class cgmath_donuts : public cgmath
 {
 public:
-	cgmath_test( const common_params &comm_params );
-	virtual ~cgmath_test();
+	cgmath_donuts( const common_params &comm_params );
+	virtual ~cgmath_donuts();
 
 	virtual bool set_video_params( int vid_wd, int vid_ht );
 	virtual ovr_params_t *prepare_overlays( void );
@@ -39,4 +39,4 @@ private:
 	frame_digest m_dg_ref;
 };
 
-#endif /* GMATH_TEST_H_ */
+#endif /* GMATH_DONUTS_H_ */

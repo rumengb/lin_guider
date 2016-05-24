@@ -10,7 +10,7 @@ UI_DIR = $$DSTDIR/.ui
 RCC_DIR = $$DSTDIR/.rcc
 HEADERS += include/drift_graph.h \
     include/target_graph.h \
-    include/math/gmath_test.h \
+    include/math/gmath_donuts.h \
     include/math/donuts_guide.h \
     include/math/guider_math.h \
     include/io_dev/io_nexstar.h \
@@ -73,7 +73,7 @@ HEADERS += include/drift_graph.h \
     include/lin_guider.h
 SOURCES += src/drift_graph.cpp \
     src/target_graph.cpp \
-    src/math/gmath_test.cpp \
+    src/math/gmath_donuts.cpp \
     src/math/donuts_guide.c \
     src/math/guider_math.c \
     src/io_dev/io_nexstar.cpp \
