@@ -31,13 +31,6 @@ typedef struct {
 	double y;
 } corrections;
 
-typedef struct {
-	unsigned int x_offset;
-	unsigned int y_offset;
-	unsigned int width;
-	unsigned int height;
-} subframe;
-
 #ifdef __cplusplus
 extern "C" {
 #endif

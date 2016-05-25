@@ -21,9 +21,10 @@ cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
 	m_osf_size( Vector(1, 1, 0) ),
 	m_osf_vis_size( (point_t){1, 1} )
 {
+	m_sub_frame = NULL;
 	m_guiding = false;
+	m_video_width = m_video_height = 0;
 }
-
 
 
 cgmath_donuts::~cgmath_donuts()
@@ -35,6 +36,9 @@ bool cgmath_donuts::set_video_params( int vid_wd, int vid_ht )
 {
 	// NOTE! Base implementation must be called first!
 	bool res = cgmath::set_video_params( vid_wd, vid_ht );
+
+	m_video_width = vid_wd;
+	m_video_height = vid_ht;
 
 	move_osf( 0, 0 );
 	resize_osf( m_common_params.osf_size_kx, m_common_params.osf_size_ky );
@@ -70,16 +74,13 @@ int cgmath_donuts::get_default_overlay_set( void ) const
 	// I turned on OVR_SQUARE to make shift visible
 	// It doesn't look like a cross yet.
 	// it will be later
-
 	return ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
 }
 
 
 void cgmath_donuts::move_osf( double newx, double newy )
 {
-	int video_width, video_height;
 	double ang;
-	double *buf = get_data_buffer( &video_width, &video_height, NULL, NULL );
 
 	m_osf_pos.x = newx;
 	m_osf_pos.y = newy;
@@ -89,10 +90,10 @@ void cgmath_donuts::move_osf( double newx, double newy )
 		m_osf_pos.x = 0;
 	if( m_osf_pos.y < 0 )
 		m_osf_pos.y = 0;
-	if( m_osf_pos.x+(double)m_osf_vis_size.x > (double)video_width )
-		m_osf_pos.x = (double)(video_width - m_osf_vis_size.x);
-	if( m_osf_pos.y+(double)m_osf_vis_size.y > (double)video_height )
-		m_osf_pos.y = (double)(video_height - m_osf_vis_size.y);
+	if( m_osf_pos.x+(double)m_osf_vis_size.x > (double)m_video_width )
+		m_osf_pos.x = (double)(m_video_width - m_osf_vis_size.x);
+	if( m_osf_pos.y+(double)m_osf_vis_size.y > (double)m_video_height )
+		m_osf_pos.y = (double)(m_video_height - m_osf_vis_size.y);
 
 	get_reticle_params( NULL, NULL, &ang );
 	set_reticle_params(m_osf_pos.x + m_osf_vis_size.x/2 , m_osf_pos.y + m_osf_vis_size.y/2,ang);
@@ -132,27 +133,23 @@ void cgmath_donuts::get_osf_params( double *x, double *y, double *kx, double *ky
 }
 
 
-Vector cgmath_donuts::find_star_local_pos( void ) const
+Vector cgmath_donuts::find_star_local_pos( void )
 {
-	int wd, ht, res;
+	int res;
 	double r_x, r_y;
 	frame_digest dg_new;
 	corrections d_corr;
-	subframe sf;
-	const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
-	filters::medianfilter( (double*) data, (double*)NULL, wd, ht );
 
 	get_reticle_params( &r_x, &r_y, NULL );
-	if (!m_guiding) return Vector( r_x, r_y, 0 );
 
-	/* set subframe params */
-	sf.x_offset = m_osf_pos.x;
-	sf.y_offset =  m_osf_pos.y;
-	sf.width = m_osf_vis_size.x;
-	sf.height = m_osf_vis_size.y;
+	if (!m_guiding)
+		return Vector( r_x, r_y, 0 );
 
-	res = dg_new_subframe_digest(data, wd, ht, &sf, &dg_new);
-	//res = dg_new_frame_digest(data, wd, ht, &dg_new);
+	copy_subframe(m_sub_frame, m_osf_pos.x, m_osf_pos.y, m_osf_vis_size.x, m_osf_vis_size.y);
+
+	filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
+
+	res = dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &dg_new);
 	if (res < 0) {
 		log_e("dg_new_frame_digest(): failed");
 		return Vector( r_x, r_y, 0 );
@@ -165,13 +162,13 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 		return Vector( r_x, r_y, 0 );
 	}
 
-	dg_delete_frame_digest(&dg_new);
+	res = dg_delete_frame_digest(&dg_new);
 	if (res < 0) {
 		log_e("dg_delete_frame_digest(): failed");
 		return Vector( r_x, r_y, 0 );
 	}
 
-	log_i("%s(): %d %d",__FUNCTION__,wd, ht);
+	log_i("%s()",__FUNCTION__);
 
 	log_i("corr = %f %f", r_x + d_corr.x, r_y + d_corr.y);
 
@@ -181,20 +178,15 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 
 void cgmath_donuts::on_start( void )
 {
-	int wd, ht;
 	if (!m_guiding) {
-		subframe sf;
-
-		/* set subframe params */
-		sf.x_offset = m_osf_pos.x;
-		sf.y_offset =  m_osf_pos.y;
-		sf.width = m_osf_vis_size.x;
-		sf.height = m_osf_vis_size.y;
-
-		const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
-		filters::medianfilter( (double*) data, (double*)NULL, wd, ht );
-		dg_new_subframe_digest(data, wd, ht, &sf, &m_dg_ref);
-		//dg_new_frame_digest(data, wd, ht, &m_dg_ref);
+		m_sub_frame = (double *)realloc(m_sub_frame, m_osf_vis_size.x * m_osf_vis_size.y * sizeof(double));
+		if(m_sub_frame == NULL) {
+			log_e( "cgmath_donuts::%s - can not allocate subframe", __FUNCTION__ );
+			return;
+		}
+		copy_subframe(m_sub_frame, m_osf_pos.x, m_osf_pos.y, m_osf_vis_size.x, m_osf_vis_size.y);
+		filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
+		dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &m_dg_ref);
 		m_guiding = true;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );
@@ -204,6 +196,10 @@ void cgmath_donuts::on_start( void )
 void cgmath_donuts::on_stop( void )
 {
 	if (m_guiding) {
+		if (m_sub_frame) {
+			free(m_sub_frame);
+			m_sub_frame = NULL;
+		}
 		dg_delete_frame_digest(&m_dg_ref);
 		m_guiding = false;
 	}

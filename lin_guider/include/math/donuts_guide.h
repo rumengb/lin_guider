@@ -19,14 +19,6 @@ extern "C" {
  */
 int dg_new_frame_digest(const double *fdata, const unsigned int width, const unsigned int height, frame_digest *fdigest);
 
-/* analyze the frame and allocate, and set buffers in fdigest
- * NOTE: does not allocate *fdigest
- * input: *fdata, width, height, *sf
- * output: *fdigest
- * returns:
- */
-int dg_new_subframe_digest(const double *fdata, const unsigned int width, const unsigned int height, subframe *sf, frame_digest *fdigest);
-
 /* calculate guider corrections in pixels
  * input: *ref, *new
  * output: *c

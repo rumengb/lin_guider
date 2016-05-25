@@ -8,13 +8,16 @@
 #include <stdio.h>
 #include <guider_math.h>
 
+
 void _fft(const int n, const int offset, const int delta, const double (*x)[2], double (*X)[2], double (*_X)[2]);
+
 
 void fft(const int n, const double (*x)[2], double (*X)[2]) {
 	double (*_X)[2] = malloc(2 * n * sizeof(double));
 	_fft(n, 0, 1, x, X, _X);
 	free(_X);
 }
+
 
 void _fft(const int n, const int offset, const int delta, const double (*x)[2], double (*X)[2], double (*_X)[2]) {
 	int n2 = n / 2;
@@ -53,6 +56,7 @@ void _fft(const int n, const int offset, const int delta, const double (*x)[2], 
 	}
 }
 
+
 void ifft(const int n, const double (*X)[2], double (*x)[2]) {
 	int n2 = n / 2;
 	int i;
@@ -74,6 +78,7 @@ void ifft(const int n, const double (*X)[2], double (*x)[2]) {
 		x[n-i][IM] = tmp1;
 	}
 }
+
 
 void corellate(const int n, const double (*x1)[2], const double (*x2)[2], double (*c)[2]) {
 	int i;
@@ -97,6 +102,7 @@ void corellate(const int n, const double (*x1)[2], const double (*x2)[2], double
 	free(C);
 }
 
+
 void corellate_fft(const int n, const double (*X1)[2], const double (*X2)[2], double (*c)[2]) {
 	int i;
 	double (*C)[2] = malloc(2 * n * sizeof(double));
@@ -111,6 +117,7 @@ void corellate_fft(const int n, const double (*X1)[2], const double (*X2)[2], do
 
 	free(C);
 }
+
 
 double find_distance(const int n, const double (*c)[2]) {
 	int i;
@@ -156,6 +163,7 @@ double find_distance(const int n, const double (*c)[2]) {
 	}
 }
 
+
 double sigma_threshold(double *data, int n, double nsigma) {
 	double mean = 0.0;
 	double deviation=0.0;
@@ -175,6 +183,7 @@ double sigma_threshold(double *data, int n, double nsigma) {
 
 	return sigma;
 }
+
 
 int next_power_2(const int n) {
 	int k = 1;

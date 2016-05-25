@@ -175,6 +175,24 @@ double *cgmath::get_data_buffer( int *width, int *height, int *length, int *size
 	return m_pdata;
 }
 
+void cgmath::copy_subframe(double *subframe, int x_offset, int y_offset, int sf_width, int sf_height)
+{
+	int i;
+	int ci = 0;
+	int li = 0;
+
+	if (!subframe) return;
+	int max = sf_width * sf_height;
+	for(i=0; i < max; i++) {
+		subframe[i] = m_pdata[ m_video_width * (y_offset + li) + x_offset + ci ];
+		ci++;
+		if (ci == sf_width) {
+			ci = 0;
+			li++;
+		}
+	}
+}
+
 
 bool cgmath::set_guider_params( double ccd_pix_wd, double ccd_pix_ht, double guider_aperture, double guider_focal )
 {
@@ -859,7 +877,7 @@ bool cgmath::is_suspended( void ) const
 }
 
 
-Vector cgmath::find_star_local_pos( void ) const
+Vector cgmath::find_star_local_pos( void )
 {
 	int i, j;
 	double resx, resy, mass, threshold, pval;
