@@ -68,9 +68,11 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_OSFSizeX->addItem( QString("Full"), 1.0 );
 	ui.comboBox_OSFSizeX->addItem( QString("1/2"), 0.5 );
 	ui.comboBox_OSFSizeX->addItem( QString("1/4"), 0.25 );
+	ui.comboBox_OSFSizeX->addItem( QString("1/8"), 0.125 );
 	ui.comboBox_OSFSizeY->addItem( QString("Full"), 1.0 );
 	ui.comboBox_OSFSizeY->addItem( QString("1/2"), 0.5 );
 	ui.comboBox_OSFSizeY->addItem( QString("1/4"), 0.25 );
+	ui.comboBox_OSFSizeY->addItem( QString("1/8"), 0.125 );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );

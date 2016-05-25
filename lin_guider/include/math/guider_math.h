@@ -52,6 +52,7 @@ void ifft(const int n, const double (*X)[2], double (*x)[2]);
 void corellate(const int n, const double (*x1)[2], const double (*x2)[2], double (*c)[2]);
 void corellate_fft(const int n, const double (*X1)[2], const double (*X2)[2], double (*c)[2]);
 double find_distance(const int n, const double (*c)[2]);
+double sigma_threshold(double *data, int n, double nsigma);
 int next_power_2(const int n);
 
 #ifdef __cplusplus

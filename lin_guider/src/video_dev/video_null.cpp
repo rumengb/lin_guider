@@ -337,6 +337,8 @@ int cvideo_null::read_frame( void )
 	generate_emu_stars();
 
 	//filters::medianfilter( (uint8_t*)raw.ptr8, (uint8_t*)NULL, capture_params.width, capture_params.height );
+	//filters::medianfilter( (uint16_t*)raw.ptr16, (uint16_t*)NULL, capture_params.width, capture_params.height );
+	//filters::medianfilter( (uint16_t*)raw.ptr16, (uint16_t*)NULL, capture_params.width, capture_params.height );
 
 	if( 0 && DBG_VERBOSITY )
 		log_i( "Downloading finished. Read: %d bytes", buffers[0].length);
@@ -511,7 +513,7 @@ void cvideo_null::generate_emu_field( void )
 	data_ptr raw = buffers[0].start;
 	for( size_t i = 0;i < buffers[0].length;i++ )
 	{
-		raw.ptr16[i] = (32+rand()%25)*256;
+		raw.ptr16[i] = (32+rand()%(capture_params.gain+1))*256;
 		//raw.ptr16[i] = 32*256 + rand()%100;
 	}
 }

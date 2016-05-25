@@ -132,6 +132,7 @@ int dg_new_subframe_digest(const double *fdata, const unsigned int width, const 
 		return -1;
 	}
 
+	sigma_threshold(fdata, width * height, 1);
 	/* collapse the subframe in X and Y directions */
 	ci = 0;
 	li = 0;

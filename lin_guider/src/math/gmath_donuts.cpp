@@ -10,6 +10,7 @@
 #include "common.h"
 #include "vect.h"
 #include "utils.h"
+#include "filters.h"
 #include "gmath_donuts.h"
 #include "donuts_guide.h"
 
@@ -139,6 +140,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	corrections d_corr;
 	subframe sf;
 	const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
+	filters::medianfilter( (double*) data, (double*)NULL, wd, ht );
 
 	get_reticle_params( &r_x, &r_y, NULL );
 	if (!m_guiding) return Vector( r_x, r_y, 0 );
@@ -190,6 +192,7 @@ void cgmath_donuts::on_start( void )
 		sf.height = m_osf_vis_size.y;
 
 		const double *data = get_data_buffer( &wd, &ht, NULL, NULL );
+		filters::medianfilter( (double*) data, (double*)NULL, wd, ht );
 		dg_new_subframe_digest(data, wd, ht, &sf, &m_dg_ref);
 		//dg_new_frame_digest(data, wd, ht, &m_dg_ref);
 		m_guiding = true;

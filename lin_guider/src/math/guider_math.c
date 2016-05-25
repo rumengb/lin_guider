@@ -156,6 +156,26 @@ double find_distance(const int n, const double (*c)[2]) {
 	}
 }
 
+double sigma_threshold(double *data, int n, double nsigma) {
+	double mean = 0.0;
+	double deviation=0.0;
+	int i;
+
+	for(i=0; i<n;++i) mean+=data[i];
+	mean=mean/n;
+
+	for(i=0; i<n;++i)
+		deviation+=(data[i]-mean)*(data[i]-mean);
+
+	double sigma = sqrt(deviation/n);
+
+	double threshold = mean + nsigma * sigma;
+	for(i=0; i<n;++i)
+		data[i] = (data[i] > threshold) ? data[i] - threshold : 0;
+
+	return sigma;
+}
+
 int next_power_2(const int n) {
 	int k = 1;
 	while (k < n) k <<= 1;
