@@ -175,7 +175,7 @@ double *cgmath::get_data_buffer( int *width, int *height, int *length, int *size
 	return m_pdata;
 }
 
-void cgmath::copy_subframe(double *subframe, int x_offset, int y_offset, int sf_width, int sf_height)
+void cgmath::copy_subframe(double *subframe, int x_offset, int y_offset, int sf_width, int sf_height) const
 {
 	int i;
 	int ci = 0;
@@ -877,7 +877,7 @@ bool cgmath::is_suspended( void ) const
 }
 
 
-Vector cgmath::find_star_local_pos( void )
+Vector cgmath::find_star_local_pos( void ) const
 {
 	int i, j;
 	double resx, resy, mass, threshold, pval;

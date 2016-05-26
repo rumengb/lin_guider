@@ -27,7 +27,7 @@ public:
 	virtual void get_osf_params( double *x, double *y, double *kx, double *ky ) const;
 
 protected:
-	virtual Vector find_star_local_pos( void );
+	virtual Vector find_star_local_pos( void ) const;
 	virtual void on_start( void );
 	virtual void on_stop( void );
 
@@ -35,7 +35,7 @@ private:
 	Vector m_osf_pos;
 	Vector m_osf_size;
 	point_t m_osf_vis_size;
-	double *m_sub_frame;
+	mutable double *m_sub_frame;
 	bool m_guiding;
 	int m_video_width, m_video_height;
 	frame_digest m_dg_ref;

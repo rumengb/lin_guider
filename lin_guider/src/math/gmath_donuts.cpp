@@ -133,7 +133,7 @@ void cgmath_donuts::get_osf_params( double *x, double *y, double *kx, double *ky
 }
 
 
-Vector cgmath_donuts::find_star_local_pos( void )
+Vector cgmath_donuts::find_star_local_pos( void ) const
 {
 	int res;
 	double r_x, r_y;
