@@ -38,6 +38,8 @@ private:
 	mutable double *m_sub_frame;
 	bool m_guiding;
 	int m_video_width, m_video_height;
+	double m_ref_x;
+	double m_ref_y;
 	frame_digest m_dg_ref;
 };
 

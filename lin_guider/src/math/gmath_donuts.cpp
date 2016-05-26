@@ -22,6 +22,8 @@ cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
 	m_osf_vis_size( (point_t){1, 1} )
 {
 	m_sub_frame = NULL;
+	m_ref_x = 0;
+	m_ref_y = 0;
 	m_guiding = false;
 	m_video_width = m_video_height = 0;
 }
@@ -140,10 +142,18 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	frame_digest dg_new;
 	corrections d_corr;
 
-	get_reticle_params( &r_x, &r_y, NULL );
-
-	if (!m_guiding)
+	/* if guiding is not started - no corrections needed */
+	if (!m_guiding) {
+		get_reticle_params( &r_x, &r_y, NULL );
 		return Vector( r_x, r_y, 0 );
+	}
+
+	/* m_subframe malloc failed? */
+	if (!m_sub_frame) {
+		log_e("Subframe not initialized!");
+		get_reticle_params( &r_x, &r_y, NULL );
+		return Vector( r_x, r_y, 0 );
+	}
 
 	copy_subframe(m_sub_frame, m_osf_pos.x, m_osf_pos.y, m_osf_vis_size.x, m_osf_vis_size.y);
 
@@ -152,27 +162,26 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	res = dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &dg_new);
 	if (res < 0) {
 		log_e("dg_new_frame_digest(): failed");
-		return Vector( r_x, r_y, 0 );
+		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
 	res = dg_calculate_corrections(&m_dg_ref, &dg_new, &d_corr);
 	if (res < 0) {
 		log_e("dg_calculate_corrections(): failed");
 		dg_delete_frame_digest(&dg_new);
-		return Vector( r_x, r_y, 0 );
+		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
 	res = dg_delete_frame_digest(&dg_new);
 	if (res < 0) {
 		log_e("dg_delete_frame_digest(): failed");
-		return Vector( r_x, r_y, 0 );
+		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
 	log_i("%s()",__FUNCTION__);
+	log_i("corr = %f %f", m_ref_x + d_corr.x, m_ref_y + d_corr.y);
 
-	log_i("corr = %f %f", r_x + d_corr.x, r_y + d_corr.y);
-
-	return Vector( r_x - d_corr.x, r_y - d_corr.y, 0 );
+	return Vector( m_ref_x - d_corr.x, m_ref_y - d_corr.y, 0 );
 }
 
 
@@ -180,12 +189,19 @@ void cgmath_donuts::on_start( void )
 {
 	if (!m_guiding) {
 		m_sub_frame = (double *)realloc(m_sub_frame, m_osf_vis_size.x * m_osf_vis_size.y * sizeof(double));
-		if(m_sub_frame == NULL) {
-			log_e( "cgmath_donuts::%s - can not allocate subframe", __FUNCTION__ );
+		if(!m_sub_frame) {
+			log_e( "cgmath_donuts::%s - can not allocate memory for subframe", __FUNCTION__ );
 			return;
 		}
+
+		/* get reticle refference point so that we can use dithering */
+		get_reticle_params(&m_ref_x, &m_ref_y, NULL);
+
 		copy_subframe(m_sub_frame, m_osf_pos.x, m_osf_pos.y, m_osf_vis_size.x, m_osf_vis_size.y);
+
+		/* clear one pixel spikes */
 		filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
+
 		dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &m_dg_ref);
 		m_guiding = true;
 	}
@@ -200,7 +216,10 @@ void cgmath_donuts::on_stop( void )
 			free(m_sub_frame);
 			m_sub_frame = NULL;
 		}
+
 		dg_delete_frame_digest(&m_dg_ref);
+		m_ref_x = 0;
+		m_ref_y = 0;
 		m_guiding = false;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );
