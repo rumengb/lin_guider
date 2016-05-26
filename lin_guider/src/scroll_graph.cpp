@@ -106,7 +106,7 @@ void scroll_graph::draw_grid( double kx )
 	m_canvas.setPen( m_pen );
 
 	grid_column = m_data_count / (int)m_grid_step_x * (int)m_grid_step_x;
-	sx = m_client_rect_wd - (double)(m_data_idx % (int)m_grid_step_x)*kx;
+	sx = m_client_rect_wd - (double)(m_data_count % (int)m_grid_step_x)*kx;
 
 	for( i = 0;i < m_gridx_N;i++ )
 	{
