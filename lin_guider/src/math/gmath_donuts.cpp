@@ -28,7 +28,9 @@ cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
 	m_sub_frame( NULL ),
 	m_guiding( false ),
 	m_video_width( 0 ),
-	m_video_height( 0 )
+	m_video_height( 0 ),
+	m_ref_x( 0 ),
+	m_ref_y( 0 )
 {
 	m_type = GA_DONUTS;
 }
@@ -229,7 +231,6 @@ void cgmath_donuts::on_stop( void )
 
 		m_ref_x = 0;
 		m_ref_y = 0;
-
 		m_guiding = false;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );
