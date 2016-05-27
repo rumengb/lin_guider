@@ -49,8 +49,8 @@ bool cgmath_donuts::set_video_params( int vid_wd, int vid_ht )
 	m_video_width = vid_wd;
 	m_video_height = vid_ht;
 
-	move_osf( vid_wd - vid_wd * m_common_params.osf_size_kx, vid_ht - vid_ht * m_common_params.osf_size_ky );
 	resize_osf( m_common_params.osf_size_kx, m_common_params.osf_size_ky );
+	move_osf( (vid_wd - vid_wd * m_common_params.osf_size_kx)/2, (vid_ht - vid_ht * m_common_params.osf_size_ky)/2 );
 
 	return res;
 }
