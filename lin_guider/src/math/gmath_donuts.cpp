@@ -49,7 +49,7 @@ bool cgmath_donuts::set_video_params( int vid_wd, int vid_ht )
 	m_video_width = vid_wd;
 	m_video_height = vid_ht;
 
-	move_osf( 0, 0 );
+	move_osf( vid_wd - vid_wd * m_common_params.osf_size_kx, vid_ht - vid_ht * m_common_params.osf_size_ky );
 	resize_osf( m_common_params.osf_size_kx, m_common_params.osf_size_ky );
 
 	return res;
@@ -111,18 +111,15 @@ void cgmath_donuts::move_osf( double newx, double newy )
 
 void cgmath_donuts::resize_osf( double kx, double ky )
 {
-	int video_width, video_height;
-	get_data_buffer( &video_width, &video_height, NULL, NULL );
-
 	kx = kx < 0.1 ? 1 : kx;
 	kx = kx > 1 ? 1 : kx;
 	ky = ky < 0.1 ? 1 : ky;
 	ky = ky > 1 ? 1 : ky;
 
-	Vector oldc = Vector( m_osf_pos.x - m_osf_vis_size.x/2, m_osf_pos.y - m_osf_vis_size.y/2, 0 );
+	Vector oldc = Vector( m_osf_pos.x + m_osf_vis_size.x/2, m_osf_pos.y + m_osf_vis_size.y/2, 0 );
 
-	m_osf_vis_size.x = video_width * kx;
-	m_osf_vis_size.y = video_height * ky;
+	m_osf_vis_size.x = m_video_width * kx;
+	m_osf_vis_size.y = m_video_height * ky;
 
 	// check position
 	move_osf( oldc.x - m_osf_vis_size.x/2, oldc.y -  m_osf_vis_size.y/2 );
