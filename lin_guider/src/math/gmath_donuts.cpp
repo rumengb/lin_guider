@@ -15,17 +15,22 @@
 #include "donuts_guide.h"
 
 
+namespace lg_math
+{
+
 cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
-	cgmath( comm_params ),
+	cgmath_helper( comm_params ),
+
 	m_osf_pos( Vector(20, 10, 0) ),
 	m_osf_size( Vector(1, 1, 0) ),
-	m_osf_vis_size( (point_t){1, 1} )
+	m_osf_vis_size( (point_t){1, 1} ),
+
+	m_sub_frame( NULL ),
+	m_guiding( false ),
+	m_video_width( 0 ),
+	m_video_height( 0 )
 {
-	m_sub_frame = NULL;
-	m_ref_x = 0;
-	m_ref_y = 0;
-	m_guiding = false;
-	m_video_width = m_video_height = 0;
+	m_type = GA_DONUTS;
 }
 
 
@@ -179,7 +184,10 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	}
 
 	log_i("%s()",__FUNCTION__);
+
 	log_i("corr = %f %f", m_ref_x + d_corr.x, m_ref_y + d_corr.y);
+
+	set_quality_params( double(rand()%10+10)/20.0, 0.1 );
 
 	return Vector( m_ref_x - d_corr.x, m_ref_y - d_corr.y, 0 );
 }
@@ -218,9 +226,13 @@ void cgmath_donuts::on_stop( void )
 		}
 
 		dg_delete_frame_digest(&m_dg_ref);
+
 		m_ref_x = 0;
 		m_ref_y = 0;
+
 		m_guiding = false;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );
+}
+
 }

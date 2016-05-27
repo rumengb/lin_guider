@@ -115,11 +115,13 @@ public:
 		dithering_rest_tout( 3 ),
 
 		hfd_on( false ),
-		square_index( cgmath::DEFAULT_SQR ),
+		square_index( lg_math::cgmath::DEFAULT_SQR ),
 		reticle_angle( 0 ),
 
 		osf_size_kx( 1.0 ),
-		osf_size_ky( 1.0 )
+		osf_size_ky( 1.0 ),
+
+		guider_algorithm( lg_math::GA_CENTROID )
 	{
 	}
 
@@ -138,6 +140,8 @@ public:
 
 	double osf_size_kx;
 	double osf_size_ky;
+
+	int guider_algorithm;
 
 };
 

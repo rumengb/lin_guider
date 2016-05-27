@@ -29,7 +29,6 @@
 #include "utils.h"
 
 
-
 setup_video::setup_video(lin_guider *parent)
     : QDialog(parent), pmain_wnd(parent)
 {
@@ -96,7 +95,6 @@ setup_video::setup_video(lin_guider *parent)
 
 setup_video::~setup_video()
 {
-
 }
 
 

@@ -57,19 +57,19 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	this->adjustSize();
 
 	ui.comboBox_SquareSize->clear();
-	for( i = 0;guide_squares[i].size != -1;i++ )
-		ui.comboBox_SquareSize->addItem( QString().setNum( guide_squares[i].size ) );
+	for( i = 0;lg_math::guide_squares[i].size != -1;i++ )
+		ui.comboBox_SquareSize->addItem( QString().setNum( lg_math::guide_squares[i].size ) );
 
 	ui.comboBox_ThresholdAlg->clear();
-	for( i = 0;guide_square_alg[i].idx != -1;i++ )
-		ui.comboBox_ThresholdAlg->addItem( QString( guide_square_alg[i].name ) );
+	for( i = 0;lg_math::guide_square_alg[i].idx != -1;i++ )
+		ui.comboBox_ThresholdAlg->addItem( QString( lg_math::guide_square_alg[i].name ) );
 
 	ui.comboBox_QualityControl->clear();
-	for( i = 0;q_control_mtd[i].idx != -1;i++ )
-		ui.comboBox_QualityControl->addItem( QString( q_control_mtd[i].name ) );
+	for( i = 0;lg_math::q_control_mtd[i].idx != -1;i++ )
+		ui.comboBox_QualityControl->addItem( QString( lg_math::q_control_mtd[i].name ) );
 
-	ui.spinBox_AccFramesRA->setMaximum( cgmath::MAX_ACCUM_CNT );
-	ui.spinBox_AccFramesDEC->setMaximum( cgmath::MAX_ACCUM_CNT );
+	ui.spinBox_AccFramesRA->setMaximum( lg_math::MAX_ACCUM_CNT );
+	ui.spinBox_AccFramesDEC->setMaximum( lg_math::MAX_ACCUM_CNT );
 
 	// connect ui
 	connect( ui.spinBox_XScale, 		SIGNAL(valueChanged(int)), this, SLOT(onXscaleChanged(int)) );
@@ -220,7 +220,7 @@ bool guider::is_guiding( void ) const
 }
 
 
-void guider::set_math( cgmath *math )
+void guider::set_math( lg_math::cgmath *math )
 {
 	assert( math );
 	m_math = math;
@@ -229,9 +229,9 @@ void guider::set_math( cgmath *math )
 
 void guider::fill_interface( void )
 {
-	const cproc_in_params *in_params;
-	const cproc_out_params *out_params;
-	info_params_t	info_params;
+	const lg_math::cproc_in_params *in_params;
+	const lg_math::cproc_out_params *out_params;
+	lg_math::info_params_t	info_params;
 	QString str;
 	int rx, ry;
 
@@ -267,36 +267,36 @@ void guider::fill_interface( void )
 	str = QString().setNum(info_params.fov_wd, 'f', 1) + "x" + QString().setNum(info_params.fov_ht, 'f', 1);
 	ui.l_FOV->setText( str );
 
-	ui.groupBox_DirRA->setChecked( in_params->enabled_dir[cgmath::RA] );
-	ui.checkBox_DirRAPlus->setChecked( in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_POS] );
-	ui.checkBox_DirRAMinus->setChecked( in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_NEG] );
+	ui.groupBox_DirRA->setChecked( in_params->enabled_dir[lg_math::RA] );
+	ui.checkBox_DirRAPlus->setChecked( in_params->enabled_dir_sign[lg_math::RA][lg_math::SGN_POS] );
+	ui.checkBox_DirRAMinus->setChecked( in_params->enabled_dir_sign[lg_math::RA][lg_math::SGN_NEG] );
 
-	ui.groupBox_DirDEC->setChecked( in_params->enabled_dir[cgmath::DEC] );
-	ui.checkBox_DirDECPlus->setChecked( in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_POS] );
-	ui.checkBox_DirDECMinus->setChecked( in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_NEG] );
+	ui.groupBox_DirDEC->setChecked( in_params->enabled_dir[lg_math::DEC] );
+	ui.checkBox_DirDECPlus->setChecked( in_params->enabled_dir_sign[lg_math::DEC][lg_math::SGN_POS] );
+	ui.checkBox_DirDECMinus->setChecked( in_params->enabled_dir_sign[lg_math::DEC][lg_math::SGN_NEG] );
 
 	ui.checkBox_AverageFrames->setChecked( in_params->average );
 
-	ui.spinBox_AccFramesRA->setValue( (int)in_params->accum_frame_cnt[cgmath::RA] );
-	ui.spinBox_AccFramesDEC->setValue( (int)in_params->accum_frame_cnt[cgmath::DEC] );
+	ui.spinBox_AccFramesRA->setValue( (int)in_params->accum_frame_cnt[lg_math::RA] );
+	ui.spinBox_AccFramesDEC->setValue( (int)in_params->accum_frame_cnt[lg_math::DEC] );
 
 	update_gains();
 
-	ui.spinBox_MaxPulseRA->setValue( in_params->max_pulse_length[cgmath::RA] );
-	ui.spinBox_MaxPulseDEC->setValue( in_params->max_pulse_length[cgmath::DEC] );
+	ui.spinBox_MaxPulseRA->setValue( in_params->max_pulse_length[lg_math::RA] );
+	ui.spinBox_MaxPulseDEC->setValue( in_params->max_pulse_length[lg_math::DEC] );
 
-	ui.spinBox_MinPulseRA->setValue( in_params->min_pulse_length[cgmath::RA] );
-	ui.spinBox_MinPulseDEC->setValue( in_params->min_pulse_length[cgmath::DEC] );
+	ui.spinBox_MinPulseRA->setValue( in_params->min_pulse_length[lg_math::RA] );
+	ui.spinBox_MinPulseDEC->setValue( in_params->min_pulse_length[lg_math::DEC] );
 
 
-	ui.l_DeltaRA->setText(QString().setNum(out_params->delta[cgmath::RA], 'f', 2) );
-	ui.l_DeltaDEC->setText(QString().setNum(out_params->delta[cgmath::DEC], 'f', 2) );
+	ui.l_DeltaRA->setText(QString().setNum(out_params->delta[lg_math::RA], 'f', 2) );
+	ui.l_DeltaDEC->setText(QString().setNum(out_params->delta[lg_math::DEC], 'f', 2) );
 
-	ui.l_PulseRA->setText(QString().setNum(out_params->pulse_length[cgmath::RA]) );
-	ui.l_PulseDEC->setText(QString().setNum(out_params->pulse_length[cgmath::DEC]) );
+	ui.l_PulseRA->setText(QString().setNum(out_params->pulse_length[lg_math::RA]) );
+	ui.l_PulseDEC->setText(QString().setNum(out_params->pulse_length[lg_math::DEC]) );
 
-	ui.l_ErrRA->setText( QString().setNum(out_params->sigma[cgmath::RA]) );
-	ui.l_ErrDEC->setText( QString().setNum(out_params->sigma[cgmath::DEC]) );
+	ui.l_ErrRA->setText( QString().setNum(out_params->sigma[lg_math::RA]) );
+	ui.l_ErrDEC->setText( QString().setNum(out_params->sigma[lg_math::DEC]) );
 
 	ui.l_Quality->setText( QString().setNum(out_params->quality, 'f', 1) );
 }
@@ -306,14 +306,14 @@ void guider::update_gains( void )
 {
 	if( !m_math )
 		return;
-	const cproc_in_params *in_params = m_math->get_in_params();;
+	const lg_math::cproc_in_params *in_params = m_math->get_in_params();;
 
-	ui.spinBox_PropGainRA->setValue( in_params->normalize_gain ? in_params->proportional_gain[cgmath::RA] / in_params->guiding_normal_coef : in_params->proportional_gain[cgmath::RA]);
-	ui.spinBox_PropGainDEC->setValue(in_params->normalize_gain ? in_params->proportional_gain[cgmath::DEC] / in_params->guiding_normal_coef : in_params->proportional_gain[cgmath::DEC]);
-	ui.spinBox_IntGainRA->setValue(in_params->normalize_gain ? in_params->integral_gain[cgmath::RA] / in_params->guiding_normal_coef : in_params->integral_gain[cgmath::RA]);
-	ui.spinBox_IntGainDEC->setValue(in_params->normalize_gain ? in_params->integral_gain[cgmath::DEC] / in_params->guiding_normal_coef : in_params->integral_gain[cgmath::DEC]);
-	ui.spinBox_DerGainRA->setValue(in_params->normalize_gain ? in_params->derivative_gain[cgmath::RA] / in_params->guiding_normal_coef : in_params->derivative_gain[cgmath::RA]);
-	ui.spinBox_DerGainDEC->setValue(in_params->normalize_gain ? in_params->derivative_gain[cgmath::DEC] / in_params->guiding_normal_coef : in_params->derivative_gain[cgmath::DEC]);
+	ui.spinBox_PropGainRA->setValue( in_params->normalize_gain ? in_params->proportional_gain[lg_math::RA] / in_params->guiding_normal_coef : in_params->proportional_gain[lg_math::RA]);
+	ui.spinBox_PropGainDEC->setValue(in_params->normalize_gain ? in_params->proportional_gain[lg_math::DEC] / in_params->guiding_normal_coef : in_params->proportional_gain[lg_math::DEC]);
+	ui.spinBox_IntGainRA->setValue(in_params->normalize_gain ? in_params->integral_gain[lg_math::RA] / in_params->guiding_normal_coef : in_params->integral_gain[lg_math::RA]);
+	ui.spinBox_IntGainDEC->setValue(in_params->normalize_gain ? in_params->integral_gain[lg_math::DEC] / in_params->guiding_normal_coef : in_params->integral_gain[lg_math::DEC]);
+	ui.spinBox_DerGainRA->setValue(in_params->normalize_gain ? in_params->derivative_gain[lg_math::RA] / in_params->guiding_normal_coef : in_params->derivative_gain[lg_math::RA]);
+	ui.spinBox_DerGainDEC->setValue(in_params->normalize_gain ? in_params->derivative_gain[lg_math::DEC] / in_params->guiding_normal_coef : in_params->derivative_gain[lg_math::DEC]);
 }
 
 
@@ -376,7 +376,7 @@ void guider::onSwapDEC( int state )
 
 void guider::onNormalizeGain( int state )
 {
-	cproc_in_params *in_params;
+	lg_math::cproc_in_params *in_params;
 
 	if( !m_math ) return;
 
@@ -438,7 +438,7 @@ void guider::onInfoRateChanged( double val )
 	if( !m_math )
 		return;
 
-	cproc_in_params *in_params = m_math->get_in_params();
+	lg_math::cproc_in_params *in_params = m_math->get_in_params();
 
 	in_params->guiding_rate = val;
 	in_params->guiding_normal_coef = m_math->precalc_proportional_gain(in_params->guiding_rate);
@@ -454,8 +454,8 @@ void guider::onEnableDirRA( bool on )
 	if( !m_math )
 		return;
 
-	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir[cgmath::RA] = on;
+	lg_math::cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir[lg_math::RA] = on;
 	m_math->calc_dir_checker();
 }
 
@@ -465,8 +465,8 @@ void guider::onEnableDirDEC( bool on )
 	if( !m_math )
 		return;
 
-	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir[cgmath::DEC] = on;
+	lg_math::cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir[lg_math::DEC] = on;
 	m_math->calc_dir_checker();
 }
 
@@ -476,8 +476,8 @@ void guider::onEnableDirRAPlus( int state )
 	if( !m_math )
 		return;
 
-	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_POS] = (state == Qt::Checked);
+	lg_math::cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[lg_math::RA][lg_math::SGN_POS] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -487,8 +487,8 @@ void guider::onEnableDirRAMinus( int state )
 	if( !m_math )
 		return;
 
-	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[cgmath::RA][cgmath::SGN_NEG] = (state == Qt::Checked);
+	lg_math::cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[lg_math::RA][lg_math::SGN_NEG] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -498,8 +498,8 @@ void guider::onEnableDirDECPlus( int state )
 	if( !m_math )
 		return;
 
-	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_POS] = (state == Qt::Checked);
+	lg_math::cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[lg_math::DEC][lg_math::SGN_POS] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -509,8 +509,8 @@ void guider::onEnableDirDECMinus( int state )
 	if( !m_math )
 		return;
 
-	cproc_in_params *in_params = m_math->get_in_params();
-	in_params->enabled_dir_sign[cgmath::DEC][cgmath::SGN_NEG] = (state == Qt::Checked);
+	lg_math::cproc_in_params *in_params = m_math->get_in_params();
+	in_params->enabled_dir_sign[lg_math::DEC][lg_math::SGN_NEG] = (state == Qt::Checked);
 	m_math->calc_dir_checker();
 }
 
@@ -520,7 +520,7 @@ void guider::onInputParamChanged()
 	QObject *obj;
 	QSpinBox *pSB;
 	QDoubleSpinBox *pDSB;
-	cproc_in_params *in_params;
+	lg_math::cproc_in_params *in_params;
 
 	if( !m_math )
 		return;
@@ -532,43 +532,43 @@ void guider::onInputParamChanged()
 	if( (pSB = dynamic_cast<QSpinBox *>(obj)) )
 	{
 		if( pSB == ui.spinBox_AccFramesRA )
-			in_params->accum_frame_cnt[cgmath::RA] = pSB->value();
+			in_params->accum_frame_cnt[lg_math::RA] = pSB->value();
 		else
 		if( pSB == ui.spinBox_AccFramesDEC )
-			in_params->accum_frame_cnt[cgmath::DEC] = pSB->value();
+			in_params->accum_frame_cnt[lg_math::DEC] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MaxPulseRA )
-			in_params->max_pulse_length[cgmath::RA] = pSB->value();
+			in_params->max_pulse_length[lg_math::RA] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MaxPulseDEC )
-			in_params->max_pulse_length[cgmath::DEC] = pSB->value();
+			in_params->max_pulse_length[lg_math::DEC] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MinPulseRA )
-			in_params->min_pulse_length[cgmath::RA] = pSB->value();
+			in_params->min_pulse_length[lg_math::RA] = pSB->value();
 		else
 		if( pSB == ui.spinBox_MinPulseDEC )
-			in_params->min_pulse_length[cgmath::DEC] = pSB->value();
+			in_params->min_pulse_length[lg_math::DEC] = pSB->value();
 	}
 	else
 	if( (pDSB = dynamic_cast<QDoubleSpinBox *>(obj)) )
 	{
 		if( pDSB == ui.spinBox_PropGainRA )
-			in_params->proportional_gain[cgmath::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->proportional_gain[lg_math::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_PropGainDEC )
-			in_params->proportional_gain[cgmath::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->proportional_gain[lg_math::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_IntGainRA )
-			in_params->integral_gain[cgmath::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->integral_gain[lg_math::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_IntGainDEC )
-			in_params->integral_gain[cgmath::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->integral_gain[lg_math::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_DerGainRA )
-			in_params->derivative_gain[cgmath::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->derivative_gain[lg_math::RA] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.spinBox_DerGainDEC )
-			in_params->derivative_gain[cgmath::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
+			in_params->derivative_gain[lg_math::DEC] = in_params->normalize_gain ? pDSB->value() * in_params->guiding_normal_coef : pDSB->value();
 		else
 		if( pDSB == ui.doubleSpinBox_QualityThreshold1 )
 			in_params->quality_threshold1 = pDSB->value();
@@ -637,7 +637,7 @@ void guider::onStartStopButtonClick()
 
 void guider::guide( void )
 {
-	const cproc_out_params *out = NULL;
+	const lg_math::cproc_out_params *out = NULL;
 	QString str;
 	uint32_t tick = 0;
 	double drift_x = 0, drift_y = 0;
@@ -652,7 +652,7 @@ void guider::guide( void )
 
 	// do pulse
 	out = m_math->get_out_params();
-	m_driver->do_pulse( out->pulse_dir[cgmath::RA], out->pulse_length[cgmath::RA], out->pulse_dir[cgmath::DEC], out->pulse_length[cgmath::DEC] );
+	m_driver->do_pulse( out->pulse_dir[lg_math::RA], out->pulse_length[lg_math::RA], out->pulse_dir[lg_math::DEC], out->pulse_length[lg_math::DEC] );
 
 	m_math->get_star_drift( &drift_x, &drift_y );
 
@@ -663,14 +663,14 @@ void guider::guide( void )
 	if( tick & 1 )
 	{
 		// draw some params in window
-		ui.l_DeltaRA->setText(str.setNum(out->delta[cgmath::RA], 'f', 2) );
-		ui.l_DeltaDEC->setText(str.setNum(out->delta[cgmath::DEC], 'f', 2) );
+		ui.l_DeltaRA->setText(str.setNum(out->delta[lg_math::RA], 'f', 2) );
+		ui.l_DeltaDEC->setText(str.setNum(out->delta[lg_math::DEC], 'f', 2) );
 
-		ui.l_PulseRA->setText(str.setNum(out->pulse_length[cgmath::RA]) );
-		ui.l_PulseDEC->setText(str.setNum(out->pulse_length[cgmath::DEC]) );
+		ui.l_PulseRA->setText(str.setNum(out->pulse_length[lg_math::RA]) );
+		ui.l_PulseDEC->setText(str.setNum(out->pulse_length[lg_math::DEC]) );
 
-		ui.l_ErrRA->setText( str.setNum(out->sigma[cgmath::RA], 'f', 2) );
-		ui.l_ErrDEC->setText( str.setNum(out->sigma[cgmath::DEC], 'f', 2) );
+		ui.l_ErrRA->setText( str.setNum(out->sigma[lg_math::RA], 'f', 2) );
+		ui.l_ErrDEC->setText( str.setNum(out->sigma[lg_math::DEC], 'f', 2) );
 
 		ui.l_Quality->setText( str.setNum(out->quality, 'f', 1) );
 	}
@@ -702,20 +702,20 @@ void guider::check_for_events( void )
 	int stability = -1;
 
 	// Quality control
-	if( m_math->get_q_control_index() != Q_CTRL_OFF && (q_rate = m_math->calc_quality_rate()) != quality_rate )
+	if( m_math->get_q_control_index() != lg_math::Q_CTRL_OFF && (q_rate = m_math->calc_quality_rate()) != quality_rate )
 	{
 		quality_rate = q_rate;
 		switch( quality_rate )
 		{
-		case QUALITY_OK:
+		case lg_math::QUALITY_OK:
 			server::send_bcast_msg( BCM_NORMAL_IMAGE_QUALITY );
 			break;
-		case QUALITY_NOTIFY:
+		case lg_math::QUALITY_NOTIFY:
 			server::send_bcast_msg( BCM_LOW_IMAGE_QUALITY );
 			break;
-		case QUALITY_CRITICAL:
+		case lg_math::QUALITY_CRITICAL:
 			server::send_bcast_msg( BCM_CRITICAL_IMAGE_QUALITY );
-			if( m_math->get_q_control_index() == Q_CTRL_FULL )
+			if( m_math->get_q_control_index() == lg_math::Q_CTRL_FULL )
 			{
 				log_i( "quality is too low. stopping guiding" );
 				onStartStopButtonClick();
@@ -733,10 +733,10 @@ void guider::check_for_events( void )
 			guiding_stable = stability;
 			switch( guiding_stable )
 			{
-			case STABILITY_GOOD:
+			case lg_math::STABILITY_GOOD:
 				server::send_bcast_msg( BCM_GUIDING_STABLE );
 				break;
-			case STABILITY_BAD:
+			case lg_math::STABILITY_BAD:
 				server::send_bcast_msg( BCM_GUIDING_UNSTABLE );
 				break;
 			}

@@ -49,7 +49,7 @@ public:
 
     bool set_video_params( int vid_wd, int vid_ht );
     void update_reticle_pos( double x, double y );
-    void set_math( cgmath *math );
+    void set_math( lg_math::cgmath *math );
 
 protected slots:
 	void onSquareSizeChanged( int index );
@@ -88,8 +88,10 @@ private:
 	double start_x2, start_y2;
 	double end_x2, end_y2;
 
-	cgmath *pmath;
 	lin_guider *pmain_wnd;
+	lg_math::cgmath *m_math;
+	int m_prev_math_type;
+	lg_math::cproc_in_params m_prev_in_params;
 private:
     Ui::rcalibrationClass ui;
 };

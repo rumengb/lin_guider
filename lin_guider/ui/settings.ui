@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>590</width>
-    <height>384</height>
+    <height>414</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -231,67 +231,6 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="16" column="2">
-       <spacer name="verticalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>21</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>Drift graph X cells</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>Drift graph Y cells</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="4">
-       <widget class="QCheckBox" name="checkBox_DBGVerbosity">
-        <property name="text">
-         <string>debug verbosity</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QSpinBox" name="spinBox_DitherRange">
-        <property name="minimum">
-         <number>3</number>
-        </property>
-        <property name="maximum">
-         <number>16</number>
-        </property>
-        <property name="value">
-         <number>5</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Dithering timeout, sec</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_1">
-        <property name="text">
-         <string>Dithering range, pix</string>
-        </property>
-       </widget>
-      </item>
       <item row="5" column="2">
        <widget class="QSpinBox" name="spinBox_DitherRestTout">
         <property name="maximum">
@@ -318,6 +257,29 @@
         </property>
        </spacer>
       </item>
+      <item row="5" column="0">
+       <widget class="QSpinBox" name="spinBox_DitherRange">
+        <property name="minimum">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <number>16</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="2">
+       <widget class="QComboBox" name="comboBox_DriftGraph_nx"/>
+      </item>
+      <item row="9" column="4">
+       <widget class="QCheckBox" name="checkBox_DBGVerbosity">
+        <property name="text">
+         <string>debug verbosity</string>
+        </property>
+       </widget>
+      </item>
       <item row="7" column="4">
        <widget class="QCheckBox" name="checkBox_ShowHelperTB">
         <property name="text">
@@ -332,12 +294,6 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="2">
-       <widget class="QComboBox" name="comboBox_DriftGraph_nx"/>
-      </item>
-      <item row="14" column="2">
-       <widget class="QComboBox" name="comboBox_DriftGraph_ny"/>
-      </item>
       <item row="7" column="0">
        <widget class="QLabel" name="label_graph">
         <property name="text">
@@ -345,21 +301,72 @@
         </property>
        </widget>
       </item>
+      <item row="14" column="2">
+       <widget class="QComboBox" name="comboBox_DriftGraph_ny"/>
+      </item>
       <item row="7" column="2">
        <widget class="QComboBox" name="comboBox_GraphType"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_1">
+        <property name="text">
+         <string>Dithering range, pix</string>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="2">
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>21</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="14" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Drift graph Y cells</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Dithering timeout, sec</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Drift graph X cells</string>
+        </property>
+       </widget>
       </item>
       <item row="15" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Optional subframe size, XxY</string>
+         <string>Optional subframe size</string>
         </property>
        </widget>
       </item>
       <item row="15" column="2">
-       <widget class="QComboBox" name="comboBox_OSFSizeX"/>
+       <widget class="QComboBox" name="comboBox_OSFSize"/>
       </item>
-      <item row="15" column="4">
-       <widget class="QComboBox" name="comboBox_OSFSizeY"/>
+      <item row="16" column="2">
+       <widget class="QComboBox" name="comboBox_GuiderAlgorithm"/>
+      </item>
+      <item row="16" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Guider algorithm</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -385,8 +392,8 @@
   <tabstop>comboBox_DriftGraph_nx</tabstop>
   <tabstop>checkBox_DBGVerbosity</tabstop>
   <tabstop>comboBox_DriftGraph_ny</tabstop>
-  <tabstop>comboBox_OSFSizeX</tabstop>
-  <tabstop>comboBox_OSFSizeY</tabstop>
+  <tabstop>comboBox_OSFSize</tabstop>
+  <tabstop>comboBox_GuiderAlgorithm</tabstop>
   <tabstop>pushButton_OK</tabstop>
   <tabstop>pushButton_Cancel</tabstop>
  </tabstops>

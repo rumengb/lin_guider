@@ -64,8 +64,8 @@ public:
 	void set_capture_next_params( const video_drv::capture_next_params_t &v ){ m_capture_next_params = v;};
 
 	// math
-	const cproc_in_params *get_math_in_params( void ) const { return &m_math_in_params;};
-	void set_math_in_params( const cproc_in_params &v ){ m_math_in_params = v;};
+	const lg_math::cproc_in_params *get_math_in_params( void ) const { return &m_math_in_params;};
+	void set_math_in_params( const lg_math::cproc_in_params &v ){ m_math_in_params = v;};
 
 	// io
 	io_drv::device_init_params_t get_device_params( void ) const { return m_device_params;};
@@ -118,7 +118,7 @@ private:
 	video_drv::capture_next_params_t m_capture_next_params;
 
 	// math
-	cproc_in_params m_math_in_params;
+	lg_math::cproc_in_params m_math_in_params;
 
 	// io
 	io_drv::device_init_params_t m_device_params;

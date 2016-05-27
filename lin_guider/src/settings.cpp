@@ -49,8 +49,8 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_DriftGraph_nx->clear();
 	ui.comboBox_DriftGraph_ny->clear();
 	ui.comboBox_GraphType->clear();
-	ui.comboBox_OSFSizeX->clear();
-	ui.comboBox_OSFSizeY->clear();
+	ui.comboBox_OSFSize->clear();
+	ui.comboBox_GuiderAlgorithm->clear();
 	for( int i = 0;i <= 10;i++ )
 	{
 		if( i > 1 )
@@ -65,23 +65,25 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_GraphType->addItem( QString("Target (points)"), guider::GRAPH_TARGET_POINTS );
 	ui.comboBox_GraphType->addItem( QString("Target (lines)"), guider::GRAPH_TARGET_LINES );
 
-	ui.comboBox_OSFSizeX->addItem( QString("Full"), 1.0 );
-	ui.comboBox_OSFSizeX->addItem( QString("1/2"), 0.5 );
-	ui.comboBox_OSFSizeX->addItem( QString("1/4"), 0.25 );
-	ui.comboBox_OSFSizeX->addItem( QString("1/8"), 0.125 );
-	ui.comboBox_OSFSizeY->addItem( QString("Full"), 1.0 );
-	ui.comboBox_OSFSizeY->addItem( QString("1/2"), 0.5 );
-	ui.comboBox_OSFSizeY->addItem( QString("1/4"), 0.25 );
-	ui.comboBox_OSFSizeY->addItem( QString("1/8"), 0.125 );
+	ui.comboBox_OSFSize->addItem( QString("Full"), 1.0 );
+	ui.comboBox_OSFSize->addItem( QString("1/2"), 0.5 );
+	ui.comboBox_OSFSize->addItem( QString("1/4"), 0.25 );
+	ui.comboBox_OSFSize->addItem( QString("1/8"), 0.125 );
+
+	int cnt = ARRAY_SIZE( lg_math::alg_desc_list );
+	for( int i = 0;i < cnt;i++ )
+		ui.comboBox_GuiderAlgorithm->addItem( QString(lg_math::alg_desc_list[i].desc), lg_math::alg_desc_list[i].type );
 
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
 }
 
+
 settings::~settings()
 {
 
 }
+
 
 void settings::showEvent( QShowEvent * event )
 {
@@ -166,8 +168,8 @@ void settings::fill_interface( void )
 		}
 	}
 
-	ui.comboBox_OSFSizeX->setCurrentIndex( ui.comboBox_OSFSizeX->findData( m_common_params.osf_size_kx ) );
-	ui.comboBox_OSFSizeY->setCurrentIndex( ui.comboBox_OSFSizeY->findData( m_common_params.osf_size_ky ) );
+	ui.comboBox_OSFSize->setCurrentIndex( ui.comboBox_OSFSize->findData( m_common_params.osf_size_kx ) );
+	ui.comboBox_GuiderAlgorithm->setCurrentIndex( ui.comboBox_GuiderAlgorithm->findData( m_common_params.guider_algorithm ) );
 }
 
 
@@ -271,18 +273,19 @@ void settings::onOkButtonClick()
 		return;
 	}
 	m_drift_view_params->cell_ny = ui.comboBox_DriftGraph_ny->itemData( ui.comboBox_DriftGraph_ny->currentIndex() ).toInt();
-	if( ui.comboBox_OSFSizeX->currentIndex() == -1 )
+	if( ui.comboBox_OSFSize->currentIndex() == -1 )
 	{
-		QMessageBox::warning( this, tr("Error"), tr("Subframe X - not selected"), QMessageBox::Ok );
+		QMessageBox::warning( this, tr("Error"), tr("Subframe size - not selected"), QMessageBox::Ok );
 		return;
 	}
-	m_common_params.osf_size_kx = ui.comboBox_OSFSizeX->itemData( ui.comboBox_OSFSizeX->currentIndex() ).toDouble();
-	if( ui.comboBox_OSFSizeY->currentIndex() == -1 )
+	m_common_params.osf_size_kx = ui.comboBox_OSFSize->itemData( ui.comboBox_OSFSize->currentIndex() ).toDouble();
+	m_common_params.osf_size_ky = m_common_params.osf_size_kx;
+	if( ui.comboBox_GuiderAlgorithm->currentIndex() == -1 )
 	{
-		QMessageBox::warning( this, tr("Error"), tr("Subframe Y - not selected"), QMessageBox::Ok );
+		QMessageBox::warning( this, tr("Error"), tr("Algorithm - not selected"), QMessageBox::Ok );
 		return;
 	}
-	m_common_params.osf_size_ky = ui.comboBox_OSFSizeY->itemData( ui.comboBox_OSFSizeY->currentIndex() ).toDouble();
+	m_common_params.guider_algorithm = ui.comboBox_GuiderAlgorithm->itemData( ui.comboBox_GuiderAlgorithm->currentIndex() ).toInt();
 
 	// final
 	*m_pcommon_params = m_common_params;

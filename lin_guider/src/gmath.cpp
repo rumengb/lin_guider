@@ -36,6 +36,24 @@
 #include "io_driver.h"
 #include "utils.h"
 
+namespace lg_math
+{
+
+algorithm_desc_t alg_desc_list[ALG_CNT] = {
+		{
+			GA_CENTROID,
+			"Centroid (default)",
+			NULL,
+			NULL
+		},
+		{
+			GA_DONUTS,
+			"Donuts",
+			NULL,
+			NULL
+		}
+};
+
 #define DEF_SQR_0	(16-0)
 #define DEF_SQR_1	(32-0)
 #define DEF_SQR_2	(64-0)
@@ -66,6 +84,8 @@ const q_control_t q_control_mtd[] = {
 cgmath::cgmath( const common_params &comm_params ) :
 	m_common_params( comm_params )
 {
+	m_type = GA_CENTROID;
+
 	// sys...
 	m_ticks = 0;
 	m_pdata = NULL;
@@ -173,24 +193,6 @@ double *cgmath::get_data_buffer( int *width, int *height, int *length, int *size
 		*size = m_video_width * m_video_height * sizeof(double);
 
 	return m_pdata;
-}
-
-void cgmath::copy_subframe(double *subframe, int x_offset, int y_offset, int sf_width, int sf_height) const
-{
-	int i;
-	int ci = 0;
-	int li = 0;
-
-	if (!subframe) return;
-	int max = sf_width * sf_height;
-	for(i=0; i < max; i++) {
-		subframe[i] = m_pdata[ m_video_width * (y_offset + li) + x_offset + ci ];
-		ci++;
-		if (ci == sf_width) {
-			ci = 0;
-			li++;
-		}
-	}
 }
 
 
@@ -1187,6 +1189,17 @@ void cgmath::calc_square_err( void )
 }
 
 
+void cgmath::set_quality_params( double q_val, double q_bkgd ) const
+{
+	m_q_star_max = q_val;
+	m_q_bkgd     = q_bkgd;
+	if( m_q_bkgd < 0 ) m_q_bkgd = 0;
+	if( m_q_bkgd > 1 ) m_q_bkgd = 1;
+	if( m_q_star_max < m_q_bkgd ) m_q_star_max = m_q_bkgd;
+	if( m_q_star_max > 1 ) m_q_star_max = 1;
+}
+
+
 void cgmath::calc_quality( void )
 {
 	uint32_t q_tick = m_ticks % q_stat_len;
@@ -1533,6 +1546,16 @@ void cgmath::get_speed_info( double *ra_v, double *dec_v ) const
 }
 
 
+int cgmath::get_type( void ) const
+{
+	return (int)m_type;
+}
+
+
+const char *cgmath::get_name( void ) const
+{
+	return alg_desc_list[m_type-1].desc;
+}
 
 
 //---------------------------------------------------------------------------------------
@@ -1550,11 +1573,11 @@ void cproc_in_params::reset( void )
 	guiding_normal_coef = cgmath::precalc_proportional_gain( guiding_rate );
 	average = true;
 
-	for( int k = cgmath::RA;k <= cgmath::DEC;k++ )
+	for( int k = lg_math::RA;k <= lg_math::DEC;k++ )
 	{
 		enabled_dir[k] 				 = true;
-		enabled_dir_sign[k][cgmath::SGN_POS] = true;
-		enabled_dir_sign[k][cgmath::SGN_NEG] = true;
+		enabled_dir_sign[k][lg_math::SGN_POS] = true;
+		enabled_dir_sign[k][lg_math::SGN_NEG] = true;
 		accum_frame_cnt[k] 	         = 1;
 		proportional_gain[k]         = guiding_normal_coef;
 		integral_gain[k] 	         = 0;
@@ -1566,7 +1589,7 @@ void cproc_in_params::reset( void )
 	q_control_idx = Q_CTRL_OFF;
 	quality_threshold1 = 50; // notification threshold in %
 	quality_threshold2 = 15; // critical threshold in %
-	stability_limit_factor = cgmath::STABILITY_LIMIT_FACTOR;
+	stability_limit_factor = lg_math::STABILITY_LIMIT_FACTOR;
 }
 
 
@@ -1578,7 +1601,7 @@ cproc_out_params::cproc_out_params()
 
 void cproc_out_params::reset( void )
 {
-	for( int k = cgmath::RA;k <= cgmath::DEC;k++ )
+	for( int k = lg_math::RA;k <= lg_math::DEC;k++ )
 	{
 		delta[k] 		= 0;
 		pulse_dir[k] 	= io_drv::NO_DIR;
@@ -1588,4 +1611,6 @@ void cproc_out_params::reset( void )
 	quality = 0;
 	hfd_h = 0;
 	hfd_lum_max = 0;
+}
+
 }

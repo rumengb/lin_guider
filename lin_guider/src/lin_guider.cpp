@@ -59,7 +59,25 @@
 
 
 lin_guider::lin_guider(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+      m_param_block( NULL ),
+
+      m_video( NULL ),
+      m_driver( NULL ),
+      m_server( NULL ),
+      setup_video_wnd( NULL ),
+      setup_driver_wnd( NULL ),
+      guider_wnd( NULL ),
+      reticle_wnd( NULL ),
+      recorder_wnd( NULL ),
+      settings_wnd( NULL ),
+      about_wnd( NULL ),
+
+      m_math( NULL ),
+
+      m_video_out( NULL ),
+      m_v_buf( NULL ),
+      m_video_buffer( NULL )
 {
  bool res;
 
@@ -98,21 +116,21 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.action_Toggle_Calibration_Guider, SIGNAL(triggered()), this, SLOT(onToggleCalibrationGuider()) );
 	connect( ui.actionAdjust2fitCamera, SIGNAL(triggered()), this, SLOT(onAdjust2fitCamera()) );
 
-	param_block = new params();
+	m_param_block = new params();
 
-	param_block->load();
+	m_param_block->load();
 
 	// get params
-	m_capture_params	 = param_block->get_capture_params();
-	m_guider_params	     = param_block->get_guider_params();
-	m_ui_params		     = param_block->get_ui_params();
-	m_device_params      = param_block->get_device_params();
-	m_calibration_params = param_block->get_calibration_params();
-	param_block->get_video_dev( dev_name_video, sizeof(dev_name_video) );
-	param_block->get_io_dev( dev_name_io, sizeof(dev_name_io) );
-	m_net_params    = param_block->get_net_params();
-	m_common_params = param_block->get_common_params();
-	m_drift_view_params =  param_block->get_drift_view_params();
+	m_capture_params	 = m_param_block->get_capture_params();
+	m_guider_params	     = m_param_block->get_guider_params();
+	m_ui_params		     = m_param_block->get_ui_params();
+	m_device_params      = m_param_block->get_device_params();
+	m_calibration_params = m_param_block->get_calibration_params();
+	m_param_block->get_video_dev( dev_name_video, sizeof(dev_name_video) );
+	m_param_block->get_io_dev( dev_name_io, sizeof(dev_name_io) );
+	m_net_params    = m_param_block->get_net_params();
+	m_common_params = m_param_block->get_common_params();
+	m_drift_view_params =  m_param_block->get_drift_view_params();
 
 	// create devices...
 	// io driver
@@ -279,27 +297,16 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	scrollLayout->addWidget( scrollArea );
 
 	//math...
-	//m_math = new cgmath( m_common_params );
-	m_math = new cgmath_donuts( m_common_params );
-
-	m_math->set_video_params( m_capture_params.width, m_capture_params.height );
-	m_math->set_guider_params( m_guider_params.ccd_pixel_width, m_guider_params.ccd_pixel_height, m_guider_params.aperture, m_guider_params.focal );
-	m_math->set_in_params( param_block->get_math_in_params() );
-
-	// attach math to all modules
-	guider_wnd->set_math( m_math );
-	reticle_wnd->set_math( m_math );
+	create_math_object( m_common_params.guider_algorithm, *m_param_block->get_math_in_params() );
 
 	// apply all permanent params
 	m_video_name_label->setText( tr("Video:") + QString(m_video->get_name()) );
 	m_io_name_label->setText( tr("IO:") + QString(m_driver->get_name()) );
 
-	set_visible_overlays( m_math->get_default_overlay_set(), true );
-
 	memset( m_drag_objs, 0, sizeof(m_drag_objs) );
-	m_drag_objs[0].type = ovr_params_t::OVR_RETICLE;
-	m_drag_objs[1].type = ovr_params_t::OVR_SQUARE;
-	m_drag_objs[2].type = ovr_params_t::OVR_OSF;
+	m_drag_objs[0].type = lg_math::ovr_params_t::OVR_RETICLE;
+	m_drag_objs[1].type = lg_math::ovr_params_t::OVR_SQUARE;
+	m_drag_objs[2].type = lg_math::ovr_params_t::OVR_OSF;
 
 	SQR_OVL_COLOR  = QColor( DEF_SQR_OVL_COLOR[0], DEF_SQR_OVL_COLOR[1], DEF_SQR_OVL_COLOR[2]) ;
 	RA_COLOR	   = QColor( DEF_RA_COLOR[0], DEF_RA_COLOR[1], DEF_RA_COLOR[2] );
@@ -321,12 +328,12 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	// setup geometry
 	{
-		const std::pair< QByteArray, QByteArray >& wnd_gs = param_block->get_wnd_geometry_state( "main_wnd" );
+		const std::pair< QByteArray, QByteArray >& wnd_gs = m_param_block->get_wnd_geometry_state( "main_wnd" );
 		this->restoreGeometry( wnd_gs.first );
 		this->restoreState( wnd_gs.second );
 	}
 	{
-		const std::pair< QByteArray, QByteArray >& wnd_gs = param_block->get_wnd_geometry_state( "guider_wnd" );
+		const std::pair< QByteArray, QByteArray >& wnd_gs = m_param_block->get_wnd_geometry_state( "guider_wnd" );
 		guider_wnd->restoreGeometry( wnd_gs.first );
 	}
 
@@ -367,10 +374,43 @@ lin_guider::~lin_guider()
 	delete about_wnd;
 
 	// params must be deleted last
-	if( param_block )
-		delete param_block;
+	if( m_param_block )
+		delete m_param_block;
 
 	log_i("Terminated successfully.");
+}
+
+
+void lin_guider::create_math_object( int ga_type,
+									 const lg_math::cproc_in_params &ip )
+{
+	if( m_math )
+	{
+		if( m_math->get_type() == ga_type )
+			return;
+		delete m_math;
+	}
+
+	switch( ga_type )
+	{
+	case lg_math::GA_DONUTS:
+		m_math = new lg_math::cgmath_donuts( m_common_params );
+		break;
+	default:
+		m_math = new lg_math::cgmath( m_common_params );
+	}
+
+	m_math->set_video_params( m_capture_params.width, m_capture_params.height );
+	m_math->set_guider_params( m_guider_params.ccd_pixel_width, m_guider_params.ccd_pixel_height, m_guider_params.aperture, m_guider_params.focal );
+	m_math->set_in_params( &ip );
+
+	// attach math to all modules
+	guider_wnd->set_math( m_math );
+	reticle_wnd->set_math( m_math );
+
+	set_visible_overlays( m_math->get_default_overlay_set(), true );
+
+	log_i( "Created math: '%s'", m_math->get_name() );
 }
 
 
@@ -431,30 +471,30 @@ void lin_guider::closeEvent( QCloseEvent *event )
 	m_math->get_reticle_params( NULL, NULL, &m_common_params.reticle_angle );
 
 	// save params
-	param_block->set_capture_params( m_capture_params );
-	param_block->set_capture_next_params( m_video->get_next_params() );
-	param_block->set_device_params( m_driver->get_deviceparams() );
-	param_block->save_device_cfg = m_driver->is_initialized();
-	param_block->set_guider_params( m_guider_params );
-	param_block->set_math_in_params( *m_math->get_in_params() );
-	param_block->set_ui_params( m_ui_params );
-	param_block->set_calibration_params( m_calibration_params );
-	param_block->set_video_dev( dev_name_video );
-	param_block->set_io_dev( dev_name_io );
-	param_block->set_net_params( m_net_params );
-	param_block->set_common_params( m_common_params );
-	param_block->set_drift_view_params( m_drift_view_params );
+	m_param_block->set_capture_params( m_capture_params );
+	m_param_block->set_capture_next_params( m_video->get_next_params() );
+	m_param_block->set_device_params( m_driver->get_deviceparams() );
+	m_param_block->save_device_cfg = m_driver->is_initialized();
+	m_param_block->set_guider_params( m_guider_params );
+	m_param_block->set_math_in_params( *m_math->get_in_params() );
+	m_param_block->set_ui_params( m_ui_params );
+	m_param_block->set_calibration_params( m_calibration_params );
+	m_param_block->set_video_dev( dev_name_video );
+	m_param_block->set_io_dev( dev_name_io );
+	m_param_block->set_net_params( m_net_params );
+	m_param_block->set_common_params( m_common_params );
+	m_param_block->set_drift_view_params( m_drift_view_params );
 
 	{
 		std::pair< QByteArray, QByteArray > wnd_gs = std::make_pair( this->saveGeometry(), this->saveState() );
-		param_block->set_wnd_geometry_state( "main_wnd", wnd_gs );
+		m_param_block->set_wnd_geometry_state( "main_wnd", wnd_gs );
 	}
 	{
 		std::pair< QByteArray, QByteArray > wnd_gs = std::make_pair( guider_wnd->saveGeometry(), QByteArray() );
-		param_block->set_wnd_geometry_state( "guider_wnd", wnd_gs );
+		m_param_block->set_wnd_geometry_state( "guider_wnd", wnd_gs );
 	}
 
-	param_block->save();
+	m_param_block->save();
 }
 
 
@@ -491,6 +531,7 @@ void lin_guider::onShowGuiding()
 void lin_guider::onShowSettings()
 {
 	net_params_t old_net_params = m_net_params;
+	lg_math::cproc_in_params prev_in_params = *m_math->get_in_params();
 
 	settings_wnd->exec();
 	//check UI changes
@@ -504,6 +545,7 @@ void lin_guider::onShowSettings()
 			m_net_params = old_net_params;
 	}
 	// check for a change of math
+	create_math_object( m_common_params.guider_algorithm, prev_in_params );
 	m_math->resize_osf( m_common_params.osf_size_kx, m_common_params.osf_size_ky );
 
 }
@@ -611,7 +653,7 @@ void lin_guider::onGetVideo( const void *src, int len )
 	// HFD
 	if( m_common_params.hfd_on )
 	{
-		const cproc_out_params *out = m_math->get_out_params();
+		const lg_math::cproc_out_params *out = m_math->get_out_params();
 		m_hfd_info_label->setText( QString("HFD: ") +
 								   (out->hfd_h > 0 ? QString().setNum(out->hfd_h, 'f', 2) : QString("_.__")) +
 								   QString("\", Lmax: " + QString().setNum(out->hfd_lum_max, 'f', 0) ) );
@@ -682,7 +724,7 @@ void lin_guider::onRemoteCmd( void )
 			// move square
 			if( newx != -1 && newy != -1 )
 			{
-				ovr_params_t *povr = m_math->prepare_overlays();
+				lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 				m_math->move_square( (double)(newx - povr->square_size/2), (double)(newy - povr->square_size/2) );
 				answer_sz = snprintf( answer, answer_sz_max, "OK" );
 				break;
@@ -728,7 +770,7 @@ void lin_guider::onRemoteCmd( void )
 			int tout = m_math->dither();
 			if( tout > 0 ) // do long task
 			{
-				set_visible_overlays( ovr_params_t::OVR_RETICLE_ORG, true );
+				set_visible_overlays( lg_math::ovr_params_t::OVR_RETICLE_ORG, true );
 				m_long_task_conn = pconn;
 				m_timer.setInterval( tout * 1000 );
 				m_timer.start();
@@ -772,7 +814,7 @@ void lin_guider::onRemoteCmd( void )
 				if (res < 0) {
 					answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
 				} else {
-					set_visible_overlays( ovr_params_t::OVR_RETICLE_ORG, true );
+					set_visible_overlays( lg_math::ovr_params_t::OVR_RETICLE_ORG, true );
 					answer_sz = snprintf(answer, answer_sz_max, "OK");
 				}
 				break;
@@ -820,7 +862,7 @@ void lin_guider::onCmdTimer()
 
 void lin_guider::set_visible_overlays( int ovr_mask, bool set )
 {
- 	ovr_params_t *povr = m_math->prepare_overlays();
+	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
 	if( set )
 		povr->visible |= ovr_mask;
@@ -838,14 +880,14 @@ void lin_guider::lock_toolbar( bool lock )
 
 bool lin_guider::activate_drag_object( int x, int y )
 {
- 	ovr_params_t *povr = m_math->prepare_overlays();
+	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
  	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
  	{
- 		if( m_drag_objs[i].type == ovr_params_t::OVR_SQUARE ) // square
+ 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_SQUARE ) // square
  		{
- 			if( !(povr->visible & ovr_params_t::OVR_SQUARE) ||
- 				(povr->locked & ovr_params_t::OVR_SQUARE) )
+ 			if( !(povr->visible & lg_math::ovr_params_t::OVR_SQUARE) ||
+ 				(povr->locked & lg_math::ovr_params_t::OVR_SQUARE) )
  				continue;
  			if( x > povr->square_pos.x && x < povr->square_pos.x+povr->square_size )
  				if( y > povr->square_pos.y && y < povr->square_pos.y+povr->square_size )
@@ -856,10 +898,10 @@ bool lin_guider::activate_drag_object( int x, int y )
  				}
  		}
  		else
-		if( m_drag_objs[i].type == ovr_params_t::OVR_RETICLE ) // reticle
+		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE ) // reticle
 		{
-			if( !(povr->visible & ovr_params_t::OVR_RETICLE) ||
-				(povr->locked & ovr_params_t::OVR_RETICLE) ||
+			if( !(povr->visible & lg_math::ovr_params_t::OVR_RETICLE) ||
+				(povr->locked & lg_math::ovr_params_t::OVR_RETICLE) ||
 				!reticle_wnd->isVisible() )
 				continue;
 			if( x > povr->reticle_pos.x - 4 && x < povr->reticle_pos.x + 4 )
@@ -870,10 +912,10 @@ bool lin_guider::activate_drag_object( int x, int y )
 				}
 		}
 		else
-		if( m_drag_objs[i].type == ovr_params_t::OVR_OSF ) // optional subframe
+		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_OSF ) // optional subframe
 		{
-			if( !(povr->visible & ovr_params_t::OVR_OSF) ||
-				(povr->locked & ovr_params_t::OVR_OSF) ||
+			if( !(povr->visible & lg_math::ovr_params_t::OVR_OSF) ||
+				(povr->locked & lg_math::ovr_params_t::OVR_OSF) ||
 				guider_wnd->isVisible() )
 				continue;
 			if( x > povr->osf_pos.x && x < povr->osf_pos.x+povr->osf_size.x )
@@ -895,7 +937,7 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
 	 	if( m_drag_objs[i].active )
 	 	{
-	 		if( m_drag_objs[i].type == ovr_params_t::OVR_RETICLE )
+	 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE )
 	 			reticle_wnd->update_reticle_pos( (double)x, (double)y );
 
 	 		m_drag_objs[i].active = false;
@@ -910,20 +952,20 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 void lin_guider::move_drag_object( int x, int y )
 {
 	bool upd = false;
-	ovr_params_t *povr = m_math->prepare_overlays();
+	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
 	{
 		if( m_drag_objs[i].active )  // lets move object
 		{
-			if( m_drag_objs[i].type == ovr_params_t::OVR_SQUARE )
+			if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_SQUARE )
 			{
 				m_math->move_square( (double)(x - povr->square_size/2), (double)(y - povr->square_size/2) );
 				upd = true;
 				break;
 			}
 			else
-			if( m_drag_objs[i].type == ovr_params_t::OVR_RETICLE )
+			if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE )
 			{
 				double rx, ry, rang;
 				m_math->get_reticle_params( &rx, &ry, &rang );
@@ -932,7 +974,7 @@ void lin_guider::move_drag_object( int x, int y )
 				break;
 			}
 			else
-			if( m_drag_objs[i].type == ovr_params_t::OVR_OSF )
+			if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_OSF )
 			{
 				m_math->move_osf( (double)(x - povr->osf_size.x/2), (double)(y - povr->osf_size.y/2) );
 				upd = true;
@@ -947,24 +989,24 @@ void lin_guider::move_drag_object( int x, int y )
 
 void lin_guider::draw_overlays( QPainter &painter )
 {
-	ovr_params_t *povr = m_math->prepare_overlays();
+	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
-	if( povr->visible & ovr_params_t::OVR_OSF )
+	if( povr->visible & lg_math::ovr_params_t::OVR_OSF )
 	{
 		painter.setPen( OSF_COLOR );
-		painter.drawRect( povr->osf_pos.x, povr->osf_pos.y, povr->osf_size.x, povr->osf_size.y );
+		painter.drawRect( povr->osf_pos.x, povr->osf_pos.y, povr->osf_size.x-1, povr->osf_size.y-1 );
 	}
-	if( povr->visible & ovr_params_t::OVR_RETICLE_ORG )
+	if( povr->visible & lg_math::ovr_params_t::OVR_RETICLE_ORG )
 	{
 		painter.setPen( RET_ORG_COLOR );
 		painter.drawPoint( povr->reticle_org.x, povr->reticle_org.y );
 	}
-	if( povr->visible & ovr_params_t::OVR_SQUARE )
+	if( povr->visible & lg_math::ovr_params_t::OVR_SQUARE )
 	{
 		painter.setPen( SQR_OVL_COLOR );
-		painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size, povr->square_size );
+		painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size-1, povr->square_size-1 );
 	}
-	if( povr->visible & ovr_params_t::OVR_RETICLE )
+	if( povr->visible & lg_math::ovr_params_t::OVR_RETICLE )
 	{
 		painter.setPen( RA_COLOR );
 		painter.drawLine( povr->reticle_pos.x,

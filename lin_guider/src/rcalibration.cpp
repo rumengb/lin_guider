@@ -35,7 +35,9 @@
 
 
 rcalibration::rcalibration(lin_guider *parent)
-    : QDialog(parent), pmain_wnd(parent)
+    : QDialog(parent), pmain_wnd(parent),
+      m_math( NULL ),
+      m_prev_math_type( 0 )
 {
  int i;
 
@@ -44,10 +46,8 @@ rcalibration::rcalibration(lin_guider *parent)
 	// setup ui
 	setWindowTitle( tr("Calibration") );
 
-	pmath = NULL;
-
 	is_started = false;
-	axis = cgmath::RA;
+	axis = lg_math::RA;
 	auto_drift_time = 25;
 	
 	start_x1 = start_y1 = 0;
@@ -61,8 +61,8 @@ rcalibration::rcalibration(lin_guider *parent)
 	ui.progressBar->setVisible( false );
 	ui.spinBox_ReticleAngle->setMaximum( 360 );
 
-	for( i = 0;guide_squares[i].size != -1;i++ )
-		ui.comboBox_SquareSize->addItem( QString().setNum( guide_squares[i].size ) );
+	for( i = 0;lg_math::guide_squares[i].size != -1;i++ )
+		ui.comboBox_SquareSize->addItem( QString().setNum( lg_math::guide_squares[i].size ) );
 
 	ui.spinBox_FrameCount->setMaximum( 100 );
 
@@ -95,6 +95,14 @@ void rcalibration::showEvent ( QShowEvent * event )
 	if( event->spontaneous() )
 		return;
 	
+	if( m_math )
+	{
+		m_prev_math_type = m_math->get_type();
+		m_prev_in_params = *m_math->get_in_params();
+
+		pmain_wnd->create_math_object( (int)lg_math::GA_CENTROID, m_prev_in_params );
+	}
+
 	calibration_params = pmain_wnd->m_calibration_params;
 
 	pmain_wnd->lock_toolbar( true );
@@ -131,6 +139,9 @@ void rcalibration::closeEvent( QCloseEvent * )
 	calibration_params.dift_time = ui.spinBox_DriftTime->value();
 	calibration_params.frame_count = ui.spinBox_FrameCount->value();
 	pmain_wnd->m_calibration_params = calibration_params;
+
+	if( m_math )
+		pmain_wnd->create_math_object( m_prev_math_type, m_prev_in_params );
 }
 
 
@@ -149,15 +160,15 @@ void rcalibration::fill_interface( void )
 {
  double rx, ry, rang;
 
- 	if( !pmath )
+ 	if( !m_math )
  		return;
 
- 	pmath->get_reticle_params( &rx, &ry, &rang );
+ 	m_math->get_reticle_params( &rx, &ry, &rang );
 
  	io_drv::device_ro_params_t ro_device_params = pmain_wnd->m_driver->get_ro_params();
  	ui.spinBox_DriftTime->setMaximum( (int)((double)ro_device_params.max_pulse_length / 1000 / 1.5) ); // return to start position time is 1.5 time greater than drift time, so we must fit it into max_pulse_length
 
- 	ui.comboBox_SquareSize->setCurrentIndex( pmath->get_square_index() );
+ 	ui.comboBox_SquareSize->setCurrentIndex( m_math->get_square_index() );
  	ui.spinBox_ReticleX->setValue( rx );
  	ui.spinBox_ReticleY->setValue( ry );
  	ui.spinBox_ReticleAngle->setValue( rang );
@@ -196,19 +207,19 @@ void rcalibration::update_reticle_pos( double x, double y )
 }
 
 
-void rcalibration::set_math( cgmath *math )
+void rcalibration::set_math( lg_math::cgmath *math )
 {
 	assert( math );
-	pmath = math;
+	m_math = math;
 }
 
 
 void rcalibration::onSquareSizeChanged( int index )
 {
-	if( !pmath )
+	if( !m_math )
 		return;
 
-	pmath->resize_square( index );
+	m_math->resize_square( index );
 }
 
 
@@ -236,11 +247,11 @@ void rcalibration::onReticleXChanged( double val )
 {
  double x, y, ang;
 
-	if( !pmath )
+	if( !m_math )
 		return;
 
-	pmath->get_reticle_params( &x, &y, &ang );
-	pmath->set_reticle_params( val, y, ang );
+	m_math->get_reticle_params( &x, &y, &ang );
+	m_math->set_reticle_params( val, y, ang );
 
 	// update overlay
 	pmain_wnd->update_video_out();
@@ -251,11 +262,11 @@ void rcalibration::onReticleYChanged( double val )
 {
  double x, y, ang;
 
-	if( !pmath )
+	if( !m_math )
 		return;
 
-	pmath->get_reticle_params( &x, &y, &ang );
-	pmath->set_reticle_params( x, val, ang );
+	m_math->get_reticle_params( &x, &y, &ang );
+	m_math->set_reticle_params( x, val, ang );
 
 	// update overlay
 	pmain_wnd->update_video_out();
@@ -266,11 +277,11 @@ void rcalibration::onReticleAngChanged( double val )
 {
  double x, y, ang;
 
-	if( !pmath )
+	if( !m_math )
 		return;
 
-	pmath->get_reticle_params( &x, &y, &ang );
-	pmath->set_reticle_params( x, y, val );
+	m_math->get_reticle_params( &x, &y, &ang );
+	m_math->set_reticle_params( x, y, val );
 
 	// update overlay
 	pmain_wnd->update_video_out();
@@ -341,6 +352,9 @@ void rcalibration::onVideoCalibrationFinished()
 
 void rcalibration::calibrate_reticle_manual( void )
 {
+	if( !m_math )
+		return;
+
 	//----- manual mode ----
 	// get start point
 	if( !is_started )
@@ -359,24 +373,24 @@ void rcalibration::calibrate_reticle_manual( void )
 		ui.groupBox_VideoCalibration->setEnabled( false );
 
 		// drop speed info
-		pmath->clear_speed_info();
-		pmath->get_star_screen_pos( &start_x1, &start_y1 );
+		m_math->clear_speed_info();
+		m_math->get_star_screen_pos( &start_x1, &start_y1 );
 		
-		axis = cgmath::RA;
+		axis = lg_math::RA;
 		is_started = true;
 	}
 	else	// get end point and calc orientation
 	{
 		if( ui.checkBox_TwoAxis->checkState() == Qt::Checked )
 		{
-			if( axis == cgmath::RA )
+			if( axis == lg_math::RA )
 			{
-				pmath->get_star_screen_pos( &end_x1, &end_y1 );
+				m_math->get_star_screen_pos( &end_x1, &end_y1 );
 				
 				start_x2 = end_x1;
 				start_y2 = end_y1;
 				
-				axis = cgmath::DEC;
+				axis = lg_math::DEC;
 				
 				ui.pushButton_StartCalibration->setText( tr("Stop DEC") );
 				ui.l_RStatus->setText( tr("State: DEC drifting...") );	
@@ -384,10 +398,10 @@ void rcalibration::calibrate_reticle_manual( void )
 			}
 			else
 			{
-				pmath->get_star_screen_pos( &end_x2, &end_y2 );	
+				m_math->get_star_screen_pos( &end_x2, &end_y2 );
 				// calc orientation
 				bool swap_dec = false;
-				if( pmath->calc_and_set_reticle2( start_x1, start_y1, end_x1, end_y1, start_x2, start_y2, end_x2, end_y2, &swap_dec ) )
+				if( m_math->calc_and_set_reticle2( start_x1, start_y1, end_x1, end_y1, start_x2, start_y2, end_x2, end_y2, &swap_dec ) )
 				{
 					if( swap_dec )
 					{
@@ -406,9 +420,9 @@ void rcalibration::calibrate_reticle_manual( void )
 		}
 		else
 		{
-			pmath->get_star_screen_pos( &end_x1, &end_y1 );
+			m_math->get_star_screen_pos( &end_x1, &end_y1 );
 
-			if( pmath->calc_and_set_reticle( start_x1, start_y1, end_x1, end_y1 ) )
+			if( m_math->calc_and_set_reticle( start_x1, start_y1, end_x1, end_y1 ) )
 			{
 				fill_interface();
 				ui.l_RStatus->setText( tr("State: DONE") );
@@ -438,7 +452,7 @@ void rcalibration::calibrate_reticle_by_ra( void )
 	int turn_back_time;
 	int cnt;
 
-	if( !pmath )
+	if( !m_math )
 		return;
 
 	//----- automatic mode -----
@@ -456,10 +470,10 @@ void rcalibration::calibrate_reticle_by_ra( void )
 	ui.groupBox_VideoCalibration->setEnabled( false );
 
 	// drop info
-	pmath->clear_speed_info();
+	m_math->clear_speed_info();
 
 	// get start point
-	pmath->get_star_screen_pos( &start_x1, &start_y1 );
+	m_math->get_star_screen_pos( &start_x1, &start_y1 );
 
 	// slow down RA drive to make drift
 	pmain_wnd->m_driver->do_pulse( io_drv::RA_INC_DIR, auto_drift_time*1000 );
@@ -478,8 +492,8 @@ void rcalibration::calibrate_reticle_by_ra( void )
 			return;
 
 		double cur_x, cur_y;
-		pmath->get_star_screen_pos( &cur_x, &cur_y );
-		if( !pmath->is_valid_pos( cur_x, cur_y ) ) // star is near screen edge! stop drive
+		m_math->get_star_screen_pos( &cur_x, &cur_y );
+		if( !m_math->is_valid_pos( cur_x, cur_y ) ) // star is near screen edge! stop drive
 		{
 			pmain_wnd->m_driver->reset();
 			log_i( "Star is near matrix edge. Stopping drive" );
@@ -489,14 +503,14 @@ void rcalibration::calibrate_reticle_by_ra( void )
 	ra_drift_tm = cur - start_time;
 
 	// get end point and calc orientation
-	pmath->get_star_screen_pos( &end_x1, &end_y1 );
+	m_math->get_star_screen_pos( &end_x1, &end_y1 );
 
 	// accelerate RA drive to return to start position
 	pmain_wnd->m_driver->do_pulse( io_drv::RA_DEC_DIR, turn_back_time*1000 );
 
 	ui.l_RStatus->setText( tr("State: running...") );
 
-	double phi = cgmath::calc_phi( start_x1, start_y1, end_x1, end_y1 );
+	double phi = lg_math::cgmath::calc_phi( start_x1, start_y1, end_x1, end_y1 );
 	Matrix ROT_Z = RotateZ( -M_PI*phi/180.0 ); // derotates...
 
 	// wait until returning
@@ -515,7 +529,7 @@ void rcalibration::calibrate_reticle_by_ra( void )
 
 		//----- Z-check (new!) -----
 		double cur_x, cur_y;
-		pmath->get_star_screen_pos( &cur_x, &cur_y );
+		m_math->get_star_screen_pos( &cur_x, &cur_y );
 		Vector star_pos = Vector( cur_x, cur_y, 0 ) - Vector( start_x1, start_y1, 0 );
 		star_pos.y = -star_pos.y;
 		star_pos = star_pos * ROT_Z;
@@ -535,7 +549,7 @@ void rcalibration::calibrate_reticle_by_ra( void )
 		QMessageBox::warning( this, tr("Warning"), tr("RA: Scope can't reach the start point in ") + QString().number(turn_back_time) + tr("secs.\nPossible mount or drive problems..."), QMessageBox::Ok );
 
 	// calc orientation
-	if( pmath->calc_and_set_reticle( start_x1, start_y1, end_x1, end_y1, ra_drift_tm ) )
+	if( m_math->calc_and_set_reticle( start_x1, start_y1, end_x1, end_y1, ra_drift_tm ) )
 	{
 		fill_interface();
 		ui.l_RStatus->setText( tr("State: DONE") );
@@ -563,7 +577,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 	int turn_back_time;
 	int cnt;
 
-	if( !pmath )
+	if( !m_math )
 		return;
 
 	//----- automatic mode -----
@@ -580,14 +594,14 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 	ui.groupBox_VideoCalibration->setEnabled( false );
 
 	// drop info
-	pmath->clear_speed_info();
+	m_math->clear_speed_info();
 
 	//----- RA axis -----
 	{
 		ui.l_RStatus->setText( tr("State: RA drifting...") );
 		
 		// get start point by
-		pmath->get_star_screen_pos( &start_x1, &start_y1 );
+		m_math->get_star_screen_pos( &start_x1, &start_y1 );
 
 		// slow down RA drive to make drift
 		pmain_wnd->m_driver->do_pulse( io_drv::RA_INC_DIR, auto_drift_time*1000 );
@@ -606,8 +620,8 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 				return;
 
 			double cur_x, cur_y;
-			pmath->get_star_screen_pos( &cur_x, &cur_y );
-			if( !pmath->is_valid_pos( cur_x, cur_y ) ) // star is near screen edge! stop drive
+			m_math->get_star_screen_pos( &cur_x, &cur_y );
+			if( !m_math->is_valid_pos( cur_x, cur_y ) ) // star is near screen edge! stop drive
 			{
 				pmain_wnd->m_driver->reset();
 				log_i( "Star is near matrix edge. Stopping drive" );
@@ -617,14 +631,14 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 		ra_drift_tm = cur - start_time;
 
 		// get end point and calc orientation
-		pmath->get_star_screen_pos( &end_x1, &end_y1 );
+		m_math->get_star_screen_pos( &end_x1, &end_y1 );
 
 		// accelerate RA drive to return to start position
 		pmain_wnd->m_driver->do_pulse( io_drv::RA_DEC_DIR, turn_back_time*1000 );
 
 		ui.l_RStatus->setText( tr("State: RA running back...") );
 
-		double phi = cgmath::calc_phi( start_x1, start_y1, end_x1, end_y1 );
+		double phi = lg_math::cgmath::calc_phi( start_x1, start_y1, end_x1, end_y1 );
 		Matrix ROT_Z = RotateZ( -M_PI*phi/180.0 ); // derotates...
 
 		// wait until returning
@@ -643,7 +657,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 
 			//----- Z-check (new!) -----
 			double cur_x, cur_y;
-			pmath->get_star_screen_pos( &cur_x, &cur_y );
+			m_math->get_star_screen_pos( &cur_x, &cur_y );
 			Vector star_pos = Vector( cur_x, cur_y, 0 ) - Vector( start_x1, start_y1, 0 );
 			star_pos.y = -star_pos.y;
 			star_pos = star_pos * ROT_Z;
@@ -668,7 +682,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 		ui.l_RStatus->setText( tr("State: DEC drifting...") );
 		
 		// get start point by
-		pmath->get_star_screen_pos( &start_x2, &start_y2 );
+		m_math->get_star_screen_pos( &start_x2, &start_y2 );
 
 		// DEC+ drive to make drift
 		pmain_wnd->m_driver->do_pulse( io_drv::DEC_INC_DIR, auto_drift_time*1000 );
@@ -687,8 +701,8 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 				return;
 
 			double cur_x, cur_y;
-			pmath->get_star_screen_pos( &cur_x, &cur_y );
-			if( !pmath->is_valid_pos( cur_x, cur_y ) ) // star is near screen edge! stop drive
+			m_math->get_star_screen_pos( &cur_x, &cur_y );
+			if( !m_math->is_valid_pos( cur_x, cur_y ) ) // star is near screen edge! stop drive
 			{
 				pmain_wnd->m_driver->reset();
 				log_i( "Star is near matrix edge. Stopping drive" );
@@ -698,14 +712,14 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 		dec_drift_tm = cur - start_time;
 
 		// get end point and calc orientation
-		pmath->get_star_screen_pos( &end_x2, &end_y2 );
+		m_math->get_star_screen_pos( &end_x2, &end_y2 );
 
 		// DEC- drive to return to start position
 		pmain_wnd->m_driver->do_pulse( io_drv::DEC_DEC_DIR, turn_back_time*1000 );
 
 		ui.l_RStatus->setText( tr("State: DEC running back...") );
 
-		double phi = cgmath::calc_phi( start_x2, start_y2, end_x2, end_y2 );
+		double phi = lg_math::cgmath::calc_phi( start_x2, start_y2, end_x2, end_y2 );
 		Matrix ROT_Z = RotateZ( -M_PI*phi/180.0 ); // derotates...
 
 		// wait until returning
@@ -724,7 +738,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 
 			//----- Z-check (new!) -----
 			double cur_x, cur_y;
-			pmath->get_star_screen_pos( &cur_x, &cur_y );
+			m_math->get_star_screen_pos( &cur_x, &cur_y );
 			Vector star_pos = Vector( cur_x, cur_y, 0 ) - Vector( start_x2, start_y2, 0 );
 			star_pos.y = -star_pos.y;
 			star_pos = star_pos * ROT_Z;
@@ -748,7 +762,7 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 
 	// calc orientation
 	bool swap_dec = false;
-	if( pmath->calc_and_set_reticle2( start_x1, start_y1, end_x1, end_y1, start_x2, start_y2, end_x2, end_y2, &swap_dec, ra_drift_tm, dec_drift_tm ) )
+	if( m_math->calc_and_set_reticle2( start_x1, start_y1, end_x1, end_y1, start_x2, start_y2, end_x2, end_y2, &swap_dec, ra_drift_tm, dec_drift_tm ) )
 	{
 		if( swap_dec )
 		{
@@ -776,13 +790,13 @@ void rcalibration::calibrate_reticle_by_ra_dec( void )
 
 bool rcalibration::check_start_position( void ) const
 {
-	if( !pmath )
+	if( !m_math )
 		return false;
 
 	double cur_x, cur_y;
-	pmath->get_star_screen_pos( &cur_x, &cur_y );
+	m_math->get_star_screen_pos( &cur_x, &cur_y );
 
-	return pmath->is_valid_pos( cur_x, cur_y, cgmath::FIND_STAR_CLIP_EDGE );
+	return m_math->is_valid_pos( cur_x, cur_y, lg_math::FIND_STAR_CLIP_EDGE );
 }
 
 
@@ -790,10 +804,10 @@ void rcalibration::onFindStarButtonClick()
 {
 	std::vector< std::pair<Vector, double> > stars;
 
-	if( !pmath )
+	if( !m_math )
 		return;
 
-	bool res = pmath->find_stars( &stars );
+	bool res = m_math->find_stars( &stars );
 	if( !res )
 	{
 		u_msg( "No suitable star in frame" );
@@ -818,6 +832,6 @@ void rcalibration::onFindStarButtonClick()
 	double star_x   = (double)opt_it->first.x;
 	double star_y   = (double)opt_it->first.y;
 
-	int idx = pmath->get_square_index();
-	pmath->move_square( star_x - (double)guide_squares[idx].size/2, star_y - (double)guide_squares[idx].size/2 );
+	int idx = m_math->get_square_index();
+	m_math->move_square( star_x - (double)lg_math::guide_squares[idx].size/2, star_y - (double)lg_math::guide_squares[idx].size/2 );
 }

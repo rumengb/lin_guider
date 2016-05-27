@@ -7,13 +7,16 @@
 #ifndef GMATH_DONUTS_H_
 #define GMATH_DONUTS_H_
 
-#include "gmath.h"
+#include "gmath_helper.h"
 #include "donuts_guide.h"
 
 
 class common_params;
 
-class cgmath_donuts : public cgmath
+namespace lg_math
+{
+
+class cgmath_donuts : public cgmath_helper
 {
 public:
 	cgmath_donuts( const common_params &comm_params );
@@ -42,5 +45,7 @@ private:
 	double m_ref_y;
 	frame_digest m_dg_ref;
 };
+
+}
 
 #endif /* GMATH_DONUTS_H_ */

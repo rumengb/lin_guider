@@ -109,7 +109,7 @@ protected:
 	void closeEvent( QCloseEvent *event );
 
 private:
-	params *param_block;
+	params *m_param_block;
 
 	video_drv::cvideo_base *m_video;
 	io_drv::cio_driver_base *m_driver;
@@ -117,11 +117,12 @@ private:
 	setup_video *setup_video_wnd;
 	setup_driver *setup_driver_wnd;
 	guider *guider_wnd;
-	cgmath *m_math;
 	rcalibration *reticle_wnd;
 	mrecorder *recorder_wnd;
 	settings *settings_wnd;
 	about *about_wnd;
+
+	lg_math::cgmath *m_math;
 
 	custom_drawer *m_video_out; 	// Drawing widget
 	u_char *m_v_buf;
@@ -141,6 +142,9 @@ private:
 	char dev_name_video[64];
 	char dev_name_io[64];
 
+	void create_math_object( int ga_type,
+			 	 	 	 	 const lg_math::cproc_in_params &ip );
+
 	bool activate_drag_object( int x, int y );
 	bool deactivate_drag_object( int x, int y );
 	void move_drag_object( int x, int y );
@@ -152,7 +156,7 @@ private:
 	void set_ui_params( void );
 	bool restart_server( void );
 
-	drag_object_t m_drag_objs[ ovr_params_t::OVR_DRAGGABLE_CNT ];
+	drag_object_t m_drag_objs[ lg_math::ovr_params_t::OVR_DRAGGABLE_CNT ];
 	drawer_delegate *m_drawer_delegate;
 
 	conn_t *m_long_task_conn;

@@ -35,6 +35,44 @@
 
 class common_params;
 
+namespace lg_math
+{
+
+enum guider_algorithm
+{
+	GA_MIN = 0,
+	GA_CENTROID,
+	GA_DONUTS,
+	GA_MAX,
+	ALG_CNT = GA_MAX-1
+};
+
+typedef struct
+{
+	const int type;
+	const char *desc;
+	const char *info;	    // any necessary text info
+	const char *hyper_info;	// any necessary hypertext info
+}algorithm_desc_t;
+
+extern algorithm_desc_t alg_desc_list[ALG_CNT];
+
+// core constants
+enum axes
+{
+	RA = 0,
+	DEC = 1
+};
+enum signs
+{
+	SGN_POS = 0,
+	SGN_NEG = 1
+};
+static const double STABILITY_LIMIT_FACTOR = 2.0;
+static const double FIND_STAR_CLIP_EDGE = 48;
+static const double STAR_CLIP_EDGE = 8;
+static const int MAX_ACCUM_CNT = 50;
+
 enum dither_err_codes
 {
 	GUIDING_NOT_STARTED = -1,
@@ -119,6 +157,7 @@ class cproc_in_params
 	{
 		CHANNEL_CNT = 2
 	};
+
 public:
 	cproc_in_params();
 	void reset( void );
@@ -184,16 +223,7 @@ class cgmath
 	static const int DITHER_FIXED_TOUT_CLIP = 20;
 
 public:
-	// core constants
 	static const int DEFAULT_SQR = 1;
-	static const int RA = 0;
-	static const int DEC = 1;
-	static const int SGN_POS = 0;
-	static const int SGN_NEG = 1;
-	static const double STABILITY_LIMIT_FACTOR = 2.0;
-	static const double FIND_STAR_CLIP_EDGE = 48;
-	static const double STAR_CLIP_EDGE = 8;
-	static const int MAX_ACCUM_CNT = 50;
 
 	cgmath( const common_params &comm_params );
 	virtual ~cgmath();
@@ -201,7 +231,6 @@ public:
 	// functions
 	virtual bool set_video_params( int vid_wd, int vid_ht );
 	double *get_data_buffer( int *width, int *height, int *length, int *size ) const;
-	void copy_subframe(double *subframe, int x_offset, int y_offset, int sf_width, int sf_height) const;
 	bool set_guider_params( double ccd_pix_wd, double ccd_pix_ht, double guider_aperture, double guider_focal );
 	bool set_reticle_params( double x, double y, double ang );
 	bool get_reticle_params( double *x, double *y, double *ang ) const;
@@ -269,9 +298,12 @@ public:
 	bool is_valid_pos( double x, double y, double edge_width = STAR_CLIP_EDGE ) const;
 	void clear_speed_info( void );
 	void get_speed_info( double *ra_v, double *dec_v ) const;
+	int  get_type( void ) const;
+	const char *get_name( void ) const;
 
 protected:
 	const common_params &m_common_params;
+	int m_type;
 
 	/*! This method should return position of star as vector(x, y, 0) relative to the left top corner of buffer.
         Note! Reticle position is a center of guiding
@@ -279,6 +311,7 @@ protected:
 	virtual Vector find_star_local_pos( void ) const;
 	virtual void on_start( void ) {}
 	virtual void on_stop( void ) {}
+	void set_quality_params( double q_val, double q_bkgd ) const;
 
 private:
 	struct hfd_item_s
@@ -379,5 +412,7 @@ private:
 	cgmath( const cgmath& );
 	cgmath& operator=( const cgmath& );
 };
+
+}
 
 #endif /*GMATH_H_*/

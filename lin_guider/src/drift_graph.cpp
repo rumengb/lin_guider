@@ -19,14 +19,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include <QtGui>
 #include <QWidget>
 
 #include "drift_graph.h"
 #include "utils.h"
 #include "maindef.h"
-
 
 
 cdrift_graph::cdrift_graph( int client_width, int client_height, int cell_nx, int cell_ny )
@@ -178,28 +176,4 @@ void cdrift_graph::add_point( double ra, double dec )
 		m_data_idx = 0;
 
 	m_need_refresh = true;
-}
-
-
-void cdrift_graph::get_point(unsigned int index, double *data_ra, double *data_dec)
-{
-	//prevent overindexing
-	if (index >= (unsigned)m_data_len)
-		index = m_data_len-1;
-
-	if (m_data_count > m_data_len) {
-		int offset = index + m_data_idx;
-		if(offset < m_data_len) {
-			*data_ra = m_data.line[RA_LINE][offset];
-			*data_dec = m_data.line[DEC_LINE][offset];
-			return;
-		} else {
-			*data_ra = m_data.line[RA_LINE][offset - m_data_len];
-			*data_dec = m_data.line[DEC_LINE][offset - m_data_len];
-			return;
-		}
-	}
-
-	*data_ra = m_data.line[RA_LINE][index];
-	*data_dec = m_data.line[DEC_LINE][index];
 }

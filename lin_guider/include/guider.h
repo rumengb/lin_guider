@@ -77,7 +77,7 @@ public:
 	void guide( void );
 	void set_half_refresh_rate( bool is_half );
 	bool is_guiding( void ) const;
-	void set_math( cgmath *math );
+	void set_math( lg_math::cgmath *math );
 
 protected slots:
 	void onXscaleChanged( int i );
@@ -106,7 +106,7 @@ protected:
 	void hideEvent ( QHideEvent * event );
 
 private:
-	cgmath *m_math;
+	lg_math::cgmath *m_math;
 
 	custom_drawer *m_drift_out;
 	cdrift_graph *m_drift_graph;
