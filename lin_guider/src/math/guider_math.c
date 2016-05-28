@@ -166,10 +166,15 @@ double find_distance(const int n, const double (*c)[2]) {
 
 double sigma_threshold(double *data, int n, double nsigma) {
 	double mean = 0.0;
-	double deviation=0.0;
+	double deviation = 0.0;
+	double max = 0.0;
+	double snr;
 	int i;
 
-	for(i=0; i<n;++i) mean+=data[i];
+	for(i=0; i<n;++i) {
+		mean+=data[i];
+		if(max < data[i]) max = data[i];
+	}
 	mean=mean/n;
 
 	for(i=0; i<n;++i)
@@ -181,7 +186,14 @@ double sigma_threshold(double *data, int n, double nsigma) {
 	for(i=0; i<n;++i)
 		data[i] = (data[i] > threshold) ? data[i] - threshold : 0;
 
-	return sigma;
+	if (sigma != 0)
+		snr = (max - mean) / sigma;
+	else
+		snr = (max - mean) / 0.001;
+
+	printf("SNR = %.2f\n", snr);
+
+	return snr;
 }
 
 

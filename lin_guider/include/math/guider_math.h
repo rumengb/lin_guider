@@ -17,6 +17,7 @@ typedef struct {
 	guide_algorithm algorithm;
 	unsigned int width;
 	unsigned int height;
+	double snr;
 	union {
 		double (*fft_x)[2];
 		double centroid_x;

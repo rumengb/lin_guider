@@ -47,7 +47,7 @@ int dg_new_frame_digest(const double *fdata, const unsigned int width, const uns
 		return -1;
 	}
 
-	sigma_threshold((double*)fdata, width * height, 1);
+	fdigest->snr = sigma_threshold((double*)fdata, width * height, 1.5);
 	/* collapse the frame in X and Y directions */
 	ci = 0;
 	li = 0;
@@ -134,6 +134,7 @@ int dg_delete_frame_digest(frame_digest *fdigest) {
 		if (fdigest->fft_y) free(fdigest->fft_y);
 		fdigest->width = 0;
 		fdigest->height = 0;
+		fdigest->snr = 0;
 		fdigest->algorithm = none;
 		return 0;
 	} else {
