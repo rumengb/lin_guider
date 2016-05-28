@@ -1,5 +1,5 @@
 /****************************************
- * DONUTS guider math functions
+ * Guider math functions
  *         (c)2015 Rumen G.Bogdanovski
  ****************************************/
 

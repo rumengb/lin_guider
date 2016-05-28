@@ -65,10 +65,10 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_GraphType->addItem( QString("Target (points)"), guider::GRAPH_TARGET_POINTS );
 	ui.comboBox_GraphType->addItem( QString("Target (lines)"), guider::GRAPH_TARGET_LINES );
 
-	ui.comboBox_OSFSize->addItem( QString("Full"), 1.0 );
-	ui.comboBox_OSFSize->addItem( QString("1/2"), 0.5 );
-	ui.comboBox_OSFSize->addItem( QString("1/4"), 0.25 );
-	ui.comboBox_OSFSize->addItem( QString("1/8"), 0.125 );
+	ui.comboBox_OSFSize->addItem( QString("Full frame"), 1.0 );
+	ui.comboBox_OSFSize->addItem( QString("1/2 frame"), 0.5 );
+	ui.comboBox_OSFSize->addItem( QString("1/4 frame"), 0.25 );
+	ui.comboBox_OSFSize->addItem( QString("1/8 frame"), 0.125 );
 
 	int cnt = ARRAY_SIZE( lg_math::alg_desc_list );
 	for( int i = 0;i < cnt;i++ )

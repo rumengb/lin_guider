@@ -1,6 +1,13 @@
 2016-MM-DD Lin_guider 4.0.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
-	* Added target drift graph, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Created infrastructure to support selectable drift graphs
+	* Created infrastructure to support selectable guiding algorithms
+	* Added two versions Target drift graph, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Enhanced Scrolling drift graph, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Added Enhanced DONUTS guiding algorithm, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Gain of Null camera controls the simuated frame noise, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Minor fixes in ASI camera driver, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* GUI Tweaks
 
 2016-04-25 Lin_guider 3.3.0 (c)Galaxy Master <galaxy_master@mail.ru>
 

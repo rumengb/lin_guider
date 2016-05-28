@@ -1,7 +1,8 @@
 /****************************************
- * DONUTS guider math functions
+ * Guider math functions
  *         (c)2015 Rumen G.Bogdanovski
  ****************************************/
+
 #ifndef __GUIDER_MATH_H
 #define __GUIDER_MATH_H
 

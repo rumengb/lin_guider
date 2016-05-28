@@ -48,7 +48,7 @@ algorithm_desc_t alg_desc_list[ALG_CNT] = {
 		},
 		{
 			GA_DONUTS,
-			"Donuts",
+			"Enhanced DONUTS",
 			NULL,
 			NULL
 		}

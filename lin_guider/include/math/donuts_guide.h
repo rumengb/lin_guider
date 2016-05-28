@@ -1,7 +1,12 @@
-/******************************************
- * DONUTS guider API
+/************************************************************************************************
+ * Enhanced DONUTS guider API
  *          (c)2015 Rumen G.Bogdanovski
- ******************************************/
+ *
+ * DONUTS algorithm is described in:
+ * McCormac, J.; Pollacco, D.; Skillen, I.; Faedi, F.; Todd, I.; Watson, C. A.,
+ * Publications of the Astronomical Society of Pacific, Volume 125, Issue 927, pp. 548-556 (2013)
+ *************************************************************************************************/
+
 #ifndef __DONUTS_GUIDE_H
 #define __DONUTS_GUIDE_H
 

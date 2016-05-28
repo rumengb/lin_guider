@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>590</width>
-    <height>414</height>
+    <height>396</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,7 +26,16 @@
    <string>settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>4</number>
+   </property>
+   <property name="topMargin">
+    <number>4</number>
+   </property>
+   <property name="rightMargin">
+    <number>4</number>
+   </property>
+   <property name="bottomMargin">
     <number>4</number>
    </property>
    <property name="spacing">
@@ -85,7 +94,7 @@
       <item row="0" column="3">
        <widget class="QLineEdit" name="lineEdit_Port">
         <property name="inputMask">
-         <string>00000; </string>
+         <string>00000</string>
         </property>
        </widget>
       </item>
@@ -202,7 +211,7 @@
       <item row="4" column="4">
        <widget class="QLineEdit" name="lineEdit_TCPPort">
         <property name="inputMask">
-         <string>00000; </string>
+         <string>00000</string>
         </property>
        </widget>
       </item>
@@ -231,6 +240,9 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="7" column="2">
+       <widget class="QComboBox" name="comboBox_GraphType"/>
+      </item>
       <item row="5" column="2">
        <widget class="QSpinBox" name="spinBox_DitherRestTout">
         <property name="maximum">
@@ -287,6 +299,9 @@
         </property>
        </widget>
       </item>
+      <item row="14" column="2">
+       <widget class="QComboBox" name="comboBox_DriftGraph_ny"/>
+      </item>
       <item row="5" column="4">
        <widget class="QCheckBox" name="checkBox_HFD_on">
         <property name="text">
@@ -300,12 +315,6 @@
          <string>Graph type</string>
         </property>
        </widget>
-      </item>
-      <item row="14" column="2">
-       <widget class="QComboBox" name="comboBox_DriftGraph_ny"/>
-      </item>
-      <item row="7" column="2">
-       <widget class="QComboBox" name="comboBox_GraphType"/>
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="label_1">
@@ -348,25 +357,25 @@
         </property>
        </widget>
       </item>
-      <item row="15" column="0">
+      <item row="16" column="0">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Optional subframe size</string>
+         <string>Guiding subframe</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Guiding algorithm</string>
         </property>
        </widget>
       </item>
       <item row="15" column="2">
-       <widget class="QComboBox" name="comboBox_OSFSize"/>
-      </item>
-      <item row="16" column="2">
        <widget class="QComboBox" name="comboBox_GuiderAlgorithm"/>
       </item>
-      <item row="16" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Guider algorithm</string>
-        </property>
-       </widget>
+      <item row="16" column="2">
+       <widget class="QComboBox" name="comboBox_OSFSize"/>
       </item>
      </layout>
     </widget>
@@ -392,8 +401,6 @@
   <tabstop>comboBox_DriftGraph_nx</tabstop>
   <tabstop>checkBox_DBGVerbosity</tabstop>
   <tabstop>comboBox_DriftGraph_ny</tabstop>
-  <tabstop>comboBox_OSFSize</tabstop>
-  <tabstop>comboBox_GuiderAlgorithm</tabstop>
   <tabstop>pushButton_OK</tabstop>
   <tabstop>pushButton_Cancel</tabstop>
  </tabstops>
