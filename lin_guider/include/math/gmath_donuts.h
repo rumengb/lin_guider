@@ -31,6 +31,7 @@ public:
 
 protected:
 	virtual Vector find_star_local_pos( void ) const;
+	virtual void calc_quality( void );
 	virtual void on_start( void );
 	virtual void on_stop( void );
 
@@ -43,6 +44,7 @@ private:
 	int m_video_width, m_video_height;
 	double m_ref_x;
 	double m_ref_y;
+	mutable double m_snr;
 	frame_digest m_dg_ref;
 };
 

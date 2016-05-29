@@ -30,7 +30,8 @@ cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
 	m_video_width( 0 ),
 	m_video_height( 0 ),
 	m_ref_x( 0 ),
-	m_ref_y( 0 )
+	m_ref_y( 0 ),
+	m_snr( 0 )
 {
 	m_type = GA_DONUTS;
 }
@@ -169,6 +170,14 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
+	m_snr = dg_new.snr;
+	// SNR < 10 - starts to produce guiding spikes
+	if (dg_new.snr < 10) {
+		log_i("SNR = %f is too low, skipping frame!", dg_new.snr);
+		dg_delete_frame_digest(&dg_new);
+		return Vector( m_ref_x, m_ref_y, 0 );
+	}
+
 	res = dg_calculate_corrections(&m_dg_ref, &dg_new, &d_corr);
 	if (res < 0) {
 		log_e("dg_calculate_corrections(): failed");
@@ -182,13 +191,23 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
-	log_i("%s()",__FUNCTION__);
-
-	log_i("corr = %f %f", m_ref_x + d_corr.x, m_ref_y + d_corr.y);
-
-	set_quality_params( double(rand()%10+10)/20.0, 0.1 );
+	if( DBG_VERBOSITY ) {
+		log_i("SNR= %.2f, X/Y_cor= %+.3f %+.3f", m_snr, d_corr.x, d_corr.y);
+	}
 
 	return Vector( m_ref_x - d_corr.x, m_ref_y - d_corr.y, 0 );
+}
+
+
+void cgmath_donuts::calc_quality( void )
+{
+	cgmath::calc_quality();
+
+	// SNR = 50 -> Qual = 100%
+	// Around SNR = 10 (Qual = 20%) DONUTS starts to produce occasional spikes.
+	m_out_params.quality = ((m_snr) / 50) * 100;
+	if (m_out_params.quality > 100) m_out_params.quality = 100;
+	if (m_out_params.quality < 0) m_out_params.quality = 0;
 }
 
 

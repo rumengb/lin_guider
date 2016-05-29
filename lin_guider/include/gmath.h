@@ -303,12 +303,14 @@ public:
 
 protected:
 	const common_params &m_common_params;
+	cproc_out_params m_out_params;
 	int m_type;
 
 	/*! This method should return position of star as vector(x, y, 0) relative to the left top corner of buffer.
         Note! Reticle position is a center of guiding
 	*/
 	virtual Vector find_star_local_pos( void ) const;
+	virtual void calc_quality( void );
 	virtual void on_start( void ) {}
 	virtual void on_stop( void ) {}
 	void set_quality_params( double q_val, double q_bkgd ) const;
@@ -370,7 +372,6 @@ private:
 	// overlays...
 	ovr_params_t m_overlays;
 	cproc_in_params  m_in_params;
-	cproc_out_params m_out_params;
 	
 	// stat math...
 	bool   m_do_statistics;
@@ -403,7 +404,6 @@ private:
 	Vector arcsec2point( const Vector &asec ) const;
 	void process_axes( void );
 	void calc_square_err( void );
-	void calc_quality( void );
 	
 	void hfd_init( void ) const;
 	void hfd_destroy( void ) const;

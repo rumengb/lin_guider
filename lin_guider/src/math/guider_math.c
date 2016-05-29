@@ -191,8 +191,6 @@ double sigma_threshold(double *data, int n, double nsigma) {
 	else
 		snr = (max - mean) / 0.001;
 
-	printf("SNR = %.2f\n", snr);
-
 	return snr;
 }
 
