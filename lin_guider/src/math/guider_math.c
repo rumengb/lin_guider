@@ -143,7 +143,7 @@ double find_distance(const int n, const double (*c)[2]) {
 	}
 
 	/* find subpixel offset of the maximum position using quadratic interpolation */
-	if ((c[max][RE] - c[next][RE] - c[prev][RE]) != 0)
+	if ((2 * c[max][RE] - c[next][RE] - c[prev][RE]) != 0)
 		max_subp = (c[next][RE] - c[prev][RE]) / (2 * (2 * c[max][RE] - c[next][RE] - c[prev][RE]));
 	else
 		max_subp = 0;
@@ -171,19 +171,19 @@ double sigma_threshold(double *data, int n, double nsigma) {
 	double snr;
 	int i;
 
-	for(i=0; i<n;++i) {
-		mean+=data[i];
+	for(i=0; i<n; i++) {
+		mean += data[i];
 		if(max < data[i]) max = data[i];
 	}
 	mean=mean/n;
 
-	for(i=0; i<n;++i)
+	for(i=0; i<n; i++)
 		deviation+=(data[i]-mean)*(data[i]-mean);
 
 	double sigma = sqrt(deviation/n);
 
 	double threshold = mean + nsigma * sigma;
-	for(i=0; i<n;++i)
+	for(i=0; i<n; i++)
 		data[i] = (data[i] > threshold) ? data[i] - threshold : 0;
 
 	if (sigma != 0)
