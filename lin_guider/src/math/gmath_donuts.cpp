@@ -173,7 +173,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	m_snr = dg_new.snr;
 	// SNR < 10 - starts to produce guiding spikes
 	if (dg_new.snr < 10) {
-		log_i("SNR = %f is too low, skipping frame!", dg_new.snr);
+		log_i("SNR = %.2f is too low, skipping frame!", dg_new.snr);
 		dg_delete_frame_digest(&dg_new);
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
@@ -201,7 +201,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 
 void cgmath_donuts::calc_quality( void )
 {
-	cgmath::calc_quality();
+	//cgmath::calc_quality();
 
 	// SNR = 50 -> Qual = 100%
 	// Around SNR = 10 (Qual = 20%) DONUTS starts to produce occasional spikes.
@@ -213,6 +213,7 @@ void cgmath_donuts::calc_quality( void )
 
 void cgmath_donuts::on_start( void )
 {
+	int res;
 	if (!m_guiding) {
 		m_sub_frame = (double *)realloc(m_sub_frame, m_osf_vis_size.x * m_osf_vis_size.y * sizeof(double));
 		if(!m_sub_frame) {
@@ -228,7 +229,19 @@ void cgmath_donuts::on_start( void )
 		/* clear one pixel spikes */
 		filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
 
-		dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &m_dg_ref);
+		res = dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &m_dg_ref);
+		if (res < 0) {
+			log_e("dg_new_frame_digest(): failed, HOW TO STOP GUIDING?");
+		}
+
+		m_snr = m_dg_ref.snr;
+		if (m_snr < 10) {
+			log_e("SNR = %.2f is too low, HOW TO STOP GUIDING?", m_snr);
+		}
+
+		if( DBG_VERBOSITY ) {
+			log_i("Reference frame SNR= %.2f", m_snr);
+		}
 		m_guiding = true;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );
@@ -247,6 +260,7 @@ void cgmath_donuts::on_stop( void )
 
 		m_ref_x = 0;
 		m_ref_y = 0;
+		m_snr = 0;
 		m_guiding = false;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );
