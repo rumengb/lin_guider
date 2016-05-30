@@ -163,26 +163,55 @@ double find_distance(const int n, const double (*c)[2]) {
 	}
 }
 
+#define N_ROWS 2 /* use first 2 and last 2 lines as noise */
+double noise_stddev(double *data, int width, int height) {
+	int i;
 
-double sigma_threshold(double *data, int n, double nsigma) {
 	double mean = 0.0;
 	double deviation = 0.0;
-	double max = 0.0;
-	double snr;
+	int n = N_ROWS * width;
+	int offset = (width * height) - n;
+
+	for(i=0; i < n; i++) {
+		mean += data[i];
+		mean += data[i + offset];
+	}
+
+	mean=mean / (N_ROWS * n);
+
+	for(i=0; i < n; i++) {
+		deviation += (data[i] - mean) * (data[i] - mean);
+		deviation += (data[i + offset] - mean) * (data[i + offset] - mean);
+	}
+
+	return sqrt(deviation/(N_ROWS * n));
+}
+
+
+double sigma_threshold(double *data, int width, int height, double nsigma) {
 	int i;
+	double snr, sigma, threshold;
+
+	double mean = 0.0;
+	double max = 0.0;
+	int n = width * height;
 
 	for(i=0; i<n; i++) {
 		mean += data[i];
 		if(max < data[i]) max = data[i];
 	}
-	mean=mean/n;
+	mean=mean/n;  /* mean is image mean */
 
-	for(i=0; i<n; i++)
-		deviation+=(data[i]-mean)*(data[i]-mean);
+	/* sigma is only noise sigma estimaged using first 2 and
+	 * last 2 rows of the image (using 2 rows because of the
+	 * intereased cameras)
+	 */
+	sigma = noise_stddev(data, width, height);
 
-	double sigma = sqrt(deviation/n);
-
-	double threshold = mean + nsigma * sigma;
+	/* threshold is somewhat higher than nsigma because sigma is for
+	 * the noise and mean for the whole frame
+	 */
+	threshold = mean + nsigma * sigma;
 	for(i=0; i<n; i++)
 		data[i] = (data[i] > threshold) ? data[i] - threshold : 0;
 
