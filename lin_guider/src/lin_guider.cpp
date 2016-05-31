@@ -303,6 +303,9 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_video_name_label->setText( tr("Video:") + QString(m_video->get_name()) );
 	m_io_name_label->setText( tr("IO:") + QString(m_driver->get_name()) );
 
+	m_drag_point.x = 0;
+	m_drag_point.y = 0;
+
 	memset( m_drag_objs, 0, sizeof(m_drag_objs) );
 	m_drag_objs[0].type = lg_math::ovr_params_t::OVR_RETICLE;
 	m_drag_objs[1].type = lg_math::ovr_params_t::OVR_SQUARE;
