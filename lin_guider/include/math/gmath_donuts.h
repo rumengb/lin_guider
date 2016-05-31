@@ -10,6 +10,8 @@
 #include "gmath_helper.h"
 #include "donuts_guide.h"
 
+// SNR < 5 - starts to produce guiding spikes
+#define SNR_THRESHOLD 5.00
 
 class common_params;
 

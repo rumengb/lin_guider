@@ -171,8 +171,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	}
 
 	m_snr = dg_new.snr;
-	// SNR < 5 - starts to produce guiding spikes
-	if (dg_new.snr < 5) {
+	if (dg_new.snr < SNR_THRESHOLD) {
 		log_i("SNR = %.2f is too low, skipping frame!", dg_new.snr);
 		dg_delete_frame_digest(&dg_new);
 		return Vector( m_ref_x, m_ref_y, 0 );
@@ -235,7 +234,7 @@ void cgmath_donuts::on_start( void )
 		}
 
 		m_snr = m_dg_ref.snr;
-		if (m_snr < 10) {
+		if (m_snr < SNR_THRESHOLD) {
 			log_e("SNR = %.2f is too low, HOW TO STOP GUIDING?", m_snr);
 		}
 
