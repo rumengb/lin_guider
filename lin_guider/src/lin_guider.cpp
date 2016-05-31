@@ -892,6 +892,8 @@ bool lin_guider::activate_drag_object( int x, int y )
  			if( x > povr->square_pos.x && x < povr->square_pos.x+povr->square_size )
  				if( y > povr->square_pos.y && y < povr->square_pos.y+povr->square_size )
  				{
+					m_drag_point.x = x - povr->square_pos.x;
+					m_drag_point.y = y - povr->square_pos.y;
  					m_drag_objs[i].active = true;
  					m_math->suspend( true );
  					return true;
@@ -921,6 +923,8 @@ bool lin_guider::activate_drag_object( int x, int y )
 			if( x > povr->osf_pos.x && x < povr->osf_pos.x+povr->osf_size.x )
 				if( y > povr->osf_pos.y && y < povr->osf_pos.y+povr->osf_size.y )
 				{
+					m_drag_point.x = x - povr->osf_pos.x;
+					m_drag_point.y = y - povr->osf_pos.y;
 					m_drag_objs[i].active = true;
 					m_math->suspend( true );
 					return true;
@@ -940,6 +944,8 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 	 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE )
 	 			reticle_wnd->update_reticle_pos( (double)x, (double)y );
 
+			m_drag_point.x = 0;
+			m_drag_point.y = 0;
 	 		m_drag_objs[i].active = false;
 	 		m_math->suspend( false );
 	 		return true;
@@ -952,7 +958,6 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 void lin_guider::move_drag_object( int x, int y )
 {
 	bool upd = false;
-	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
 	{
@@ -960,7 +965,7 @@ void lin_guider::move_drag_object( int x, int y )
 		{
 			if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_SQUARE )
 			{
-				m_math->move_square( (double)(x - povr->square_size/2), (double)(y - povr->square_size/2) );
+				m_math->move_square((double)x - m_drag_point.x, (double)y - m_drag_point.y );
 				upd = true;
 				break;
 			}
@@ -976,7 +981,7 @@ void lin_guider::move_drag_object( int x, int y )
 			else
 			if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_OSF )
 			{
-				m_math->move_osf( (double)(x - povr->osf_size.x/2), (double)(y - povr->osf_size.y/2) );
+				m_math->move_osf((double)x - m_drag_point.x, (double)y - m_drag_point.y);
 				upd = true;
 				break;
 			}

@@ -156,6 +156,7 @@ private:
 	void set_ui_params( void );
 	bool restart_server( void );
 
+	point_t m_drag_point;
 	drag_object_t m_drag_objs[ lg_math::ovr_params_t::OVR_DRAGGABLE_CNT ];
 	drawer_delegate *m_drawer_delegate;
 
