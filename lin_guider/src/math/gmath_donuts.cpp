@@ -172,7 +172,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 
 	m_snr = dg_new.snr;
 	// SNR < 10 - starts to produce guiding spikes
-	if (dg_new.snr < 10) {
+	if (dg_new.snr < 3) {
 		log_i("SNR = %.2f is too low, skipping frame!", dg_new.snr);
 		dg_delete_frame_digest(&dg_new);
 		return Vector( m_ref_x, m_ref_y, 0 );
@@ -203,9 +203,9 @@ void cgmath_donuts::calc_quality( void )
 {
 	//cgmath::calc_quality();
 
-	// SNR = 50 -> Qual = 100%
-	// Around SNR = 10 (Qual = 20%) DONUTS starts to produce occasional spikes.
-	m_out_params.quality = ((m_snr) / 50) * 100;
+	// SNR = 200 -> Qual = 100%
+	// Around SNR = 10 (Qual = 5%) DONUTS starts to produce occasional spikes.
+	m_out_params.quality = ((m_snr) / 200) * 100;
 	if (m_out_params.quality > 100) m_out_params.quality = 100;
 	if (m_out_params.quality < 0) m_out_params.quality = 0;
 }
