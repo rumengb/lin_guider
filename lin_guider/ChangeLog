@@ -2,6 +2,7 @@
 
 	* Created infrastructure to support selectable drift graphs
 	* Created infrastructure to support selectable guiding algorithms
+	* Change Graph X:Y cells does not require restart any more
 	* Added two versions Target drift graph, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Enhanced Scrolling drift graph, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Added Enhanced DONUTS guiding algorithm, by Rumen G.Bogdanovski <rumen@skyarchive.org>

@@ -13,10 +13,10 @@
 #include <donuts_guide.h>
 
 int dg_new_frame_digest(const double *fdata, const unsigned int width, const unsigned int height, frame_digest *fdigest) {
-	unsigned int i, ci, li, max;
-	double avg, total;
-	double (*col_x)[2];
-	double (*col_y)[2];
+	unsigned int i = 0, ci = 0 , li = 0, max = 0;
+	double avg = 0, total = 0;
+	double (*col_x)[2] = {NULL, NULL};
+	double (*col_y)[2] = {NULL, NULL};
 
 	if ((width < 3) || (height < 3)) return -1;
 	if ((fdata == NULL) || (fdigest == NULL)) return -1;
@@ -103,8 +103,8 @@ int dg_new_frame_digest(const double *fdata, const unsigned int width, const uns
 
 
 int dg_calculate_corrections(const frame_digest *ref, const frame_digest *current, corrections *c) {
-	double (*c_buf)[2];
-	int max_dim;
+	double (*c_buf)[2] = {NULL, NULL};
+	int max_dim = 0;
 
 	if ((ref == NULL) || (current == NULL) || (c == NULL)) return -1;
 	if ((ref->algorithm != donuts) || (current->algorithm != donuts)) return -1;

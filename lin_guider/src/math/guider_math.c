@@ -122,9 +122,9 @@ void corellate_fft(const int n, const double (*X1)[2], const double (*X2)[2], do
 double find_distance(const int n, const double (*c)[2]) {
 	int i;
 	const int n2 = n / 2;
-	int max=0;
-	int prev, next;
-	double max_subp;
+	int max = 0;
+	int prev = 0, next = 0;
+	double max_subp = 0;
 
 	for(i = 0; i < n; i++) {
 		max = (c[i][0] > c[max][0]) ? i : max;
@@ -190,7 +190,7 @@ double noise_stddev(double *data, int width, int height) {
 
 double sigma_threshold(double *data, int width, int height, double nsigma) {
 	int i;
-	double snr, sigma, threshold;
+	double snr = 0, sigma = 0, threshold = 0;
 
 	double mean = 0.0;
 	double max = 0.0;
@@ -200,7 +200,7 @@ double sigma_threshold(double *data, int width, int height, double nsigma) {
 		mean += data[i];
 		if(max < data[i]) max = data[i];
 	}
-	mean=mean/n;  /* mean is image mean */
+	mean=mean / n;  /* mean is image mean */
 
 	/* sigma is only noise sigma estimaged using first 2 and
 	 * last 2 rows of the image (using 2 rows because of the
