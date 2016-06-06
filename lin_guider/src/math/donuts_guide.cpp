@@ -7,16 +7,19 @@
  * Publications of the Astronomical Society of Pacific, Volume 125, Issue 927, pp. 548-556 (2013)
  *************************************************************************************************/
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <guider_math.h>
 #include <donuts_guide.h>
 
+#ifdef DEBUG
+	#include <stdio.h>
+#endif
+
 int dg_new_frame_digest(const double *fdata, const unsigned int width, const unsigned int height, frame_digest *fdigest) {
 	unsigned int i = 0, ci = 0 , li = 0, max = 0;
 	double avg = 0, total = 0;
-	double (*col_x)[2] = {NULL, NULL};
-	double (*col_y)[2] = {NULL, NULL};
+	double (*col_x)[2] = NULL;
+	double (*col_y)[2] = NULL;
 
 	if ((width < 3) || (height < 3)) return -1;
 	if ((fdata == NULL) || (fdigest == NULL)) return -1;
@@ -27,20 +30,20 @@ int dg_new_frame_digest(const double *fdata, const unsigned int width, const uns
 
 	fdigest->width = next_power_2(width);
 	fdigest->height = next_power_2(height);
-	fdigest->fft_x = malloc(2 * fdigest->width * sizeof(double));
-	fdigest->fft_y = malloc(2 * fdigest->height * sizeof(double));
+	fdigest->fft_x = (double (*)[2])malloc(2 * fdigest->width * sizeof(double));
+	fdigest->fft_y = (double (*)[2])malloc(2 * fdigest->height * sizeof(double));
 	if ((fdigest->fft_x == NULL) || (fdigest->fft_y == NULL)) {
 		dg_delete_frame_digest(fdigest);
 		return -1;
 	}
 
-	col_x = calloc(2 * fdigest->width * sizeof(double), 1);
+	col_x = (double (*)[2])calloc(2 * fdigest->width * sizeof(double), 1);
 	if (col_x == NULL) {
 		dg_delete_frame_digest(fdigest);
 		return -1;
 	}
 
-	col_y = calloc(2 * fdigest->height * sizeof(double), 1);
+	col_y = (double (*)[2])calloc(2 * fdigest->height * sizeof(double), 1);
 	if (col_y == NULL) {
 		dg_delete_frame_digest(fdigest);
 		free(col_x);
@@ -103,7 +106,7 @@ int dg_new_frame_digest(const double *fdata, const unsigned int width, const uns
 
 
 int dg_calculate_corrections(const frame_digest *ref, const frame_digest *current, corrections *c) {
-	double (*c_buf)[2] = {NULL, NULL};
+	double (*c_buf)[2] = NULL;
 	int max_dim = 0;
 
 	if ((ref == NULL) || (current == NULL) || (c == NULL)) return -1;
@@ -112,7 +115,7 @@ int dg_calculate_corrections(const frame_digest *ref, const frame_digest *curren
 
 	max_dim = (ref->width > ref->height) ? ref->width : ref->height;
 
-	c_buf = malloc(2 * max_dim * sizeof(double));
+	c_buf = (double (*)[2])malloc(2 * max_dim * sizeof(double));
 	if (c_buf == NULL) return -1;
 
 	/* find X correction */

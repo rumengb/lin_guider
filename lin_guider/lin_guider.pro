@@ -74,8 +74,8 @@ HEADERS += include/drift_graph.h \
 SOURCES += src/drift_graph.cpp \
     src/target_graph.cpp \
     src/math/gmath_donuts.cpp \
-    src/math/donuts_guide.c \
-    src/math/guider_math.c \
+    src/math/donuts_guide.cpp \
+    src/math/guider_math.cpp \
     src/io_dev/io_nexstar.cpp \
     src/io_dev/io_skywatcher.cpp \
     src/io_dev/io_qhy5ii.cpp \

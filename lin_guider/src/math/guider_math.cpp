@@ -5,15 +5,18 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <stdio.h>
 #include <guider_math.h>
+
+#ifdef DEBUG
+	#include <stdio.h>
+#endif
 
 
 void _fft(const int n, const int offset, const int delta, const double (*x)[2], double (*X)[2], double (*_X)[2]);
 
 
 void fft(const int n, const double (*x)[2], double (*X)[2]) {
-	double (*_X)[2] = malloc(2 * n * sizeof(double));
+	double (*_X)[2] = (double (*)[2])malloc(2 * n * sizeof(double));
 	_fft(n, 0, 1, x, X, _X);
 	free(_X);
 }
@@ -82,9 +85,9 @@ void ifft(const int n, const double (*X)[2], double (*x)[2]) {
 
 void corellate(const int n, const double (*x1)[2], const double (*x2)[2], double (*c)[2]) {
 	int i;
-	double (*X1)[2] = malloc(2 * n * sizeof(double));
-	double (*X2)[2] = malloc(2 * n * sizeof(double));
-	double (*C)[2] = malloc(2 * n * sizeof(double));
+	double (*X1)[2] = (double (*)[2])malloc(2 * n * sizeof(double));
+	double (*X2)[2] = (double (*)[2])malloc(2 * n * sizeof(double));
+	double (*C)[2] = (double (*)[2])malloc(2 * n * sizeof(double));
 
 	fft(n, x1, X1);
 	fft(n, x2, X2);
@@ -105,7 +108,7 @@ void corellate(const int n, const double (*x1)[2], const double (*x2)[2], double
 
 void corellate_fft(const int n, const double (*X1)[2], const double (*X2)[2], double (*c)[2]) {
 	int i;
-	double (*C)[2] = malloc(2 * n * sizeof(double));
+	double (*C)[2] = (double (*)[2])malloc(2 * n * sizeof(double));
 
 	/* pointwise multiply X1 conjugate with X2 here, store in X1 */
 	for(i = 0; i < n; i++) {
