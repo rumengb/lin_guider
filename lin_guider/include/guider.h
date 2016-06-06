@@ -68,7 +68,6 @@ public:
 		int cell_ny;
 	};
 	static const int cell_size = 50;
-	graph_type_t m_prev_graph_type;
 
 	guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider::drift_view_params_s *dv_params, const common_params &comm_params );
 	~guider();
@@ -125,6 +124,9 @@ private:
 	io_drv::cio_driver_base *m_driver;
 	struct guider::drift_view_params_s *m_drift_view_params;
 	const common_params &m_common_params;
+
+	graph_type_t m_prev_graph_type;
+
 private:
     Ui::guiderClass ui;
 };

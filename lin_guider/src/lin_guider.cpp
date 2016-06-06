@@ -303,9 +303,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	m_video_name_label->setText( tr("Video:") + QString(m_video->get_name()) );
 	m_io_name_label->setText( tr("IO:") + QString(m_driver->get_name()) );
 
-	m_drag_point.x = 0;
-	m_drag_point.y = 0;
-
+	m_drag_point.x = m_drag_point.y = 0;
 	memset( m_drag_objs, 0, sizeof(m_drag_objs) );
 	m_drag_objs[0].type = lg_math::ovr_params_t::OVR_RETICLE;
 	m_drag_objs[1].type = lg_math::ovr_params_t::OVR_SQUARE;
@@ -321,7 +319,6 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	update_sb_io_info();
 
 	set_ui_params();
-	m_hfd_info_label->setVisible( m_common_params.hfd_on );
 
 	// test
 	m_long_task_conn = NULL;
@@ -387,10 +384,27 @@ lin_guider::~lin_guider()
 void lin_guider::create_math_object( int ga_type,
 									 const lg_math::cproc_in_params &ip )
 {
+	bool preserve_calibration = false;
+	double cal_x   = 0;
+	double cal_y   = 0;
+	double cal_ang = 0;
+	double osf_x   = 0;
+	double osf_y   = 0;
+	// another OSF restoration mtd.
+	//double osf_kx  = 0;
+	//double osf_ky  = 0;
+	int sqr_idx = 0;
+
 	if( m_math )
 	{
 		if( m_math->get_type() == ga_type )
 			return;
+		m_math->get_reticle_params( &cal_x, &cal_y, &cal_ang );
+		m_math->get_osf_params( &osf_x, &osf_y, NULL, NULL );
+		// another OSF restoration mtd.
+		//m_math->get_osf_params( &osf_x, &osf_y, &osf_kx, &osf_ky );
+		sqr_idx = m_math->get_square_index();
+		preserve_calibration = true;
 		delete m_math;
 	}
 
@@ -406,12 +420,24 @@ void lin_guider::create_math_object( int ga_type,
 	m_math->set_video_params( m_capture_params.width, m_capture_params.height );
 	m_math->set_guider_params( m_guider_params.ccd_pixel_width, m_guider_params.ccd_pixel_height, m_guider_params.aperture, m_guider_params.focal );
 	m_math->set_in_params( &ip );
+	if( preserve_calibration )
+	{
+		m_math->set_reticle_params( cal_x, cal_y, cal_ang );
+		// select which one restoration method do you prefer
+		m_math->move_osf( osf_x, osf_y );
+		// another OSF restoration mtd.
+		//m_math->resize_osf( osf_kx, osf_ky );
+		//m_math->move_osf( cal_x-(m_capture_params.width*osf_kx)/2, cal_y-(m_capture_params.height*osf_ky)/2 );
+		m_math->resize_square( sqr_idx );
+	}
 
 	// attach math to all modules
 	guider_wnd->set_math( m_math );
 	reticle_wnd->set_math( m_math );
 
 	set_visible_overlays( m_math->get_default_overlay_set(), true );
+
+	m_hfd_info_label->setVisible( m_common_params.hfd_on && m_math->get_type() == lg_math::GA_CENTROID );
 
 	log_i( "Created math: '%s'", m_math->get_name() );
 }
@@ -968,7 +994,7 @@ void lin_guider::move_drag_object( int x, int y )
 		{
 			if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_SQUARE )
 			{
-				m_math->move_square((double)x - m_drag_point.x, (double)y - m_drag_point.y );
+				m_math->move_square( (double)x - m_drag_point.x, (double)y - m_drag_point.y );
 				upd = true;
 				break;
 			}
@@ -1012,7 +1038,13 @@ void lin_guider::draw_overlays( QPainter &painter )
 	if( povr->visible & lg_math::ovr_params_t::OVR_SQUARE )
 	{
 		painter.setPen( SQR_OVL_COLOR );
-		painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size-1, povr->square_size-1 );
+		if( povr->visible & lg_math::ovr_params_t::OVR_ALTERSQUARE_FLAG )
+		{
+			painter.drawLine( povr->square_pos.x, povr->square_pos.y, povr->square_pos.x+povr->square_size-1, povr->square_pos.y+povr->square_size-1 );
+			painter.drawLine( povr->square_pos.x, povr->square_pos.y+povr->square_size-1, povr->square_pos.x+povr->square_size-1, povr->square_pos.y );
+		}
+		else
+			painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size-1, povr->square_size-1 );
 	}
 	if( povr->visible & lg_math::ovr_params_t::OVR_RETICLE )
 	{

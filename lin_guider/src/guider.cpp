@@ -48,7 +48,8 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	pmain_wnd( parent ),
 	m_driver( drv ),
 	m_drift_view_params( dv_params ),
-	m_common_params( comm_params )
+	m_common_params( comm_params ),
+	m_prev_graph_type( GRPAH_MAX )
 {
 	int i;
 
@@ -180,7 +181,10 @@ void guider::showEvent ( QShowEvent * event )
 	if( event->spontaneous() )
 		return;
 
-	if( m_prev_graph_type != m_drift_view_params->graph_type )
+	if( !m_drift_graph ||
+		m_prev_graph_type != m_drift_view_params->graph_type ||
+		m_drift_graph->get_gridx_N() != m_drift_view_params->cell_nx ||
+		m_drift_graph->get_gridy_N() != m_drift_view_params->cell_ny )
 		initialize_graph();
 
 	pmain_wnd->lock_toolbar( true );
@@ -224,6 +228,9 @@ void guider::set_math( lg_math::cgmath *math )
 {
 	assert( math );
 	m_math = math;
+
+	ui.comboBox_SquareSize->setEnabled( m_math->get_type() == lg_math::GA_CENTROID );
+	ui.comboBox_ThresholdAlg->setEnabled( m_math->get_type() == lg_math::GA_CENTROID );
 }
 
 

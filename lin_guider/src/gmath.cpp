@@ -42,12 +42,14 @@ namespace lg_math
 algorithm_desc_t alg_desc_list[ALG_CNT] = {
 		{
 			GA_CENTROID,
+			false,
 			"Centroid (default)",
 			NULL,
 			NULL
 		},
 		{
 			GA_DONUTS,
+			true,
 			"Enhanced DONUTS",
 			NULL,
 			NULL
@@ -82,7 +84,9 @@ const q_control_t q_control_mtd[] = {
 
 
 cgmath::cgmath( const common_params &comm_params ) :
-	m_common_params( comm_params )
+	m_common_params( comm_params ),
+
+	m_misc_vars( std::map< std::string, double >() )
 {
 	m_type = GA_CENTROID;
 
@@ -136,8 +140,7 @@ cgmath::cgmath( const common_params &comm_params ) :
 	m_delta_prev = m_sigma_prev = m_sigma = 0;
 
 	// quality estimation
-	m_q_star_max = 0;
-	m_q_bkgd = 0;
+	m_q_value = 0;
 	memset( m_q_stat, 0, sizeof(double)*q_stat_len );
 	m_q_control_idx = Q_CTRL_OFF;
 
@@ -991,8 +994,6 @@ Vector cgmath::find_star_local_pos( void ) const
 		}
 		threshold /= (double)pix_cnt;
 
-		m_q_bkgd = threshold;
-
 		// cut by 10% higher then average threshold
 		if( max_val > threshold )
 			threshold += (max_val - threshold) * SMART_CUT_FACTOR;
@@ -1013,15 +1014,11 @@ Vector cgmath::find_star_local_pos( void ) const
 			psrc += m_video_width;
 		}
 		threshold /= m_square_square;
-
-		m_q_bkgd = threshold;
-
 		break;
 	}
 	// no threshold subtracion
 	default:
 	{
-		m_q_bkgd = 1.0;
 	}
 	}
 
@@ -1049,9 +1046,14 @@ Vector cgmath::find_star_local_pos( void ) const
 
 	ret = m_square_pos + Vector( resx, resy, 0 );
 
-	m_q_star_max = *(m_pdata + (int)ret.y*m_video_width + (int)ret.x);
+	// finally calc quality
+	{
+		double q_star_max = *(m_pdata + (int)ret.y*m_video_width + (int)ret.x);
+		double q_value = 1.0 - threshold / q_star_max;
+		add_quality( q_value );
+	}
 
- return ret;
+	return ret;
 }
 
 
@@ -1189,14 +1191,11 @@ void cgmath::calc_square_err( void )
 }
 
 
-void cgmath::set_quality_params( double q_val, double q_bkgd ) const
+void cgmath::add_quality( double q_val ) const
 {
-	m_q_star_max = q_val;
-	m_q_bkgd     = q_bkgd;
-	if( m_q_bkgd < 0 ) m_q_bkgd = 0;
-	if( m_q_bkgd > 1 ) m_q_bkgd = 1;
-	if( m_q_star_max < m_q_bkgd ) m_q_star_max = m_q_bkgd;
-	if( m_q_star_max > 1 ) m_q_star_max = 1;
+	m_q_value = q_val;
+	if( m_q_value < 0 ) m_q_value = 0;
+	if( m_q_value > 1 ) m_q_value = 1;
 }
 
 
@@ -1204,15 +1203,8 @@ void cgmath::calc_quality( void )
 {
 	uint32_t q_tick = m_ticks % q_stat_len;
 
-	if( m_q_star_max <= 0 )
-		m_q_star_max = 1;
-
-	if( m_q_bkgd > m_q_star_max )
-		m_q_star_max = m_q_bkgd+1;
-
-	double cur_quality = 1 - m_q_bkgd / m_q_star_max;
-
-	m_q_stat[ q_tick ] = cur_quality;
+	m_q_stat[ q_tick ] = m_q_value;
+	m_q_value = 0;
 
 	int cnt = 0;
 	double q_avg = 0;

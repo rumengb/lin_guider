@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>579</width>
-    <height>396</height>
+    <height>413</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,16 +26,7 @@
    <string>settings</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>4</number>
-   </property>
-   <property name="topMargin">
-    <number>4</number>
-   </property>
-   <property name="rightMargin">
-    <number>4</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>4</number>
    </property>
    <property name="spacing">
@@ -94,7 +85,7 @@
       <item row="0" column="3">
        <widget class="QLineEdit" name="lineEdit_Port">
         <property name="inputMask">
-         <string>00000</string>
+         <string>00000; </string>
         </property>
        </widget>
       </item>
@@ -211,7 +202,7 @@
       <item row="4" column="4">
        <widget class="QLineEdit" name="lineEdit_TCPPort">
         <property name="inputMask">
-         <string>00000</string>
+         <string>00000; </string>
         </property>
        </widget>
       </item>
@@ -401,6 +392,8 @@
   <tabstop>comboBox_DriftGraph_nx</tabstop>
   <tabstop>checkBox_DBGVerbosity</tabstop>
   <tabstop>comboBox_DriftGraph_ny</tabstop>
+  <tabstop>comboBox_GuiderAlgorithm</tabstop>
+  <tabstop>comboBox_OSFSize</tabstop>
   <tabstop>pushButton_OK</tabstop>
   <tabstop>pushButton_Cancel</tabstop>
  </tabstops>

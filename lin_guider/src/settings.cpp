@@ -74,6 +74,7 @@ settings::settings( lin_guider *parent,
 	for( int i = 0;i < cnt;i++ )
 		ui.comboBox_GuiderAlgorithm->addItem( QString(lg_math::alg_desc_list[i].desc), lg_math::alg_desc_list[i].type );
 
+	connect( ui.comboBox_GuiderAlgorithm, SIGNAL(activated(int)), this, SLOT(onGuiderAlgorithmChanged(int)) );
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
 }
@@ -168,8 +169,20 @@ void settings::fill_interface( void )
 		}
 	}
 
-	ui.comboBox_OSFSize->setCurrentIndex( ui.comboBox_OSFSize->findData( m_common_params.osf_size_kx ) );
 	ui.comboBox_GuiderAlgorithm->setCurrentIndex( ui.comboBox_GuiderAlgorithm->findData( m_common_params.guider_algorithm ) );
+	ui.comboBox_OSFSize->setCurrentIndex( ui.comboBox_OSFSize->findData( m_common_params.osf_size_kx ) );
+	onGuiderAlgorithmChanged( ui.comboBox_GuiderAlgorithm->currentIndex() );
+}
+
+
+void settings::onGuiderAlgorithmChanged( int idx )
+{
+	if( idx == -1 )
+		return;
+
+	bool use_osf = (idx < 0 || idx >= (int)ARRAY_SIZE(lg_math::alg_desc_list)) ? false : lg_math::alg_desc_list[idx].use_osf_ui;
+
+	ui.comboBox_OSFSize->setEnabled( use_osf );
 }
 
 

@@ -47,6 +47,7 @@ public:
 
 
 protected slots:
+	void onGuiderAlgorithmChanged( int idx );
 
 	void onOkButtonClick();
 	void onCancelButtonClick();

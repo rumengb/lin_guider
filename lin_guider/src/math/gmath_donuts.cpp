@@ -70,7 +70,7 @@ ovr_params_t *cgmath_donuts::prepare_overlays( void )
 	ovr->locked |= ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE;
 
 	if (m_guiding)
-		ovr->visible = ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
+		ovr->visible = ovr_params_t::OVR_ALTERSQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
 	else
 		ovr->visible =  ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
 
@@ -84,7 +84,7 @@ int cgmath_donuts::get_default_overlay_set( void ) const
 	// I turned on OVR_SQUARE to make shift visible
 	// It doesn't look like a cross yet.
 	// it will be later
-	return ovr_params_t::OVR_SQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
+	return ovr_params_t::OVR_ALTERSQUARE | ovr_params_t::OVR_RETICLE | ovr_params_t::OVR_OSF;
 }
 
 
@@ -118,6 +118,9 @@ void cgmath_donuts::resize_osf( double kx, double ky )
 	ky = ky > 1 ? 1 : ky;
 
 	Vector oldc = Vector( m_osf_pos.x + m_osf_vis_size.x/2, m_osf_pos.y + m_osf_vis_size.y/2, 0 );
+
+	m_osf_size.x = kx;
+	m_osf_size.y = ky;
 
 	m_osf_vis_size.x = m_video_width * kx;
 	m_osf_vis_size.y = m_video_height * ky;
@@ -194,19 +197,23 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 		log_i("SNR= %.2f, X/Y_cor= %+.3f %+.3f", m_snr, d_corr.x, d_corr.y);
 	}
 
+	calc_frame_quality();
+
 	return Vector( m_ref_x - d_corr.x, m_ref_y - d_corr.y, 0 );
 }
 
 
-void cgmath_donuts::calc_quality( void )
+void cgmath_donuts::calc_frame_quality( void ) const
 {
-	//cgmath::calc_quality();
-
 	// SNR = 200 -> Qual = 100%
 	// Around SNR = 10 (Qual = 5%) DONUTS starts to produce occasional spikes.
+	/*
 	m_out_params.quality = ((m_snr) / 200) * 100;
 	if (m_out_params.quality > 100) m_out_params.quality = 100;
 	if (m_out_params.quality < 0) m_out_params.quality = 0;
+	*/
+
+	add_quality( m_snr / 200 );
 }
 
 

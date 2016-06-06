@@ -24,6 +24,9 @@
 
 #include <stdint.h>
 #include <sys/types.h>
+
+#include <string>
+#include <map>
 #include <vector>
 #include <utility>
 
@@ -50,6 +53,7 @@ enum guider_algorithm
 typedef struct
 {
 	const int type;
+	const bool use_osf_ui;
 	const char *desc;
 	const char *info;	    // any necessary text info
 	const char *hyper_info;	// any necessary hypertext info
@@ -128,14 +132,16 @@ typedef struct
 {
 	enum consts
 	{
-		OVR_DRAGGABLE_CNT = 3
+		OVR_DRAGGABLE_CNT = 3,
+		OVR_ALTERSQUARE_FLAG = 0x80000000
 	};
 	enum type_t // values must be power of 2
 	{
 		OVR_SQUARE = 1,
 		OVR_RETICLE = 2,
 		OVR_RETICLE_ORG = 4,
-		OVR_OSF = 8	// optional subframe
+		OVR_OSF = 8,	// optional subframe
+		OVR_ALTERSQUARE = (OVR_SQUARE | OVR_ALTERSQUARE_FLAG)
 	};
 	int visible;
 	int locked;
@@ -256,15 +262,54 @@ public:
 	void resize_square( int size_idx );
 	virtual void move_osf( double newx, double newy )
 	{
-		(void)newx; (void)newy;
+		std::map< std::string, double >::iterator it = m_misc_vars.find( "osf_x" );
+		if( it != m_misc_vars.end() )
+			m_misc_vars.erase( it );
+		m_misc_vars.insert( std::make_pair("osf_x", newx) );
+
+		it = m_misc_vars.find( "osf_y" );
+		if( it != m_misc_vars.end() )
+			m_misc_vars.erase( it );
+		m_misc_vars.insert( std::make_pair("osf_y", newy) );
 	}
 	virtual void resize_osf( double kx, double ky )
 	{
-		(void)kx; (void)ky;
+		std::map< std::string, double >::iterator it = m_misc_vars.find( "osf_kx" );
+		if( it != m_misc_vars.end() )
+			m_misc_vars.erase( it );
+		m_misc_vars.insert( std::make_pair("osf_kx", kx) );
+
+		it = m_misc_vars.find( "osf_ky" );
+		if( it != m_misc_vars.end() )
+			m_misc_vars.erase( it );
+		m_misc_vars.insert( std::make_pair("osf_ky", ky) );
 	}
 	virtual void get_osf_params( double *x, double *y, double *kx, double *ky ) const
 	{
-		(void)x; (void)y; (void)kx; (void)ky;
+		if( x )
+		{
+			std::map< std::string, double >::const_iterator it = m_misc_vars.find( "osf_x" );
+			if( it != m_misc_vars.end() )
+				*x = it->second;
+		}
+		if( y )
+		{
+			std::map< std::string, double >::const_iterator it = m_misc_vars.find( "osf_y" );
+			if( it != m_misc_vars.end() )
+				*y = it->second;
+		}
+		if( kx )
+		{
+			std::map< std::string, double >::const_iterator it = m_misc_vars.find( "osf_kx" );
+			if( it != m_misc_vars.end() )
+				*kx = it->second;
+		}
+		if( ky )
+		{
+			std::map< std::string, double >::const_iterator it = m_misc_vars.find( "osf_ky" );
+			if( it != m_misc_vars.end() )
+				*ky = it->second;
+		}
 	}
 	int  dither( void );
 	int  dither_no_wait_xy( double rx, double ry );
@@ -303,17 +348,15 @@ public:
 
 protected:
 	const common_params &m_common_params;
-	cproc_out_params m_out_params;
 	int m_type;
 
 	/*! This method should return position of star as vector(x, y, 0) relative to the left top corner of buffer.
         Note! Reticle position is a center of guiding
 	*/
 	virtual Vector find_star_local_pos( void ) const;
-	virtual void calc_quality( void );
 	virtual void on_start( void ) {}
 	virtual void on_stop( void ) {}
-	void set_quality_params( double q_val, double q_bkgd ) const;
+	void add_quality( double q_val ) const;
 
 private:
 	struct hfd_item_s
@@ -372,6 +415,7 @@ private:
 	// overlays...
 	ovr_params_t m_overlays;
 	cproc_in_params  m_in_params;
+	cproc_out_params m_out_params;
 	
 	// stat math...
 	bool   m_do_statistics;
@@ -383,8 +427,7 @@ private:
 	{
 		q_stat_len = 5
 	};
-	mutable double m_q_star_max;
-	mutable double m_q_bkgd;
+	mutable double m_q_value;
 	double         m_q_stat[q_stat_len]; //
 	int            m_q_control_idx;
 
@@ -396,6 +439,8 @@ private:
 	mutable struct hfd_sqr_s *m_hfd_sqr_info;
 
 	// misc
+	std::map< std::string, double > m_misc_vars;
+
 	int fix_square_index( int square_index ) const;
 
 	// proc
@@ -404,6 +449,7 @@ private:
 	Vector arcsec2point( const Vector &asec ) const;
 	void process_axes( void );
 	void calc_square_err( void );
+	void calc_quality( void );
 	
 	void hfd_init( void ) const;
 	void hfd_destroy( void ) const;
