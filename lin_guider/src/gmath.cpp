@@ -50,7 +50,7 @@ algorithm_desc_t alg_desc_list[ALG_CNT] = {
 		{
 			GA_DONUTS,
 			true,
-			"Enhanced DONUTS",
+			"DONUTS (frame guiding)",
 			NULL,
 			NULL
 		}

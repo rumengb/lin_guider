@@ -66,6 +66,7 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_GraphType->addItem( QString("Target (lines)"), guider::GRAPH_TARGET_LINES );
 
 	ui.comboBox_OSFSize->addItem( QString("Full frame"), 1.0 );
+	ui.comboBox_OSFSize->addItem( QString("3/4 frame"), 0.75 );
 	ui.comboBox_OSFSize->addItem( QString("1/2 frame"), 0.5 );
 	ui.comboBox_OSFSize->addItem( QString("1/4 frame"), 0.25 );
 	ui.comboBox_OSFSize->addItem( QString("1/8 frame"), 0.125 );
@@ -183,6 +184,11 @@ void settings::onGuiderAlgorithmChanged( int idx )
 	bool use_osf = (idx < 0 || idx >= (int)ARRAY_SIZE(lg_math::alg_desc_list)) ? false : lg_math::alg_desc_list[idx].use_osf_ui;
 
 	ui.comboBox_OSFSize->setEnabled( use_osf );
+	ui.checkBox_HFD_on->setEnabled( !use_osf );
+	if (use_osf)
+		m_common_params.hfd_on = false;
+	else
+		m_common_params.hfd_on = ui.checkBox_HFD_on->isChecked();
 }
 
 

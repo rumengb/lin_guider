@@ -230,7 +230,7 @@ void guider::set_math( lg_math::cgmath *math )
 	m_math = math;
 
 	ui.comboBox_SquareSize->setEnabled( m_math->get_type() == lg_math::GA_CENTROID );
-	ui.comboBox_ThresholdAlg->setEnabled( m_math->get_type() == lg_math::GA_CENTROID );
+	//ui.comboBox_ThresholdAlg->setEnabled( m_math->get_type() == lg_math::GA_CENTROID );
 }
 
 

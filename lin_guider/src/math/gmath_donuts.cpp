@@ -165,7 +165,17 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 
 	copy_subframe(m_sub_frame, m_osf_pos.x, m_osf_pos.y, m_osf_vis_size.x, m_osf_vis_size.y);
 
-	filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
+	int clear = get_square_algorithm_index();
+	switch (clear) {
+		case SMART_THRESHOLD:
+		case AUTO_THRESHOLD:
+			/* clear one pixel spikes */
+			filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
+			break;
+		default:
+			/* do nothing */
+			break;
+	}
 
 	res = dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &dg_new);
 	if (res < 0) {
@@ -232,8 +242,17 @@ void cgmath_donuts::on_start( void )
 
 		copy_subframe(m_sub_frame, m_osf_pos.x, m_osf_pos.y, m_osf_vis_size.x, m_osf_vis_size.y);
 
-		/* clear one pixel spikes */
-		filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
+		int clear = get_square_algorithm_index();
+		switch (clear) {
+			case SMART_THRESHOLD:
+			case AUTO_THRESHOLD:
+				/* clear one pixel spikes */
+				filters::medianfilter( (double*) m_sub_frame, (double*)NULL, m_osf_vis_size.x, m_osf_vis_size.y);
+				break;
+			default:
+				/* do nothing */
+				break;
+		}
 
 		res = dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &m_dg_ref);
 		if (res < 0) {

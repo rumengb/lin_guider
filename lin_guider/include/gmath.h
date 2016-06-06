@@ -260,6 +260,10 @@ public:
 	virtual int get_default_overlay_set( void ) const;
 	void move_square( double newx, double newy );
 	void resize_square( int size_idx );
+	bool is_guiding() const
+	{
+		return !m_preview_mode;
+	}
 	virtual void move_osf( double newx, double newy )
 	{
 		std::map< std::string, double >::iterator it = m_misc_vars.find( "osf_x" );

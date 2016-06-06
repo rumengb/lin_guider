@@ -1027,8 +1027,21 @@ void lin_guider::draw_overlays( QPainter &painter )
 
 	if( povr->visible & lg_math::ovr_params_t::OVR_OSF )
 	{
-		painter.setPen( OSF_COLOR );
-		painter.drawRect( povr->osf_pos.x, povr->osf_pos.y, povr->osf_size.x-1, povr->osf_size.y-1 );
+		if(m_math->is_guiding())
+		{
+			painter.setPen( SQR_OVL_COLOR );
+			int half_size = povr->square_size / 2;
+			painter.drawRect(povr->square_pos.x + half_size - povr->osf_size.x/2,
+			                 povr->square_pos.y + half_size - povr->osf_size.y/2,
+			                 povr->osf_size.x - 1,
+			                 povr->osf_size.y - 1
+			);
+		}
+		else
+		{
+			painter.setPen( OSF_COLOR );
+			painter.drawRect( povr->osf_pos.x, povr->osf_pos.y, povr->osf_size.x-1, povr->osf_size.y-1 );
+		}
 	}
 	if( povr->visible & lg_math::ovr_params_t::OVR_RETICLE_ORG )
 	{
@@ -1040,8 +1053,13 @@ void lin_guider::draw_overlays( QPainter &painter )
 		painter.setPen( SQR_OVL_COLOR );
 		if( povr->visible & lg_math::ovr_params_t::OVR_ALTERSQUARE_FLAG )
 		{
+			/*
 			painter.drawLine( povr->square_pos.x, povr->square_pos.y, povr->square_pos.x+povr->square_size-1, povr->square_pos.y+povr->square_size-1 );
 			painter.drawLine( povr->square_pos.x, povr->square_pos.y+povr->square_size-1, povr->square_pos.x+povr->square_size-1, povr->square_pos.y );
+			*/
+			int half_size = povr->square_size / 2;
+			//painter.drawLine(povr->square_pos.x + half_size, povr->square_pos.y + half_size,povr->reticle_pos.x, povr->reticle_pos.y);
+			painter.drawEllipse(QPointF(povr->square_pos.x + half_size, povr->square_pos.y + half_size), 2, 2);
 		}
 		else
 			painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size-1, povr->square_size-1 );

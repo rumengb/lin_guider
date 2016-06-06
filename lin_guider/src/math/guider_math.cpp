@@ -203,7 +203,7 @@ double sigma_threshold(double *data, int width, int height, double nsigma) {
 		mean += data[i];
 		if(max < data[i]) max = data[i];
 	}
-	mean=mean / n;  /* mean is image mean */
+	mean = mean / n;  /* mean is image mean */
 
 	/* sigma is only noise sigma estimaged using first 2 and
 	 * last 2 rows of the image (using 2 rows because of the
