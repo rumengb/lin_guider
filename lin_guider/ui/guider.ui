@@ -155,7 +155,7 @@
         <item row="0" column="2" colspan="2">
          <widget class="QLabel" name="l_28">
           <property name="text">
-           <string>Thresh. alg.</string>
+           <string>De-noise</string>
           </property>
          </widget>
         </item>

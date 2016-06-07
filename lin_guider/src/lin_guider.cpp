@@ -1058,8 +1058,11 @@ void lin_guider::draw_overlays( QPainter &painter )
 			painter.drawLine( povr->square_pos.x, povr->square_pos.y+povr->square_size-1, povr->square_pos.x+povr->square_size-1, povr->square_pos.y );
 			*/
 			int half_size = povr->square_size / 2;
-			//painter.drawLine(povr->square_pos.x + half_size, povr->square_pos.y + half_size,povr->reticle_pos.x, povr->reticle_pos.y);
-			painter.drawEllipse(QPointF(povr->square_pos.x + half_size, povr->square_pos.y + half_size), 2, 2);
+			int cx = povr->square_pos.x + half_size;
+			int cy = povr->square_pos.y + half_size;
+			painter.drawLine(cx - 8, cy, cx + 8, cy);
+			painter.drawLine(cx, cy - 8, cx, cy + 8);
+			//painter.drawEllipse(QPointF(povr->square_pos.x + half_size, povr->square_pos.y + half_size), 2, 2);
 		}
 		else
 			painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size-1, povr->square_size-1 );
