@@ -30,8 +30,7 @@ cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
 	m_video_width( 0 ),
 	m_video_height( 0 ),
 	m_ref_x( 0 ),
-	m_ref_y( 0 ),
-	m_snr( 0 )
+	m_ref_y( 0 )
 {
 	m_type = GA_DONUTS;
 }
@@ -183,7 +182,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
-	m_snr = dg_new.snr;
+	calc_frame_quality(dg_new.snr);
 	if (dg_new.snr < SNR_THRESHOLD) {
 		log_i("SNR = %.2f is too low, skipping frame!", dg_new.snr);
 		dg_delete_frame_digest(&dg_new);
@@ -197,23 +196,21 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
+	if( DBG_VERBOSITY ) {
+		log_i("SNR = %.2f, x_cor = %+.3f, y_cor = %+.3f", dg_new.snr, d_corr.x, d_corr.y);
+	}
+
 	res = dg_delete_frame_digest(&dg_new);
 	if (res < 0) {
 		log_e("dg_delete_frame_digest(): failed");
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
-	if( DBG_VERBOSITY ) {
-		log_i("SNR= %.2f, X/Y_cor= %+.3f %+.3f", m_snr, d_corr.x, d_corr.y);
-	}
-
-	calc_frame_quality();
-
 	return Vector( m_ref_x - d_corr.x, m_ref_y - d_corr.y, 0 );
 }
 
 
-void cgmath_donuts::calc_frame_quality( void ) const
+void cgmath_donuts::calc_frame_quality( double snr ) const
 {
 	// SNR = 200 -> Qual = 100%
 	// Around SNR = 10 (Qual = 5%) DONUTS starts to produce occasional spikes.
@@ -223,7 +220,7 @@ void cgmath_donuts::calc_frame_quality( void ) const
 	if (m_out_params.quality < 0) m_out_params.quality = 0;
 	*/
 
-	add_quality( m_snr / 200 );
+	add_quality( snr / 200 );
 }
 
 
@@ -259,13 +256,13 @@ void cgmath_donuts::on_start( void )
 			log_e("dg_new_frame_digest(): failed, HOW TO STOP GUIDING?");
 		}
 
-		m_snr = m_dg_ref.snr;
-		if (m_snr < SNR_THRESHOLD) {
-			log_e("SNR = %.2f is too low, HOW TO STOP GUIDING?", m_snr);
+		calc_frame_quality(m_dg_ref.snr);
+		if (m_dg_ref.snr < SNR_THRESHOLD) {
+			log_e("SNR = %.2f is too low, HOW TO STOP GUIDING?", m_dg_ref.snr);
 		}
 
 		if( DBG_VERBOSITY ) {
-			log_i("Reference frame SNR= %.2f", m_snr);
+			log_i("Reference frame SNR = %.2f", m_dg_ref.snr);
 		}
 		m_guiding = true;
 	}
@@ -285,7 +282,6 @@ void cgmath_donuts::on_stop( void )
 
 		m_ref_x = 0;
 		m_ref_y = 0;
-		m_snr = 0;
 		m_guiding = false;
 	}
 	log_i( "cgmath_donuts::%s", __FUNCTION__ );

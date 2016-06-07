@@ -45,10 +45,9 @@ private:
 	int m_video_width, m_video_height;
 	double m_ref_x;
 	double m_ref_y;
-	mutable double m_snr;
 	frame_digest m_dg_ref;
 
-	void calc_frame_quality( void ) const;
+	void calc_frame_quality( double snr ) const;
 };
 
 }
