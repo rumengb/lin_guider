@@ -145,13 +145,13 @@
      <normaloff>:/new/prefix1/video.png</normaloff>:/new/prefix1/video.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Video Settings</string>
+    <string>&amp;Camera Settings</string>
    </property>
    <property name="iconText">
-    <string>Video Settings</string>
+    <string>Camera Settings</string>
    </property>
    <property name="toolTip">
-    <string>Video Settings</string>
+    <string>Camera Settings</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>true</bool>

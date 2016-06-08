@@ -34,7 +34,7 @@ setup_video::setup_video(lin_guider *parent)
 {
 	ui.setupUi(this);
 
-	setWindowTitle( tr("Video Settings") );
+	setWindowTitle( tr("Camera Settings") );
 
 	// init device list
 	ui.comboBox_DeviceList->clear();

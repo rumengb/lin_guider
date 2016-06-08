@@ -157,7 +157,7 @@ int atik_core::open( void )
 
 		if (m_caps.color_type == COLOUR_NONE) {
 			log_i("Using camera: %s (Mono)", m_camera->getName());
-			log_i("Note: Some older colour cameras report mono. If so, use \"Video Settings\" to force colour mode.");
+			log_i("Note: Some older colour cameras report mono. If so, use \"Camera Settings\" to force colour mode.");
 		} else {
 			log_i("Using camera: %s (Colour)", m_camera->getName());
 		}

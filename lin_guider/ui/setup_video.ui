@@ -62,7 +62,7 @@
    <item row="1" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_Video">
      <property name="title">
-      <string>Video</string>
+      <string>Camera</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="margin">
