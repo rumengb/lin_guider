@@ -565,7 +565,7 @@ void lin_guider::onShowSettings()
 	settings_wnd->exec();
 	//check UI changes
 	set_ui_params();
-	m_hfd_info_label->setVisible( m_common_params.hfd_on );
+	m_hfd_info_label->setVisible( m_common_params.hfd_on && m_math->get_type() == lg_math::GA_CENTROID );
 	m_hfd_info_label->setText( QString() );
 	// restart server if necessary
 	if( old_net_params != m_net_params )
