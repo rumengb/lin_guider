@@ -300,7 +300,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	create_math_object( m_common_params.guider_algorithm, *m_param_block->get_math_in_params() );
 
 	// apply all permanent params
-	m_video_name_label->setText( tr("Video:") + QString(m_video->get_name()) );
+	m_video_name_label->setText( tr("Camera:") + QString(m_video->get_name()) );
 	m_io_name_label->setText( tr("IO:") + QString(m_driver->get_name()) );
 
 	m_drag_point.x = m_drag_point.y = 0;
@@ -1092,7 +1092,7 @@ void lin_guider::update_sb_video_info( int override_fps_idx )
 {
 	char str[64] = {0};
 	m_video->get_current_format_params_string( str, sizeof(str), override_fps_idx );
-	m_video_name_label->setText( tr("Video: ") + QString(m_video->get_name()) + ", " + QString(str) );
+	m_video_name_label->setText( tr("Camera: ") + QString(m_video->get_name()) + ", " + QString(str) );
 }
 
 
