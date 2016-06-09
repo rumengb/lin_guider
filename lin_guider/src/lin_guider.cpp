@@ -915,19 +915,18 @@ bool lin_guider::activate_drag_object( int x, int y )
  	{
  		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_SQUARE ) // square
  		{
- 			if( !(povr->visible & lg_math::ovr_params_t::OVR_SQUARE) ||
- 				(povr->locked & lg_math::ovr_params_t::OVR_SQUARE) )
+			if( !(povr->visible & lg_math::ovr_params_t::OVR_SQUARE) ||
+				(povr->locked & lg_math::ovr_params_t::OVR_SQUARE) )
  				continue;
  			if( x > povr->square_pos.x && x < povr->square_pos.x+povr->square_size )
  				if( y > povr->square_pos.y && y < povr->square_pos.y+povr->square_size )
  				{
-					m_drag_point.x = x - povr->square_pos.x;
-					m_drag_point.y = y - povr->square_pos.y;
- 					m_drag_objs[i].active = true;
- 					m_math->suspend( true );
- 					return true;
- 				}
- 		}
+					m_drag_point = (point_t){x - povr->square_pos.x, y - povr->square_pos.y};
+					m_drag_objs[i].active = true;
+					m_math->suspend( true );
+					return true;
+				}
+		}
  		else
 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE ) // reticle
 		{
@@ -952,8 +951,7 @@ bool lin_guider::activate_drag_object( int x, int y )
 			if( x > povr->osf_pos.x && x < povr->osf_pos.x+povr->osf_size.x )
 				if( y > povr->osf_pos.y && y < povr->osf_pos.y+povr->osf_size.y )
 				{
-					m_drag_point.x = x - povr->osf_pos.x;
-					m_drag_point.y = y - povr->osf_pos.y;
+					m_drag_point = (point_t){x - povr->osf_pos.x, y - povr->osf_pos.y};
 					m_drag_objs[i].active = true;
 					m_math->suspend( true );
 					return true;
@@ -973,8 +971,7 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 	 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE )
 	 			reticle_wnd->update_reticle_pos( (double)x, (double)y );
 
-			m_drag_point.x = 0;
-			m_drag_point.y = 0;
+			m_drag_point = (point_t){0, 0};
 	 		m_drag_objs[i].active = false;
 	 		m_math->suspend( false );
 	 		return true;
@@ -1027,15 +1024,13 @@ void lin_guider::draw_overlays( QPainter &painter )
 
 	if( povr->visible & lg_math::ovr_params_t::OVR_OSF )
 	{
-		if(m_math->is_guiding())
+		if( m_math->is_guiding() )
 		{
 			painter.setPen( SQR_OVL_COLOR );
-			int half_size = povr->square_size / 2;
-			painter.drawRect(povr->square_pos.x + half_size - povr->osf_size.x/2,
-			                 povr->square_pos.y + half_size - povr->osf_size.y/2,
-			                 povr->osf_size.x - 1,
-			                 povr->osf_size.y - 1
-			);
+			painter.drawRect( povr->square_pos.x + (povr->square_size>>1) - povr->osf_size.x/2,
+			                  povr->square_pos.y + (povr->square_size>>1) - povr->osf_size.y/2,
+			                  povr->osf_size.x - 1,
+		                      povr->osf_size.y - 1 );
 		}
 		else
 		{
@@ -1053,16 +1048,10 @@ void lin_guider::draw_overlays( QPainter &painter )
 		painter.setPen( SQR_OVL_COLOR );
 		if( povr->visible & lg_math::ovr_params_t::OVR_ALTERSQUARE_FLAG )
 		{
-			/*
-			painter.drawLine( povr->square_pos.x, povr->square_pos.y, povr->square_pos.x+povr->square_size-1, povr->square_pos.y+povr->square_size-1 );
-			painter.drawLine( povr->square_pos.x, povr->square_pos.y+povr->square_size-1, povr->square_pos.x+povr->square_size-1, povr->square_pos.y );
-			*/
-			int half_size = povr->square_size / 2;
-			int cx = povr->square_pos.x + half_size;
-			int cy = povr->square_pos.y + half_size;
-			painter.drawLine(cx - 8, cy, cx + 8, cy);
-			painter.drawLine(cx, cy - 8, cx, cy + 8);
-			//painter.drawEllipse(QPointF(povr->square_pos.x + half_size, povr->square_pos.y + half_size), 2, 2);
+			int cx = povr->square_pos.x + (povr->square_size>>1);
+			int cy = povr->square_pos.y + (povr->square_size>>1);
+			painter.drawLine( cx - 8, cy, cx + 8, cy );
+			painter.drawLine( cx, cy - 8, cx, cy + 8 );
 		}
 		else
 			painter.drawRect( povr->square_pos.x, povr->square_pos.y, povr->square_size-1, povr->square_size-1 );

@@ -50,6 +50,12 @@ enum guider_algorithm
 	ALG_CNT = GA_MAX-1
 };
 
+enum capabilities
+{
+	CAP_HFD = 0x1,
+	CAP_QUALITY = 0x2
+};
+
 typedef struct
 {
 	const int type;
@@ -260,10 +266,6 @@ public:
 	virtual int get_default_overlay_set( void ) const;
 	void move_square( double newx, double newy );
 	void resize_square( int size_idx );
-	bool is_guiding() const
-	{
-		return !m_preview_mode;
-	}
 	virtual void move_osf( double newx, double newy )
 	{
 		std::map< std::string, double >::iterator it = m_misc_vars.find( "osf_x" );
@@ -324,6 +326,7 @@ public:
 	void stop( void );
 	void suspend( bool mode );
 	bool is_suspended( void ) const;
+	bool is_guiding( void ) const;
 	void do_processing( void );
 	static double precalc_proportional_gain( double g_rate );
 	bool calc_and_set_reticle( double start_x,
@@ -353,6 +356,7 @@ public:
 protected:
 	const common_params &m_common_params;
 	int m_type;
+	int m_caps;
 
 	/*! This method should return position of star as vector(x, y, 0) relative to the left top corner of buffer.
         Note! Reticle position is a center of guiding

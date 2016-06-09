@@ -33,6 +33,7 @@ cgmath_donuts::cgmath_donuts( const common_params &comm_params ) :
 	m_ref_y( 0 )
 {
 	m_type = GA_DONUTS;
+	m_caps &= (~CAP_HFD);
 }
 
 

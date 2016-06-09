@@ -230,7 +230,7 @@ void guider::set_math( lg_math::cgmath *math )
 	m_math = math;
 
 	ui.comboBox_SquareSize->setEnabled( m_math->get_type() == lg_math::GA_CENTROID );
-	this->setWindowTitle(QString("Guider - ") + QString(m_math->get_name()));
+	setWindowTitle( tr("Guider - ") + QString(m_math->get_name()) );
 }
 
 

@@ -185,10 +185,6 @@ void settings::onGuiderAlgorithmChanged( int idx )
 
 	ui.comboBox_OSFSize->setEnabled( use_osf );
 	ui.checkBox_HFD_on->setEnabled( !use_osf );
-	if (use_osf)
-		m_common_params.hfd_on = false;
-	else
-		m_common_params.hfd_on = ui.checkBox_HFD_on->isChecked();
 }
 
 

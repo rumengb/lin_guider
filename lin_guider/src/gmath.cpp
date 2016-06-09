@@ -89,6 +89,7 @@ cgmath::cgmath( const common_params &comm_params ) :
 	m_misc_vars( std::map< std::string, double >() )
 {
 	m_type = GA_CENTROID;
+	m_caps = CAP_HFD | CAP_QUALITY;
 
 	// sys...
 	m_ticks = 0;
@@ -882,6 +883,12 @@ bool cgmath::is_suspended( void ) const
 }
 
 
+bool cgmath::is_guiding() const
+{
+	return !m_preview_mode;
+}
+
+
 Vector cgmath::find_star_local_pos( void ) const
 {
 	int i, j;
@@ -1134,7 +1141,7 @@ void cgmath::do_processing( void )
 	// move square overlay
  	move_square( round(m_star_pos.x) - (double)m_square_size/2, round(m_star_pos.y) - (double)m_square_size/2 );
 
- 	if( m_common_params.hfd_on )
+	if( (m_caps & CAP_HFD) && m_common_params.hfd_on )
  		hfd_calc();
 
 	if( m_preview_mode )
@@ -1164,7 +1171,8 @@ void cgmath::do_processing( void )
 	calc_square_err();
 
 	// find quality of picture
-	calc_quality();
+	if( m_caps & CAP_QUALITY )
+		calc_quality();
 
 	// finally process tickers
 	do_ticks();
