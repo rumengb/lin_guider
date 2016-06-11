@@ -48,6 +48,7 @@ private:
 	frame_digest m_dg_ref;
 
 	void calc_frame_quality( double snr ) const;
+	inline void clear_noise() const;
 };
 
 }
