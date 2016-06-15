@@ -127,6 +127,8 @@ private:
 
 	graph_type_t m_prev_graph_type;
 
+	unsigned int m_status_key;
+
 private:
     Ui::guiderClass ui;
 };

@@ -86,7 +86,9 @@ const q_control_t q_control_mtd[] = {
 cgmath::cgmath( const common_params &comm_params ) :
 	m_common_params( comm_params ),
 
-	m_misc_vars( std::map< std::string, double >() )
+	m_misc_vars( std::map< std::string, double >() ),
+	m_status_info( std::pair< enum status_level, std::string >(STATUS_LEVEL_INFO, std::string()) ),
+	m_status_hash( u_jshash( std::string() ) )
 {
 	m_type = GA_CENTROID;
 	m_caps = CAP_HFD | CAP_QUALITY;
@@ -1131,18 +1133,18 @@ void cgmath::process_axes( void  )
 
 void cgmath::do_processing( void )
 {
- 	// do nothing if suspended
- 	if( m_suspended )
- 		return;
+	// do nothing if suspended
+	if( m_suspended )
+		return;
 
 	// find guiding star location in
- 	m_scr_star_pos = m_star_pos = find_star_local_pos();
+	m_scr_star_pos = m_star_pos = find_star_local_pos();
 
 	// move square overlay
- 	move_square( round(m_star_pos.x) - (double)m_square_size/2, round(m_star_pos.y) - (double)m_square_size/2 );
+	move_square( round(m_star_pos.x) - (double)m_square_size/2, round(m_star_pos.y) - (double)m_square_size/2 );
 
 	if( (m_caps & CAP_HFD) && m_common_params.hfd_on )
- 		hfd_calc();
+		hfd_calc();
 
 	if( m_preview_mode )
 		return;
@@ -1204,6 +1206,13 @@ void cgmath::add_quality( double q_val ) const
 	m_q_value = q_val;
 	if( m_q_value < 0 ) m_q_value = 0;
 	if( m_q_value > 1 ) m_q_value = 1;
+}
+
+
+void cgmath::set_status_info( enum status_level level, const std::string &txt ) const
+{
+	m_status_info = std::make_pair( level, txt );
+	m_status_hash = u_jshash( txt );
 }
 
 
@@ -1555,6 +1564,16 @@ int cgmath::get_type( void ) const
 const char *cgmath::get_name( void ) const
 {
 	return alg_desc_list[m_type-1].desc;
+}
+
+
+const std::pair< enum cgmath::status_level, std::string >* cgmath::get_status_info_for_key( unsigned int *key ) const
+{
+	if( *key == m_status_hash )
+		return NULL;
+
+	*key = m_status_hash;
+	return &m_status_info;
 }
 
 

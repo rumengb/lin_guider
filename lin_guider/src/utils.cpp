@@ -20,11 +20,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QFileInfo>
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+
+#include <string>
 #include <algorithm>
+
+#include <QFileInfo>
 
 #include "utils.h"
 
@@ -252,4 +255,17 @@ bool u_make_safe_str( const char* mem, size_t mem_sz, size_t str_sz_max, char *s
 	str[ *str_len ] = '\0';
 
 	return true;
+}
+
+
+unsigned int u_jshash( const std::string& str )
+{
+	unsigned int hash = 1315423911;
+	size_t length = str.length();
+	const char *p = str.data();
+
+	for( size_t i = 0;i < length;i++ )
+		hash ^= ((hash << 5) + p[i] + (hash >> 2));
+
+	return hash;
 }

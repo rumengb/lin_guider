@@ -911,23 +911,23 @@ bool lin_guider::activate_drag_object( int x, int y )
 {
 	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
- 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
- 	{
- 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_SQUARE ) // square
- 		{
+	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
+	{
+		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_SQUARE ) // square
+		{
 			if( !(povr->visible & lg_math::ovr_params_t::OVR_SQUARE) ||
 				(povr->locked & lg_math::ovr_params_t::OVR_SQUARE) )
- 				continue;
- 			if( x > povr->square_pos.x && x < povr->square_pos.x+povr->square_size )
- 				if( y > povr->square_pos.y && y < povr->square_pos.y+povr->square_size )
- 				{
+				continue;
+			if( x > povr->square_pos.x && x < povr->square_pos.x+povr->square_size )
+				if( y > povr->square_pos.y && y < povr->square_pos.y+povr->square_size )
+				{
 					m_drag_point = (point_t){x - povr->square_pos.x, y - povr->square_pos.y};
 					m_drag_objs[i].active = true;
 					m_math->suspend( true );
 					return true;
 				}
 		}
- 		else
+		else
 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE ) // reticle
 		{
 			if( !(povr->visible & lg_math::ovr_params_t::OVR_RETICLE) ||
@@ -966,16 +966,16 @@ bool lin_guider::activate_drag_object( int x, int y )
 bool lin_guider::deactivate_drag_object( int x, int y )
 {
 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
-	 	if( m_drag_objs[i].active )
-	 	{
-	 		if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE )
-	 			reticle_wnd->update_reticle_pos( (double)x, (double)y );
+		if( m_drag_objs[i].active )
+		{
+			if( m_drag_objs[i].type == lg_math::ovr_params_t::OVR_RETICLE )
+				reticle_wnd->update_reticle_pos( (double)x, (double)y );
 
 			m_drag_point = (point_t){0, 0};
-	 		m_drag_objs[i].active = false;
-	 		m_math->suspend( false );
-	 		return true;
-	 	}
+			m_drag_objs[i].active = false;
+			m_math->suspend( false );
+			return true;
+		}
 
  return false;
 }
@@ -1030,7 +1030,7 @@ void lin_guider::draw_overlays( QPainter &painter )
 			painter.drawRect( povr->square_pos.x + (povr->square_size>>1) - povr->osf_size.x/2,
 			                  povr->square_pos.y + (povr->square_size>>1) - povr->osf_size.y/2,
 			                  povr->osf_size.x - 1,
-		                      povr->osf_size.y - 1 );
+			                  povr->osf_size.y - 1 );
 		}
 		else
 		{
@@ -1060,14 +1060,14 @@ void lin_guider::draw_overlays( QPainter &painter )
 	{
 		painter.setPen( RA_COLOR );
 		painter.drawLine( povr->reticle_pos.x,
-				povr->reticle_pos.y,
-				povr->reticle_pos.x + povr->reticle_axis_ra.x,
-				povr->reticle_pos.y + povr->reticle_axis_ra.y);
+		                  povr->reticle_pos.y,
+		                  povr->reticle_pos.x + povr->reticle_axis_ra.x,
+		                  povr->reticle_pos.y + povr->reticle_axis_ra.y);
 		painter.setPen( DEC_COLOR );
 		painter.drawLine( povr->reticle_pos.x,
-				povr->reticle_pos.y,
-				povr->reticle_pos.x + povr->reticle_axis_dec.x,
-				povr->reticle_pos.y + povr->reticle_axis_dec.y);
+		                  povr->reticle_pos.y,
+		                  povr->reticle_pos.x + povr->reticle_axis_dec.x,
+		                  povr->reticle_pos.y + povr->reticle_axis_dec.y);
 		if( reticle_wnd->isVisible() )
 		{
 			painter.setPen( DEC_COLOR );

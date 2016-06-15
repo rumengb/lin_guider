@@ -213,6 +213,12 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
 
+	{
+		char buf[64];
+		int len = snprintf( buf, sizeof(buf), "test status: %d", rand()%100 );
+		set_status_info( (enum lg_math::cgmath::status_level)(rand()%3), std::string(buf, len) );
+	}
+
 	return Vector( m_ref_x - d_corr.x, m_ref_y - d_corr.y, 0 );
 }
 

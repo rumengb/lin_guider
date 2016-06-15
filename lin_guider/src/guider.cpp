@@ -24,6 +24,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include <utility>
+
 #include "guider.h"
 #include "lin_guider.h"
 #include "gmath.h"
@@ -49,13 +51,16 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	m_driver( drv ),
 	m_drift_view_params( dv_params ),
 	m_common_params( comm_params ),
-	m_prev_graph_type( GRPAH_MAX )
+	m_prev_graph_type( GRPAH_MAX ),
+	m_status_key( 0 )
 {
 	int i;
 
 	ui.setupUi(this);
 
 	this->adjustSize();
+
+	ui.l_Status->setAutoFillBackground( true );
 
 	ui.comboBox_SquareSize->clear();
 	for( i = 0;lg_math::guide_squares[i].size != -1;i++ )
@@ -263,7 +268,6 @@ void guider::fill_interface( void )
 	ui.lineEdit_DriftFileName->setEnabled( ui.checkBox_SaveLog->isChecked() );
 
 	ui.l_RecommendedGain->setText( tr("P:") + QString().setNum(in_params->guiding_normal_coef, 'f', 2 ) );
-	ui.checkBox_normalizeGain->setChecked( in_params->normalize_gain );
 
 	ui.spinBox_GuideRate->setValue( in_params->guiding_rate );
 
@@ -273,6 +277,8 @@ void guider::fill_interface( void )
 	ui.l_FbyD->setText( QString().setNum( info_params.focal_ratio, 'f', 1) );
 	str = QString().setNum(info_params.fov_wd, 'f', 1) + "x" + QString().setNum(info_params.fov_ht, 'f', 1);
 	ui.l_FOV->setText( str );
+	ui.l_Status->setText( QString() );
+	ui.l_Status->setPalette( palette() );
 
 	ui.groupBox_DirRA->setChecked( in_params->enabled_dir[lg_math::RA] );
 	ui.checkBox_DirRAPlus->setChecked( in_params->enabled_dir_sign[lg_math::RA][lg_math::SGN_POS] );
@@ -283,6 +289,7 @@ void guider::fill_interface( void )
 	ui.checkBox_DirDECMinus->setChecked( in_params->enabled_dir_sign[lg_math::DEC][lg_math::SGN_NEG] );
 
 	ui.checkBox_AverageFrames->setChecked( in_params->average );
+	ui.checkBox_normalizeGain->setChecked( in_params->normalize_gain );
 
 	ui.spinBox_AccFramesRA->setValue( (int)in_params->accum_frame_cnt[lg_math::RA] );
 	ui.spinBox_AccFramesDEC->setValue( (int)in_params->accum_frame_cnt[lg_math::DEC] );
@@ -294,7 +301,6 @@ void guider::fill_interface( void )
 
 	ui.spinBox_MinPulseRA->setValue( in_params->min_pulse_length[lg_math::RA] );
 	ui.spinBox_MinPulseDEC->setValue( in_params->min_pulse_length[lg_math::DEC] );
-
 
 	ui.l_DeltaRA->setText(QString().setNum(out_params->delta[lg_math::RA], 'f', 2) );
 	ui.l_DeltaDEC->setText(QString().setNum(out_params->delta[lg_math::DEC], 'f', 2) );
@@ -313,7 +319,7 @@ void guider::update_gains( void )
 {
 	if( !m_math )
 		return;
-	const lg_math::cproc_in_params *in_params = m_math->get_in_params();;
+	const lg_math::cproc_in_params *in_params = m_math->get_in_params();
 
 	ui.spinBox_PropGainRA->setValue( in_params->normalize_gain ? in_params->proportional_gain[lg_math::RA] / in_params->guiding_normal_coef : in_params->proportional_gain[lg_math::RA]);
 	ui.spinBox_PropGainDEC->setValue(in_params->normalize_gain ? in_params->proportional_gain[lg_math::DEC] / in_params->guiding_normal_coef : in_params->proportional_gain[lg_math::DEC]);
@@ -747,6 +753,30 @@ void guider::check_for_events( void )
 				server::send_bcast_msg( BCM_GUIDING_UNSTABLE );
 				break;
 			}
+		}
+	}
+
+	// check for status change
+	{
+		const std::pair< enum lg_math::cgmath::status_level, std::string > *status = m_math->get_status_info_for_key( &m_status_key );
+		if( status )
+		{
+			QColor bg_color;
+			switch( status->first )
+			{
+			case lg_math::cgmath::STATUS_LEVEL_ERROR:
+				bg_color.setRgb( 255, 0, 0, 255 );
+				break;
+			case lg_math::cgmath::STATUS_LEVEL_WARNING:
+				bg_color.setRgb( 255, 128, 0, 255 );
+				break;
+			default:
+				bg_color.setAlpha( 0 );
+			}
+			QPalette pal( ui.l_Status->palette() );
+			pal.setColor( QPalette::Background, bg_color );
+			ui.l_Status->setPalette( pal );
+			ui.l_Status->setText( QString::fromUtf8( status->second.data(), status->second.size() ) );
 		}
 	}
 }

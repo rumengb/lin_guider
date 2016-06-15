@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <string>
 #include <Qt>
 #include <QMessageBox>
 
@@ -63,5 +64,6 @@ bool u_file_exists( const char *fname );
 QString u_get_app_path( void );
 int u_memtok( const char *str, unsigned slen, char c, const char **val, unsigned *vlen, unsigned *pos );
 bool u_make_safe_str( const char* mem, size_t mem_sz, size_t str_sz_max, char *str, size_t *str_len );
+unsigned int u_jshash( const std::string& str );
 
 #endif
