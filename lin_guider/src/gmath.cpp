@@ -88,7 +88,7 @@ cgmath::cgmath( const common_params &comm_params ) :
 
 	m_misc_vars( std::map< std::string, double >() ),
 	m_status_info( std::pair< enum status_level, std::string >(STATUS_LEVEL_INFO, std::string()) ),
-	m_status_hash( u_jshash( std::string() ) )
+	m_status_change( false )
 {
 	m_type = GA_CENTROID;
 	m_caps = CAP_HFD | CAP_QUALITY;
@@ -1212,7 +1212,7 @@ void cgmath::add_quality( double q_val ) const
 void cgmath::set_status_info( enum status_level level, const std::string &txt ) const
 {
 	m_status_info = std::make_pair( level, txt );
-	m_status_hash = u_jshash( txt );
+	m_status_change = true;
 }
 
 
@@ -1567,12 +1567,10 @@ const char *cgmath::get_name( void ) const
 }
 
 
-const std::pair< enum cgmath::status_level, std::string >* cgmath::get_status_info_for_key( unsigned int *key ) const
+const std::pair< enum cgmath::status_level, std::string >* cgmath::get_status_info( bool *changed ) const
 {
-	if( *key == m_status_hash )
-		return NULL;
-
-	*key = m_status_hash;
+	*changed = m_status_change;
+	m_status_change = false;
 	return &m_status_info;
 }
 

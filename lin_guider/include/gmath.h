@@ -358,7 +358,7 @@ public:
 	void get_speed_info( double *ra_v, double *dec_v ) const;
 	int  get_type( void ) const;
 	const char *get_name( void ) const;
-	const std::pair< enum cgmath::status_level, std::string >* get_status_info_for_key( unsigned int *key ) const;
+	const std::pair< enum cgmath::status_level, std::string >* get_status_info( bool *changed ) const;
 
 protected:
 	const common_params &m_common_params;
@@ -457,7 +457,7 @@ private:
 	// misc
 	std::map< std::string, double > m_misc_vars;
 	mutable std::pair< enum status_level, std::string > m_status_info;
-	mutable unsigned int m_status_hash;
+	mutable bool m_status_change;
 
 	int fix_square_index( int square_index ) const;
 

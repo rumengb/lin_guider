@@ -256,16 +256,3 @@ bool u_make_safe_str( const char* mem, size_t mem_sz, size_t str_sz_max, char *s
 
 	return true;
 }
-
-
-unsigned int u_jshash( const std::string& str )
-{
-	unsigned int hash = 1315423911;
-	size_t length = str.length();
-	const char *p = str.data();
-
-	for( size_t i = 0;i < length;i++ )
-		hash ^= ((hash << 5) + p[i] + (hash >> 2));
-
-	return hash;
-}

@@ -51,8 +51,7 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	m_driver( drv ),
 	m_drift_view_params( dv_params ),
 	m_common_params( comm_params ),
-	m_prev_graph_type( GRPAH_MAX ),
-	m_status_key( 0 )
+	m_prev_graph_type( GRPAH_MAX )
 {
 	int i;
 
@@ -641,6 +640,8 @@ void guider::onStartStopButtonClick()
 		m_logger->stop();
 
 		is_started = false;
+		// determine miscellaneous events
+		check_for_events();
 
 		ui.checkBox_SaveLog->setChecked( false );
 		ui.pushButton_StartStop->setText( tr("Start") );
@@ -696,8 +697,7 @@ void guider::guide( void )
 	if( m_common_params.udp_send_drift_data )
 		server::send_bcast_msg( BCM_DRIFT_DATA, "%.2lf %.2lf", drift_x, drift_y );
 
-	// determine miscellaneous events
-	check_for_events();
+	check_update_status();
 
 	// skip half frames
 	if( half_refresh_rate && (tick & 1) )
@@ -757,26 +757,30 @@ void guider::check_for_events( void )
 	}
 
 	// check for status change
+	check_update_status();
+}
+
+void guider::check_update_status( void )
+{
+	bool changed;
+	const std::pair< enum lg_math::cgmath::status_level, std::string > *status = m_math->get_status_info( &changed );
+	if( changed )
 	{
-		const std::pair< enum lg_math::cgmath::status_level, std::string > *status = m_math->get_status_info_for_key( &m_status_key );
-		if( status )
+		QColor bg_color;
+		switch( status->first )
 		{
-			QColor bg_color;
-			switch( status->first )
-			{
-			case lg_math::cgmath::STATUS_LEVEL_ERROR:
-				bg_color.setRgb( 255, 0, 0, 255 );
-				break;
-			case lg_math::cgmath::STATUS_LEVEL_WARNING:
-				bg_color.setRgb( 255, 128, 0, 255 );
-				break;
-			default:
-				bg_color.setAlpha( 0 );
-			}
-			QPalette pal( ui.l_Status->palette() );
-			pal.setColor( QPalette::Background, bg_color );
-			ui.l_Status->setPalette( pal );
-			ui.l_Status->setText( QString::fromUtf8( status->second.data(), status->second.size() ) );
+		case lg_math::cgmath::STATUS_LEVEL_ERROR:
+			bg_color.setRgb( 255, 0, 0, 255 );
+			break;
+		case lg_math::cgmath::STATUS_LEVEL_WARNING:
+			bg_color.setRgb( 255, 128, 0, 255 );
+			break;
+		default:
+			bg_color.setAlpha( 0 );
 		}
+		QPalette pal( ui.l_Status->palette() );
+		pal.setColor( QPalette::Background, bg_color );
+		ui.l_Status->setPalette( pal );
+		ui.l_Status->setText( QString::fromUtf8( status->second.data(), status->second.size() ) );
 	}
 }

@@ -119,6 +119,7 @@ private:
 	void fill_interface( void );
 	void update_gains( void );
 	void check_for_events( void );
+	void check_update_status( void );
 
 	lin_guider *pmain_wnd;
 	io_drv::cio_driver_base *m_driver;
@@ -126,8 +127,6 @@ private:
 	const common_params &m_common_params;
 
 	graph_type_t m_prev_graph_type;
-
-	unsigned int m_status_key;
 
 private:
     Ui::guiderClass ui;
