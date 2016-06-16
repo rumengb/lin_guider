@@ -279,6 +279,7 @@ void guider::fill_interface( void )
 	ui.l_FOV->setText( str );
 	ui.l_Status->setText( QString() );
 	ui.l_Status->setPalette( palette() );
+	ui.l_Status->setMargin(2);
 
 	ui.groupBox_DirRA->setChecked( in_params->enabled_dir[lg_math::RA] );
 	ui.checkBox_DirRAPlus->setChecked( in_params->enabled_dir_sign[lg_math::RA][lg_math::SGN_POS] );
@@ -782,7 +783,7 @@ void guider::update_status( enum lg_math::cgmath::status_level level, const std:
 	switch( level )
 	{
 	case lg_math::cgmath::STATUS_LEVEL_ERROR:
-		bg_color.setRgb( 255, 0, 0, 255 );
+		bg_color.setRgb( 255, 32, 32, 255 );
 		break;
 	case lg_math::cgmath::STATUS_LEVEL_WARNING:
 		bg_color.setRgb( 255, 128, 0, 255 );

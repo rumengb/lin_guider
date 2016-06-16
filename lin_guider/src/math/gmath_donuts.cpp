@@ -192,6 +192,7 @@ Vector cgmath_donuts::find_star_local_pos( void ) const
 	calc_frame_quality(dg_new.snr);
 	if (dg_new.snr < SNR_THRESHOLD) {
 		log_i("SNR = %.2f is too low, skipping frame!", dg_new.snr);
+		set_status_info( STATUS_LEVEL_WARNING, "Guiding... but skipping frames (low SNR)!" );
 		dg_delete_frame_digest(&dg_new);
 		return Vector( m_ref_x, m_ref_y, 0 );
 	}
@@ -251,14 +252,14 @@ void cgmath_donuts::on_start( void )
 		res = dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &m_dg_ref);
 		if (res < 0) {
 			log_e("dg_new_frame_digest(): failed.");
-			set_status_info( STATUS_LEVEL_ERROR, "Not Guiding: Reference frame failed!" );
+			set_status_info( STATUS_LEVEL_ERROR, "Not guiding: Reference frame failed!" );
 			return;
 		}
 
 		calc_frame_quality(m_dg_ref.snr);
 		if (m_dg_ref.snr < SNR_THRESHOLD) {
-			log_e("SNR = %.2f is too low.", m_dg_ref.snr);
-			set_status_info( STATUS_LEVEL_ERROR, "Not guiding: Reference frame SNR is too low!" );
+			log_e("Reference frame SNR = %.2f is too low.", m_dg_ref.snr);
+			set_status_info( STATUS_LEVEL_ERROR, "Not guiding: reference frame SNR is too low!" );
 			return;
 		}
 

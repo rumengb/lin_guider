@@ -402,7 +402,7 @@
            <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
+           <enum>QFrame::Plain</enum>
           </property>
           <property name="text">
            <string>status</string>
@@ -883,8 +883,11 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalize gain coefficients&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
-             <string>Normalize gains</string>
+             <string>Norm.gain</string>
             </property>
            </widget>
           </item>
