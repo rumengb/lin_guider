@@ -175,7 +175,7 @@
         <item row="1" column="4">
          <widget class="QDoubleSpinBox" name="doubleSpinBox_QualityThreshold2">
           <property name="minimum">
-           <double>3.000000000000000</double>
+           <double>2.000000000000000</double>
           </property>
           <property name="maximum">
            <double>95.000000000000000</double>
@@ -195,7 +195,7 @@
         <item row="1" column="2" colspan="2">
          <widget class="QDoubleSpinBox" name="doubleSpinBox_QualityThreshold1">
           <property name="minimum">
-           <double>3.000000000000000</double>
+           <double>2.000000000000000</double>
           </property>
           <property name="maximum">
            <double>95.000000000000000</double>
