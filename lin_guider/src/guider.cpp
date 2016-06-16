@@ -742,7 +742,9 @@ void guider::check_for_events( void )
 			{
 				log_i( "quality is too low, stopping guiding" );
 				onStartStopButtonClick();
-				m_math->set_status_info( lg_math::cgmath::STATUS_LEVEL_ERROR, "Quality is too low, guiding stopped");
+				// forcefully write to status - otherwise it will not show
+				update_status( lg_math::cgmath::STATUS_LEVEL_ERROR, "Quality is too low, guiding stopped");
+				return;
 			}
 			break;
 		}
