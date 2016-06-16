@@ -51,7 +51,8 @@ guider::guider( lin_guider *parent, io_drv::cio_driver_base *drv, struct guider:
 	m_driver( drv ),
 	m_drift_view_params( dv_params ),
 	m_common_params( comm_params ),
-	m_prev_graph_type( GRPAH_MAX )
+	m_prev_graph_type( GRPAH_MAX ),
+	m_status_key( 0 )
 {
 	int i;
 
@@ -621,6 +622,7 @@ void guider::onStartStopButtonClick()
 			m_logger->start( ui.lineEdit_DriftFileName->text().toAscii().data() );
 		}
 		ui.pushButton_StartStop->setText( tr("Stop") );
+		m_math->set_status_info(lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
 
 		quality_rate   = -1;
 		guiding_stable = -1;
@@ -628,7 +630,6 @@ void guider::onStartStopButtonClick()
 		m_drift_graph->reset_data();
 		m_math->start();
 		is_started = true;
-		update_status(lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
 	}
 	// stop
 	else
@@ -642,11 +643,15 @@ void guider::onStartStopButtonClick()
 
 		is_started = false;
 
-		update_status(lg_math::cgmath::STATUS_LEVEL_INFO, "");
-		check_update_status();
-
 		ui.checkBox_SaveLog->setChecked( false );
 		ui.pushButton_StartStop->setText( tr("Start") );
+		m_math->set_status_info(lg_math::cgmath::STATUS_LEVEL_INFO, "");
+	}
+
+	// check for status change
+	{
+		const std::pair< enum lg_math::cgmath::status_level, std::string > *status = m_math->get_status_info_for_key( &m_status_key );
+		if( status ) update_status( status->first, status->second );
 	}
 }
 
@@ -725,11 +730,11 @@ void guider::check_for_events( void )
 		{
 		case lg_math::QUALITY_OK:
 			server::send_bcast_msg( BCM_NORMAL_IMAGE_QUALITY );
-			update_status( lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
+			m_math->set_status_info( lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
 			break;
 		case lg_math::QUALITY_NOTIFY:
 			server::send_bcast_msg( BCM_LOW_IMAGE_QUALITY );
-			update_status( lg_math::cgmath::STATUS_LEVEL_WARNING, "Quality is low.");
+			m_math->set_status_info( lg_math::cgmath::STATUS_LEVEL_WARNING, "Quality is low.");
 			break;
 		case lg_math::QUALITY_CRITICAL:
 			server::send_bcast_msg( BCM_CRITICAL_IMAGE_QUALITY );
@@ -737,8 +742,7 @@ void guider::check_for_events( void )
 			{
 				log_i( "quality is too low, stopping guiding" );
 				onStartStopButtonClick();
-				update_status( lg_math::cgmath::STATUS_LEVEL_ERROR, "Quality is too low, guiding stopped");
-				return;
+				m_math->set_status_info( lg_math::cgmath::STATUS_LEVEL_ERROR, "Quality is too low, guiding stopped");
 			}
 			break;
 		}
@@ -763,8 +767,12 @@ void guider::check_for_events( void )
 	}
 
 	// check for status change
-	check_update_status();
+	{
+		const std::pair< enum lg_math::cgmath::status_level, std::string > *status = m_math->get_status_info_for_key( &m_status_key );
+		if( status ) update_status( status->first, status->second );
+	}
 }
+
 
 void guider::update_status( enum lg_math::cgmath::status_level level, const std::string &txt )
 {
@@ -784,11 +792,4 @@ void guider::update_status( enum lg_math::cgmath::status_level level, const std:
 	pal.setColor( QPalette::Background, bg_color );
 	ui.l_Status->setPalette( pal );
 	ui.l_Status->setText( QString::fromUtf8( txt.data(), txt.size() ) );
-}
-
-void guider::check_update_status( void )
-{
-	bool changed;
-	const std::pair< enum lg_math::cgmath::status_level, std::string > *status = m_math->get_status_info( &changed );
-	if( changed ) update_status( status->first, status->second );
 }

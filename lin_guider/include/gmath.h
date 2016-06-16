@@ -358,7 +358,8 @@ public:
 	void get_speed_info( double *ra_v, double *dec_v ) const;
 	int  get_type( void ) const;
 	const char *get_name( void ) const;
-	const std::pair< enum cgmath::status_level, std::string >* get_status_info( bool *changed ) const;
+	const std::pair< enum cgmath::status_level, std::string >* get_status_info_for_key( unsigned int *key ) const;
+	void set_status_info( enum status_level level, const std::string &txt ) const;
 
 protected:
 	const common_params &m_common_params;
@@ -372,7 +373,6 @@ protected:
 	virtual void on_start( void ) {}
 	virtual void on_stop( void ) {}
 	void add_quality( double q_val ) const;
-	void set_status_info( enum status_level level, const std::string &txt ) const;
 
 private:
 	struct hfd_item_s
@@ -457,7 +457,7 @@ private:
 	// misc
 	std::map< std::string, double > m_misc_vars;
 	mutable std::pair< enum status_level, std::string > m_status_info;
-	mutable bool m_status_change;
+	mutable unsigned int m_status_hash;
 
 	int fix_square_index( int square_index ) const;
 
