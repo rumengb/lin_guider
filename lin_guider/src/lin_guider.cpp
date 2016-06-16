@@ -946,7 +946,7 @@ bool lin_guider::activate_drag_object( int x, int y )
 		{
 			if( !(povr->visible & lg_math::ovr_params_t::OVR_OSF) ||
 				(povr->locked & lg_math::ovr_params_t::OVR_OSF) ||
-				guider_wnd->isVisible() )
+				m_math->is_guiding() )
 				continue;
 			if( x > povr->osf_pos.x && x < povr->osf_pos.x+povr->osf_size.x )
 				if( y > povr->osf_pos.y && y < povr->osf_pos.y+povr->osf_size.y )
