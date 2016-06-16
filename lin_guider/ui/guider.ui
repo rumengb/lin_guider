@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>679</width>
-    <height>490</height>
+    <width>623</width>
+    <height>478</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -32,16 +32,7 @@
    <string>Guider</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>4</number>
-   </property>
-   <property name="topMargin">
-    <number>4</number>
-   </property>
-   <property name="rightMargin">
-    <number>4</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>4</number>
    </property>
    <property name="spacing">
@@ -61,16 +52,7 @@
         <string>Drift graphics</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_8">
-        <property name="leftMargin">
-         <number>4</number>
-        </property>
-        <property name="topMargin">
-         <number>4</number>
-        </property>
-        <property name="rightMargin">
-         <number>4</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>4</number>
         </property>
         <property name="spacing">
@@ -154,16 +136,7 @@
         <string>Configuration</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_9">
-        <property name="leftMargin">
-         <number>4</number>
-        </property>
-        <property name="topMargin">
-         <number>4</number>
-        </property>
-        <property name="rightMargin">
-         <number>4</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>4</number>
         </property>
         <property name="spacing">
@@ -262,16 +235,7 @@
         <string>Info</string>
        </property>
        <layout class="QGridLayout" name="gridLayout_10">
-        <property name="leftMargin">
-         <number>4</number>
-        </property>
-        <property name="topMargin">
-         <number>4</number>
-        </property>
-        <property name="rightMargin">
-         <number>4</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>4</number>
         </property>
         <property name="spacing">
@@ -429,25 +393,16 @@
         <item row="3" column="0" colspan="4">
          <widget class="QLabel" name="l_Status">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>16</height>
-           </size>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
           </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
+           <enum>QFrame::Sunken</enum>
           </property>
           <property name="text">
            <string>status</string>
@@ -475,25 +430,42 @@
        <property name="title">
         <string>Control</string>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
        <layout class="QGridLayout" name="gridLayout_11">
-        <property name="leftMargin">
-         <number>4</number>
-        </property>
-        <property name="topMargin">
-         <number>4</number>
-        </property>
-        <property name="rightMargin">
-         <number>4</number>
-        </property>
-        <property name="bottomMargin">
+        <property name="margin">
          <number>4</number>
         </property>
         <property name="spacing">
          <number>4</number>
         </property>
+        <item row="12" column="2">
+         <widget class="QLabel" name="l_DeltaRA">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="text">
+           <string>xxxx</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QLabel" name="l_15">
+          <property name="text">
+           <string>Accumulate frames</string>
+          </property>
+         </widget>
+        </item>
         <item row="13" column="3">
          <widget class="QLabel" name="l_PulseDEC">
           <property name="sizePolicy">
@@ -530,17 +502,10 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
+        <item row="3" column="2">
          <widget class="QSpinBox" name="spinBox_AccFramesRA">
           <property name="minimum">
            <number>1</number>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QLabel" name="l_15">
-          <property name="text">
-           <string>Accumulate frames</string>
           </property>
          </widget>
         </item>
@@ -698,16 +663,7 @@
            <property name="spacing">
             <number>4</number>
            </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>4</number>
            </property>
            <item>
@@ -745,16 +701,7 @@
            <property name="spacing">
             <number>4</number>
            </property>
-           <property name="leftMargin">
-            <number>4</number>
-           </property>
-           <property name="topMargin">
-            <number>4</number>
-           </property>
-           <property name="rightMargin">
-            <number>4</number>
-           </property>
-           <property name="bottomMargin">
+           <property name="margin">
             <number>4</number>
            </property>
            <item>
@@ -859,23 +806,6 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="3">
-         <widget class="QDoubleSpinBox" name="spinBox_IntGainDEC">
-          <property name="decimals">
-           <number>2</number>
-          </property>
-          <property name="maximum">
-           <double>1000.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="3">
-         <widget class="QSpinBox" name="spinBox_AccFramesDEC">
-          <property name="minimum">
-           <number>1</number>
-          </property>
-         </widget>
-        </item>
         <item row="11" column="0" colspan="4">
          <widget class="Line" name="line_2">
           <property name="orientation">
@@ -883,25 +813,20 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="2">
-         <widget class="QLabel" name="l_DeltaRA">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+        <item row="3" column="3">
+         <widget class="QSpinBox" name="spinBox_AccFramesDEC">
+          <property name="minimum">
+           <number>1</number>
           </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
+         </widget>
+        </item>
+        <item row="7" column="3">
+         <widget class="QDoubleSpinBox" name="spinBox_IntGainDEC">
+          <property name="decimals">
+           <number>2</number>
           </property>
-          <property name="frameShadow">
-           <enum>QFrame::Sunken</enum>
-          </property>
-          <property name="text">
-           <string>xxxx</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <property name="maximum">
+           <double>1000.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -928,26 +853,55 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
+        <item row="1" column="0" colspan="2">
          <widget class="QLabel" name="l_14">
           <property name="text">
            <string>Enable directions</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkBox_normalizeGain">
+        <item row="2" column="0" colspan="2">
+         <widget class="QLabel" name="l_37">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
-           <string>Normalize gains</string>
+           <string>Flags</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
-         <widget class="QCheckBox" name="checkBox_AverageFrames">
-          <property name="text">
-           <string>avg.frm.</string>
-          </property>
-         </widget>
+        <item row="2" column="2" colspan="2">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QCheckBox" name="checkBox_normalizeGain">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Normalize gains</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="checkBox_AverageFrames">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>avg.frm.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -974,6 +928,8 @@
   <tabstop>groupBox_DirDEC</tabstop>
   <tabstop>checkBox_DirDECPlus</tabstop>
   <tabstop>checkBox_DirDECMinus</tabstop>
+  <tabstop>checkBox_normalizeGain</tabstop>
+  <tabstop>checkBox_AverageFrames</tabstop>
   <tabstop>spinBox_AccFramesRA</tabstop>
   <tabstop>spinBox_AccFramesDEC</tabstop>
   <tabstop>spinBox_PropGainRA</tabstop>
