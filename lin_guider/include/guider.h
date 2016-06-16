@@ -119,6 +119,7 @@ private:
 	void fill_interface( void );
 	void update_gains( void );
 	void check_for_events( void );
+	void update_status( enum lg_math::cgmath::status_level level, const std::string &txt );
 	void check_update_status( void );
 
 	lin_guider *pmain_wnd;

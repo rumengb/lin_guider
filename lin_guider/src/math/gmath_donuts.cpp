@@ -234,7 +234,6 @@ void cgmath_donuts::calc_frame_quality( double snr ) const
 void cgmath_donuts::on_start( void )
 {
 	int res;
-	bool failure = false;
 	if (!m_guiding) {
 		m_sub_frame = (double *)realloc(m_sub_frame, m_osf_vis_size.x * m_osf_vis_size.y * sizeof(double));
 		if(!m_sub_frame) {
@@ -251,15 +250,16 @@ void cgmath_donuts::on_start( void )
 
 		res = dg_new_frame_digest(m_sub_frame, m_osf_vis_size.x, m_osf_vis_size.y, &m_dg_ref);
 		if (res < 0) {
-			log_e("dg_new_frame_digest(): failed, HOW TO STOP GUIDING?");
-			failure = true;
+			log_e("dg_new_frame_digest(): failed.");
+			set_status_info( STATUS_LEVEL_ERROR, "Not Guiding: Reference frame failed!" );
+			return;
 		}
 
 		calc_frame_quality(m_dg_ref.snr);
 		if (m_dg_ref.snr < SNR_THRESHOLD) {
-			log_e("SNR = %.2f is too low, HOW TO STOP GUIDING?", m_dg_ref.snr);
-			set_status_info( STATUS_LEVEL_ERROR, "SNR of the reference frame too low!" );
-			failure = true;
+			log_e("SNR = %.2f is too low.", m_dg_ref.snr);
+			set_status_info( STATUS_LEVEL_ERROR, "Not guiding: Reference frame SNR is too low!" );
+			return;
 		}
 
 		if( DBG_VERBOSITY ) {
@@ -267,7 +267,6 @@ void cgmath_donuts::on_start( void )
 		}
 		m_guiding = true;
 	}
-	if (!failure) set_status_info( STATUS_LEVEL_INFO, "Guiding...");
 }
 
 
@@ -285,7 +284,6 @@ void cgmath_donuts::on_stop( void )
 		m_ref_y = 0;
 		m_guiding = false;
 	}
-	set_status_info( STATUS_LEVEL_INFO, "" );
 }
 
 }

@@ -628,6 +628,7 @@ void guider::onStartStopButtonClick()
 		m_drift_graph->reset_data();
 		m_math->start();
 		is_started = true;
+		update_status(lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
 	}
 	// stop
 	else
@@ -640,8 +641,9 @@ void guider::onStartStopButtonClick()
 		m_logger->stop();
 
 		is_started = false;
-		// determine miscellaneous events
-		check_for_events();
+
+		update_status(lg_math::cgmath::STATUS_LEVEL_INFO, "");
+		check_update_status();
 
 		ui.checkBox_SaveLog->setChecked( false );
 		ui.pushButton_StartStop->setText( tr("Start") );
@@ -697,7 +699,8 @@ void guider::guide( void )
 	if( m_common_params.udp_send_drift_data )
 		server::send_bcast_msg( BCM_DRIFT_DATA, "%.2lf %.2lf", drift_x, drift_y );
 
-	check_update_status();
+	// determine miscellaneous events
+	check_for_events();
 
 	// skip half frames
 	if( half_refresh_rate && (tick & 1) )
@@ -722,16 +725,19 @@ void guider::check_for_events( void )
 		{
 		case lg_math::QUALITY_OK:
 			server::send_bcast_msg( BCM_NORMAL_IMAGE_QUALITY );
+			update_status( lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
 			break;
 		case lg_math::QUALITY_NOTIFY:
 			server::send_bcast_msg( BCM_LOW_IMAGE_QUALITY );
+			update_status( lg_math::cgmath::STATUS_LEVEL_WARNING, "Quality is low.");
 			break;
 		case lg_math::QUALITY_CRITICAL:
 			server::send_bcast_msg( BCM_CRITICAL_IMAGE_QUALITY );
 			if( m_math->get_q_control_index() == lg_math::Q_CTRL_FULL )
 			{
-				log_i( "quality is too low. stopping guiding" );
+				log_i( "quality is too low, stopping guiding" );
 				onStartStopButtonClick();
+				update_status( lg_math::cgmath::STATUS_LEVEL_ERROR, "Quality is too low, guiding stopped");
 				return;
 			}
 			break;
@@ -760,27 +766,29 @@ void guider::check_for_events( void )
 	check_update_status();
 }
 
+void guider::update_status( enum lg_math::cgmath::status_level level, const std::string &txt )
+{
+	QColor bg_color;
+	switch( level )
+	{
+	case lg_math::cgmath::STATUS_LEVEL_ERROR:
+		bg_color.setRgb( 255, 0, 0, 255 );
+		break;
+	case lg_math::cgmath::STATUS_LEVEL_WARNING:
+		bg_color.setRgb( 255, 128, 0, 255 );
+		break;
+	default:
+		bg_color.setAlpha( 0 );
+	}
+	QPalette pal( ui.l_Status->palette() );
+	pal.setColor( QPalette::Background, bg_color );
+	ui.l_Status->setPalette( pal );
+	ui.l_Status->setText( QString::fromUtf8( txt.data(), txt.size() ) );
+}
+
 void guider::check_update_status( void )
 {
 	bool changed;
 	const std::pair< enum lg_math::cgmath::status_level, std::string > *status = m_math->get_status_info( &changed );
-	if( changed )
-	{
-		QColor bg_color;
-		switch( status->first )
-		{
-		case lg_math::cgmath::STATUS_LEVEL_ERROR:
-			bg_color.setRgb( 255, 0, 0, 255 );
-			break;
-		case lg_math::cgmath::STATUS_LEVEL_WARNING:
-			bg_color.setRgb( 255, 128, 0, 255 );
-			break;
-		default:
-			bg_color.setAlpha( 0 );
-		}
-		QPalette pal( ui.l_Status->palette() );
-		pal.setColor( QPalette::Background, bg_color );
-		ui.l_Status->setPalette( pal );
-		ui.l_Status->setText( QString::fromUtf8( status->second.data(), status->second.size() ) );
-	}
+	if( changed ) update_status( status->first, status->second );
 }
