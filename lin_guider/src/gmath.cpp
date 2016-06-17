@@ -856,6 +856,8 @@ void cgmath::start( void )
 	// restore position
 	m_reticle_pos = m_reticle_org;
 
+	set_status_info( STATUS_LEVEL_INFO, "Guiding..." );
+
 	// call some external code on start
 	on_start();
 }
@@ -867,6 +869,8 @@ void cgmath::stop( void )
 
 	// restore position
 	m_reticle_pos = m_reticle_org;
+
+	set_status_info( STATUS_LEVEL_INFO, std::string() );
 
 	// call some external code on stop
 	on_stop();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>478</height>
+    <width>621</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -402,10 +402,13 @@
            <enum>QFrame::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
+           <enum>QFrame::Sunken</enum>
           </property>
           <property name="text">
            <string>status</string>
+          </property>
+          <property name="margin">
+           <number>2</number>
           </property>
          </widget>
         </item>
@@ -873,38 +876,37 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="2" colspan="2">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QCheckBox" name="checkBox_normalizeGain">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Normalize gain coefficients&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Norm.gain</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="checkBox_AverageFrames">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>avg.frm.</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+        <item row="2" column="2">
+         <widget class="QCheckBox" name="checkBox_normalizeGain">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Normalize gain coefficients</string>
+          </property>
+          <property name="text">
+           <string>norm.gain</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QCheckBox" name="checkBox_AverageFrames">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Average frames</string>
+          </property>
+          <property name="text">
+           <string>avg.frm.</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -928,8 +930,8 @@
   <tabstop>groupBox_DirRA</tabstop>
   <tabstop>checkBox_DirRAPlus</tabstop>
   <tabstop>checkBox_DirRAMinus</tabstop>
-  <tabstop>groupBox_DirDEC</tabstop>
   <tabstop>checkBox_DirDECPlus</tabstop>
+  <tabstop>groupBox_DirDEC</tabstop>
   <tabstop>checkBox_DirDECMinus</tabstop>
   <tabstop>checkBox_normalizeGain</tabstop>
   <tabstop>checkBox_AverageFrames</tabstop>

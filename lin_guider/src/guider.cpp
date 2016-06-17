@@ -623,7 +623,6 @@ void guider::onStartStopButtonClick()
 			m_logger->start( ui.lineEdit_DriftFileName->text().toAscii().data() );
 		}
 		ui.pushButton_StartStop->setText( tr("Stop") );
-		m_math->set_status_info(lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
 
 		quality_rate   = -1;
 		guiding_stable = -1;
@@ -646,7 +645,6 @@ void guider::onStartStopButtonClick()
 
 		ui.checkBox_SaveLog->setChecked( false );
 		ui.pushButton_StartStop->setText( tr("Start") );
-		m_math->set_status_info(lg_math::cgmath::STATUS_LEVEL_INFO, "");
 	}
 
 	// check for status change
@@ -731,11 +729,11 @@ void guider::check_for_events( void )
 		{
 		case lg_math::QUALITY_OK:
 			server::send_bcast_msg( BCM_NORMAL_IMAGE_QUALITY );
-			m_math->set_status_info( lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding...");
+			update_status( lg_math::cgmath::STATUS_LEVEL_INFO, "Guiding..." );
 			break;
 		case lg_math::QUALITY_NOTIFY:
 			server::send_bcast_msg( BCM_LOW_IMAGE_QUALITY );
-			m_math->set_status_info( lg_math::cgmath::STATUS_LEVEL_WARNING, "Quality is low.");
+			update_status( lg_math::cgmath::STATUS_LEVEL_WARNING, "Quality is low." );
 			break;
 		case lg_math::QUALITY_CRITICAL:
 			server::send_bcast_msg( BCM_CRITICAL_IMAGE_QUALITY );
@@ -747,6 +745,7 @@ void guider::check_for_events( void )
 				update_status( lg_math::cgmath::STATUS_LEVEL_ERROR, "Quality is too low, guiding stopped");
 				return;
 			}
+			update_status( lg_math::cgmath::STATUS_LEVEL_ERROR, "Quality is too low." );
 			break;
 		}
 	}
@@ -779,20 +778,22 @@ void guider::check_for_events( void )
 
 void guider::update_status( enum lg_math::cgmath::status_level level, const std::string &txt )
 {
-	QColor bg_color;
+	static QColor bg_color_err( 255, 32, 32, 255 );
+	static QColor bg_color_wrn( 255, 128, 0, 255 );
+	static QColor bg_color_inf( 0, 0, 0, 0 );
+
+	QPalette pal( ui.l_Status->palette() );
 	switch( level )
 	{
 	case lg_math::cgmath::STATUS_LEVEL_ERROR:
-		bg_color.setRgb( 255, 32, 32, 255 );
+		pal.setColor( QPalette::Background, bg_color_err );
 		break;
 	case lg_math::cgmath::STATUS_LEVEL_WARNING:
-		bg_color.setRgb( 255, 128, 0, 255 );
+		pal.setColor( QPalette::Background, bg_color_wrn );
 		break;
 	default:
-		bg_color.setAlpha( 0 );
+		pal.setColor( QPalette::Background, bg_color_inf );
 	}
-	QPalette pal( ui.l_Status->palette() );
-	pal.setColor( QPalette::Background, bg_color );
 	ui.l_Status->setPalette( pal );
 	ui.l_Status->setText( QString::fromUtf8( txt.data(), txt.size() ) );
 }
