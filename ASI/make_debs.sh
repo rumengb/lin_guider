@@ -6,7 +6,7 @@ if [ "$USER" != "root" ]; then
 fi
 
 PACKAGE="libasicamera"
-VERSION="0.3.0520"
+VERSION="0.3.0623"
 
 # arch i386
 ARCH="i386"
