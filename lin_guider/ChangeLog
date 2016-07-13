@@ -10,7 +10,7 @@
 	* Added Enhanced DONUTS guiding algorithm, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Gain of Null camera controls the simuated frame noise, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Minor fixes in ASI camera driver, by Rumen G.Bogdanovski <rumen@skyarchive.org>
-	* Use latest ASI SDK (v.0.3.0520), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Use latest ASI SDK (v.0.3.0623), by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Overlays (square and guide frame) are dragged relative to the mouse position not the center, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 
 2016-04-25 Lin_guider 3.3.0 (c)Galaxy Master <galaxy_master@mail.ru>
