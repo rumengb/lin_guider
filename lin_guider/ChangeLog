@@ -1,3 +1,6 @@
+XXXX-XX-XX Lin_guider 4.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
+	* Use doubleclick to move the overlays (square and guide frame), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+
 2016-07-14 Lin_guider 4.0.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
 	* Created infrastructure to support selectable drift graphs
