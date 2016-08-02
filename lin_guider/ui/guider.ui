@@ -61,13 +61,13 @@
         <item row="1" column="3">
          <widget class="QSpinBox" name="spinBox_YScale">
           <property name="minimum">
-           <number>5</number>
+           <number>1</number>
           </property>
           <property name="maximum">
            <number>30</number>
           </property>
           <property name="singleStep">
-           <number>5</number>
+           <number>1</number>
           </property>
           <property name="value">
            <number>5</number>

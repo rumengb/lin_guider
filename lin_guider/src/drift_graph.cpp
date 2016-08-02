@@ -102,7 +102,7 @@ void cdrift_graph::set_visible_ranges( int rx, int ry )
 		m_need_refresh = true;
 	m_vis_range_x = rx;
 
-	if( ry < 5*m_gridy_N ) ry = 5*m_gridy_N;
+	if( ry < m_gridy_N ) ry = m_gridy_N;
 
 	if( m_vis_range_x != ry )
 		m_need_refresh = true;
