@@ -148,6 +148,7 @@ private:
 	bool activate_drag_object( int x, int y );
 	bool deactivate_drag_object( int x, int y );
 	void move_drag_object( int x, int y );
+	void move_visible_ovls( int x, int y );
 	void draw_overlays( QPainter &painter );
 	void update_video_out( void ) { m_video_out->update(); }
 
@@ -185,18 +186,21 @@ public:
 	{
 		assert(parent);
 	}
+
 	void mouse_press( QMouseEvent *event )
 	{
 		if( event->button() != Qt::LeftButton || !m_parent->activate_drag_object( event->x(), event->y() ) )
     		return;
 		m_dragging = true;
 	}
+
 	void mouse_release( QMouseEvent *event )
 	{
 		m_parent->move_drag_object( event->x(), event->y() );	// set the last position
 		m_parent->deactivate_drag_object( event->x(), event->y() );
 		m_dragging = false;
 	}
+
 	void mouse_move( QMouseEvent *event )
 	{
 		if( !m_dragging )
@@ -206,6 +210,13 @@ public:
 		m_tm.start();
 		m_parent->move_drag_object( event->x(), event->y() );
 	}
+
+	void mouse_doubleclick( QMouseEvent *event )
+	{
+		if( event->button() != Qt::LeftButton )	return;
+		m_parent->move_visible_ovls( event->x(), event->y() );
+	}
+
 	void draw_overlays( QPainter &painter )
 	{
 		m_parent->draw_overlays( painter );

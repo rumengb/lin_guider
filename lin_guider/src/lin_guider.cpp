@@ -981,6 +981,25 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 }
 
 
+void lin_guider::move_visible_ovls( int x, int y )
+{
+	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
+
+	if((povr->visible & lg_math::ovr_params_t::OVR_SQUARE) &&
+	  !(povr->locked & lg_math::ovr_params_t::OVR_SQUARE)) {
+		m_math->move_square((double)(x - povr->square_size/2), (double)(y - povr->square_size/2));
+		m_video_out->update();
+	}
+
+	if((povr->visible & lg_math::ovr_params_t::OVR_OSF) &&
+	  !(povr->locked & lg_math::ovr_params_t::OVR_OSF) &&
+	  !m_math->is_guiding()) {
+		m_math->move_osf((double)(x - povr->osf_size.x/2), (double)(y - povr->osf_size.y/2));
+		m_video_out->update();
+	}
+}
+
+
 void lin_guider::move_drag_object( int x, int y )
 {
 	bool upd = false;

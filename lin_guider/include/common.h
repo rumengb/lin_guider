@@ -38,6 +38,7 @@ public:
 	virtual void mouse_press( QMouseEvent *event ) = 0;
 	virtual void mouse_release( QMouseEvent *event ) = 0;
 	virtual void mouse_move( QMouseEvent *event ) = 0;
+	virtual void mouse_doubleclick( QMouseEvent *event ) = 0;
 	virtual void draw_overlays( QPainter &painter) = 0;
 };
 
@@ -89,11 +90,17 @@ protected:
 			return;
 		m_cd->mouse_press( event );
 	}
-    void mouseReleaseEvent ( QMouseEvent *event )
+	void mouseReleaseEvent ( QMouseEvent *event )
 	{
 		if( !m_cd )
 			return;
 		m_cd->mouse_release( event );
+	}
+	void mouseDoubleClickEvent ( QMouseEvent *event )
+	{
+		if( !m_cd )
+			return;
+		m_cd->mouse_doubleclick( event );
 	}
 private:
 	complex_delegate *m_cd;
