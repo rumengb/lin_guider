@@ -23,7 +23,7 @@ use Getopt::Std;
 use IO::Socket;
 use File::Basename;
 
-my $VERSION = "0.3";
+my $VERSION = "0.4";
 my $verbose = 0;
 
 my %command_val = (
@@ -33,7 +33,9 @@ my %command_val = (
 	'DITHER' => 4,
 	'DITHER_NO_WAIT_XY' => 5,
 	'GET_DISTANCE' => 6,
-	'SAVE_FRAME_DECORATED' => 7
+	'SAVE_FRAME_DECORATED' => 7,
+	'GUIDING' => 8,
+	'GET_GUIDING_STATE' => 9
 );
 my %command_name = reverse %command_val;
 
@@ -50,6 +52,8 @@ sub print_help() {
 	      "This is a GPL software, created by Rumen G.Bogdanovski.\n".
 	      "\n".
 	      "Usage: $N get_ver [-v]\n".
+	      "       $N guiding [-v] start|stop\n".
+	      "       $N status [-v]\n".
 	      "       $N dither [-v]\n".
 	      "       $N dither_no_wait [-v] rX rY\n".
 	      "       $N get_distance [-v]\n".
@@ -159,6 +163,39 @@ sub lg_chat($$) {
 #
 # Lin-guider Commands
 #
+
+sub guiding {
+	my @params = @_;
+	if ($#params != 0) {
+		print STDERR "guide: Wrong parameters.\n";
+		return undef;
+	}
+	my ($resp,$cmd) = lg_chat($command_val{GUIDING}, $params[0]);
+	print "$command_name{$cmd} -> $resp\n";
+	if ($resp =~ /^OK/) {
+		return 1;
+	} else {
+		return undef;
+	}
+}
+
+
+sub status {
+	my @params = @_;
+	if ($#params >= 0) {
+		print STDERR "status: Wrong parameters.\n";
+		return undef;
+	}
+	my ($resp,$cmd) = lg_chat($command_val{GET_GUIDING_STATE} ,"");
+	print "$command_name{$cmd} -> $resp\n";
+	if ($resp =~ /^OK/) {
+		return 1;
+	} else {
+		return undef;
+	}
+}
+
+
 sub dither {
 	my @params = @_;
 	if ($#params >= 0) {
@@ -309,6 +346,23 @@ sub main {
 		}
 		$verbose && print "Get info succeeded.\n";
 		exit 0;
+
+	} elsif ($command eq "guiding") {
+		if (! guiding(@ARGV)) {
+			$verbose && print STDERR "GUIDING returned error.\n";
+			exit 1;
+		}
+		$verbose && print "GUIDING succeeded.\n";
+		exit 0;
+
+	} elsif ($command eq "status") {
+		if (! status(@ARGV)) {
+			$verbose && print STDERR "GET_GUIDING_STATE returned error.\n";
+			exit 1;
+		}
+		$verbose && print "GET_GUIDING_STATE succeeded.\n";
+		exit 0;
+
 
 	} elsif ($command eq "dither") {
 		if (! dither(@ARGV)) {

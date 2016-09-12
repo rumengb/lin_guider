@@ -882,14 +882,14 @@ void lin_guider::onRemoteCmd( void )
 			if( strncasecmp( data_str, STRSZ("start") ) == 0 )
 			{
 				guider_wnd->on_remote_start_stop( true );
-				answer_sz = snprintf( answer, answer_sz_max, "OK. STARTED" );
+				answer_sz = snprintf( answer, answer_sz_max, "OK STARTED" );
 				break;
 			}
 			else
 			if( strncasecmp( data_str, STRSZ("stop") ) == 0 )
 			{
 				guider_wnd->on_remote_start_stop( false );
-				answer_sz = snprintf( answer, answer_sz_max, "OK. STOPPED" );
+				answer_sz = snprintf( answer, answer_sz_max, "OK STOPPED" );
 				break;
 			}
 		}
