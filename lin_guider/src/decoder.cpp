@@ -25,6 +25,9 @@
 #include <unistd.h>
 #include "utils.h"
 
+
+#pragma GCC diagnostic ignored "-Wshift-negative-value"
+
 //------------------------------------ PWC compatable YUV420P -------------------------------------------
 #define SCALEBITS 10
 #define ONE_HALF  (1 << (SCALEBITS - 1))

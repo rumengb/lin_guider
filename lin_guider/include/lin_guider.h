@@ -104,6 +104,7 @@ protected slots:
 	void onRemoteCmd( void );
 
 	void onCmdTimer();
+
 protected:
 	void showEvent ( QShowEvent * event );
 	void closeEvent( QCloseEvent *event );
@@ -114,6 +115,7 @@ private:
 	video_drv::cvideo_base *m_video;
 	io_drv::cio_driver_base *m_driver;
 	server *m_server;
+	// windows
 	setup_video *setup_video_wnd;
 	setup_driver *setup_driver_wnd;
 	guider *guider_wnd;

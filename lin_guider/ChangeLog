@@ -1,4 +1,6 @@
 XXXX-XX-XX Lin_guider 4.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
+	* Guiding start/stop and status remote commands added
+	* Fixes for modern g++ v.6+ (with backward compatibility) 
 	* Use doubleclick to move the overlays (square and guide frame), by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Drift graph Y scale can now show 1"/cell, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 

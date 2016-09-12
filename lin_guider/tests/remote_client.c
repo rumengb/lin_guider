@@ -39,7 +39,12 @@ enum commands
   SET_SQUARE_POS,
   SAVE_FRAME,
   DITHER,
-  
+  DITHER_NO_WAIT_XY,
+  GET_DISTANCE,
+  SAVE_FRAME_DECORATED,
+  GUIDING,
+  GET_GUIDING_STATE,
+
   CMD_MAX
 };
 
@@ -54,12 +59,17 @@ int main(int argc, char *argv[])
 
 	if( argc < 2 )
 	{
-		printf("Usage: client [command no]\nThen type parameters in console and press 'Enter'\n\
-\t\t'GET_VER' = 1, no params\n\
+		printf( "Usage: client [command no]\nThen type parameters in console and press 'Enter'\n \
+\t\t'GET_VER' = 1, no params\n \
 \t\t'SET_SQUARE_POS'=2, [x y]\n\
-\t\t'SAVE_FRAME'=3, file_name w/o extension\n\
-\t\t'DITHER'=4, no params\n\
-");
+\t\t'SAVE_FRAME'=3, file_name w/o extension\n \
+\t\t'DITHER'=4, no params\n \
+\t\t'DITHER_NO_WAIT_XY=5, [dx dy]\n \
+\t\t'GET_DISTANCE=6', no params\n \
+\t\t'SAVE_FRAME_DECORATED=7', no params\n \
+\t\t'GUIDING'=8, [start|stop]\n \
+\t\t'GET_GUIDING_STATE'=9, no params\n \
+" );
 		return 0;
 	}
 	int cmd = strtol( argv[1], NULL, 10 );

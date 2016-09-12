@@ -852,17 +852,56 @@ void lin_guider::onRemoteCmd( void )
 		// error
 		answer_sz = snprintf( answer, answer_sz_max, "Unable to get offsets" );
 	}
-	break;
+		break;
 	case server::GET_DISTANCE:
 	{
 		double dx, dy;
 		int res = m_math->get_distance( &dx, &dy );
 		if( res < 0 )
-			answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
+			answer_sz = snprintf( answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ) );
 		else
-			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dx,dy );
+			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dx, dy );
 	}
-	break;
+		break;
+	case server::GUIDING:
+	{
+		if( data_sz )
+		{
+			u_make_safe_str( (const char*)data, data_sz, sizeof(data_str), data_str, &data_str_len );
+
+			// close all unnecessary
+			if( setup_video_wnd->isVisible() ) setup_video_wnd->close();
+			if( setup_driver_wnd->isVisible() ) setup_driver_wnd->close();
+			if( reticle_wnd->isVisible() ) reticle_wnd->close();
+			if( recorder_wnd->isVisible() ) recorder_wnd->close();
+			if( settings_wnd->isVisible() ) settings_wnd->close();
+			if( about_wnd->isVisible() ) about_wnd->close();
+			if( !guider_wnd->isVisible() ) guider_wnd->show();
+
+			// parse param
+			if( strncasecmp( data_str, STRSZ("start") ) == 0 )
+			{
+				guider_wnd->on_remote_start_stop( true );
+				answer_sz = snprintf( answer, answer_sz_max, "OK. STARTED" );
+				break;
+			}
+			else
+			if( strncasecmp( data_str, STRSZ("stop") ) == 0 )
+			{
+				guider_wnd->on_remote_start_stop( false );
+				answer_sz = snprintf( answer, answer_sz_max, "OK. STOPPED" );
+				break;
+			}
+		}
+		// error
+		answer_sz = snprintf( answer, answer_sz_max, "Unable to get (or wrong) guiding param" );
+	}
+		break;
+	case server::GET_GUIDING_STATE:
+	{
+		answer_sz = snprintf( answer, answer_sz_max, "%s", m_math->is_guiding() ? "GUIDING" : "IDLE" );
+	}
+		break;
 	default:
 		// write some strange answer
 		answer_sz = snprintf( answer, answer_sz_max, "Unknown command" );

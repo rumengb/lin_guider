@@ -271,7 +271,7 @@ bool params::load( void )
 	QSettings dev_settings( "GM_software", QString("devconf")+QString().setNum(m_device_params.type) );
 	if( access(dev_settings.fileName().toAscii().data(), R_OK|W_OK) != 0 )
 	{
-		log_e( "Unable to find config file '%s'\nusing defaults", dev_settings.fileName().toAscii().data() );
+		log_e( "Unable to find devconf file '%s'\nusing defaults", dev_settings.fileName().toAscii().data() );
 
 		// fill by out-of-range value
 		for( i = 0;i < 8;i++ )

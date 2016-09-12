@@ -223,12 +223,6 @@ void guider::set_half_refresh_rate( bool is_half )
 }
 
 
-bool guider::is_guiding( void ) const
-{
-	return is_started;
-}
-
-
 void guider::set_math( lg_math::cgmath *math )
 {
 	assert( math );
@@ -236,6 +230,16 @@ void guider::set_math( lg_math::cgmath *math )
 
 	ui.comboBox_SquareSize->setEnabled( m_math->get_type() == lg_math::GA_CENTROID );
 	setWindowTitle( tr("Guider - ") + QString(m_math->get_name()) );
+}
+
+
+void guider::on_remote_start_stop( bool start )
+{
+	// start
+	if( (is_started && start) || (!is_started && !start) )
+		return;
+
+	onStartStopButtonClick();
 }
 
 

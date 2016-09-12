@@ -25,7 +25,7 @@
 #include <pthread.h>
 #include <time.h>
 
-#include <asm-generic/errno.h>
+#include <errno.h>
 
 #include "io_driver.h"
 #include "timer.h"

@@ -56,8 +56,8 @@ void u_msg( const char *fmt, ...);
 
 double u_pow( double a, int n );
 void log_msg( FILE *stm, const char *fmt, ... );
-#define log_i( fmt, ... )	log_msg( stdout, fmt"\n", ##__VA_ARGS__ )
-#define log_e( fmt, ... )	log_msg( stderr, "ERROR: "fmt"\n", ##__VA_ARGS__ )
+#define log_i( fmt, ... )	log_msg( stdout, fmt "\n", ##__VA_ARGS__ )
+#define log_e( fmt, ... )	log_msg( stderr, "ERROR: " fmt "\n", ##__VA_ARGS__ )
 
 uint32_t u_rgb( unsigned char r, unsigned char g, unsigned char b );
 QString u_extract_file_ext( QString fname );

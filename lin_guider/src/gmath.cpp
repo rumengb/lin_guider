@@ -82,6 +82,8 @@ const q_control_t q_control_mtd[] = {
 											{ -1, "" }
 											};
 
+const double cgmath::SMART_CUT_FACTOR = 0.1;
+
 
 cgmath::cgmath( const common_params &comm_params ) :
 	m_common_params( comm_params ),

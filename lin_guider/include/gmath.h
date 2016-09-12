@@ -229,7 +229,7 @@ class cgmath
 	// width of outer frame for backgroung calculation
 	static const int SMART_FRAME_WIDTH = 4;
 	// cut-factor above avarage threshold
-	static const double SMART_CUT_FACTOR = 0.1;
+	static const double SMART_CUT_FACTOR;
 
 	static const int DITHER_FIXED_TOUT = 2;
 	static const int DITHER_FIXED_TOUT_CLIP = 20;

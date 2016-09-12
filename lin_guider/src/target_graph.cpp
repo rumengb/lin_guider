@@ -131,10 +131,12 @@ void target_graph::draw_grid( void )
 			                    (double)i*m_grid_view_step_x, (double)i*m_grid_view_step_y);
 		}
 		else
+		{
 			m_pen.setColor( GRID_COLOR );
 			m_canvas.setPen( m_pen );
 			m_canvas.drawEllipse(QPointF(m_half_buffer_size_wd, m_half_buffer_size_ht),
 			                    (double)i*m_grid_view_step_x, (double)i*m_grid_view_step_y);
+		}
 	}
 
 	// draw digits

@@ -185,13 +185,13 @@ int cvideo_pwc::init_device( void )
 	if( requested_format_found )
 	{
 		// The requested format is supported
-		log_i( "  Frame format: "FOURCC_FORMAT, FOURCC_ARGS(capture_params.pixel_format) );
+		log_i( "  Frame format: " FOURCC_FORMAT, FOURCC_ARGS(capture_params.pixel_format) );
 	}
 	else
 	if( fallback_format >= 0 )
 	{
 		// The requested format is not supported but there's a fallback format
-		log_i("  Frame format: "FOURCC_FORMAT" ("FOURCC_FORMAT" is not supported by device)",
+		log_i("  Frame format: " FOURCC_FORMAT " (" FOURCC_FORMAT " is not supported by device)",
 				FOURCC_ARGS(device_formats[ fallback_format ].format), FOURCC_ARGS(capture_params.pixel_format) );
 
 		capture_params.pixel_format = device_formats[ fallback_format ].format;
@@ -199,7 +199,7 @@ int cvideo_pwc::init_device( void )
 	else
 	{
 		// The requested format is not supported and no fallback format is available
-		log_e("ERROR: Requested frame format "FOURCC_FORMAT" is not available and no fallback format was found.",
+		log_e("ERROR: Requested frame format " FOURCC_FORMAT " is not available and no fallback format was found.",
 				FOURCC_ARGS(capture_params.pixel_format));
 		return EXIT_FAILURE;
 	}
