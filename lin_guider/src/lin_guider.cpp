@@ -1039,6 +1039,24 @@ void lin_guider::move_visible_ovls( int x, int y )
 }
 
 
+void lin_guider::move_reticle( int x, int y )
+{
+	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
+	double px, py, ang;
+
+	if((povr->visible & lg_math::ovr_params_t::OVR_OSF) &&
+	  !(povr->locked & lg_math::ovr_params_t::OVR_OSF) &&
+	  !m_math->is_guiding()) {
+		m_math->move_osf((double)(x - povr->osf_size.x/2), (double)(y - povr->osf_size.y/2));
+		m_video_out->update();
+	} else if(!m_math->is_guiding()) {
+		m_math->get_reticle_params(&px, &py, &ang);
+		m_math->set_reticle_params(x, y, ang);
+		m_video_out->update();
+	}
+}
+
+
 void lin_guider::move_drag_object( int x, int y )
 {
 	bool upd = false;

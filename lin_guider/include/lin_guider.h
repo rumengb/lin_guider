@@ -151,6 +151,7 @@ private:
 	bool deactivate_drag_object( int x, int y );
 	void move_drag_object( int x, int y );
 	void move_visible_ovls( int x, int y );
+	void move_reticle( int x, int y );
 	void draw_overlays( QPainter &painter );
 	void update_video_out( void ) { m_video_out->update(); }
 
@@ -216,7 +217,11 @@ public:
 	void mouse_doubleclick( QMouseEvent *event )
 	{
 		if( event->button() != Qt::LeftButton )	return;
-		m_parent->move_visible_ovls( event->x(), event->y() );
+		Qt::KeyboardModifiers modifiers = QApplication::queryKeyboardModifiers ();
+		if(modifiers.testFlag( Qt::ControlModifier ))
+			m_parent->move_reticle( event->x(), event->y() );
+		else
+			m_parent->move_visible_ovls( event->x(), event->y() );
 	}
 
 	void draw_overlays( QPainter &painter )

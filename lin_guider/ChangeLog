@@ -3,6 +3,7 @@ XXXX-XX-XX Lin_guider 4.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
 	* Fixes for modern g++ v.6+ (with backward compatibility)
 	* lg_tool.pl now supports the new commands,  by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use doubleclick to move the overlays (square and guide frame), by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Use Ctrl + doubleclick to move the reticle, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Drift graph Y scale can now show 1"/cell, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use latest ASI SDK (v.0.3.0908), by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use latest Atik SDK (v.1.5), by Rumen G.Bogdanovski <rumen@skyarchive.org>
