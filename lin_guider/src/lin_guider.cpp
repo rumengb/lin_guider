@@ -907,6 +907,19 @@ void lin_guider::onRemoteCmd( void )
 		answer_sz = snprintf( answer, answer_sz_max, "%s", m_math->is_guiding() ? "GUIDING" : "IDLE" );
 	}
 		break;
+
+	case server::FIND_STAR:
+	{
+		std::vector< std::pair<Vector, double> > stars;
+
+		bool res = m_math->find_stars( &stars );
+		if( !res ) {
+			answer_sz = snprintf( answer, answer_sz_max, "Error: No suitable star in frame" );
+		} else {
+			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", stars[0].first.x, stars[0].first.y);
+		}
+	}
+		break;
 	default:
 		// write some strange answer
 		answer_sz = snprintf( answer, answer_sz_max, "Unknown command" );

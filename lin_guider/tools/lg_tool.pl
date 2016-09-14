@@ -37,7 +37,8 @@ my %command_val = (
 	'GUIDING' => 8,
 	'GET_GUIDING_STATE' => 9,
 	'SET_GUIDER_OVLS_POS' => 10,
-	'SET_GUIDER_RETICLE_POS' => 11
+	'SET_GUIDER_RETICLE_POS' => 11,
+	'FIND_STAR' => 12
 );
 my %command_name = reverse %command_val;
 
@@ -62,6 +63,7 @@ sub print_help() {
 	      "       $N set_square_pos [-v] X Y\n".
 	      "       $N set_ovls_pos [-v] X Y\n".
 	      "       $N set_reticle_pos [-v] X Y\n".
+	      "       $N find_star [-v]\n".
 	      "       $N save_frame [-v] filename\n".
 	      "       $N save_frame_decorated [-v] filename\n".
 	      "options:\n".
@@ -299,6 +301,22 @@ sub set_reticle_pos {
 }
 
 
+sub find_star {
+	my @params = @_;
+	if ($#params >= 0) {
+		print STDERR "find_star: Wrong parameters.\n";
+		return undef;
+	}
+	my ($resp,$cmd) = lg_chat($command_val{FIND_STAR} ,"");
+	print "$command_name{$cmd} -> $resp\n";
+	if ($resp =~ /^Error/) {
+		return undef;
+	} else {
+		return 1;
+	}
+}
+
+
 sub save_frame {
 	my @params = @_;
 	if ($#params != 0) {
@@ -432,6 +450,14 @@ sub main {
 			exit 1;
 		}
 		$verbose && print "SET_GUIDER_SQUARE_POS succeeded.\n";
+		exit 0;
+
+	} elsif ($command eq "find_star") {
+		if (! find_star(@ARGV)) {
+			$verbose && print STDERR "FIND_STAR returned error.\n";
+			exit 1;
+		}
+		$verbose && print "FIND_STAR succeeded.\n";
 		exit 0;
 
 	} elsif ($command eq "save_frame") {
