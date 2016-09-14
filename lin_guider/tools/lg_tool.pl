@@ -362,12 +362,12 @@ sub main {
 	}
 
 	if (getopts("vh", \%options) == undef) {
-		exit 1;
+		exit 2;
 	}
 
 	if (defined($options{h}) or (!defined($command))) {
 		print_help();
-		exit 1;
+		exit 0;
 	}
 
 	if(defined($options{v})) {
@@ -482,5 +482,6 @@ sub main {
 
 	} else {
 		print STDERR "There is no such command \"$command\".\n";
+		exit 3;
 	}
 } main;
