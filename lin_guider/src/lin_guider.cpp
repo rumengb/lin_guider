@@ -726,6 +726,8 @@ void lin_guider::onRemoteCmd( void )
 		answer_sz = snprintf( answer, answer_sz_max, "v." VERSION );
 	}
 		break;
+	case server::SET_GUIDER_OVL_POS:
+	case server::SET_GUIDER_RETICLE_POS:
 	case server::SET_GUIDER_SQUARE_POS:
 	{
 		if( data_sz )
@@ -750,11 +752,14 @@ void lin_guider::onRemoteCmd( void )
 					continue;
 				}
 			}
-			// move square
 			if( newx != -1 && newy != -1 )
 			{
-				lg_math::ovr_params_t *povr = m_math->prepare_overlays();
-				m_math->move_square( (double)(newx - povr->square_size/2), (double)(newy - povr->square_size/2) );
+				// move reticle or visible overlays
+				if( hdr->cmd == server::SET_GUIDER_RETICLE_POS ) {
+					move_reticle((double)newx, (double)newy);
+				} else {
+					move_visible_ovls((double)newx, (double)newy) ;
+				}
 				answer_sz = snprintf( answer, answer_sz_max, "OK" );
 				break;
 			}

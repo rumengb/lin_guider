@@ -111,6 +111,8 @@ server::server( const net_params_t &nparams ) :
 	m_cmd_names.insert( std::make_pair( server::SAVE_FRAME_DECORATED, "SAVE_FRAME_DECORATED" ) );
 	m_cmd_names.insert( std::make_pair( server::GUIDING, "GUIDING" ) );
 	m_cmd_names.insert( std::make_pair( server::GET_GUIDING_STATE, "GET_GUIDING_STATE" ) );
+	m_cmd_names.insert( std::make_pair( server::SET_GUIDER_OVL_POS, "SET_GUIDER_OVL_POS" ) );
+	m_cmd_names.insert( std::make_pair( server::SET_GUIDER_RETICLE_POS, "SET_GUIDER_RETICLE_POS" ) );
 }
 
 

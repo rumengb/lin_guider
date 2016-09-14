@@ -35,7 +35,9 @@ my %command_val = (
 	'GET_DISTANCE' => 6,
 	'SAVE_FRAME_DECORATED' => 7,
 	'GUIDING' => 8,
-	'GET_GUIDING_STATE' => 9
+	'GET_GUIDING_STATE' => 9,
+	'SET_GUIDER_OVLS_POS' => 10,
+	'SET_GUIDER_RETICLE_POS' => 11
 );
 my %command_name = reverse %command_val;
 
@@ -58,6 +60,8 @@ sub print_help() {
 	      "       $N dither_no_wait [-v] rX rY\n".
 	      "       $N get_distance [-v]\n".
 	      "       $N set_square_pos [-v] X Y\n".
+	      "       $N set_ovls_pos [-v] X Y\n".
+	      "       $N set_reticle_pos [-v] X Y\n".
 	      "       $N save_frame [-v] filename\n".
 	      "       $N save_frame_decorated [-v] filename\n".
 	      "options:\n".
@@ -268,7 +272,7 @@ sub set_square_pos {
 		return undef;
 	}
 	my $paramstr = sprintf("%.2f %.2f", $params[0], $params[1]);
-	my ($resp,$cmd) = lg_chat($command_val{SET_GUIDER_SQUARE_POS}, $paramstr);
+	my ($resp,$cmd) = lg_chat($command_val{SET_GUIDER_OVLS_POS}, $paramstr);
 	print "$command_name{$cmd} -> $resp\n";
 	if ($resp =~ /^OK/) {
 		return 1;
@@ -276,6 +280,24 @@ sub set_square_pos {
 		return undef;
 	}
 }
+
+
+sub set_reticle_pos {
+	my @params = @_;
+	if ($#params != 1) {
+		print STDERR "set_sqare_pos: Wrong parameters.\n";
+		return undef;
+	}
+	my $paramstr = sprintf("%.2f %.2f", $params[0], $params[1]);
+	my ($resp,$cmd) = lg_chat($command_val{SET_GUIDER_RETICLE_POS}, $paramstr);
+	print "$command_name{$cmd} -> $resp\n";
+	if ($resp =~ /^OK/) {
+		return 1;
+	} else {
+		return undef;
+	}
+}
+
 
 sub save_frame {
 	my @params = @_;
@@ -391,6 +413,22 @@ sub main {
 	} elsif ($command eq "set_square_pos") {
 		if (! set_square_pos(@ARGV)) {
 			$verbose && print STDERR "SET_GUIDER_SQUARE_POS returned error.\n";
+			exit 1;
+		}
+		$verbose && print "SET_GUIDER_SQUARE_POS succeeded.\n";
+		exit 0;
+
+	} elsif ($command eq "set_ovls_pos") {
+		if (! set_square_pos(@ARGV)) {
+			$verbose && print STDERR "SET_VISIBLE_OVLS_POS returned error.\n";
+			exit 1;
+		}
+		$verbose && print "SET_GUIDER_SQUARE_POS succeeded.\n";
+		exit 0;
+
+	} elsif ($command eq "set_reticle_pos") {
+		if (! set_reticle_pos(@ARGV)) {
+			$verbose && print STDERR "SET_RETICLE_POS returned error.\n";
 			exit 1;
 		}
 		$verbose && print "SET_GUIDER_SQUARE_POS succeeded.\n";
