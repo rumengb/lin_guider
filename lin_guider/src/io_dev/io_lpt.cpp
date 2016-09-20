@@ -42,6 +42,7 @@ namespace io_drv
 cio_driver_lpt::cio_driver_lpt()
 {
 	parport = -1;
+	pp_mode = 0;
 	device_type = DT_LPT;
 	min_pulse_length = 0;
 	max_pulse_length = 0xFFFFFF;

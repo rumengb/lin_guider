@@ -50,6 +50,8 @@ cio_driver_ftdi::cio_driver_ftdi()
 	lib_release 	= NULL;
 	lib_write_data 	= NULL;
 
+	chip_type = TYPE_R;
+
 	// open library
 	lib_handle = dlopen( "./libio_ftdi.so", RTLD_LAZY );
 

@@ -216,9 +216,10 @@ public:
 
 	void mouse_doubleclick( QMouseEvent *event )
 	{
-		if( event->button() != Qt::LeftButton )	return;
+		if( event->button() != Qt::LeftButton )
+			return;
 		Qt::KeyboardModifiers modifiers = QApplication::queryKeyboardModifiers ();
-		if(modifiers.testFlag( Qt::ControlModifier ))
+		if( modifiers.testFlag( Qt::ControlModifier ) )
 			m_parent->move_reticle( event->x(), event->y() );
 		else
 			m_parent->move_visible_ovls( event->x(), event->y() );
