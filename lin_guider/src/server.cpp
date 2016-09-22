@@ -109,11 +109,12 @@ server::server( const net_params_t &nparams ) :
 	m_cmd_names.insert( std::make_pair( server::DITHER_NO_WAIT_XY, "DITHER_NO_WAIT_XY" ) );
 	m_cmd_names.insert( std::make_pair( server::GET_DISTANCE, "GET_DISTANCE" ) );
 	m_cmd_names.insert( std::make_pair( server::SAVE_FRAME_DECORATED, "SAVE_FRAME_DECORATED" ) );
-	m_cmd_names.insert( std::make_pair( server::GUIDING, "GUIDING" ) );
-	m_cmd_names.insert( std::make_pair( server::GET_GUIDING_STATE, "GET_GUIDING_STATE" ) );
+	m_cmd_names.insert( std::make_pair( server::GUIDER, "GUIDER" ) );
+	m_cmd_names.insert( std::make_pair( server::GET_GUIDER_STATE, "GET_GUIDER_STATE" ) );
 	m_cmd_names.insert( std::make_pair( server::SET_GUIDER_OVL_POS, "SET_GUIDER_OVL_POS" ) );
 	m_cmd_names.insert( std::make_pair( server::SET_GUIDER_RETICLE_POS, "SET_GUIDER_RETICLE_POS" ) );
 	m_cmd_names.insert( std::make_pair( server::FIND_STAR, "FIND_STAR" ) );
+	m_cmd_names.insert( std::make_pair( server::SET_DITHERING_RANGE, "SET_DITHERING_RANGE" ) );
 }
 
 

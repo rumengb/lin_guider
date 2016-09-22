@@ -1,7 +1,7 @@
 XXXX-XX-XX Lin_guider 4.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
-	* Guiding start/stop and status remote commands added
+	* Guider start/stop and status remote commands added
 	* Fixes for modern g++ v.6+ (with backward compatibility)
-	* Added SET_GUIDER_OVLS_POS, SET_GUIDER_RETICLE_POS and FIND_STAR commands, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Added SET_GUIDER_OVLS_POS, SET_GUIDER_RETICLE_POS, SET_DITHERING_RANGE and FIND_STAR commands, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* lg_tool.pl now supports the new commands, by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use doubleclick to move the overlays (square and guide frame), by Rumen G.Bogdanovski <rumen@skyarchive.org>
 	* Use Ctrl + doubleclick to move the reticle, by Rumen G.Bogdanovski <rumen@skyarchive.org>

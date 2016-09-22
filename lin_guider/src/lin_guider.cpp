@@ -868,11 +868,18 @@ void lin_guider::onRemoteCmd( void )
 			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dx, dy );
 	}
 		break;
-	case server::GUIDING:
+	case server::GUIDER:
 	{
 		if( data_sz )
 		{
 			u_make_safe_str( (const char*)data, data_sz, sizeof(data_str), data_str, &data_str_len );
+
+			if(( strncasecmp( data_str, STRSZ("start") ) != 0 ) &&
+			   ( strncasecmp( data_str, STRSZ("stop") ) != 0 ))
+			{
+				answer_sz = snprintf( answer, answer_sz_max, "Error: Wrong parameter" );
+				break;
+			}
 
 			// close all unnecessary
 			if( setup_video_wnd->isVisible() ) setup_video_wnd->close();
@@ -899,10 +906,10 @@ void lin_guider::onRemoteCmd( void )
 			}
 		}
 		// error
-		answer_sz = snprintf( answer, answer_sz_max, "Unable to get (or wrong) guiding param" );
+		answer_sz = snprintf( answer, answer_sz_max, "Error: Unable to get (or wrong) guiding param" );
 	}
 		break;
-	case server::GET_GUIDING_STATE:
+	case server::GET_GUIDER_STATE:
 	{
 		answer_sz = snprintf( answer, answer_sz_max, "%s", m_math->is_guiding() ? "GUIDING" : "IDLE" );
 	}
@@ -918,9 +925,44 @@ void lin_guider::onRemoteCmd( void )
 			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", stars[0].first.x, stars[0].first.y);
 	}
 		break;
+	case server::SET_DITHERING_RANGE:
+	{
+		if( data_sz )
+		{
+			u_make_safe_str( (const char*)data, data_sz, sizeof(data_str), data_str, &data_str_len );
+
+			// maximum relative offset
+			double dr = -1;
+			unsigned int parsed = 0, arg_len = 0;
+			const char *arg = NULL;
+			for( int n = 0; u_memtok( data_str, data_str_len, ' ', &arg, &arg_len, &parsed ) && n < 1; n++ )
+			{
+				switch( n )
+				{
+				case 0:	// x
+					dr = strtod( arg, NULL );
+					break;
+				default:
+					continue;
+				}
+			}
+
+			if( dr == -1 ) {
+				answer_sz = snprintf( answer, answer_sz_max, "Error: No Range Specified" );
+				break;
+			} else if (dr >=1 && dr <=20) { //max dithering - should not be hardcoded!
+				m_common_params.dithering_range = dr;
+				answer_sz = snprintf( answer, answer_sz_max, "OK" );
+				break;
+			}
+		}
+		// error
+		answer_sz = snprintf( answer, answer_sz_max, "Error: Out of Range" );
+	}
+		break;
 	default:
 		// write some strange answer
-		answer_sz = snprintf( answer, answer_sz_max, "Unknown command" );
+		answer_sz = snprintf( answer, answer_sz_max, "Error: Unknown command" );
 	}
 
 	// return connection to server

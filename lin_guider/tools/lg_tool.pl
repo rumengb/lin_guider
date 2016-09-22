@@ -34,11 +34,12 @@ my %command_val = (
 	'DITHER_NO_WAIT_XY' => 5,
 	'GET_DISTANCE' => 6,
 	'SAVE_FRAME_DECORATED' => 7,
-	'GUIDING' => 8,
-	'GET_GUIDING_STATE' => 9,
+	'GUIDER' => 8,
+	'GET_GUIDER_STATE' => 9,
 	'SET_GUIDER_OVLS_POS' => 10,
 	'SET_GUIDER_RETICLE_POS' => 11,
-	'FIND_STAR' => 12
+	'FIND_STAR' => 12,
+	'SET_DITHERING_RANGE' => 13
 );
 my %command_name = reverse %command_val;
 
@@ -55,11 +56,12 @@ sub print_help() {
 	      "This is a GPL software, created by Rumen G.Bogdanovski.\n".
 	      "\n".
 	      "Usage: $N get_ver [-v]\n".
-	      "       $N guiding [-v] start|stop\n".
+	      "       $N guider [-v] start|stop\n".
 	      "       $N status [-v]\n".
 	      "       $N dither [-v]\n".
 	      "       $N dither_no_wait [-v] rX rY\n".
 	      "       $N get_distance [-v]\n".
+	      "       $N set_dithering_range [-v] rage\n".
 	      "       $N set_square_pos [-v] X Y\n".
 	      "       $N set_ovls_pos [-v] X Y\n".
 	      "       $N set_reticle_pos [-v] X Y\n".
@@ -170,13 +172,13 @@ sub lg_chat($$) {
 # Lin-guider Commands
 #
 
-sub guiding {
+sub guider {
 	my @params = @_;
 	if ($#params != 0) {
-		print STDERR "guide: Wrong parameters.\n";
+		print STDERR "guider: Wrong parameters.\n";
 		return undef;
 	}
-	my ($resp,$cmd) = lg_chat($command_val{GUIDING}, $params[0]);
+	my ($resp,$cmd) = lg_chat($command_val{GUIDER}, $params[0]);
 	print "$command_name{$cmd} -> $resp\n";
 	if ($resp =~ /^OK/) {
 		return 1;
@@ -192,7 +194,7 @@ sub status {
 		print STDERR "status: Wrong parameters.\n";
 		return undef;
 	}
-	my ($resp,$cmd) = lg_chat($command_val{GET_GUIDING_STATE} ,"");
+	my ($resp,$cmd) = lg_chat($command_val{GET_GUIDER_STATE} ,"");
 	print "$command_name{$cmd} -> $resp\n";
 	if ($resp =~ /^OK/) {
 		return 1;
@@ -350,6 +352,23 @@ sub save_frame_decorated {
 }
 
 
+sub set_dithering_range {
+	my @params = @_;
+	if ($#params != 0) {
+		print STDERR "set_dithering_range: Wrong parameters.\n";
+		return undef;
+	}
+	my $paramstr = sprintf("%.2f", $params[0]);
+	my ($resp,$cmd) = lg_chat($command_val{SET_DITHERING_RANGE}, $paramstr);
+	print "$command_name{$cmd} -> $resp\n";
+	if ($resp =~ /^OK/) {
+		return 1;
+	} else {
+		return undef;
+	}
+}
+
+
 # main routine
 sub main {
 	my %options = ();
@@ -387,22 +406,29 @@ sub main {
 		$verbose && print "Get info succeeded.\n";
 		exit 0;
 
-	} elsif ($command eq "guiding") {
-		if (! guiding(@ARGV)) {
-			$verbose && print STDERR "GUIDING returned error.\n";
+	} elsif ($command eq "guider") {
+		if (! guider(@ARGV)) {
+			$verbose && print STDERR "GUIDER returned error.\n";
 			exit 1;
 		}
-		$verbose && print "GUIDING succeeded.\n";
+		$verbose && print "GUIDER succeeded.\n";
 		exit 0;
 
 	} elsif ($command eq "status") {
 		if (! status(@ARGV)) {
-			$verbose && print STDERR "GET_GUIDING_STATE returned error.\n";
+			$verbose && print STDERR "GET_GUIDER_STATE returned error.\n";
 			exit 1;
 		}
-		$verbose && print "GET_GUIDING_STATE succeeded.\n";
+		$verbose && print "GET_GUIDER_STATE succeeded.\n";
 		exit 0;
 
+	} elsif ($command eq "set_dithering_range") {
+		if (! set_dithering_range(@ARGV)) {
+			$verbose && print STDERR "SET_DITHERING_RANGE returned error.\n";
+			exit 1;
+		}
+		$verbose && print "FIND_STAR succeeded.\n";
+		exit 0;
 
 	} elsif ($command eq "dither") {
 		if (! dither(@ARGV)) {
