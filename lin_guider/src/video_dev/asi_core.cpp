@@ -56,6 +56,7 @@ void* asi_core::m_sdk_handle = NULL;
 int (*asi_core::pASIGetNumOfConnectedCameras)() = NULL;
 ASI_ERROR_CODE (*asi_core::pASIGetCameraProperty)(ASI_CAMERA_INFO *, int) = NULL;
 ASI_ERROR_CODE (*asi_core::pASIOpenCamera)(int iCameraID) = NULL;
+ASI_ERROR_CODE (*asi_core::pASIInitCamera)(int iCameraID) = NULL;
 ASI_ERROR_CODE (*asi_core::pASICloseCamera)(int iCameraID) = NULL;
 ASI_ERROR_CODE (*asi_core::pASIGetNumOfControls)(int iCameraID, int * piNumberOfControls) = NULL;
 ASI_ERROR_CODE (*asi_core::pASIGetControlCaps)(int iCameraID, int iControlIndex, ASI_CONTROL_CAPS * pControlCaps) = NULL;
@@ -108,7 +109,18 @@ int asi_core::open( void )
 			log_i("ASIOpenCamera(): Error opening camera (rc = %d).",rc);
 			pthread_mutex_unlock( &m_mutex );
 			return 1;
-        }
+		}
+
+		// If there is no ASIInitCamera() then we do not have to call it.
+		// ASIOpenCamera() does all the initializations if SDK version < 0.4.
+		if (pASIInitCamera) {
+			rc = pASIInitCamera(m_camera);
+			if (rc != ASI_SUCCESS) {
+				log_i("ASIInitCamera(): Error opening camera (rc = %d).",rc);
+				pthread_mutex_unlock( &m_mutex );
+				return 1;
+			}
+		}
 
 		int c_num;
 		pASIGetNumOfControls(m_camera, &c_num);
@@ -219,6 +231,7 @@ bool asi_core::init_sdk() {
 		const char* dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetNumOfConnectedCameras(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -226,6 +239,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetCameraProperty(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -233,13 +247,25 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIOpenCamera(): %s", dlsym_error);
+			close_sdk();
 			return false;
+		}
+
+		// If there is no ASIInitCamera() then we do not have to call it.
+		// ASIOpenCamera() does all the initializations if SDK version < 0.4.
+		pASIInitCamera = (ASI_ERROR_CODE (*)(int)) dlsym(m_sdk_handle, "ASIInitCamera");
+		dlsym_error = dlerror();
+		if (dlsym_error) {
+			log_i("Cannot load ASIInitCamera(): %s", dlsym_error);
+			log_i("Asuming libasicamera version < 0.4");
+			pASIInitCamera = (ASI_ERROR_CODE (*)(int)) NULL;
 		}
 
 		pASICloseCamera = (ASI_ERROR_CODE (*)(int)) dlsym(m_sdk_handle, "ASICloseCamera");
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASICloseCamera(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -248,6 +274,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetNumOfControls(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -256,6 +283,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetControlCaps(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -264,6 +292,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetControlValue(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -272,6 +301,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASISetControlValue(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -280,6 +310,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASISetROIFormat(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -288,6 +319,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetROIFormat(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -296,6 +328,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASISetStartPos(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -304,6 +337,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetStartPos(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -312,6 +346,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetDroppedFrames(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -320,6 +355,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIStartVideoCapture(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -328,6 +364,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIStopVideoCapture(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -336,6 +373,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIGetVideoData(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -344,6 +382,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIPulseGuideOn(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 
@@ -352,6 +391,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load ASIPulseGuideOff(): %s", dlsym_error);
+			close_sdk();
 			return false;
 		}
 	}

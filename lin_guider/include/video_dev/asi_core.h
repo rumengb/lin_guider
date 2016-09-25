@@ -95,6 +95,7 @@ protected:
 	static int (*pASIGetNumOfConnectedCameras)();
 	static ASI_ERROR_CODE (*pASIGetCameraProperty)(ASI_CAMERA_INFO *pASICameraInfo, int iCameraIndex);
 	static ASI_ERROR_CODE (*pASIOpenCamera)(int iCameraID);
+	static ASI_ERROR_CODE (*pASIInitCamera)(int iCameraID);
 	static ASI_ERROR_CODE (*pASICloseCamera)(int iCameraID);
 	static ASI_ERROR_CODE (*pASIGetNumOfControls)(int iCameraID, int * piNumberOfControls);
 	static ASI_ERROR_CODE (*pASIGetControlCaps)(int iCameraID, int iControlIndex, ASI_CONTROL_CAPS * pControlCaps);
