@@ -62,6 +62,8 @@ int atik_core::open( void )
 		const char* dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load AtikCamera_list(): %s", dlsym_error);
+			dlclose(m_atik_sdk);
+			m_atik_sdk = NULL;
 			pthread_mutex_unlock( &m_mutex );
 			return 1;
 		}
@@ -70,6 +72,8 @@ int atik_core::open( void )
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load symbol AtikCamera_destroy(): %s", dlsym_error);
+			dlclose(m_atik_sdk);
+			m_atik_sdk = NULL;
 			pthread_mutex_unlock( &m_mutex );
 			return 1;
 		}
@@ -78,6 +82,8 @@ int atik_core::open( void )
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_e("Cannot load symbol AtikDebug: %s", dlsym_error);
+			dlclose(m_atik_sdk);
+			m_atik_sdk = NULL;
 			pthread_mutex_unlock( &m_mutex );
 			return 1;
 		}
