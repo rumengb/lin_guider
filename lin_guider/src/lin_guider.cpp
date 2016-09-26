@@ -789,12 +789,12 @@ void lin_guider::onRemoteCmd( void )
 			else
 				res = m_video_buffer->save( QString( home_dir ) + "/" + QString( fname ) + ".bmp", "BMP" );
 			if( res )
-				answer_sz = snprintf( answer, answer_sz_max, "SAVED:%s/%s.bmp", home_dir, fname );
+				answer_sz = snprintf( answer, answer_sz_max, "OK: saved %s/%s.bmp", home_dir, fname );
 			else
-				answer_sz = snprintf( answer, answer_sz_max, "ERROR saving:%s/%s.bmp", home_dir, fname );
+				answer_sz = snprintf( answer, answer_sz_max, "Error: saving:%s/%s.bmp", home_dir, fname );
 		}
 		else
-			answer_sz = snprintf( answer, answer_sz_max, "ERROR saving:Empty filename" );
+			answer_sz = snprintf( answer, answer_sz_max, "Error: saving:Empty filename" );
 	}
 		break;
 	case server::DITHER:
@@ -814,7 +814,7 @@ void lin_guider::onRemoteCmd( void )
 				answer_sz = snprintf( answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( tout ) );
 		}
 		else
-			answer_sz = snprintf( answer, answer_sz_max, "BUSY: in progress..." );
+			answer_sz = snprintf( answer, answer_sz_max, "Busy: in progress..." );
 	}
 		break;
 	case server::DITHER_NO_WAIT_XY:
@@ -855,7 +855,7 @@ void lin_guider::onRemoteCmd( void )
 			}
 		}
 		// error
-		answer_sz = snprintf( answer, answer_sz_max, "Unable to get offsets" );
+		answer_sz = snprintf( answer, answer_sz_max, "Error: Unable to get offsets" );
 	}
 		break;
 	case server::GET_DISTANCE:
@@ -866,6 +866,17 @@ void lin_guider::onRemoteCmd( void )
 			answer_sz = snprintf( answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ) );
 		else
 			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dx, dy );
+	}
+		break;
+	case server::GET_RA_DEC_DRIFT:
+	{
+		if (!m_math->is_guiding()) {
+			answer_sz = snprintf( answer, answer_sz_max, "Error: Guiding not started." );
+		} else {
+			double dra, ddec;
+			m_math->get_star_drift( &dra, &ddec );
+			answer_sz = snprintf( answer, answer_sz_max, "%0.2f %0.2f", dra, ddec );
+		}
 	}
 		break;
 	case server::GUIDER:
@@ -894,19 +905,19 @@ void lin_guider::onRemoteCmd( void )
 			if( strncasecmp( data_str, STRSZ("start") ) == 0 )
 			{
 				guider_wnd->on_remote_start_stop( true );
-				answer_sz = snprintf( answer, answer_sz_max, "OK STARTED" );
+				answer_sz = snprintf( answer, answer_sz_max, "OK" );
 				break;
 			}
 			else
 			if( strncasecmp( data_str, STRSZ("stop") ) == 0 )
 			{
 				guider_wnd->on_remote_start_stop( false );
-				answer_sz = snprintf( answer, answer_sz_max, "OK STOPPED" );
+				answer_sz = snprintf( answer, answer_sz_max, "OK" );
 				break;
 			}
 		}
 		// error
-		answer_sz = snprintf( answer, answer_sz_max, "Error: Unable to get (or wrong) guiding param" );
+		answer_sz = snprintf( answer, answer_sz_max, "Error: Unable to get (or wrong) parameter" );
 	}
 		break;
 	case server::GET_GUIDER_STATE:

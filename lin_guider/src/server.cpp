@@ -115,6 +115,7 @@ server::server( const net_params_t &nparams ) :
 	m_cmd_names.insert( std::make_pair( server::SET_GUIDER_RETICLE_POS, "SET_GUIDER_RETICLE_POS" ) );
 	m_cmd_names.insert( std::make_pair( server::FIND_STAR, "FIND_STAR" ) );
 	m_cmd_names.insert( std::make_pair( server::SET_DITHERING_RANGE, "SET_DITHERING_RANGE" ) );
+	m_cmd_names.insert( std::make_pair( server::GET_RA_DEC_DRIFT, "GET_RA_DEC_DRIFT" ) );
 }
 
 

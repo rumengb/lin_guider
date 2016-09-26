@@ -48,6 +48,7 @@ enum commands
 	SET_GUIDER_RETICLE_POS,
 	FIND_STAR,
 	SET_DITHERING_RANGE,
+	GET_RA_DEC_DRIFT,
 
 	CMD_MAX
 };
@@ -77,6 +78,7 @@ int main(int argc, char *argv[])
 \t\t'SET_GUIDER_RETICLE_POS'=11, [x y]\n \
 \t\t'FIND_STAR'=12, no params\n \
 \t\t'SET_DITHERING_RANGE'=13, [dr]\n \
+\t\t'GET_RA_DEC_DRIFT'=14, no params\n \
 " );
 		return 0;
 	}

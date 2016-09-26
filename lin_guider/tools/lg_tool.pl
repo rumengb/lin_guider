@@ -39,7 +39,8 @@ my %command_val = (
 	'SET_GUIDER_OVLS_POS' => 10,
 	'SET_GUIDER_RETICLE_POS' => 11,
 	'FIND_STAR' => 12,
-	'SET_DITHERING_RANGE' => 13
+	'SET_DITHERING_RANGE' => 13,
+	'GET_RA_DEC_DRIFT' => 14
 );
 my %command_name = reverse %command_val;
 
@@ -61,6 +62,7 @@ sub print_help() {
 	      "       $N dither [-v]\n".
 	      "       $N dither_no_wait [-v] rX rY\n".
 	      "       $N get_distance [-v]\n".
+	      "       $N get_ra_dec_drift [-v]\n".
 	      "       $N set_dithering_range [-v] rage\n".
 	      "       $N set_square_pos [-v] X Y\n".
 	      "       $N set_ovls_pos [-v] X Y\n".
@@ -243,6 +245,22 @@ sub get_distance {
 		return undef;
 	}
 	my ($resp,$cmd) = lg_chat($command_val{GET_DISTANCE} ,"");
+	print "$command_name{$cmd} -> $resp\n";
+	if ($resp =~ /^Error/) {
+		return undef;
+	} else {
+		return 1;
+	}
+}
+
+
+sub get_ra_dec_drift {
+	my @params = @_;
+	if ($#params >= 0) {
+		print STDERR "get_ra_dec_drift: Wrong parameters.\n";
+		return undef;
+	}
+	my ($resp,$cmd) = lg_chat($command_val{GET_RA_DEC_DRIFT} ,"");
 	print "$command_name{$cmd} -> $resp\n";
 	if ($resp =~ /^Error/) {
 		return undef;
@@ -452,6 +470,14 @@ sub main {
 			exit 1;
 		}
 		$verbose && print "GET_DISTANCE succeeded.\n";
+		exit 0;
+
+	} elsif ($command eq "get_ra_dec_drift") {
+		if (! get_ra_dec_drift(@ARGV)) {
+			$verbose && print STDERR "GET_RA_DEC_DRIFT returned error.\n";
+			exit 1;
+		}
+		$verbose && print "GET_RA_DEC_DRIFT succeeded.\n";
 		exit 0;
 
 	} elsif ($command eq "set_square_pos") {
