@@ -35,17 +35,21 @@
 
 enum commands
 {
-  GET_VER = 1,
-  SET_SQUARE_POS,
-  SAVE_FRAME,
-  DITHER,
-  DITHER_NO_WAIT_XY,
-  GET_DISTANCE,
-  SAVE_FRAME_DECORATED,
-  GUIDING,
-  GET_GUIDING_STATE,
+	GET_VER = 1, //
+	SET_GUIDER_SQUARE_POS,
+	SAVE_FRAME,
+	DITHER,
+	DITHER_NO_WAIT_XY,
+	GET_DISTANCE,
+	SAVE_FRAME_DECORATED,
+	GUIDER,
+	GET_GUIDER_STATE,
+	SET_GUIDER_OVL_POS,
+	SET_GUIDER_RETICLE_POS,
+	FIND_STAR,
+	SET_DITHERING_RANGE,
 
-  CMD_MAX
+	CMD_MAX
 };
 
 void error(char *);
@@ -61,14 +65,18 @@ int main(int argc, char *argv[])
 	{
 		printf( "Usage: client [command no]\nThen type parameters in console and press 'Enter'\n \
 \t\t'GET_VER' = 1, no params\n \
-\t\t'SET_SQUARE_POS'=2, [x y]\n\
+\t\t'SET_GUIDER_SQUARE_POS'=2, [x y]\n\
 \t\t'SAVE_FRAME'=3, file_name w/o extension\n \
 \t\t'DITHER'=4, no params\n \
 \t\t'DITHER_NO_WAIT_XY=5, [dx dy]\n \
 \t\t'GET_DISTANCE=6', no params\n \
 \t\t'SAVE_FRAME_DECORATED=7', no params\n \
-\t\t'GUIDING'=8, [start|stop]\n \
-\t\t'GET_GUIDING_STATE'=9, no params\n \
+\t\t'GUIDER'=8, [start|stop]\n \
+\t\t'GET_GUIDER_STATE'=9, no params\n \
+\t\t'SET_GUIDER_OVL_POS'=10, [x y]\n \
+\t\t'SET_GUIDER_RETICLE_POS'=11, [x y]\n \
+\t\t'FIND_STAR'=12, no params\n \
+\t\t'SET_DITHERING_RANGE'=13, [dr]\n \
 " );
 		return 0;
 	}

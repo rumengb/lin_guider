@@ -947,10 +947,14 @@ void lin_guider::onRemoteCmd( void )
 				}
 			}
 
-			if( dr == -1 ) {
+			if( dr == -1 )
+			{
 				answer_sz = snprintf( answer, answer_sz_max, "Error: No Range Specified" );
 				break;
-			} else if (dr >=1 && dr <=20) { //max dithering - should not be hardcoded!
+			}
+			else
+			if( dr >= 1 && dr <= 20 ) //max dithering - should not be hardcoded!
+			{
 				m_common_params.dithering_range = dr;
 				answer_sz = snprintf( answer, answer_sz_max, "OK" );
 				break;
