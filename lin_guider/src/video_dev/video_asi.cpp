@@ -371,6 +371,7 @@ int cvideo_asi::init_device( void )
 		log_i("Image %dx%d binning %dx%d", m_width, m_height, m_binX, m_binY);
 	}
 
+	stop_capturing();
 	set_exposure( capture_params.exposure );
 	get_exposure();
 
