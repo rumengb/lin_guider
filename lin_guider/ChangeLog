@@ -1,4 +1,5 @@
-XXXX-XX-XX Lin_guider 4.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
+2016-10-04 Lin_guider 4.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
+
 	* Guider start/stop and status remote commands added
 	* Fixes for modern g++ v.6+ (with backward compatibility)
 	* Added SET_GUIDER_OVLS_POS, SET_GUIDER_RETICLE_POS, SET_DITHERING_RANGE, FIND_STAR and
