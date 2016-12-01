@@ -1,0 +1,23 @@
+.\" -*- nroff -*-
+.TH lin_guider 7 "November 2016" "lin_guider(7)" "lin_guider manual page"
+.SH NAME
+lin_guider - autoguiding software for astrophotography.
+.SH SYNOPSIS
+lin_guider
+
+.SH DESCRIPTION
+Lin-guider is an astronomical autoguiding program for Linux. It supports Philips, Logitech, uvc webcams, QHY5, QHY6, DSI2PRO, QHY5L-II-M, QHY5L-II-C, QHY5-II, ATIK, Starlight Xpress, ZWO ASI astrocams for video and FTDI chip-based, parallel port-based (LPT), GPIO-based, GPUSB devices, Nexstar-protocol based and QHY5, QHY6, QHY5L-II-M, QHY5L-II-C, QHY5-II, ATIK, Starlight Xpress, ZWO ASI astrocams for pulse guiding.
+
+.SH COPYRIGHT AND LICENSE
+
+Copyright (C) 2008-2016 Andrew Stepanenko and Rumen G.Bogdanovski
+
+This is a free software, you can redistribute it and/or modify
+it under the terms of GPL3
+
+The authors assume no liability or responsibility for damage or injury
+to persons or property arising from any use of this product. Use it at
+your own risk.
+
+.SH BUGS
+If you find any, please send bug reports to rumen@skyarchive.org or galaxy_master@mail.ru
