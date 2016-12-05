@@ -1,0 +1,67 @@
+.\" -*- nroff -*-
+.TH lg_tool 7 "November 2016" "lg_tool(7)" "lg_tool manual page"
+.SH NAME
+lg_tool - command tool to send commands to lin_guider.
+.SH SYNOPSIS
+.br
+lg_tool get_ver [-v]
+.br
+lg_tool guider [-v] start|stop
+.br
+lg_tool status [-v]
+.br
+lg_tool dither [-v]
+.br
+lg_tool dither_no_wait [-v] rX rY
+.br
+lg_tool get_distance [-v]
+.br
+lg_tool get_ra_dec_drift [-v]
+.br
+lg_tool set_dithering_range [-v] rage
+.br
+lg_tool set_square_pos [-v] X Y
+.br
+lg_tool set_ovls_pos [-v] X Y
+.br
+lg_tool set_reticle_pos [-v] X Y
+.br
+lg_tool find_star [-v]
+.br
+lg_tool save_frame [-v] filename
+.br
+lg_tool save_frame_decorated [-v] filename
+
+.SH DESCRIPTION
+lg_tool is used to control lin_guider. It is particularly useful as dithering agent executed between exposures by the imaging software to perform dithering.
+
+.SH OPTIONS
+.br
+.B -v
+verbose output
+.br
+.B -h
+print this help
+
+.SH VARIABLES
+.B LG_SOCKET
+environment variable can be set to change the default.
+The default is '/tmp/lg_ss'. To use TCP connection use
+format 'tcp://hostname:port'.
+
+.SH SEE ALSO
+.B lin_guider(7)
+
+.SH COPYRIGHT AND LICENSE
+
+Copyright (C) 2008-2016 Rumen G.Bogdanovski
+
+This is a free software, you can redistribute it and/or modify
+it under the terms of GPL3
+
+The authors assume no liability or responsibility for damage or injury
+to persons or property arising from any use of this product. Use it at
+your own risk.
+
+.SH BUGS
+If you find any, please send bug reports to rumen@skyarchive.org
