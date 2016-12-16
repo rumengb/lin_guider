@@ -305,7 +305,7 @@ int qhy5ii_core_shared::get_frame( unsigned char *data, unsigned int data_size, 
 	}
 
 	if( DBG_VERBOSITY )
-		log_i( "Frame succeded: %d bytes", pos );
+		log_i( "Frame succeeded: %d bytes", pos );
 
 	return EXIT_SUCCESS;
 }

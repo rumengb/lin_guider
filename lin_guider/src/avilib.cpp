@@ -1880,7 +1880,7 @@ const char *(avi_errors[]) =
   /* 11 */ "avilib - AVI file has no MOVI list (corrupted?)",
   /* 12 */ "avilib - AVI file has no video data",
   /* 13 */ "avilib - operation needs an index",
-  /* 14 */ "avilib - Unkown Error"
+  /* 14 */ "avilib - Unknown Error"
 };
 static int num_avi_errors = sizeof(avi_errors)/sizeof(char*);
 

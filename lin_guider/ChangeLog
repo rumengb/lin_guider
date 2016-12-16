@@ -1,3 +1,8 @@
+2016-12-16 Lin_guider 4.1.1 (c)Galaxy Master <galaxy_master@mail.ru>
+
+	* Add manpages for lg_tool and lin_guider, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+	* Minor fixes, by Rumen G.Bogdanovski <rumen@skyarchive.org>
+
 2016-10-04 Lin_guider 4.1.0 (c)Galaxy Master <galaxy_master@mail.ru>
 
 	* Guider start/stop and status remote commands added

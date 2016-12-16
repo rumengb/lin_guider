@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH lg_tool 7 "November 2016" "lg_tool(7)" "lg_tool manual page"
+.TH lg_tool 1 "November 2016" "lg_tool(1)" "lg_tool manual page"
 .SH NAME
 lg_tool - command tool to send commands to lin_guider.
 .SH SYNOPSIS
@@ -18,7 +18,7 @@ lg_tool get_distance [-v]
 .br
 lg_tool get_ra_dec_drift [-v]
 .br
-lg_tool set_dithering_range [-v] rage
+lg_tool set_dithering_range [-v] range
 .br
 lg_tool set_square_pos [-v] X Y
 .br

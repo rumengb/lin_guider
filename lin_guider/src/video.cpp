@@ -1871,13 +1871,13 @@ int cvideo_base::detect_best_device( int devtype, const char *devname )
  		// 	if( ret != 0 && errno != EINVAL )
  		// 	{
  		// 		close( cam_fd );
- 		// 		log_i( "unknow '%s' camera detected.Using generic V4L driver.", vcap.name );
+ 		// 		log_i( "Unknown '%s' camera detected.Using generic V4L driver.", vcap.name );
  		// 		return GENERIC_CAM;
  		// 	}
 
  		close( cam_fd );
 
- 		log_i( "unknow '%s' camera detected.", vcap.card );
+ 		log_i( "Unknown '%s' camera detected.", vcap.card );
 
  	}
  		break;

@@ -511,7 +511,7 @@ int cvideo_dsi2pro::read_frame( void )
 #endif
   	)
   	{
-  		log_e( "cvideo_dsi2pro::read_frame(): CMD_TEST_PATTERN/CMD_TRIGGER faild." );
+  		log_e( "cvideo_dsi2pro::read_frame(): CMD_TEST_PATTERN/CMD_TRIGGER failed." );
   		return 1;
   	}
 

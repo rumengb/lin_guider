@@ -145,7 +145,7 @@ int cio_driver_skywatcher::open_device( void ) {
 			log_e("The connected mount is not Sky-Watcher.");
 		} else {
 			char min_release = (MIN_RELEASE > release) ? MIN_RELEASE : release;
-			log_e("The conected mount does not look like Sky-Watcher or Orion.");
+			log_e("The connected mount does not look like Sky-Watcher or Orion.");
 			log_e("If it is, the SynScan firmware must be at least v.%d.%d in order to work.", min_release, MIN_REVISION);
 		}
 		return 1;

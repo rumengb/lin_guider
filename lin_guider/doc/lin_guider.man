@@ -1,5 +1,5 @@
 .\" -*- nroff -*-
-.TH lin_guider 7 "November 2016" "lin_guider(7)" "lin_guider manual page"
+.TH lin_guider 1 "November 2016" "lin_guider(1)" "lin_guider manual page"
 .SH NAME
 lin_guider - autoguiding software for astrophotography.
 .SH SYNOPSIS

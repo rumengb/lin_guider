@@ -257,7 +257,7 @@ bool asi_core::init_sdk() {
 		dlsym_error = dlerror();
 		if (dlsym_error) {
 			log_i("Cannot load ASIInitCamera(): %s", dlsym_error);
-			log_i("Asuming libasicamera version < 0.4");
+			log_i("Assuming libasicamera version < 0.4");
 			pASIInitCamera = (ASI_ERROR_CODE (*)(int)) NULL;
 		}
 
