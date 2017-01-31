@@ -25,7 +25,7 @@ public:
 	virtual ~cgmath_donuts();
 
 	virtual bool set_video_params( int vid_wd, int vid_ht );
-	virtual ovr_params_t *prepare_overlays( void );
+	virtual const ovr_params_t *prepare_overlays( void );
 	virtual int get_default_overlay_set( void ) const;
 	virtual void move_osf( double newx, double newy );
 	virtual void resize_osf( double kx, double ky );

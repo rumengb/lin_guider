@@ -268,8 +268,9 @@ public:
 	int  get_distance(double *dx, double *dy) const;
 	virtual bool reset( void );
 	
-	virtual ovr_params_t *prepare_overlays( void );
+	virtual const ovr_params_t *prepare_overlays( void );
 	virtual int get_default_overlay_set( void ) const;
+	void set_visible_overlays( int ovr_mask, bool set );
 	void move_square( double newx, double newy );
 	void resize_square( int size_idx );
 	virtual void move_osf( double newx, double newy )

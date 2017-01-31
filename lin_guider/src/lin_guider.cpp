@@ -285,7 +285,8 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	// set all sizes
 	m_video_out->set_source( m_video_buffer, m_drawer_delegate );
-	ui.videoFrame->resize( m_capture_params.width + 2*ui.videoFrame->frameWidth(), m_capture_params.height + 2*ui.videoFrame->frameWidth() );
+	m_video_out->set_scale( 0.3 ); // assign non-standard scale
+	ui.videoFrame->resize( m_video_out->get_size().width() + 2*ui.videoFrame->frameWidth(), m_video_out->get_size().height() + 2*ui.videoFrame->frameWidth() );
 
 	// Init scroller
 	QScrollArea *scrollArea = new QScrollArea( centralWidget() );
@@ -435,7 +436,7 @@ void lin_guider::create_math_object( int ga_type,
 	guider_wnd->set_math( m_math );
 	reticle_wnd->set_math( m_math );
 
-	set_visible_overlays( m_math->get_default_overlay_set(), true );
+	m_math->set_visible_overlays( m_math->get_default_overlay_set(), true );
 
 	m_hfd_info_label->setVisible( m_common_params.hfd_on && m_math->get_type() == lg_math::GA_CENTROID );
 
@@ -804,7 +805,7 @@ void lin_guider::onRemoteCmd( void )
 			int tout = m_math->dither();
 			if( tout > 0 ) // do long task
 			{
-				set_visible_overlays( lg_math::ovr_params_t::OVR_RETICLE_ORG, true );
+				m_math->set_visible_overlays( lg_math::ovr_params_t::OVR_RETICLE_ORG, true );
 				m_long_task_conn = pconn;
 				m_timer.setInterval( tout * 1000 );
 				m_timer.start();
@@ -848,7 +849,7 @@ void lin_guider::onRemoteCmd( void )
 				if (res < 0) {
 					answer_sz = snprintf(answer, answer_sz_max, "Error: %s", m_math->get_dither_errstring( res ));
 				} else {
-					set_visible_overlays( lg_math::ovr_params_t::OVR_RETICLE_ORG, true );
+					m_math->set_visible_overlays( lg_math::ovr_params_t::OVR_RETICLE_ORG, true );
 					answer_sz = snprintf(answer, answer_sz_max, "OK");
 				}
 				break;
@@ -1001,17 +1002,6 @@ void lin_guider::onCmdTimer()
 }
 
 
-void lin_guider::set_visible_overlays( int ovr_mask, bool set )
-{
-	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
-
-	if( set )
-		povr->visible |= ovr_mask;
-	else
-		povr->visible &= (~ovr_mask);
-}
-
-
 void lin_guider::lock_toolbar( bool lock )
 {
 	ui.menubar->setEnabled( !lock );
@@ -1021,7 +1011,9 @@ void lin_guider::lock_toolbar( bool lock )
 
 bool lin_guider::activate_drag_object( int x, int y )
 {
-	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
+	m_video_out->scr2xy( &x, &y );
+
+	const lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
 	{
@@ -1077,6 +1069,8 @@ bool lin_guider::activate_drag_object( int x, int y )
 
 bool lin_guider::deactivate_drag_object( int x, int y )
 {
+	m_video_out->scr2xy( &x, &y );
+
 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
 		if( m_drag_objs[i].active )
 		{
@@ -1095,7 +1089,9 @@ bool lin_guider::deactivate_drag_object( int x, int y )
 
 void lin_guider::move_visible_ovls( int x, int y )
 {
-	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
+	m_video_out->scr2xy( &x, &y );
+
+	const lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
 	if( (povr->visible & lg_math::ovr_params_t::OVR_SQUARE) &&
 		!(povr->locked & lg_math::ovr_params_t::OVR_SQUARE) )
@@ -1116,10 +1112,12 @@ void lin_guider::move_visible_ovls( int x, int y )
 
 void lin_guider::move_reticle( int x, int y )
 {
+	m_video_out->scr2xy( &x, &y );
+
 	if( m_math->is_guiding() )
 		return;
 
-	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
+	const lg_math::ovr_params_t *povr = m_math->prepare_overlays();
 
 	if( (povr->visible & lg_math::ovr_params_t::OVR_OSF) &&
 	  !(povr->locked & lg_math::ovr_params_t::OVR_OSF) )
@@ -1136,6 +1134,8 @@ void lin_guider::move_reticle( int x, int y )
 
 void lin_guider::move_drag_object( int x, int y )
 {
+	m_video_out->scr2xy( &x, &y );
+
 	bool upd = false;
 
 	for( size_t i = 0;i < ARRAY_SIZE(m_drag_objs);i++ )
@@ -1173,7 +1173,10 @@ void lin_guider::move_drag_object( int x, int y )
 
 void lin_guider::draw_overlays( QPainter &painter )
 {
-	lg_math::ovr_params_t *povr = m_math->prepare_overlays();
+	const lg_math::ovr_params_t *org_ovr = m_math->prepare_overlays();
+	lg_math::ovr_params_t  ovr = *org_ovr;
+	m_video_out->ovr2scr( &ovr );
+	const lg_math::ovr_params_t *povr = &ovr;
 
 	if( povr->visible & lg_math::ovr_params_t::OVR_OSF )
 	{

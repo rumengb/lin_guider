@@ -596,7 +596,7 @@ void cgmath::set_q_control_index( int idx )
 }
 
 
-ovr_params_t *cgmath::prepare_overlays( void )
+const ovr_params_t *cgmath::prepare_overlays( void )
 {
 	// square
 	m_overlays.square_size  = m_square_size;
@@ -608,6 +608,15 @@ ovr_params_t *cgmath::prepare_overlays( void )
 	m_overlays.reticle_pos.y = m_reticle_pos.y;
 
 	return &m_overlays;
+}
+
+
+void cgmath::set_visible_overlays( int ovr_mask, bool set )
+{
+	if( set )
+		m_overlays.visible |= ovr_mask;
+	else
+		m_overlays.visible &= (~ovr_mask);
 }
 
 

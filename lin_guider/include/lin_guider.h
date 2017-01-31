@@ -81,7 +81,6 @@ public:
 
 
     void lock_toolbar( bool lock );
-    void set_visible_overlays( int ovr_mask, bool set );
     // test stuff
 
 protected slots:

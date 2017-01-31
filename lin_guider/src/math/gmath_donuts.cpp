@@ -57,9 +57,9 @@ bool cgmath_donuts::set_video_params( int vid_wd, int vid_ht )
 }
 
 
-ovr_params_t *cgmath_donuts::prepare_overlays( void )
+const ovr_params_t *cgmath_donuts::prepare_overlays( void )
 {
-	ovr_params_t *ovr = cgmath::prepare_overlays();
+	ovr_params_t *ovr = const_cast< ovr_params_t * >( cgmath::prepare_overlays() );
 
 	ovr->osf_pos.x = (int)m_osf_pos.x;
 	ovr->osf_pos.y = (int)m_osf_pos.y;
