@@ -75,6 +75,9 @@ settings::settings( lin_guider *parent,
 	for( int i = 0;i < cnt;i++ )
 		ui.comboBox_GuiderAlgorithm->addItem( QString(lg_math::alg_desc_list[i].desc), lg_math::alg_desc_list[i].type );
 
+	for( int i = 0;i < 10;i++ )
+		ui.comboBox_VP_scale->addItem( QString().setNum((i+1)*10), float(i+1)/10 );
+
 	connect( ui.comboBox_GuiderAlgorithm, SIGNAL(activated(int)), this, SLOT(onGuiderAlgorithmChanged(int)) );
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
 	connect( ui.pushButton_Cancel, SIGNAL(clicked()), this, SLOT(onCancelButtonClick()) );
@@ -173,6 +176,15 @@ void settings::fill_interface( void )
 	ui.comboBox_GuiderAlgorithm->setCurrentIndex( ui.comboBox_GuiderAlgorithm->findData( m_common_params.guider_algorithm ) );
 	ui.comboBox_OSFSize->setCurrentIndex( ui.comboBox_OSFSize->findData( m_common_params.osf_size_kx ) );
 	onGuiderAlgorithmChanged( ui.comboBox_GuiderAlgorithm->currentIndex() );
+
+	for( int i = 0;i < ui.comboBox_VP_scale->count();i++ )
+	{
+		if( ui.comboBox_VP_scale->itemData( i ).toFloat() == m_ui_params->viewport_scale )
+		{
+			ui.comboBox_VP_scale->setCurrentIndex( i );
+			break;
+		}
+	}
 }
 
 
@@ -301,6 +313,12 @@ void settings::onOkButtonClick()
 		return;
 	}
 	m_common_params.guider_algorithm = ui.comboBox_GuiderAlgorithm->itemData( ui.comboBox_GuiderAlgorithm->currentIndex() ).toInt();
+	if( ui.comboBox_VP_scale->currentIndex() == -1 )
+	{
+		QMessageBox::warning( this, tr("Error"), tr("Viewport scale - not selected"), QMessageBox::Ok );
+		return;
+	}
+	m_ui_params->viewport_scale = ui.comboBox_VP_scale->itemData( ui.comboBox_VP_scale->currentIndex() ).toFloat();
 
 	// final
 	*m_pcommon_params = m_common_params;

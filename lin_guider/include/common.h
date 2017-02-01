@@ -100,6 +100,16 @@ public:
 		*x *= m_scale_inv_k;
 		*y *= m_scale_inv_k;
 	}
+	inline void x2scr( int *x ) const
+	{
+		if( m_scale_k == 1.0 ) return;
+		*x *= m_scale_k;
+	}
+	inline void scr2x( int *x ) const
+	{
+		if( m_scale_k == 1.0 ) return;
+		*x *= m_scale_inv_k;
+	}
 	inline void ovr2scr( lg_math::ovr_params_t *ovr ) const
 	{
 		if( m_scale_k == 1.0 ) return;
@@ -215,7 +225,6 @@ public:
 	double osf_size_ky;
 
 	int guider_algorithm;
-
 };
 
 #endif /* COMMON_H_ */

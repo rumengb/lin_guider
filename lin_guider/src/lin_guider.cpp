@@ -285,7 +285,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 
 	// set all sizes
 	m_video_out->set_source( m_video_buffer, m_drawer_delegate );
-	m_video_out->set_scale( 0.3 ); // assign non-standard scale
+	m_video_out->set_scale( m_ui_params.viewport_scale ); // assign non-standard scale
 	ui.videoFrame->resize( m_video_out->get_size().width() + 2*ui.videoFrame->frameWidth(), m_video_out->get_size().height() + 2*ui.videoFrame->frameWidth() );
 
 	// Init scroller
@@ -1038,8 +1038,10 @@ bool lin_guider::activate_drag_object( int x, int y )
 				(povr->locked & lg_math::ovr_params_t::OVR_RETICLE) ||
 				!reticle_wnd->isVisible() )
 				continue;
-			if( x > povr->reticle_pos.x - 4 && x < povr->reticle_pos.x + 4 )
-				if( y > povr->reticle_pos.y - 4 && y < povr->reticle_pos.y + 4 )
+			int dx = 4;
+			m_video_out->scr2x( &dx );
+			if( x > povr->reticle_pos.x - dx && x < povr->reticle_pos.x + dx )
+				if( y > povr->reticle_pos.y - dx && y < povr->reticle_pos.y + dx )
 				{
 					m_drag_objs[i].active = true;
 					return true;
@@ -1250,4 +1252,7 @@ void lin_guider::update_sb_io_info( void )
 void lin_guider::set_ui_params( void )
 {
 	ui.toolBar_Helper->setVisible( m_ui_params.show_helper_TB );
+
+	m_video_out->set_scale( m_ui_params.viewport_scale );
+	ui.videoFrame->resize( m_video_out->get_size().width() + 2*ui.videoFrame->frameWidth(), m_video_out->get_size().height() + 2*ui.videoFrame->frameWidth() );
 }

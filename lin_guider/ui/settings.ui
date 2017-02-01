@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>579</width>
-    <height>413</height>
+    <width>550</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -231,34 +231,15 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="7" column="2">
-       <widget class="QComboBox" name="comboBox_GraphType"/>
-      </item>
-      <item row="5" column="2">
-       <widget class="QSpinBox" name="spinBox_DitherRestTout">
-        <property name="maximum">
-         <number>10</number>
-        </property>
-        <property name="value">
-         <number>3</number>
+      <item row="14" column="4">
+       <widget class="QCheckBox" name="checkBox_DBGVerbosity">
+        <property name="text">
+         <string>debug verbosity</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="3">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>10</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
+      <item row="7" column="2">
+       <widget class="QComboBox" name="comboBox_GraphType"/>
       </item>
       <item row="5" column="0">
        <widget class="QSpinBox" name="spinBox_DitherRange">
@@ -276,34 +257,20 @@
       <item row="9" column="2">
        <widget class="QComboBox" name="comboBox_DriftGraph_nx"/>
       </item>
-      <item row="9" column="4">
-       <widget class="QCheckBox" name="checkBox_DBGVerbosity">
-        <property name="text">
-         <string>debug verbosity</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="4">
-       <widget class="QCheckBox" name="checkBox_ShowHelperTB">
-        <property name="text">
-         <string>show Helper toolbar</string>
-        </property>
-       </widget>
-      </item>
       <item row="14" column="2">
        <widget class="QComboBox" name="comboBox_DriftGraph_ny"/>
-      </item>
-      <item row="5" column="4">
-       <widget class="QCheckBox" name="checkBox_HFD_on">
-        <property name="text">
-         <string>calculate HFD</string>
-        </property>
-       </widget>
       </item>
       <item row="7" column="0">
        <widget class="QLabel" name="label_graph">
         <property name="text">
          <string>Graph type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="4">
+       <widget class="QCheckBox" name="checkBox_ShowHelperTB">
+        <property name="text">
+         <string>show Helper toolbar</string>
         </property>
        </widget>
       </item>
@@ -334,13 +301,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Dithering timeout, sec</string>
-        </property>
-       </widget>
-      </item>
       <item row="9" column="0">
        <widget class="QLabel" name="label_3">
         <property name="text">
@@ -368,6 +328,40 @@
       <item row="16" column="2">
        <widget class="QComboBox" name="comboBox_OSFSize"/>
       </item>
+      <item row="7" column="4">
+       <widget class="QCheckBox" name="checkBox_HFD_on">
+        <property name="text">
+         <string>calculate HFD</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="4">
+       <widget class="QComboBox" name="comboBox_VP_scale"/>
+      </item>
+      <item row="1" column="4">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Viewport scale, %</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QSpinBox" name="spinBox_DitherRestTout">
+        <property name="maximum">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>3</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Dithering timeout, sec</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -386,14 +380,15 @@
   <tabstop>lineEdit_TCPPort</tabstop>
   <tabstop>spinBox_DitherRange</tabstop>
   <tabstop>spinBox_DitherRestTout</tabstop>
-  <tabstop>checkBox_HFD_on</tabstop>
   <tabstop>comboBox_GraphType</tabstop>
-  <tabstop>checkBox_ShowHelperTB</tabstop>
   <tabstop>comboBox_DriftGraph_nx</tabstop>
-  <tabstop>checkBox_DBGVerbosity</tabstop>
   <tabstop>comboBox_DriftGraph_ny</tabstop>
   <tabstop>comboBox_GuiderAlgorithm</tabstop>
   <tabstop>comboBox_OSFSize</tabstop>
+  <tabstop>comboBox_VP_scale</tabstop>
+  <tabstop>checkBox_HFD_on</tabstop>
+  <tabstop>checkBox_ShowHelperTB</tabstop>
+  <tabstop>checkBox_DBGVerbosity</tabstop>
   <tabstop>pushButton_OK</tabstop>
   <tabstop>pushButton_Cancel</tabstop>
  </tabstops>

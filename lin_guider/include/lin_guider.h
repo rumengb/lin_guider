@@ -53,10 +53,12 @@ typedef struct uiparams_s
 {
 	uiparams_s() :
 		half_refresh_rate( false ),
-		show_helper_TB( false )
+		show_helper_TB( false ),
+		viewport_scale( 1.0 )
 	{}
 	bool half_refresh_rate;
 	bool show_helper_TB;
+	float viewport_scale;
 }uiparams_t;
 
 

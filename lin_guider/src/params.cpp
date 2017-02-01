@@ -208,6 +208,7 @@ bool params::load( void )
 			QByteArray wnd_state = settings.value("guider_wnd_state").toByteArray();
 			set_wnd_geometry_state( "guider_wnd", std::make_pair( wnd_geometry, wnd_state ) );
 		}
+		m_ui_params.viewport_scale = settings.value( "viewport_scale", 1.0 ).toFloat(&ok);
 	settings.endGroup();
 
 	// guider params
@@ -386,6 +387,7 @@ bool params::save( void )
 				settings.setValue("guider_wnd_state", it->second.second );
 			}
 		}
+		settings.setValue( "viewport_scale", (double)m_ui_params.viewport_scale );
 	settings.endGroup();
 
 	// guider params
