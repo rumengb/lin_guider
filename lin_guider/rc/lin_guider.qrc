@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="/new/prefix1">
+    <file>zoom_in.png</file>
+    <file>zoom_out.png</file>
+    <file>zoom.png</file>
     <file>adjust2fit.png</file>
     <file>calibr2guider.png</file>
     <file>settings.png</file>

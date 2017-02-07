@@ -227,4 +227,20 @@ public:
 	int guider_algorithm;
 };
 
+
+typedef struct uiparams_s
+{
+	static const float MIN_SCALE;
+	static const float MAX_SCALE;
+
+	uiparams_s() :
+		half_refresh_rate( false ),
+		show_helper_TB( false ),
+		viewport_scale( 1.0 )
+	{}
+	bool half_refresh_rate;
+	bool show_helper_TB;
+	float viewport_scale;
+}uiparams_t;
+
 #endif /* COMMON_H_ */

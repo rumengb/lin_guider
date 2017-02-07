@@ -42,29 +42,8 @@
 #include "timer.h"
 
 
-typedef struct
-{
-	bool active;
-	int type;
-}drag_object_t;
-
-
-typedef struct uiparams_s
-{
-	uiparams_s() :
-		half_refresh_rate( false ),
-		show_helper_TB( false ),
-		viewport_scale( 1.0 )
-	{}
-	bool half_refresh_rate;
-	bool show_helper_TB;
-	float viewport_scale;
-}uiparams_t;
-
-
 class drawer_delegate;
 class params;
-
 
 class lin_guider : public QMainWindow
 {
@@ -99,6 +78,9 @@ protected slots:
 	// Helper toolbar
 	void onToggleCalibrationGuider();
 	void onAdjust2fitCamera();
+	void onZoomOut();
+	void onZoomIn();
+	void onZoom1_1();
 
 	//
 	void onGetVideo(const void *, int);
@@ -111,6 +93,12 @@ protected:
 	void closeEvent( QCloseEvent *event );
 
 private:
+	typedef struct
+	{
+		bool active;
+		int type;
+	}drag_object_t;
+
 	params *m_param_block;
 
 	video_drv::cvideo_base *m_video;
@@ -158,7 +146,7 @@ private:
 
 	void update_sb_video_info( int override_fps_idx = -1 );
 	void update_sb_io_info( void );
-	void set_ui_params( void );
+	void apply_ui_params( void );
 	bool restart_server( void );
 
 	point_t m_drag_point;

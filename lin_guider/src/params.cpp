@@ -49,8 +49,6 @@ params::params()
 	snprintf( m_dev_name_video, sizeof(m_dev_name_video)-1, "/dev/video0" );
 	snprintf( m_dev_name_io, sizeof(m_dev_name_io)-1, "/dev/parport0" );
 
-	m_ui_params.half_refresh_rate = false;
-
 	m_capture_next_params.width   = 0;
 	m_capture_next_params.height  = 0;
 	

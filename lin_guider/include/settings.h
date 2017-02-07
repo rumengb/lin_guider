@@ -29,9 +29,8 @@
 #include "common.h"
 #include "guider.h"
 
-
-class lin_guider;
-struct uiparams_s;
+//class lin_guider;
+//struct uiparams_s;
 
 class settings : public QDialog
 {
@@ -62,11 +61,13 @@ private:
 
 	net_params_t m_net_params;
 	common_params m_common_params;
+	struct uiparams_s m_ui_params;
+	guider::drift_view_params_s m_drift_view_params;
 
 	net_params_t *m_pnet_params;
 	common_params * const m_pcommon_params;
-	struct uiparams_s *m_ui_params;
-	guider::drift_view_params_s *m_drift_view_params;
+	struct uiparams_s *m_pui_params;
+	guider::drift_view_params_s *m_pdrift_view_params;
 
 private:
 	Ui::settingsClass ui;

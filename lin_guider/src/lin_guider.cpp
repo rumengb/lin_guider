@@ -115,6 +115,10 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionAbout, 		SIGNAL(triggered()), this, SLOT(onShowAbout()) );
 	connect( ui.action_Toggle_Calibration_Guider, SIGNAL(triggered()), this, SLOT(onToggleCalibrationGuider()) );
 	connect( ui.actionAdjust2fitCamera, SIGNAL(triggered()), this, SLOT(onAdjust2fitCamera()) );
+	connect( ui.actionZoomOut,      SIGNAL(triggered()), this, SLOT(onZoomOut()) );
+	connect( ui.actionZoomIn,       SIGNAL(triggered()), this, SLOT(onZoomIn()) );
+	connect( ui.actionZoom1_1,      SIGNAL(triggered()), this, SLOT(onZoom1_1()) );
+
 
 	m_param_block = new params();
 
@@ -319,7 +323,7 @@ It's strongly recommended to fix this issue."), QMessageBox::Ok );
 	update_sb_video_info();
 	update_sb_io_info();
 
-	set_ui_params();
+	apply_ui_params();
 
 	// test
 	m_long_task_conn = NULL;
@@ -565,7 +569,7 @@ void lin_guider::onShowSettings()
 
 	settings_wnd->exec();
 	//check UI changes
-	set_ui_params();
+	apply_ui_params();
 	m_hfd_info_label->setVisible( m_common_params.hfd_on && m_math->get_type() == lg_math::GA_CENTROID );
 	m_hfd_info_label->setText( QString() );
 	// restart server if necessary
@@ -642,6 +646,39 @@ void lin_guider::onAdjust2fitCamera()
 	QSize f = frameSize() - size();
 	QPoint lt = centralWidget()->mapToParent( QPoint(0, 0) );
 	resize( fg.width() + lt.x() + f.width() + 4/*- sb_width*/, fg.height() + lt.y() + f.height() + 4 /*- sb_width*/ /*+ ui.statusbar->height()*/ );
+}
+
+
+void lin_guider::onZoomOut()
+{
+	float k = m_ui_params.viewport_scale;
+	k -= 0.1;
+	k = k < uiparams_s::MIN_SCALE ? uiparams_s::MIN_SCALE : k;
+	if( k == m_ui_params.viewport_scale )
+		return;
+	m_ui_params.viewport_scale = k;
+	apply_ui_params();
+}
+
+
+void lin_guider::onZoomIn()
+{
+	float k = m_ui_params.viewport_scale;
+	k += 0.1;
+	k = k > uiparams_s::MAX_SCALE ? uiparams_s::MAX_SCALE : k;
+	if( k == m_ui_params.viewport_scale )
+		return;
+	m_ui_params.viewport_scale = k;
+	apply_ui_params();
+}
+
+
+void lin_guider::onZoom1_1()
+{
+	if( m_ui_params.viewport_scale == uiparams_s::MAX_SCALE )
+		return;
+	m_ui_params.viewport_scale = uiparams_s::MAX_SCALE;
+	apply_ui_params();
 }
 
 
@@ -1249,7 +1286,7 @@ void lin_guider::update_sb_io_info( void )
 }
 
 
-void lin_guider::set_ui_params( void )
+void lin_guider::apply_ui_params( void )
 {
 	ui.toolBar_Helper->setVisible( m_ui_params.show_helper_TB );
 

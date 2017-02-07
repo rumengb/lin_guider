@@ -21,3 +21,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "common.h"
+
+
+const float uiparams_s::MIN_SCALE = 0.1;
+const float uiparams_s::MAX_SCALE = 1.0;
