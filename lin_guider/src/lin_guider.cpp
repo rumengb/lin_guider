@@ -118,6 +118,9 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionZoomOut,      SIGNAL(triggered()), this, SLOT(onZoomOut()) );
 	connect( ui.actionZoomIn,       SIGNAL(triggered()), this, SLOT(onZoomIn()) );
 	connect( ui.actionZoom1_1,      SIGNAL(triggered()), this, SLOT(onZoom1_1()) );
+	connect( ui.actionZoom_Out,      SIGNAL(triggered()), this, SLOT(onZoomOut()) );
+	connect( ui.actionZoom_In,       SIGNAL(triggered()), this, SLOT(onZoomIn()) );
+	connect( ui.actionZoom_1_1,      SIGNAL(triggered()), this, SLOT(onZoom1_1()) );
 
 
 	m_param_block = new params();
