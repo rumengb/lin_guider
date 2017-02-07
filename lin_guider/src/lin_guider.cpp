@@ -1291,6 +1291,15 @@ void lin_guider::update_sb_io_info( void )
 
 void lin_guider::apply_ui_params( void )
 {
+	char win_title[100];
+
+	if (m_ui_params.viewport_scale != 1)
+		sprintf(win_title, "Lin-guider (zoom %.0f%%)", m_ui_params.viewport_scale*100);
+	else
+		sprintf(win_title, "Lin-guider");
+
+	setWindowTitle( QString(win_title) );
+
 	ui.toolBar_Helper->setVisible( m_ui_params.show_helper_TB );
 
 	m_video_out->set_scale( m_ui_params.viewport_scale );
