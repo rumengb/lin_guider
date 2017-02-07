@@ -25,8 +25,8 @@
 
 #include <sys/types.h>
 
-#define VERSION "4.1.1"
-#define CPY_RIGHT(ver) "Lin-guider v" ver " (c)GM software'08-16"
+#define VERSION "4.2.0-alpha"
+#define CPY_RIGHT(ver) "Lin-guider v" ver " (c)GM software'08-17"
 
 typedef struct
 {
