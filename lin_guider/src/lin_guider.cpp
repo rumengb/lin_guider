@@ -655,7 +655,7 @@ void lin_guider::onAdjust2fitCamera()
 void lin_guider::onZoomOut()
 {
 	float k = m_ui_params.viewport_scale;
-	k -= 0.1;
+	k -= uiparams_s::SCALE_STEP;
 	k = k < uiparams_s::MIN_SCALE ? uiparams_s::MIN_SCALE : k;
 	if( k == m_ui_params.viewport_scale )
 		return;
@@ -667,7 +667,7 @@ void lin_guider::onZoomOut()
 void lin_guider::onZoomIn()
 {
 	float k = m_ui_params.viewport_scale;
-	k += 0.1;
+	k += uiparams_s::SCALE_STEP;
 	k = k > uiparams_s::MAX_SCALE ? uiparams_s::MAX_SCALE : k;
 	if( k == m_ui_params.viewport_scale )
 		return;
@@ -678,9 +678,9 @@ void lin_guider::onZoomIn()
 
 void lin_guider::onZoom1_1()
 {
-	if( m_ui_params.viewport_scale == uiparams_s::MAX_SCALE )
+	if( m_ui_params.viewport_scale == 1.0)
 		return;
-	m_ui_params.viewport_scale = uiparams_s::MAX_SCALE;
+	m_ui_params.viewport_scale = 1.0;
 	apply_ui_params();
 }
 
@@ -1291,12 +1291,12 @@ void lin_guider::update_sb_io_info( void )
 
 void lin_guider::apply_ui_params( void )
 {
-	char win_title[100];
+	QString win_title;
 
 	if (m_ui_params.viewport_scale != 1)
-		sprintf(win_title, "Lin-guider (zoom %.0f%%)", m_ui_params.viewport_scale*100);
+		win_title = QString("Lin-guider (zoom ") + QString().setNum(m_ui_params.viewport_scale*100) + QString("%)");
 	else
-		sprintf(win_title, "Lin-guider");
+		win_title = QString("Lin-guider");
 
 	setWindowTitle( QString(win_title) );
 

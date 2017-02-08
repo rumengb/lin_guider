@@ -24,5 +24,6 @@
 #include "common.h"
 
 
-const float uiparams_s::MIN_SCALE = 0.1;
-const float uiparams_s::MAX_SCALE = 1.0;
+const float uiparams_s::MIN_SCALE = ZOOM_MIN;
+const float uiparams_s::MAX_SCALE = ZOOM_MAX;
+const float uiparams_s::SCALE_STEP = ZOOM_STEP;

@@ -30,6 +30,9 @@
 #include "maindef.h"
 #include "gmath.h"
 
+#define ZOOM_MAX (2.0)
+#define ZOOM_MIN (0.1)
+#define ZOOM_STEP (0.1)
 
 class complex_delegate
 {
@@ -71,8 +74,10 @@ public:
 	}
 	bool set_scale( float k )
 	{
-		if( k <= 0.1 || k > 1.0 )
-			m_scale_k = 1.0;
+		if (k > ZOOM_MAX)
+			m_scale_k = ZOOM_MAX;
+		else if (k <= ZOOM_MIN)
+			m_scale_k = ZOOM_MIN;
 		else
 			m_scale_k = k;
 		m_scale_inv_k = 1.0 / m_scale_k;
@@ -232,6 +237,7 @@ typedef struct uiparams_s
 {
 	static const float MIN_SCALE;
 	static const float MAX_SCALE;
+	static const float SCALE_STEP;
 
 	uiparams_s() :
 		half_refresh_rate( false ),
