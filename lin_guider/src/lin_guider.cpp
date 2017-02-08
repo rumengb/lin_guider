@@ -85,7 +85,7 @@ lin_guider::lin_guider(QWidget *parent)
 
 	ui.setupUi(this);
 
-	setWindowTitle( QString("Lin-guider") );
+	setWindowTitle( QString( APP_NAME ) );
 	setWindowIcon( QIcon(QString::fromUtf8(":/new/prefix1/lin_guider.png")) );
 
 	m_hfd_info_label = new QLabel();
@@ -118,10 +118,6 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionZoomOut,      SIGNAL(triggered()), this, SLOT(onZoomOut()) );
 	connect( ui.actionZoomIn,       SIGNAL(triggered()), this, SLOT(onZoomIn()) );
 	connect( ui.actionZoom1_1,      SIGNAL(triggered()), this, SLOT(onZoom1_1()) );
-	connect( ui.actionZoom_Out,      SIGNAL(triggered()), this, SLOT(onZoomOut()) );
-	connect( ui.actionZoom_In,       SIGNAL(triggered()), this, SLOT(onZoomIn()) );
-	connect( ui.actionZoom_1_1,      SIGNAL(triggered()), this, SLOT(onZoom1_1()) );
-
 
 	m_param_block = new params();
 
@@ -678,7 +674,7 @@ void lin_guider::onZoomIn()
 
 void lin_guider::onZoom1_1()
 {
-	if( m_ui_params.viewport_scale == 1.0)
+	if( m_ui_params.viewport_scale == 1.0 )
 		return;
 	m_ui_params.viewport_scale = 1.0;
 	apply_ui_params();
@@ -1294,9 +1290,9 @@ void lin_guider::apply_ui_params( void )
 	QString win_title;
 
 	if (m_ui_params.viewport_scale != 1)
-		win_title = QString("Lin-guider (zoom ") + QString().setNum(m_ui_params.viewport_scale*100) + QString("%)");
+		win_title = QString(APP_NAME " (zoom ") + QString().setNum(m_ui_params.viewport_scale*100) + QString("%)");
 	else
-		win_title = QString("Lin-guider");
+		win_title = QString(APP_NAME);
 
 	setWindowTitle( QString(win_title) );
 

@@ -43,7 +43,7 @@
      <x>0</x>
      <y>0</y>
      <width>645</width>
-     <height>25</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -79,10 +79,10 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="actionZoom_In"/>
-    <addaction name="actionZoom_Out"/>
+    <addaction name="actionZoomOut"/>
+    <addaction name="actionZoomIn"/>
     <addaction name="separator"/>
-    <addaction name="actionZoom_1_1"/>
+    <addaction name="actionZoom1_1"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -298,6 +298,9 @@
    <property name="toolTip">
     <string>Zoom in</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
   </action>
   <action name="actionZoomOut">
    <property name="icon">
@@ -310,6 +313,9 @@
    <property name="toolTip">
     <string>Zoom out</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
   </action>
   <action name="actionZoom1_1">
    <property name="icon">
@@ -317,37 +323,13 @@
      <normaloff>:/new/prefix1/zoom.png</normaloff>:/new/prefix1/zoom.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Zoom 1:1</string>
+    <string>Zoom &amp;1:1</string>
    </property>
    <property name="toolTip">
     <string>Zoom 1:1</string>
    </property>
-  </action>
-  <action name="actionZoom_In">
-   <property name="icon">
-    <iconset resource="../rc/lin_guider.qrc">
-     <normaloff>:/new/prefix1/zoom_in.png</normaloff>:/new/prefix1/zoom_in.png</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom In</string>
-   </property>
-  </action>
-  <action name="actionZoom_Out">
-   <property name="icon">
-    <iconset resource="../rc/lin_guider.qrc">
-     <normaloff>:/new/prefix1/zoom_out.png</normaloff>:/new/prefix1/zoom_out.png</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom Out</string>
-   </property>
-  </action>
-  <action name="actionZoom_1_1">
-   <property name="icon">
-    <iconset resource="../rc/lin_guider.qrc">
-     <normaloff>:/new/prefix1/zoom.png</normaloff>:/new/prefix1/zoom.png</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom 1:1</string>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
    </property>
   </action>
  </widget>
