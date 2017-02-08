@@ -72,7 +72,7 @@ settings::settings( lin_guider *parent,
 	ui.comboBox_OSFSize->addItem( QString("1/8 frame"), 0.125 );
 
 	int cnt = ARRAY_SIZE( lg_math::alg_desc_list );
-	for( int i = 0;i < cnt;i++ )
+	for( int i = 0; i < cnt; i++ )
 		ui.comboBox_GuiderAlgorithm->addItem( QString(lg_math::alg_desc_list[i].desc), lg_math::alg_desc_list[i].type );
 
 	float zoom_max = ZOOM_MAX * 100;

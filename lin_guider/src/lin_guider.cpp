@@ -117,6 +117,11 @@ lin_guider::lin_guider(QWidget *parent)
 	connect( ui.actionAdjust2fitCamera, SIGNAL(triggered()), this, SLOT(onAdjust2fitCamera()) );
 	connect( ui.actionZoomOut,      SIGNAL(triggered()), this, SLOT(onZoomOut()) );
 	connect( ui.actionZoomIn,       SIGNAL(triggered()), this, SLOT(onZoomIn()) );
+	{ // setup shortcuts
+		QList<QKeySequence> shortcuts;
+		shortcuts << ui.actionZoomIn->shortcuts() << QKeySequence("Ctrl+=");
+		ui.actionZoomIn->setShortcuts(shortcuts);
+	}
 	connect( ui.actionZoom1_1,      SIGNAL(triggered()), this, SLOT(onZoom1_1()) );
 
 	m_param_block = new params();

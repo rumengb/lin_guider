@@ -299,7 +299,7 @@
     <string>Zoom in</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+=</string>
+    <string>Ctrl++</string>
    </property>
   </action>
   <action name="actionZoomOut">
