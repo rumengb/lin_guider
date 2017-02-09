@@ -326,6 +326,7 @@ void settings::onOkButtonClick()
 	*m_pnet_params = m_net_params;
 	*m_pui_params = m_ui_params;
 	*m_pcommon_params = m_common_params;
+	*m_pdrift_view_params = m_drift_view_params;
 
 	close();
 }
