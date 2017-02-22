@@ -78,7 +78,8 @@ settings::settings( lin_guider *parent,
 	float zoom_max = ZOOM_MAX * 100;
 	float zoom_step = ZOOM_STEP * 100;
 	for( float i = 0; i < zoom_max; i += zoom_step )
-		ui.comboBox_VP_scale->addItem( QString().setNum((i + zoom_step)), (i + zoom_step) / 100 );
+		ui.comboBox_VP_scale->addItem( QString().setNum((i + zoom_step)) + ((i + zoom_step) == 100 ? tr(" (default)") : QString()),
+				(i + zoom_step) / 100 );
 
 	connect( ui.comboBox_GuiderAlgorithm, SIGNAL(activated(int)), this, SLOT(onGuiderAlgorithmChanged(int)) );
 	connect( ui.pushButton_OK, SIGNAL(clicked()), this, SLOT(onOkButtonClick()) );
