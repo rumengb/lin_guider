@@ -53,7 +53,7 @@ NAME="$PACKAGE-$VERSION-$ARCH"
 install -d $NAME/DEBIAN
 install -m 644 control $NAME/DEBIAN
 sed "s/VERSION/$VERSION/g" -i $NAME/DEBIAN/control
-sed "s/ARCH/$ARCH/g" -i $NAME/DEBIAN/control
+sed "s/ARCH/armhf/g" -i $NAME/DEBIAN/control
 install -d $NAME/etc/udev/rules.d
 install -m 644 99-asi.rules $NAME/etc/udev/rules.d
 install -d $NAME/usr/lib
@@ -72,7 +72,7 @@ NAME="$PACKAGE-$VERSION-$ARCH"
 install -d $NAME/DEBIAN
 install -m 644 control $NAME/DEBIAN
 sed "s/VERSION/$VERSION/g" -i $NAME/DEBIAN/control
-sed "s/ARCH/$ARCH/g" -i $NAME/DEBIAN/control
+sed "s/ARCH/armhf/g" -i $NAME/DEBIAN/control
 install -d $NAME/etc/udev/rules.d
 install -m 644 99-asi.rules $NAME/etc/udev/rules.d
 install -d $NAME/usr/lib
@@ -91,7 +91,7 @@ NAME="$PACKAGE-$VERSION-$ARCH"
 install -d $NAME/DEBIAN
 install -m 644 control $NAME/DEBIAN
 sed "s/VERSION/$VERSION/g" -i $NAME/DEBIAN/control
-sed "s/ARCH/$ARCH/g" -i $NAME/DEBIAN/control
+sed "s/ARCH/armhf/g" -i $NAME/DEBIAN/control
 install -d $NAME/etc/udev/rules.d
 install -m 644 99-asi.rules $NAME/etc/udev/rules.d
 install -d $NAME/usr/lib
