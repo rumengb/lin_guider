@@ -14,6 +14,8 @@ here is the suggested procedure to operate the camera.
 
 --> ASISetROIFormat
 
+--> ASISetCameraMode
+
 --> ASIStartVideoCapture
 
 //this is recommended to do in another thread
@@ -72,6 +74,7 @@ typedef enum ASI_FLIP_STATUS {
 
 }ASI_FLIP_STATUS;
 
+
 typedef enum ASI_ERROR_CODE{ //ASI ERROR CODE
 	ASI_SUCCESS=0,
 	ASI_ERROR_INVALID_INDEX, //no camera connected or index value out of boundary
@@ -90,6 +93,7 @@ typedef enum ASI_ERROR_CODE{ //ASI ERROR CODE
 	ASI_ERROR_VIDEO_MODE_ACTIVE,
 	ASI_ERROR_EXPOSURE_IN_PROGRESS,
 	ASI_ERROR_GENERAL_ERROR,//general error, eg: value is out of valid range
+	ASI_ERROR_INVALID_MODE,//the current mode is wrong
 	ASI_ERROR_END
 }ASI_ERROR_CODE;
 
@@ -101,7 +105,7 @@ typedef enum ASI_BOOL{
 typedef struct _ASI_CAMERA_INFO
 {
 	char Name[64]; //the name of the camera, you can display this to the UI
-	int CameraID; //this is used to control everything of the camera in other functions
+	int CameraID; //this is used to control everything of the camera in other functions.Start from 0.
 	long MaxHeight; //the max height of the camera
 	long MaxWidth;	//the max width of the camera
 
@@ -118,9 +122,11 @@ typedef struct _ASI_CAMERA_INFO
 	ASI_BOOL IsUSB3Host;
 	ASI_BOOL IsUSB3Camera;
 	float ElecPerADU;
-
-	char Unused[24];
+	int BitDepth;
+	char Unused[20];
 } ASI_CAMERA_INFO;
+
+#define ASI_BRIGHTNESS ASI_OFFSET
 
 typedef enum ASI_CONTROL_TYPE{ //Control type//
 	ASI_GAIN = 0,
@@ -128,13 +134,13 @@ typedef enum ASI_CONTROL_TYPE{ //Control type//
 	ASI_GAMMA,
 	ASI_WB_R,
 	ASI_WB_B,
-	ASI_BRIGHTNESS,
+	ASI_OFFSET,
 	ASI_BANDWIDTHOVERLOAD,	
 	ASI_OVERCLOCK,
 	ASI_TEMPERATURE,// return 10*temperature
 	ASI_FLIP,
 	ASI_AUTO_MAX_GAIN,
-	ASI_AUTO_MAX_EXP,
+	ASI_AUTO_MAX_EXP,//micro second
 	ASI_AUTO_MAX_BRIGHTNESS,
 	ASI_HARDWARE_BIN,
 	ASI_HIGH_SPEED_MODE,
@@ -144,7 +150,7 @@ typedef enum ASI_CONTROL_TYPE{ //Control type//
 	ASI_MONO_BIN,//lead to less grid at software bin mode for color camera
 	ASI_FAN_ON,
 	ASI_PATTERN_ADJUST,
-	ASI_ANTI_DEW_HEATER
+	ASI_ANTI_DEW_HEATER,
 }ASI_CONTROL_TYPE;
 
 typedef struct _ASI_CONTROL_CAPS
@@ -214,9 +220,12 @@ get the property of the connected cameras, you can do this without open the came
 here is the sample code:
 
 int iNumofConnectCameras = ASIGetNumOfConnectedCameras();
-ASI_CAMERA_INFO **ppASICameraInfo = (ASI_CAMERA_INFO *)malloc(sizeof(ASI_CAMERA_INFO *)*iNumofConnectCameras);
+ASI_CAMERA_INFO **ppASICameraInfo = (ASI_CAMERA_INFO **)malloc(sizeof(ASI_CAMERA_INFO *)*iNumofConnectCameras);
 for(int i = 0; i < iNumofConnectCameras; i++)
-	ASIGetCameraProperty(pASICameraInfo[i], i);
+{
+ppASICameraInfo[i] = (ASI_CAMERA_INFO *)malloc(sizeof(ASI_CAMERA_INFO ));
+ASIGetCameraProperty(ppASICameraInfo[i], i);
+}
 				
 Paras£º		
 	ASI_CAMERA_INFO *pASICameraInfo: Pointer to structure containing the property of camera
@@ -725,7 +734,13 @@ ASI_SUCCESS : Operation is successful
 ASI_ERROR_CAMERA_CLOSED : camera didn't open
 ASI_ERROR_INVALID_ID  :no camera of this ID is connected or ID value is out of boundary
 ***************************************************************************/
-ASICAMERA_API ASI_ERROR_CODE ASIGetGainOffset(int iCameraID, int *Offset_HighestDR, int *Offset_UnityGain, int *Gain_LowestRN, int *Offset_LowestRN);
+ASICAMERA_API ASI_ERROR_CODE ASIGetGainOffset(int iCameraID, int *pOffset_HighestDR, int *pOffset_UnityGain, int *pGain_LowestRN, int *pOffset_LowestRN);
+
+/***************************************************************************
+Descriptions£º
+get version string, like "0, 7, 0503"
+***************************************************************************/
+ASICAMERA_API char* ASIGetSDKVersion();
 
 
 #ifdef __cplusplus
