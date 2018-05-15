@@ -66,6 +66,7 @@ class AtikCamera {
     virtual bool open() = 0;
     virtual void close() = 0;
     virtual bool setParam(PARAM_TYPE code, long value) = 0;
+    virtual long getParam(PARAM_TYPE code) = 0;
     virtual bool getCapabilities(const char **name, CAMERA_TYPE *type, bool *hasShutter, bool* hasGuidePort, bool* has8BitMode, bool* hasFilterWheel, unsigned *lineCount, unsigned* pixelCountX, unsigned* pixelCountY, double* pixelSizeX, double* pixelSizeY, unsigned* maxBinX, unsigned* maxBinY, unsigned *tempSensorCount, COOLER_TYPE* cooler, COLOUR_TYPE* colour, int *offsetX, int *offsetY, bool *supportsLongExposure, double *minShortExposure, double *maxShortExposure) = 0;
     virtual bool getCapabilities(const char **name, CAMERA_TYPE *type, AtikCapabilities *capabilities) = 0;
     virtual bool getTemperatureSensorStatus(unsigned sensor, float *currentTemp) = 0;
