@@ -177,6 +177,7 @@ typedef struct captureparams_s
 		autogain( 0 ),
 		gain( 0 ),
 		exposure( 0 ),
+		auto_white_pt ( false ),
 		use_calibration( false ),
 		ext_params( std::map< unsigned int, int >() )
 	{}
@@ -188,7 +189,8 @@ typedef struct captureparams_s
 	time_fract_t fps;
 	int		     autogain;
 	int	         gain;
-	int			 exposure;
+	int          exposure;
+	bool         auto_white_pt;
 	bool         use_calibration;
 
 	std::map< unsigned int, int > ext_params;
@@ -206,6 +208,7 @@ typedef struct captureparams_s
 		autogain 		= v.autogain;
 		gain 			= v.gain;
 		exposure 		= v.exposure;
+		auto_white_pt   = v.auto_white_pt;
 		use_calibration = v.use_calibration;
 
 		if( ext_params.size() <= v.ext_params.size() )
@@ -408,6 +411,9 @@ protected:
 
 	int set_exposure( int val );
 	int get_exposure( void );
+
+	int set_auto_white_pt( int val );
+	int get_auto_white_pt( void );
 
 	int set_ext_param( unsigned int ctrl_id, int val );
 	int get_ext_param( unsigned int ctrl_id );

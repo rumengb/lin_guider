@@ -503,7 +503,7 @@ cvideo_base::cvideo_base()
 	next_params.type    = 0;
 	next_params.width   = 0;
 	next_params.height  = 0;
-	
+
 	force_fps = false;
 
 	controls = NULL;
@@ -513,7 +513,7 @@ cvideo_base::cvideo_base()
 
 	buffers 	       = NULL;
 	n_buffers 	       = 0;
-	
+
     calibration_frame_cnt = 1;
 	calibration_frame     = 0;
 	is_calibrating        = false;
@@ -853,8 +853,8 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		if( is_grey )
 		{
 			for( i = 0, j = 0;i < pix_no;i++, j+=4 )
-				pdst[j]   = 
-				pdst[j+1] = 
+				pdst[j]   =
+				pdst[j+1] =
 				pdst[j+2] = psrc.ptr8[i];
 		}
 		else
@@ -1094,6 +1094,12 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 	}
 
+	#define THRESHOLD 0.001
+	int count = 0;
+	int max = 0;
+	int clip_no = (int)(pix_no * THRESHOLD);
+	int hist[65535] = {0};
+
 	// fill floating point math buffer
 	if( mdst )
 	{
@@ -1101,37 +1107,69 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		{
 			if ( is_webcam )
 			{
+				max = 255;
 				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
+				{
 					mdst[i] = (double)(pdecoded.ptr8[j] + pdecoded.ptr8[j+1] + pdecoded.ptr8[j+2]);
+					hist[ pdecoded.ptr8[j] ] ++;
+				}
 			}
 			else
 			if( bits == 8 )
 			{
+				max = 255;
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
+				{
 					mdst[i] = (double)(pdecoded.ptr8[j] + pdecoded.ptr8[j+1] + pdecoded.ptr8[j+2]);
+					hist[ pdecoded.ptr8[j] ] ++;
+				}
 			}
 			else
 			if( bits == 16 )
 			{
+				max = 65535;
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
+				{
 					mdst[i] = (double)(pdecoded.ptr16[j] + pdecoded.ptr16[j+1] + pdecoded.ptr16[j+2]);
+					hist[ pdecoded.ptr16[j] ] ++;
+				}
 			}
 		}
 		else
 		{
 			if( bits == 8 )
 			{
+				max = 255;
 				for( i = 0;i < pix_no;i++ )
+				{
 					mdst[i] = (double)pdecoded.ptr8[i];
+					hist[ pdecoded.ptr8[i] ] ++;
+				}
 			}
 			else
 			if( bits == 16 )
 			{
+				max = 65535;
 				for( i = 0;i < pix_no;i++ )
+				{
 					mdst[i] = (double)pdecoded.ptr16[i];
+					hist[ pdecoded.ptr16[i] ] ++;
+				}
 			}
 		}
 	}
+
+	// initialize LUT
+	count += hist[max];
+	printf("count = %d\n", count);
+	while( clip_no > count )
+	{
+		max--;
+		count += hist[max];
+		//printf("count = %d, hist[%d] = %d\n", count, max, hist[max]);
+	}
+	printf("MAX = %d, clip = %d, count = %d\n", max, clip_no, count);
+	init_lut_to8bit(max);
 
 	// finalize - apply LUT
 	if( is_color() )
@@ -1684,7 +1722,7 @@ int cvideo_base::bpp( void ) const
 
 bool cvideo_base::is_color( void ) const
 {
- 	if( capture_params.pixel_format == V4L2_PIX_FMT_GREY || 
+	if( capture_params.pixel_format == V4L2_PIX_FMT_GREY ||
 		capture_params.pixel_format == V4L2_PIX_FMT_Y16 )
 		// || capture_params.pixel_format == V4L2_PIX_FMT_SGRBG12 )
 		return false;
