@@ -29,6 +29,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <limits.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -1098,7 +1099,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	int count = 0;
 	int max = 0;
 	int clip_no = (int)(pix_no * THRESHOLD);
-	int hist[65535] = {0};
+	int hist[USHRT_MAX] = {0};
 
 	// fill floating point math buffer
 	if( mdst )
@@ -1107,7 +1108,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		{
 			if ( is_webcam )
 			{
-				max = 255;
+				max = UCHAR_MAX;
 				for( i = 0, j = 0;i < pix_no;i++, j+=4 )
 				{
 					mdst[i] = (double)(pdecoded.ptr8[j] + pdecoded.ptr8[j+1] + pdecoded.ptr8[j+2]);
@@ -1117,7 +1118,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			else
 			if( bits == 8 )
 			{
-				max = 255;
+				max = UCHAR_MAX;
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
 				{
 					mdst[i] = (double)(pdecoded.ptr8[j] + pdecoded.ptr8[j+1] + pdecoded.ptr8[j+2]);
@@ -1127,7 +1128,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			else
 			if( bits == 16 )
 			{
-				max = 65535;
+				max = USHRT_MAX;
 				for( i = 0, j = 0;i < pix_no;i++, j+=3 )
 				{
 					mdst[i] = (double)(pdecoded.ptr16[j] + pdecoded.ptr16[j+1] + pdecoded.ptr16[j+2]);
@@ -1139,7 +1140,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		{
 			if( bits == 8 )
 			{
-				max = 255;
+				max = UCHAR_MAX;
 				for( i = 0;i < pix_no;i++ )
 				{
 					mdst[i] = (double)pdecoded.ptr8[i];
@@ -1149,7 +1150,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			else
 			if( bits == 16 )
 			{
-				max = 65535;
+				max = USHRT_MAX;
 				for( i = 0;i < pix_no;i++ )
 				{
 					mdst[i] = (double)pdecoded.ptr16[i];
