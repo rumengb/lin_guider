@@ -1095,12 +1095,12 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 	}
 
-	#define THRESHOLD_TOP 0.0001
+	int threshold_top = get_exposure();
 	#define THRESHOLD_BOT 0.0001
 	int count = 0;
 	int max = 0;
 	int min = 0;
-	int clip_top = (int)(pix_no * THRESHOLD_TOP);
+	int clip_top = (int)(pix_no * threshold_top/10000.0);
 	int clip_bot = (int)(pix_no * THRESHOLD_BOT);
 	int hist[USHRT_MAX] = {0};
 

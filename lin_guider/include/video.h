@@ -259,6 +259,8 @@ typedef struct
 #define PP_EXPO				0x10
 #define PP_EXTPARAM         0x20
 
+#define THRESH_MAX			500
+
 
 typedef struct param_val
 {

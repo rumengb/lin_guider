@@ -212,14 +212,7 @@ int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 	case V4L2_CID_EXPOSURE: {
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > 65536 ) v = 65536;
-		int top = 65536 - v;
-		if( top <= 0 ) {
-			log_e( "cvideo_atik::set_control(): invalid exposure" );
-			return -1;
-		}
-		init_lut_to8bit( top );
-
+		if( v > THRESH_MAX ) v = THRESH_MAX;
 		capture_params.exposure = v;
 		break;
 	}
@@ -476,7 +469,7 @@ int cvideo_atik::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	queryctrl.maximum = 65535;
+	queryctrl.maximum = THRESH_MAX;
 	queryctrl.step = 1;
 	queryctrl.default_value = 0;
 	queryctrl.flags = 0;

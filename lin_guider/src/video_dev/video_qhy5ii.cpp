@@ -401,19 +401,9 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		break;
 	case V4L2_CID_EXPOSURE:
 	{
-		int max=255;
-		if (m_transfer_bit == 16) max = 65535;
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > max ) v = max;
-		int top = max - v;
-		if( top <= 0 )
-		{
-			log_e( "cvideo_qhy5ii::set_control(): invalid exposure" );
-			return -1;
-		}
-		init_lut_to8bit( top );
-
+		if( v > THRESH_MAX ) v = THRESH_MAX;
 		capture_params.exposure = v;
 	}
 		break;
@@ -773,10 +763,7 @@ int cvideo_qhy5ii::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	if (m_transfer_bit == 16)
-		queryctrl.maximum = 65535;
-	else
-		queryctrl.maximum = 255;
+	queryctrl.maximum = THRESH_MAX;
 	queryctrl.step = 1;
 	queryctrl.default_value = 0;
 	queryctrl.flags = 0;

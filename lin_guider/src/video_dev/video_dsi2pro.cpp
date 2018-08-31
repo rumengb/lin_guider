@@ -225,15 +225,7 @@ int cvideo_dsi2pro::set_control( unsigned int control_id, const param_val_t &val
 	{
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > 65535 ) v = 65535;
-		int top = 65536 - v;
-		if( top <= 0 )
-		{
-			log_e( "cvideo_dsi2pro::set_control(): invalid exposure" );
-			return -1;
-		}
-		init_lut_to8bit( top );
-
+		if( v > THRESH_MAX ) v = THRESH_MAX;
 		capture_params.exposure = v;
 	}
 		break;
@@ -647,7 +639,7 @@ int cvideo_dsi2pro::enum_controls( void )
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	queryctrl.maximum = 65535;
+	queryctrl.maximum = THRESH_MAX;
 	queryctrl.step = 1;
 	queryctrl.default_value = capture_params.exposure;
 	queryctrl.flags = 0;

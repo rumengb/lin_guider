@@ -196,17 +196,9 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		break;
 	}
 	case V4L2_CID_EXPOSURE: {
-		long wp_max = 256;
-		if(m_bpp == 16) wp_max = 65535;
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
-		if( v > wp_max ) v = wp_max;
-		int top = wp_max - v;
-		if( top <= 0 ) {
-			log_e( "cvideo_asi::set_control(): invalid exposure" );
-			return -1;
-		}
-		init_lut_to8bit( top );
+		if( v > THRESH_MAX ) v = THRESH_MAX;
 		capture_params.exposure = v;
 		break;
 	}
@@ -563,14 +555,12 @@ int cvideo_asi::enum_controls( void )
 		controls = add_control( -1, &queryctrl, controls, &n );
 	}
 
-	long wp_max = 255;
-	if(m_bpp == 16) wp_max = 65535;
 	// create virtual control
 	queryctrl.id = V4L2_CID_EXPOSURE;
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
 	queryctrl.minimum = 0;
-	queryctrl.maximum = wp_max;
+	queryctrl.maximum = THRESH_MAX;
 	queryctrl.step = 1;
 	queryctrl.default_value = 0;
 	queryctrl.flags = 0;
