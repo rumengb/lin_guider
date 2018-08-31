@@ -1095,10 +1095,13 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 	}
 
-	#define THRESHOLD 0.001
+	#define THRESHOLD_TOP 0.0001
+	#define THRESHOLD_BOT 0.0001
 	int count = 0;
 	int max = 0;
-	int clip_no = (int)(pix_no * THRESHOLD);
+	int min = 0;
+	int clip_top = (int)(pix_no * THRESHOLD_TOP);
+	int clip_bot = (int)(pix_no * THRESHOLD_BOT);
 	int hist[USHRT_MAX] = {0};
 
 	// fill floating point math buffer
@@ -1161,16 +1164,23 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 	}
 
 	// initialize LUT
-	count += hist[max];
-	printf("count = %d\n", count);
-	while( clip_no > count )
+	count = 0;
+	while( clip_top > count )
 	{
 		max--;
 		count += hist[max];
-		//printf("count = %d, hist[%d] = %d\n", count, max, hist[max]);
 	}
-	printf("MAX = %d, clip = %d, count = %d\n", max, clip_no, count);
-	init_lut_to8bit(max);
+	//printf("MAX = %d, clip = %d, count = %d\n", max, clip_top, count);
+
+	count = hist[min];
+	//printf("count_min = %d\n", count);
+	while( clip_bot >= count )
+	{
+		min++;
+		count += hist[min];
+	}
+	//printf("MIN = %d, clip = %d, count = %d\n", min, clip_bot, count);
+	init_lut_to8bit(max-min);
 
 	// finalize - apply LUT
 	if( is_color() )
@@ -1180,9 +1190,14 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			int cell_no = pix_no << 2;
 			for( i = 0;i < cell_no;i+=4 )
 			{
-				pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
-				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+1] ];
-				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i+2] ];
+				int dstval = pdecoded.ptr8[i] - min;
+				pdst[i] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+
+				dstval = pdecoded.ptr8[i+1] - min;
+				pdst[i+1] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+
+				dstval = pdecoded.ptr8[i+2] - min;
+				pdst[i+2] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
 			}
 		}
 		else
@@ -1191,9 +1206,14 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			int cell_no = pix_no << 2;
 			for( i = 0, j = 0;i < cell_no;i+=4, j+=3 )
 			{
-				pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr8[j+2] ];
-				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr8[j+1] ];
-				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[j] ];
+				int dstval = pdecoded.ptr8[j+2] - min;
+				pdst[i] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+
+				dstval = pdecoded.ptr8[j+1] - min;
+				pdst[i+1] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+
+				dstval = pdecoded.ptr8[j] - min;
+				pdst[i+2] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
 			}
 		}
 		else
@@ -1202,9 +1222,14 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 			int cell_no = pix_no << 2;
 			for( i = 0, j = 0; i < cell_no; i+=4, j+=3 )
 			{
-				pdst[i]   = lut_to8bit.start.ptr8[ pdecoded.ptr16[j+2] ];
-				pdst[i+1] = lut_to8bit.start.ptr8[ pdecoded.ptr16[j+1] ];
-				pdst[i+2] = lut_to8bit.start.ptr8[ pdecoded.ptr16[j] ];
+				int dstval = pdecoded.ptr16[j+2] - min;
+				pdst[i] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+
+				dstval = pdecoded.ptr16[j+1] - min;
+				pdst[i+1] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+
+				dstval = pdecoded.ptr16[j] - min;
+				pdst[i+2] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
 			}
 		}
 	}
@@ -1213,13 +1238,19 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		if( bits == 8 )
 		{
 			for( i = 0, j = 0;i < pix_no;i++, j += 4 )
-				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ pdecoded.ptr8[i] ];
+			{
+				int dstval = pdecoded.ptr8[i] - min;
+				pdst[j] = pdst[j+1] = pdst[j+2] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+			}
 		}
 		else
 		if( bits == 16 )
 		{
 			for( i = 0, j = 0;i < pix_no;i++, j += 4 )
-				pdst[j] = pdst[j+1] = pdst[j+2] = lut_to8bit.start.ptr8[ pdecoded.ptr16[i] ];
+			{
+				int dstval = pdecoded.ptr16[i] - min;
+				pdst[j] = pdst[j+1] = pdst[j+2] = (dstval < 0) ? lut_to8bit.start.ptr8[ 0 ] : lut_to8bit.start.ptr8[ dstval ];
+			}
 		}
 	}
 }
