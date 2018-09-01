@@ -255,11 +255,11 @@ int cvideo_uvc::init_device( void )
  	set_fps( capture_params.fps );
 
  	set_gain( capture_params.gain );
- 	set_exposure( capture_params.exposure );
+ 	set_threshold( capture_params.threshold );
 
  	get_autogain();
  	get_gain();
- 	get_exposure();
+ 	get_threshold();
 
  	switch( capture_params.io_mtd )
     {

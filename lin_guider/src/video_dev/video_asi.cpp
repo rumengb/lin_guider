@@ -199,7 +199,7 @@ int  cvideo_asi::set_control( unsigned int control_id, const param_val_t &val )
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
 		if( v > THRESH_MAX ) v = THRESH_MAX;
-		capture_params.exposure = v;
+		capture_params.threshold = v;
 		break;
 	}
 	case V4L2_CID_USER_BANDWIDTH:
@@ -293,7 +293,7 @@ int  cvideo_asi::get_control( unsigned int control_id, param_val_t *val )
 		break;
 	}
 	case V4L2_CID_EXPOSURE:
-		val->values[0] = capture_params.exposure;
+		val->values[0] = capture_params.threshold;
 		break;
 	default:
 		return -1;
@@ -364,8 +364,8 @@ int cvideo_asi::init_device( void )
 	}
 
 	stop_capturing();
-	set_exposure( capture_params.exposure );
-	get_exposure();
+	set_threshold( capture_params.threshold );
+	get_threshold();
 
 	result = pASISetROIFormat(m_camera, capture_params.width, capture_params.height, m_binX, m_img_type);
 	if(result != ASI_SUCCESS) {
@@ -558,7 +558,7 @@ int cvideo_asi::enum_controls( void )
 	// create virtual control
 	queryctrl.id = V4L2_CID_EXPOSURE;
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
-	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "threshold" );
 	queryctrl.minimum = 0;
 	queryctrl.maximum = THRESH_MAX;
 	queryctrl.step = 1;

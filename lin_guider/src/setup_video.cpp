@@ -133,8 +133,8 @@ void setup_video::showEvent( QShowEvent * event )
 	control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXPO );
 	if( control )
 	{
-		params.exposure = params.exposure < control->min ? control->min : params.exposure;
-		params.exposure = params.exposure > control->max ? control->max : params.exposure;
+		params.threshold = params.threshold < control->min ? control->min : params.threshold;
+		params.threshold = params.threshold > control->max ? control->max : params.threshold;
 	}
 	for( std::map< unsigned int, int >::iterator it = params.ext_params.begin();
 		it != params.ext_params.end();++it )
@@ -296,7 +296,7 @@ void setup_video::fill_interface( void )
 		ui.horizontalSlider_Gain->setValue( 0 );
 	}
 
-	// get exposure
+	// get threshold
 	control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXPO );
 	if( control && control->enabled )
 	{
@@ -304,17 +304,17 @@ void setup_video::fill_interface( void )
 		ui.label_Expo->setEnabled( en );
 		ui.spinBox_Expo->setEnabled( en );
 		ui.spinBox_Expo->setRange( control->min, control->max );
-		ui.spinBox_Expo->setValue( params.exposure );
+		ui.spinBox_Expo->setValue( params.threshold );
 		ui.horizontalSlider_Expo->setEnabled( en );
 		ui.horizontalSlider_Expo->setRange( control->min, control->max );
-		ui.horizontalSlider_Expo->setValue( params.exposure );
+		ui.horizontalSlider_Expo->setValue( params.threshold );
 	}
 	else
 	{
 		ui.label_Expo->setEnabled( false );
 		ui.spinBox_Expo->setEnabled( false );
 		ui.spinBox_Expo->setRange( 0, 0 );
-		ui.spinBox_Expo->setValue( params.exposure );
+		ui.spinBox_Expo->setValue( params.threshold );
 		ui.horizontalSlider_Expo->setEnabled( false );
 		ui.horizontalSlider_Expo->setRange( 0, 0 );
 		ui.horizontalSlider_Expo->setValue( 0 );
@@ -589,9 +589,9 @@ void setup_video::onSliderExpoChanged( int value )
 
 	memset( &prm, 0, sizeof(video_drv::post_param_t) );
 
-	params.exposure = value;
+	params.threshold = value;
 
-	val.set( params.exposure );
+	val.set( params.threshold );
 	pmain_wnd->m_video->pack_params( video_drv::CI_EXPO, val, &prm );
 	pmain_wnd->m_video->post_params( prm );
 	ui.spinBox_Expo->setValue( value );
@@ -685,7 +685,7 @@ void setup_video::onOkButtonClick()
 	{
 		capture_sz.x = format_state.format_desc->frame_table[ui.comboBox_FrameSize->currentIndex()].size.x;
 		capture_sz.y = format_state.format_desc->frame_table[ui.comboBox_FrameSize->currentIndex()].size.y;
-		
+
 		next_params.width  = capture_sz.x;
 		next_params.height = capture_sz.y;
 	}
@@ -712,7 +712,7 @@ void setup_video::onOkButtonClick()
 	{
 		pmain_wnd->video->pack_params( CI_GAIN, gain, &prm );
 	}
-	pmain_wnd->video->pack_params( CI_EXPO, exposure, &prm );
+	pmain_wnd->video->pack_params( CI_EXPO, threshold, &prm );
 */
 
 	applied = true;
@@ -725,4 +725,3 @@ void setup_video::onCancelButtonClick()
 {
 	close();
 }
-

@@ -79,7 +79,7 @@ cvideo_qhy5ii::cvideo_qhy5ii() :
 
 	capture_params.fps = time_fract::mk_fps( 1, 1 );
 	capture_params.gain = 1;
-	capture_params.exposure = 1;
+	capture_params.threshold = 1;
 
 	m_qhy5ii_obj = new qhy5ii_core_shared();
 }
@@ -404,7 +404,7 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
 		if( v > THRESH_MAX ) v = THRESH_MAX;
-		capture_params.exposure = v;
+		capture_params.threshold = v;
 	}
 		break;
 	case V4L2_CID_RED_BALANCE:
@@ -510,7 +510,7 @@ int cvideo_qhy5ii::get_control( unsigned int control_id, param_val_t *val )
 	}
 	case V4L2_CID_EXPOSURE:
 	{
-		val->values[0] = capture_params.exposure;
+		val->values[0] = capture_params.threshold;
 		break;
 	}
 	case V4L2_CID_RED_BALANCE:
@@ -590,9 +590,9 @@ int cvideo_qhy5ii::init_device( void )
 		stop_video_mode();
 		set_fps( capture_params.fps );
 		start_video_mode();
-		set_exposure( capture_params.exposure );
+		set_threshold( capture_params.threshold );
 	} else {
-		set_exposure( capture_params.exposure );
+		set_threshold( capture_params.threshold );
 		log_i("Camera is in 8bit mode");
 	}
 
@@ -618,7 +618,7 @@ int cvideo_qhy5ii::init_device( void )
 
 	get_autogain();
 	get_gain();
-	get_exposure();
+	get_threshold();
 
 	return EXIT_SUCCESS;
 }
@@ -761,7 +761,7 @@ int cvideo_qhy5ii::enum_controls( void )
 	// create virtual control
 	queryctrl.id = V4L2_CID_EXPOSURE;
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
-	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "threshold" );
 	queryctrl.minimum = 0;
 	queryctrl.maximum = THRESH_MAX;
 	queryctrl.step = 1;

@@ -226,7 +226,7 @@ int cvideo_dsi2pro::set_control( unsigned int control_id, const param_val_t &val
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
 		if( v > THRESH_MAX ) v = THRESH_MAX;
-		capture_params.exposure = v;
+		capture_params.threshold = v;
 	}
 		break;
 	default:
@@ -245,7 +245,7 @@ int cvideo_dsi2pro::get_control( unsigned int control_id, param_val_t *val )
 		break;
 	case V4L2_CID_EXPOSURE:
 	{
-		val->values[0] = capture_params.exposure;
+		val->values[0] = capture_params.threshold;
 		break;
 	}
 	default:
@@ -427,11 +427,11 @@ int cvideo_dsi2pro::init_device( void )
 			break;
 		}
 
-		set_exposure( capture_params.exposure );
+		set_threshold( capture_params.threshold );
 
 		get_autogain();
 		get_gain();
-		get_exposure();
+		get_threshold();
 
 		initialized = true;
 		return EXIT_SUCCESS;
@@ -637,11 +637,11 @@ int cvideo_dsi2pro::enum_controls( void )
 	// create virtual control
 	queryctrl.id = V4L2_CID_EXPOSURE;
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
-	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "exposure" );
+	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "threshold" );
 	queryctrl.minimum = 0;
 	queryctrl.maximum = THRESH_MAX;
 	queryctrl.step = 1;
-	queryctrl.default_value = capture_params.exposure;
+	queryctrl.default_value = capture_params.threshold;
 	queryctrl.flags = 0;
 	// Add control to control list
 	controls = add_control( -1, &queryctrl, controls, &n );

@@ -348,7 +348,7 @@ cam_control_t *cvideo_base::add_control( int fd, struct v4l2_queryctrl *queryctr
     	log_i("Gain supported");
     	break;
     case V4L2_CID_EXPOSURE:
-        log_i("Exposure supported");
+        log_i("Threshold supported");
         break;
     }
 
@@ -1095,7 +1095,7 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 	}
 
-	int threshold_top = get_exposure();
+	int threshold_top = get_threshold();
 	#define THRESHOLD_BOT 0.0001
 	int count = 0;
 	int max = 0;
@@ -1340,7 +1340,7 @@ int cvideo_base::check_posted_params( void )
 		 }
 		 if( prm.params & PP_EXPO )
 		 {
-		 	 set_exposure( prm.values[4] );
+		 	 set_threshold( prm.values[4] );
 		 }
 		 if( prm.params & PP_EXTPARAM )
 		 {
@@ -1456,7 +1456,7 @@ int cvideo_base::get_gain( void )
 }
 
 
-int cvideo_base::set_exposure( int val )
+int cvideo_base::set_threshold( int val )
 {
  int ret = -1;
  cam_control_t *ctrl;
@@ -1469,14 +1469,14 @@ int cvideo_base::set_exposure( int val )
 
 		ret = set_control( ctrl->id, v );
 		if( ret == 0 )
-			capture_params.exposure = v.values[0];
+			capture_params.threshold = v.values[0];
 	}
 
 	return ret;
 }
 
 
-int cvideo_base::get_exposure( void )
+int cvideo_base::get_threshold( void )
 {
  int ret = -1;
  cam_control_t *ctrl;
@@ -1488,10 +1488,10 @@ int cvideo_base::get_exposure( void )
 
 		ret = get_control( ctrl->id, &val );
 		if( ret == 0 )
-			capture_params.exposure = val.values[0];
+			capture_params.threshold = val.values[0];
 	}
 
- return ret == 0 ? capture_params.exposure : ret;
+ return ret == 0 ? capture_params.threshold : ret;
 }
 
 
@@ -1507,7 +1507,7 @@ int cvideo_base::set_ext_param( unsigned int ctrl_id, int val )
 
 		ret = set_control( ctrl->id, v );
 		//if( ret == 0 )
-		//	capture_params.exposure = v.values[0];
+		//	capture_params.threshold = v.values[0];
 	}
 
 	return ret;
@@ -1525,7 +1525,7 @@ int cvideo_base::get_ext_param( unsigned int ctrl_id )
 
 		ret = get_control( ctrl->id, &val );
 		//if( ret == 0 )
-		//	capture_params.exposure = val.values[0];
+		//	capture_params.threshold = val.values[0];
 	}
 
 	return ret == 0 ? 0 : ret;

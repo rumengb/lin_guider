@@ -213,7 +213,7 @@ int  cvideo_atik::set_control( unsigned int control_id, const param_val_t &val )
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
 		if( v > THRESH_MAX ) v = THRESH_MAX;
-		capture_params.exposure = v;
+		capture_params.threshold = v;
 		break;
 	}
 	case V4L2_CID_ATIK_DODEBAYER:
@@ -239,7 +239,7 @@ int  cvideo_atik::get_control( unsigned int control_id, param_val_t *val )
 {
 	switch( control_id ) {
 	case V4L2_CID_EXPOSURE:
-		val->values[0] = capture_params.exposure;
+		val->values[0] = capture_params.threshold;
 		break;
 	default:
 		return -1;
@@ -311,8 +311,8 @@ int cvideo_atik::init_device( void )
 		log_i("Image %dx%d binning %dx%d", m_width, m_height, m_binX, m_binY);
 	}
 
-	set_exposure( capture_params.exposure );
-	get_exposure();
+	set_threshold( capture_params.threshold );
+	get_threshold();
 
 	return 0;
 }

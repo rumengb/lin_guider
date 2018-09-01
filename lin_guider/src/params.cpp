@@ -51,7 +51,7 @@ params::params()
 
 	m_capture_next_params.width   = 0;
 	m_capture_next_params.height  = 0;
-	
+
 	// math
 	m_math_in_params.reset();
 
@@ -176,7 +176,7 @@ bool params::load( void )
 		m_capture_params.fps.numerator = settings.value( "fps.numerator" ).toInt(&ok);
 		m_capture_params.fps.denominator = settings.value( "fps.denominator" ).toInt(&ok);
 		m_capture_params.gain = settings.value( "gain" ).toInt(&ok);
-		m_capture_params.exposure = settings.value( "exposure" ).toInt(&ok);
+		m_capture_params.threshold = settings.value( "threshold" ).toInt(&ok);
 		m_capture_params.use_calibration = settings.value( "use_calibration" ).toBool();
 		{
 			m_capture_params.ext_params.clear();
@@ -348,7 +348,7 @@ bool params::save( void )
 		settings.setValue( "fps.numerator", m_capture_params.fps.numerator );
 		settings.setValue( "fps.denominator", m_capture_params.fps.denominator );
 		settings.setValue( "gain", m_capture_params.gain );
-		settings.setValue( "exposure", m_capture_params.exposure );
+		settings.setValue( "threshold", m_capture_params.threshold );
 		settings.setValue( "use_calibration", m_capture_params.use_calibration );
 		{
 			settings.beginWriteArray( "ext_params" );
@@ -466,8 +466,3 @@ bool params::save( void )
 
  return true;
 }
-
-
-
-
-
