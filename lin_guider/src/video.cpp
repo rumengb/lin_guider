@@ -1163,23 +1163,26 @@ void cvideo_base::process_frame( void *video_dst, int video_dst_size, void *math
 		}
 	}
 
-	// initialize LUT
+	// find min and max and initialize LUT
 	count = 0;
-	while( clip_top > count )
+	int abs_max = max;
+	while( (clip_top >= count) && (max > 1) )
 	{
 		max--;
 		count += hist[max];
 	}
-	//printf("MAX = %d, clip = %d, count = %d\n", max, clip_top, count);
 
 	count = hist[min];
-	//printf("count_min = %d\n", count);
 	while( clip_bot >= count )
 	{
 		min++;
 		count += hist[min];
 	}
-	//printf("MIN = %d, clip = %d, count = %d\n", min, clip_bot, count);
+
+	//printf("MIN = %d, max = %d, count = %d\n", min, max, count);
+	if (min == abs_max) min = max - 1;
+	if ((max > 0) && (max <= min)) max = min + 1;
+
 	init_lut_to8bit(max-min);
 
 	// finalize - apply LUT
