@@ -399,7 +399,7 @@ int cvideo_qhy5ii::set_control( unsigned int control_id, const param_val_t &val 
 		capture_params.gain = v;
 	}
 		break;
-	case V4L2_CID_EXPOSURE:
+	case V4L2_CID_THRESHOLD:
 	{
 		int v = val.values[0];
 		if( v < 0 ) v = 0;
@@ -508,7 +508,7 @@ int cvideo_qhy5ii::get_control( unsigned int control_id, param_val_t *val )
 		val->values[0] = capture_params.gain;
 		break;
 	}
-	case V4L2_CID_EXPOSURE:
+	case V4L2_CID_THRESHOLD:
 	{
 		val->values[0] = capture_params.threshold;
 		break;
@@ -759,7 +759,7 @@ int cvideo_qhy5ii::enum_controls( void )
 	controls = add_control( -1, &queryctrl, controls, &n );
 
 	// create virtual control
-	queryctrl.id = V4L2_CID_EXPOSURE;
+	queryctrl.id = V4L2_CID_THRESHOLD;
 	queryctrl.type = V4L2_CTRL_TYPE_INTEGER;
 	snprintf( (char*)queryctrl.name, sizeof(queryctrl.name)-1, "threshold" );
 	queryctrl.minimum = 0;

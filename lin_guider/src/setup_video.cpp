@@ -130,7 +130,7 @@ void setup_video::showEvent( QShowEvent * event )
 		params.gain = params.gain < control->min ? control->min : params.gain;
 		params.gain = params.gain > control->max ? control->max : params.gain;
 	}
-	control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXPO );
+	control = pmain_wnd->m_video->get_cam_control( video_drv::CI_THRESH );
 	if( control )
 	{
 		params.threshold = params.threshold < control->min ? control->min : params.threshold;
@@ -297,7 +297,7 @@ void setup_video::fill_interface( void )
 	}
 
 	// get threshold
-	control = pmain_wnd->m_video->get_cam_control( video_drv::CI_EXPO );
+	control = pmain_wnd->m_video->get_cam_control( video_drv::CI_THRESH );
 	if( control && control->enabled )
 	{
 		bool en = control->enabled ? true : false;
@@ -592,7 +592,7 @@ void setup_video::onSliderExpoChanged( int value )
 	params.threshold = value;
 
 	val.set( params.threshold );
-	pmain_wnd->m_video->pack_params( video_drv::CI_EXPO, val, &prm );
+	pmain_wnd->m_video->pack_params( video_drv::CI_THRESH, val, &prm );
 	pmain_wnd->m_video->post_params( prm );
 	ui.spinBox_Expo->setValue( value );
 }
@@ -712,7 +712,7 @@ void setup_video::onOkButtonClick()
 	{
 		pmain_wnd->video->pack_params( CI_GAIN, gain, &prm );
 	}
-	pmain_wnd->video->pack_params( CI_EXPO, threshold, &prm );
+	pmain_wnd->video->pack_params( CI_THRESH, threshold, &prm );
 */
 
 	applied = true;

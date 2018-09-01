@@ -54,6 +54,7 @@ namespace video_drv
 #define V4L2_CID_DISABLE_PROCESSING_LOGITECH            V4L2_CID_BASE_LOGITECH+0x70
 #define V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH            V4L2_CID_BASE_LOGITECH+0x71
 #define V4L2_CID_LAST_EXTCTR                            V4L2_CID_RAW_BITS_PER_PIXEL_LOGITECH
+#define V4L2_CID_THRESHOLD								V4L2_CID_EXPOSURE
 //-------------------------
 
 typedef enum
@@ -280,7 +281,7 @@ typedef enum
 	CI_FPS = 1,
 	CI_AUTOGAIN,
 	CI_GAIN,
-	CI_EXPO,
+	CI_THRESH,
 	CI_EXTCTL
 }control_id_t;
 

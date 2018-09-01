@@ -347,7 +347,7 @@ cam_control_t *cvideo_base::add_control( int fd, struct v4l2_queryctrl *queryctr
     case V4L2_CID_GAIN:
     	log_i("Gain supported");
     	break;
-    case V4L2_CID_EXPOSURE:
+    case V4L2_CID_THRESHOLD:
         log_i("Threshold supported");
         break;
     }
@@ -1282,7 +1282,7 @@ int cvideo_base::pack_params( control_id_t ctrl, const param_val_t &val, post_pa
 		prm->params |= PP_GAIN;
 		prm->values[3] = val.values[0];
 		return 1;
-	case CI_EXPO:
+	case CI_THRESH:
 		prm->params |= PP_EXPO;
 		prm->values[4] = val.values[0];
 		return 1;
@@ -1365,7 +1365,7 @@ cam_control_t *cvideo_base::get_cam_control( int ctrl, unsigned int low_ctl_id )
 		if( ctrl == CI_GAIN && controls[i].id == V4L2_CID_GAIN )
 			return &controls[i];
 		else
-		if( ctrl == CI_EXPO && controls[i].id == V4L2_CID_EXPOSURE )
+		if( ctrl == CI_THRESH && controls[i].id == V4L2_CID_THRESHOLD )
 			return &controls[i];
 		if( ctrl == CI_EXTCTL && controls[i].id == low_ctl_id )
 			return &controls[i];
@@ -1464,7 +1464,7 @@ int cvideo_base::set_threshold( int val )
  int ret = -1;
  cam_control_t *ctrl;
 
-	ctrl = get_cam_control( CI_EXPO );
+	ctrl = get_cam_control( CI_THRESH );
 	if( ctrl )
 	{
 		param_val_t v;
@@ -1484,7 +1484,7 @@ int cvideo_base::get_threshold( void )
  int ret = -1;
  cam_control_t *ctrl;
 
-	ctrl = get_cam_control( CI_EXPO );
+	ctrl = get_cam_control( CI_THRESH );
 	if( ctrl )
 	{
 		param_val_t val;
@@ -1521,7 +1521,7 @@ int cvideo_base::get_ext_param( unsigned int ctrl_id )
 {
 	int ret = -1;
 
-	cam_control_t *ctrl = get_cam_control( CI_EXPO, ctrl_id );
+	cam_control_t *ctrl = get_cam_control( CI_THRESH, ctrl_id );
 	if( ctrl )
 	{
 		param_val_t val;
