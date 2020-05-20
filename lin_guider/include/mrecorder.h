@@ -23,7 +23,7 @@
 #ifndef MRECORDER_H
 #define MRECORDER_H
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 #include <sys/types.h>
 #include "ui_mrecorder.h"
 #include "avilib.h"

@@ -106,18 +106,18 @@ bool params::load( void )
  QString str;
  bool ok;
 
- 	if( access(settings.fileName().toAscii().data(), R_OK|W_OK) != 0 )
+ 	if( access(settings.fileName().toUtf8().data(), R_OK|W_OK) != 0 )
  	{
- 		log_e( "Unable to find config file %s\nusing defaults", settings.fileName().toAscii().data() );
+ 		log_e( "Unable to find config file %s\nusing defaults", settings.fileName().toUtf8().data() );
  		return false;
  	}
 
 	// device names
 	settings.beginGroup("devices");
 		str = settings.value("video_device", "/dev/video0").toString();
-		snprintf( m_dev_name_video, sizeof(m_dev_name_video), "%s", str.toAscii().data() );
+		snprintf( m_dev_name_video, sizeof(m_dev_name_video), "%s", str.toUtf8().data() );
 		str = settings.value("io_device", "/dev/parport0").toString();
-		snprintf( m_dev_name_io, sizeof(m_dev_name_io), "%s", str.toAscii().data() );
+		snprintf( m_dev_name_io, sizeof(m_dev_name_io), "%s", str.toUtf8().data() );
 	settings.endGroup();
 
 	// io bit map
@@ -232,11 +232,11 @@ bool params::load( void )
 	// network
 	settings.beginGroup("net");
 		str = settings.value("bcast_ip", "127.0.0.1").toString();
-		snprintf( m_net_params.bcast_ip, sizeof(m_net_params.bcast_ip), "%s", str.toAscii().data() );
+		snprintf( m_net_params.bcast_ip, sizeof(m_net_params.bcast_ip), "%s", str.toUtf8().data() );
 		m_net_params.bcast_port = settings.value("bcast_port", "5001").toInt(&ok);
 		m_net_params.use_tcp = settings.value( "use_tcp", false ).toBool();
 		str = settings.value("listen_socket", "/tmp/lg_ss").toString();
-		snprintf( m_net_params.listen_socket, sizeof(m_net_params.listen_socket), "%s", str.toAscii().data() );
+		snprintf( m_net_params.listen_socket, sizeof(m_net_params.listen_socket), "%s", str.toUtf8().data() );
 		m_net_params.listen_port = settings.value("listen_port", "5656").toInt(&ok);
 	settings.endGroup();
 
@@ -268,9 +268,9 @@ bool params::load( void )
 
 	// load device config
 	QSettings dev_settings( "GM_software", QString("devconf")+QString().setNum(m_device_params.type) );
-	if( access(dev_settings.fileName().toAscii().data(), R_OK|W_OK) != 0 )
+	if( access(dev_settings.fileName().toUtf8().data(), R_OK|W_OK) != 0 )
 	{
-		log_e( "Unable to find devconf file '%s'\nusing defaults", dev_settings.fileName().toAscii().data() );
+		log_e( "Unable to find devconf file '%s'\nusing defaults", dev_settings.fileName().toUtf8().data() );
 
 		// fill by out-of-range value
 		for( i = 0;i < 8;i++ )

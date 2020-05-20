@@ -23,7 +23,7 @@
 #ifndef SETUP_VIDEO_H
 #define SETUP_VIDEO_H
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 #include "ui_setup_video.h"
 
 #include "video.h"

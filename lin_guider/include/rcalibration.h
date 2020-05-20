@@ -23,7 +23,7 @@
 #ifndef RETICLE_CALIBRATION_H
 #define RETICLE_CALIBRATION_H
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 #include "ui_rcalibration.h"
 #include "gmath.h"
 

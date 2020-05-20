@@ -100,7 +100,7 @@ void mrecorder::onRecordButtonClick()
 	}
 
 	const char *home_dir = getenv( "HOME" );
-	ret = start( ((home_dir ? (QString(home_dir) + "/") : "" ) + ui.lineEdit_FileName->text()+".avi").toAscii().data() );
+	ret = start( ((home_dir ? (QString(home_dir) + "/") : "" ) + ui.lineEdit_FileName->text()+".avi").toUtf8().data() );
 	if( !ret )
 		return;
 

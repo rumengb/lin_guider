@@ -670,7 +670,7 @@ void setup_video::onOkButtonClick()
 	int actual_dev_type = next_params.type ? next_params.type : params.type;
 	if( actual_dev_type > 0 && video_drv::device_desc_list[ actual_dev_type-1 ].show_dev_string_ui )
 	{
-		snprintf( fname, sizeof(fname), "%s", ui.lineEdit_VideoDevice->text().toAscii().data() );
+		snprintf( fname, sizeof(fname), "%s", ui.lineEdit_VideoDevice->text().toUtf8().data() );
 		if( access( fname, R_OK|W_OK ) != 0 )
 		{
 			QMessageBox::warning( this, tr("Error"), tr("Selected video device is not available."), QMessageBox::Ok );

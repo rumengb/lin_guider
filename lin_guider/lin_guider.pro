@@ -1,9 +1,11 @@
 TEMPLATE = app
 TARGET = lin_guider
 QT += core \
-    gui
-CONFIG(debug, debug|release):DSTDIR = debug
-else:DSTDIR = release
+    gui \
+    widgets
+CONFIG(debug, debug|release):CONFIGURATION = debug
+else:CONFIGURATION = release
+DSTDIR = build/$$CONFIGURATION
 OBJECTS_DIR = $$DSTDIR/.obj
 MOC_DIR = $$DSTDIR/.moc
 UI_DIR = $$DSTDIR/.ui
@@ -149,3 +151,11 @@ INCLUDEPATH += include/ \
 LIBS += -lusb-1.0 \
     -ldl \
     -lrt
+
+*-g++* {
+    CXXVer = $$system(echo | $$QMAKE_CXX -dM -E - | fgrep __GNUC__ | cut -d\" \" -f 3)
+    message("g++: "$$CXXVer)
+    greaterThan(CXXVer, 6):QMAKE_CXXFLAGS += -Wimplicit-fallthrough=0
+    greaterThan(CXXVer, 7):QMAKE_CXXFLAGS += -Wformat-truncation=0
+}
+

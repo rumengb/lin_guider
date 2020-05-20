@@ -24,7 +24,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#include <QtGui>
+#include <QtWidgets>
 #include <assert.h>
 
 #include "maindef.h"

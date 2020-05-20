@@ -69,7 +69,7 @@ cio_driver_gpio::cio_driver_gpio()
 
 	// try to load config
 	QSettings settings( "GM_software", QString("io_gpio") );
-	m_save_default_cfg = access( settings.fileName().toAscii().data(), R_OK|W_OK) != 0;
+	m_save_default_cfg = access( settings.fileName().toUtf8().data(), R_OK|W_OK) != 0;
 	settings.beginGroup("gpio");
 		m_gpio_pin[ GPIO_RAP ]  = settings.value( "RAP",  27 ).toInt(); //RA+
 		m_gpio_pin[ GPIO_RAN ]  = settings.value( "RAN",  22 ).toInt(); //RA-

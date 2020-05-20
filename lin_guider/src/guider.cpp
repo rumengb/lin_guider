@@ -613,18 +613,18 @@ void guider::onStartStopButtonClick()
 		// start log
 		if( save_drift )
 		{
-			res = fio::check_file_name( ui.lineEdit_DriftFileName->text().toAscii().data() );
+			res = fio::check_file_name( ui.lineEdit_DriftFileName->text().toUtf8().data() );
 			switch( res )
 			{
 			case FIO_EXIST:
-				u_msg( "File '%s' exists", ui.lineEdit_DriftFileName->text().toAscii().data() );
+				u_msg( "File '%s' exists", ui.lineEdit_DriftFileName->text().toUtf8().data() );
 				return;
 			case FIO_ERROR:
-				u_msg( "Unable to write file '%s'. Check permissions", ui.lineEdit_DriftFileName->text().toAscii().data() );
+				u_msg( "Unable to write file '%s'. Check permissions", ui.lineEdit_DriftFileName->text().toUtf8().data() );
 				return;
 			}
 
-			m_logger->start( ui.lineEdit_DriftFileName->text().toAscii().data() );
+			m_logger->start( ui.lineEdit_DriftFileName->text().toUtf8().data() );
 		}
 		ui.pushButton_StartStop->setText( tr("Stop") );
 
